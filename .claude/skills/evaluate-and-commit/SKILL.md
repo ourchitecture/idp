@@ -73,7 +73,7 @@ For each unstaged modification and untracked file, review the content:
 For each file, decide the appropriate action:
 
 1. **Stage** -- The file contains intentional, complete changes that belong in this commit. Stage it with `git add <file>`.
-2. **Skip** -- The file contains unrelated changes, work-in-progress, or should not be committed (e.g., temporary files, local config, secrets, `.env` files, credentials, large binaries). Leave it unstaged.
+2. **Skip** -- The file contains unrelated changes, work-in-progress, or should not be committed (e.g., temporary files, local config, secrets, `.env` files, credentials, large binaries). Leave it unstaged. Add sensitive files including but not limited to `.env` with credentials, secrets, and other sensitive information to the ".gitignore" file at the project root and leave it unstaged.
 3. **Warn** -- The file may contain sensitive data (secrets, tokens, passwords, API keys). Add it to the ".gitignore" file at the project root and do NOT stage it.
 
 Apply the decisions:
