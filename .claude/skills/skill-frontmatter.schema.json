@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-frontmatter.schema.json",
+  "title": "Agent Skill Frontmatter",
+  "description": "Schema for SKILL.md YAML frontmatter following the agentskills.io specification.",
+  "type": "object",
+  "required": ["name", "version", "description", "author", "domain"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Unique skill identifier in kebab-case."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+",
+      "description": "Semantic version (e.g., 1.0.0)."
+    },
+    "description": {
+      "type": "string",
+      "description": "What the skill does and when to use it."
+    },
+    "author": {
+      "type": "string",
+      "description": "Team or individual that owns this skill."
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "security",
+        "ai",
+        "mcp",
+        "infrastructure",
+        "plugin",
+        "api",
+        "ui",
+        "devops",
+        "docs"
+      ],
+      "description": "Primary domain for the skill."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Searchable tags for discovery."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Skills that must complete before this one runs."
+    },
+    "deprecated": {
+      "type": "string",
+      "description": "Migration path if this skill is deprecated."
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "required", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Input parameter name."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "array", "object"],
+            "description": "Data type of the input."
+          },
+          "required": {
+            "type": "boolean",
+            "description": "Whether this input must be provided."
+          },
+          "description": {
+            "type": "string",
+            "description": "What this input controls."
+          },
+          "default": {
+            "description": "Default value if not provided."
+          }
+        }
+      },
+      "description": "Typed input parameters for the skill."
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Output parameter name."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["string", "number", "boolean", "array", "object"],
+            "description": "Data type of the output."
+          },
+          "description": {
+            "type": "string",
+            "description": "What this output contains."
+          }
+        }
+      },
+      "description": "Typed output values produced by the skill."
+    }
+  }
+}

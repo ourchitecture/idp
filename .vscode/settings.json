@@ -1,0 +1,12 @@
+{
+  "files.associations": {
+    "**/.claude/skills/**/SKILL.md": "markdown"
+  },
+  "yaml.schemas": {
+    "./.claude/skills/skill-frontmatter.schema.json": [
+      "**/.claude/skills/**/SKILL.md"
+    ]
+  },
+  "yaml.validate": true,
+  "markdown.validate.enabled": true
+}

@@ -1,0 +1,24 @@
+# Default owners for the entire repository
+* @ourchitecture/idp-admin @ourchitecture/idp-maintain
+
+# Core platform and architecture
+/src/ @ourchitecture/idp-admin @ourchitecture/idp-maintain
+
+# Infrastructure and deployment
+/deploy/ @ourchitecture/idp-admin
+
+# Plugin SDK and extensions
+/plugins/ @ourchitecture/idp-maintain
+
+# Documentation and ADRs
+/docs/ @ourchitecture/idp-maintain
+
+# Developer tooling and MCP server definitions
+/tools/ @ourchitecture/idp-maintain
+
+# CI/CD and GitHub configuration
+/.github/ @ourchitecture/idp-admin
+
+# Security-sensitive files
+AGENTS.md @ourchitecture/idp-admin
+LICENSE @ourchitecture/idp-admin
