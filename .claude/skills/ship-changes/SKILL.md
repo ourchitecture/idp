@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.0.0
+version: 1.1.0
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -277,6 +277,22 @@ If they do not match, stop and report the failure.
 
 ## Step 11: Create a Pull Request
 
+Determine the current GitHub username by running:
+
+```bash
+gh api user --jq .login
+```
+
+Determine the correct label from the commit type:
+
+| Commit type | Label |
+| --- | --- |
+| `feat` | `enhancement` |
+| `fix` | `bug` |
+| `docs` | `documentation` |
+| `chore`, `style`, `refactor`, `perf`, `build`, `ci`, `test`, `revert` | `chore` |
+| `security` | `bug` |
+
 Use the GitHub MCP `create_pull_request` tool to open a PR:
 
 - **owner**: repository owner (e.g., `ourchitecture`)
@@ -296,6 +312,21 @@ gh pr create --base main --head <branch> \
 ```
 
 Record the PR number and URL from the response.
+
+### Set Assignee and Labels
+
+After the PR is created, use the GitHub MCP `update_pull_request`
+tool to set:
+
+- **assignees**: the current GitHub username obtained above
+- **labels**: the label determined from the commit type mapping
+
+**Fallback**: If the MCP tool is unavailable, use the `gh` CLI:
+
+```bash
+gh pr edit <pr_number> --add-assignee "@me" \
+  --add-label "<label>"
+```
 
 ## Step 12: Merge the Pull Request
 
