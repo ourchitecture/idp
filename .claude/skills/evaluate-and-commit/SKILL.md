@@ -1,6 +1,9 @@
 ---
 name: evaluate-and-commit
-version: 1.2.0
+version: 1.2.1
+deprecated: >-
+  Superseded by ship-changes which provides end-to-end
+  branch, commit, push, PR, and merge automation.
 description: >
   Reviews all unstaged and untracked files, stages appropriate changes,
   classifies them by type and scope, generates a strict Conventional Commits

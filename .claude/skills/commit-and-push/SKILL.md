@@ -1,6 +1,9 @@
 ---
 name: commit-and-push
-version: 1.1.0
+version: 1.1.1
+deprecated: >-
+  Superseded by ship-changes which provides end-to-end
+  branch, commit, push, PR, and merge automation.
 description: >
   Orchestrates the full commit-to-push workflow. First invokes the
   evaluate-and-commit skill to classify changes and create a strict
