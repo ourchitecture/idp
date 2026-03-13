@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.2.0
+version: 1.3.0
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -359,9 +359,22 @@ gh pr edit <pr_number> --add-assignee "@me" \
   --add-label "<label>"
 ```
 
-## Step 13: Merge the Pull Request
+## Step 13: Wait for Status Checks and Merge
 
-Use the GitHub MCP `merge_pull_request` tool to merge:
+Before merging, wait for all required PR status checks to pass.
+
+Poll the check status using the GitHub MCP
+`pullRequestStatusChecks` tool or the `gh` CLI:
+
+```bash
+gh pr checks <pr_number> --watch --interval 15
+```
+
+This command blocks until all checks complete. If any check
+fails, stop and report the failure to the user — do not merge.
+
+Once all checks pass, use the GitHub MCP `merge_pull_request`
+tool to merge:
 
 - **owner**: repository owner
 - **repo**: repository name
