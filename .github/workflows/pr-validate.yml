@@ -1,0 +1,53 @@
+name: PR Validate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-markdown:
+    name: Lint Markdown
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint Markdown files
+        run: npx markdownlint-cli2 "**/*.md"
+
+  validate-commit-message:
+    name: Validate Commit Message
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR title as Conventional Commit
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security|revert)(\(.+\))?!?: .+$'
+          if [[ ! "$TITLE" =~ $PATTERN ]]; then
+            echo "::error::PR title does not follow Conventional Commits format."
+            echo "Expected: <type>(<scope>): <description>"
+            echo "Got: $TITLE"
+            exit 1
+          fi
+          if [[ ${#TITLE} -gt 72 ]]; then
+            echo "::error::PR title exceeds 72 characters (${#TITLE})."
+            exit 1
+          fi
+          echo "PR title is valid: $TITLE"
