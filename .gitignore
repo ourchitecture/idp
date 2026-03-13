@@ -1,2 +1,5 @@
 # Local AI assistant settings
 .claude/settings.json
+
+# Node.js
+node_modules/

@@ -1,0 +1,13 @@
+{
+  "name": "idp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Intelligent Development Portal (IDP)",
+  "license": "MIT",
+  "scripts": {
+    "lint:md": "markdownlint-cli2"
+  },
+  "devDependencies": {
+    "markdownlint-cli2": "^0.21.0"
+  }
+}

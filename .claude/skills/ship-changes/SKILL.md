@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.1.0
+version: 1.2.0
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -219,7 +219,35 @@ Perform a final validation:
 If any rule fails, fix the message and re-validate. Do not proceed
 with an invalid message.
 
-## Step 8: Ensure a Feature Branch
+## Step 8: Lint Changed Markdown Files
+
+Identify every `.md` file that appears in the staged changes:
+
+```bash
+git diff --cached --name-only --diff-filter=ACMR -- '*.md'
+```
+
+If the list is non-empty, run `markdownlint-cli2` on exactly those
+files:
+
+```bash
+npx markdownlint-cli2 <file1.md> <file2.md> ...
+```
+
+- If linting **passes** (exit 0), proceed to the next step.
+- If linting **fails** (exit non-zero), attempt auto-fix:
+
+  ```bash
+  npx markdownlint-cli2 --fix <file1.md> <file2.md> ...
+  ```
+
+  After auto-fix, re-stage the fixed files with `git add <file>`
+  and re-run the lint check. If lint still fails after auto-fix,
+  stop and report the remaining errors to the user.
+
+If no `.md` files are staged, skip this step.
+
+## Step 9: Ensure a Feature Branch
 
 If the current branch is `main` or `master`, create and switch to a
 new feature branch following the convention
@@ -232,7 +260,7 @@ git checkout -b <type>/<short-description>
 
 If already on a non-default branch, continue on it.
 
-## Step 9: Create the Git Commit
+## Step 10: Create the Git Commit
 
 If `dry_run` is true, output the commit message and stop without
 committing.
@@ -246,7 +274,7 @@ git commit -m "<validated commit message>"
 Run `git log -1 --format="%H %s"` to confirm the commit was created
 successfully.
 
-## Step 10: Push to Remote
+## Step 11: Push to Remote
 
 Run `git remote get-url <remote>` (default: `upstream`) to confirm
 the remote exists.
@@ -258,10 +286,13 @@ git rev-parse --abbrev-ref --symbolic-full-name @{u}
 ```
 
 - If no tracking branch is configured, push with `-u`:
+
   ```bash
   git push -u <remote> <branch>
   ```
+
 - Otherwise push normally:
+
   ```bash
   git push <remote> <branch>
   ```
@@ -275,7 +306,7 @@ REMOTE_SHA=$(git rev-parse <remote>/<branch>)
 
 If they do not match, stop and report the failure.
 
-## Step 11: Create a Pull Request
+## Step 12: Create a Pull Request
 
 Determine the current GitHub username by running:
 
@@ -328,13 +359,13 @@ gh pr edit <pr_number> --add-assignee "@me" \
   --add-label "<label>"
 ```
 
-## Step 12: Merge the Pull Request
+## Step 13: Merge the Pull Request
 
 Use the GitHub MCP `merge_pull_request` tool to merge:
 
 - **owner**: repository owner
 - **repo**: repository name
-- **pullNumber**: the PR number from Step 11
+- **pullNumber**: the PR number from Step 12
 - **merge_method**: `squash`
 
 **Fallback**: If the MCP tool is unavailable, use the `gh` CLI:
@@ -343,28 +374,31 @@ Use the GitHub MCP `merge_pull_request` tool to merge:
 gh pr merge <pr_number> --squash --delete-branch
 ```
 
-## Step 13: Sync Local Main and Clean Up
+## Step 14: Sync Local Main and Clean Up
 
 After the merge completes:
 
 1. Switch back to main:
+
    ```bash
    git checkout main
    ```
 
 2. Pull the latest from remote:
+
    ```bash
    git pull <remote> main
    ```
 
 3. Delete the local feature branch:
+
    ```bash
    git branch -d <branch>
    ```
 
 4. Verify by running `git log -1 --format="%H %s"` on main.
 
-## Step 14: Report to GitHub Issue (conditional)
+## Step 15: Report to GitHub Issue (conditional)
 
 If `issue_number` was provided, use the GitHub MCP
 `add_issue_comment` tool to post a comment on the issue with the
