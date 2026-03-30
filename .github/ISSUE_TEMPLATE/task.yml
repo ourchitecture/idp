@@ -1,0 +1,63 @@
+name: Task
+description: A maintenance task, spike, chore, or design proposal.
+labels: ["needs-triage"]
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Task Type
+      description: What kind of work is this?
+      options:
+        - task
+        - spike
+        - chore
+        - design
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to be done and why?
+      placeholder: Describe the task.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this?
+      options:
+        - p3-low
+        - p2-medium
+        - p1-high
+        - p0-critical
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      description: Primary area affected.
+      options:
+        - ai
+        - api
+        - devops
+        - docs
+        - infrastructure
+        - mcp
+        - plugin
+        - security
+        - ui
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: agent-eligible
+    attributes:
+      label: Agent Processing
+      options:
+        - label: This issue is suitable for autonomous AI agent processing.

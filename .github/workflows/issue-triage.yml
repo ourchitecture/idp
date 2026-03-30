@@ -1,0 +1,126 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  triage:
+    name: Triage Issue
+    runs-on: ubuntu-latest
+    # Skip if the actor is a bot to avoid feedback loops
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Parse issue form fields and apply labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: |
+          set -euo pipefail
+
+          # --- Helper: extract form field value by heading ---
+          extract_field() {
+            local heading="$1"
+            echo "$ISSUE_BODY" | awk -v h="### ${heading}" '
+              $0 == h { found=1; next }
+              found && /^### / { exit }
+              found && /^[[:space:]]*$/ { next }
+              found { print; exit }
+            '
+          }
+
+          # --- Helper: idempotent label add (no error if exists) ---
+          add_label() {
+            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --add-label "$1" 2>/dev/null || true
+          }
+
+          # --- Helper: idempotent label remove (no error if missing) ---
+          remove_label() {
+            gh issue edit "$ISSUE_NUMBER" --repo "$REPO" --remove-label "$1" 2>/dev/null || true
+          }
+
+          # --- Parse priority ---
+          PRIORITY=$(extract_field "Priority")
+          if [[ -n "$PRIORITY" && "$PRIORITY" =~ ^p[0-3] ]]; then
+            # Remove any existing priority labels first (idempotent on edit)
+            for p in p0-critical p1-high p2-medium p3-low; do
+              remove_label "$p"
+            done
+            add_label "$PRIORITY"
+            echo "Applied priority: $PRIORITY"
+          fi
+
+          # --- Parse domain ---
+          DOMAIN=$(extract_field "Domain")
+          if [[ -n "$DOMAIN" ]]; then
+            # Remove any existing domain labels first (idempotent on edit)
+            for d in security ai mcp infrastructure plugin api ui devops docs; do
+              remove_label "$d"
+            done
+            add_label "$DOMAIN"
+            echo "Applied domain: $DOMAIN"
+          fi
+
+          # --- Parse task type (task template only) ---
+          TASK_TYPE=$(extract_field "Task Type")
+          if [[ -n "$TASK_TYPE" ]]; then
+            for t in task spike chore design; do
+              remove_label "$t"
+            done
+            add_label "$TASK_TYPE"
+            echo "Applied task type: $TASK_TYPE"
+          fi
+
+          # --- Parse agent-eligible checkbox ---
+          if echo "$ISSUE_BODY" | grep -q '\[X\].*suitable for autonomous AI agent'; then
+            AGENT_CHECKED="true"
+          else
+            AGENT_CHECKED="false"
+            # Remove agent-eligible if unchecked on edit (idempotent)
+            remove_label "agent-eligible"
+          fi
+
+          # --- Check author team membership ---
+          IS_TEAM_MEMBER="false"
+          for TEAM in idp-admin idp-maintain; do
+            STATUS=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "orgs/${REPO%%/*}/teams/${TEAM}/members/${ISSUE_AUTHOR}" \
+              --silent -i 2>&1 | head -1 | grep -o '[0-9]\{3\}' | head -1) || true
+            if [[ "$STATUS" == "200" ]]; then
+              IS_TEAM_MEMBER="true"
+              break
+            fi
+          done
+
+          echo "Author '${ISSUE_AUTHOR}' is team member: ${IS_TEAM_MEMBER}"
+
+          # --- Apply status labels based on authorization ---
+          if [[ "$IS_TEAM_MEMBER" == "true" ]]; then
+            # Authorized: mark ready, apply agent-eligible if checked
+            remove_label "needs-triage"
+            add_label "ready"
+            if [[ "$AGENT_CHECKED" == "true" ]]; then
+              add_label "agent-eligible"
+            fi
+            echo "Issue triaged as ready (authorized author)."
+          else
+            # External: keep needs-triage, strip agent-eligible
+            remove_label "ready"
+            remove_label "agent-eligible"
+            add_label "needs-triage"
+
+            # Post a triage comment only on 'opened' (not on every edit)
+            if [[ "${{ github.event.action }}" == "opened" ]]; then
+              gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
+                "Thank you for opening this issue! A maintainer from \`@ourchitecture/idp-maintain\` will review and triage it before work can begin."
+            fi
+            echo "Issue awaiting triage (external contributor)."
+          fi

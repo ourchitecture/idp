@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   lint-markdown:
@@ -36,18 +37,56 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check PR author team membership
+        id: author-check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          AUTHOR="${{ github.event.pull_request.user.login }}"
+          IS_TEAM_MEMBER="false"
+
+          # Check idp-admin and idp-maintain team membership
+          for TEAM in idp-admin idp-maintain; do
+            STATUS=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "orgs/${{ github.repository_owner }}/teams/${TEAM}/members/${AUTHOR}" \
+              --silent -i 2>&1 | head -1 | grep -o '[0-9]\{3\}' | head -1) || true
+            if [[ "$STATUS" == "200" ]]; then
+              IS_TEAM_MEMBER="true"
+              break
+            fi
+          done
+
+          echo "is_team_member=${IS_TEAM_MEMBER}" >> "$GITHUB_OUTPUT"
+          echo "Author '${AUTHOR}' is team member: ${IS_TEAM_MEMBER}"
+
       - name: Validate PR title as Conventional Commit
+        env:
+          IS_TEAM_MEMBER: ${{ steps.author-check.outputs.is_team_member }}
         run: |
           TITLE="${{ github.event.pull_request.title }}"
           PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security|revert)(\(.+\))?!?: .+$'
+
           if [[ ! "$TITLE" =~ $PATTERN ]]; then
-            echo "::error::PR title does not follow Conventional Commits format."
-            echo "Expected: <type>(<scope>): <description>"
-            echo "Got: $TITLE"
-            exit 1
+            if [[ "$IS_TEAM_MEMBER" == "true" ]]; then
+              echo "::error::PR title does not follow Conventional Commits format."
+              echo "Expected: <type>(<scope>): <description>"
+              echo "Got: $TITLE"
+              exit 1
+            else
+              echo "::notice::PR title does not follow Conventional Commits format, but this is not required for external contributors. A maintainer will set the final commit message on merge."
+              exit 0
+            fi
           fi
+
           if [[ ${#TITLE} -gt 72 ]]; then
-            echo "::error::PR title exceeds 72 characters (${#TITLE})."
-            exit 1
+            if [[ "$IS_TEAM_MEMBER" == "true" ]]; then
+              echo "::error::PR title exceeds 72 characters (${#TITLE})."
+              exit 1
+            else
+              echo "::notice::PR title exceeds 72 characters (${#TITLE}), but this is not enforced for external contributors."
+              exit 0
+            fi
           fi
+
           echo "PR title is valid: $TITLE"
