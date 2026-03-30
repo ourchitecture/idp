@@ -1,0 +1,69 @@
+name: Bug Report
+description: Report a bug or unexpected behavior.
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: What steps trigger the bug?
+      placeholder: |
+        1. Go to ...
+        2. Click on ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should happen?
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What happens instead?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this?
+      options:
+        - p3-low
+        - p2-medium
+        - p1-high
+        - p0-critical
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      description: Primary area affected.
+      options:
+        - ai
+        - api
+        - devops
+        - docs
+        - infrastructure
+        - mcp
+        - plugin
+        - security
+        - ui
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: agent-eligible
+    attributes:
+      label: Agent Processing
+      options:
+        - label: This issue is suitable for autonomous AI agent processing.

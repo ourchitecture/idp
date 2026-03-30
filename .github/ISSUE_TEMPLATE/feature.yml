@@ -1,0 +1,61 @@
+name: Feature Request
+description: Propose a new feature or capability.
+labels: ["requirement", "needs-triage"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should be built and why?
+      placeholder: Describe the feature and the problem it solves.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: How will we know this is done?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How urgent is this?
+      options:
+        - p3-low
+        - p2-medium
+        - p1-high
+        - p0-critical
+    validations:
+      required: false
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      description: Primary area affected.
+      options:
+        - ai
+        - api
+        - devops
+        - docs
+        - infrastructure
+        - mcp
+        - plugin
+        - security
+        - ui
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: agent-eligible
+    attributes:
+      label: Agent Processing
+      options:
+        - label: This issue is suitable for autonomous AI agent processing.
