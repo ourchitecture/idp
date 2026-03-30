@@ -1,0 +1,23 @@
+projects:
+  sources:
+    repo: "."
+    go-net-http-rest: "src/stacks/go/net-http/rest"
+    nodejs-react-fastify-rest: "src/stacks/nodejs/react-fastify/rest"
+    contract-tests: "tests/contract"
+
+defaultProject: "repo"
+versionConstraint: ">=2.1.3"
+telemetry: false
+
+vcs:
+  client: "git"
+  provider: "github"
+  defaultBranch: "main"
+  remoteCandidates:
+    - "upstream"
+    - "origin"
+
+pipeline:
+  installDependencies: true
+  syncWorkspace: false
+  syncProjects: false

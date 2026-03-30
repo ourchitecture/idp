@@ -1,0 +1,15 @@
+proto:
+  version: "0.55.4"
+
+go:
+  versionFromPrototools: true
+
+javascript:
+  packageManager: "npm"
+  installDependencies: true
+
+node:
+  versionFromPrototools: true
+
+npm:
+  versionFromPrototools: true

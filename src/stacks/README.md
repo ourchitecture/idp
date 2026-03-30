@@ -9,16 +9,23 @@ Support tiers and portfolio roles are defined in
 
 ## Conventions
 
+- Maintainer and CI orchestration is standardized on moon project tasks.
+- GNU Make targets remain available as compatibility wrappers per ADR-0007.
+- Contributors may use system-installed language tools, while `proto` provides
+  pinned toolchain convenience and CI parity.
 - Stacks are organized as `src/stacks/<language>/<framework>/<interface>`.
 - Each stack directory includes a GNU Makefile with the same targets:
+  - `all`
   - `install`
   - `build`
   - `clean`
   - `check-lint`
   - `check-test`
+  - `check-contract`
+  - `check-ci`
   - `check`
   - `test` (stack-defined alias)
-  - `test-contract`
+  - `test-contract` (stack-defined alias for `check-contract`)
   - `run-web`
   - `run-bff`
 - Web server defaults to port 3000 (override with `OUR_IDP_PORT`, then `PORT`).
@@ -37,6 +44,11 @@ Support tiers and portfolio roles are defined in
 
 - `go/net-http/rest`
 - `nodejs/react-fastify/rest`
+
+## Moon Project IDs
+
+- `go-net-http-rest` -> `src/stacks/go/net-http/rest`
+- `nodejs-react-fastify-rest` -> `src/stacks/nodejs/react-fastify/rest`
 
 ## Examples
 

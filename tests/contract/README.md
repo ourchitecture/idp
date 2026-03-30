@@ -38,6 +38,12 @@ profiles are selected from `stack.json` (`contractProfiles`).
 npm run test:contract
 ```
 
+Via moon project task:
+
+```bash
+moon run contract-tests:check-contract
+```
+
 If the system is not running, the harness prints instructions to start a stack
 or run `make dev`.
 

@@ -29,16 +29,29 @@ This stack declares UI capability mode `spa`.
 
 ## Commands
 
+Moon (maintainer/CI canonical):
+
+- `moon run nodejs-react-fastify-rest:all`
+- `moon run nodejs-react-fastify-rest:check-ci`
+- `moon run nodejs-react-fastify-rest:check-contract`
+- `moon run nodejs-react-fastify-rest:run-web`
+- `moon run nodejs-react-fastify-rest:run-bff`
+
+GNU Make (compatibility):
+
+- `make -C src/stacks/nodejs/react-fastify/rest all`
 - `make -C src/stacks/nodejs/react-fastify/rest install`
 - `make -C src/stacks/nodejs/react-fastify/rest build`
 - `make -C src/stacks/nodejs/react-fastify/rest clean`
 - `make -C src/stacks/nodejs/react-fastify/rest check-lint`
 - `make -C src/stacks/nodejs/react-fastify/rest check-test`
+- `make -C src/stacks/nodejs/react-fastify/rest check-contract`
+- `make -C src/stacks/nodejs/react-fastify/rest check-ci`
 - `make -C src/stacks/nodejs/react-fastify/rest check`
 - `make -C src/stacks/nodejs/react-fastify/rest test` (alias for `check-test`)
 - `make -C src/stacks/nodejs/react-fastify/rest run-web`
 - `make -C src/stacks/nodejs/react-fastify/rest run-bff`
-- `make -C src/stacks/nodejs/react-fastify/rest test-contract`
+- `make -C src/stacks/nodejs/react-fastify/rest test-contract` (alias for `check-contract`)
 
 ### Native Tooling Shortcuts
 

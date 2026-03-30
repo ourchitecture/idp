@@ -21,5 +21,5 @@ Closes #
 <!-- Check off what you verified before requesting review. -->
 
 - [ ] Changes are limited to what the issue requires
-- [ ] Markdown linting passes (`npm run lint:md`)
+- [ ] Markdown linting passes (`make check-lint-md`)
 - [ ] No secrets, credentials, or sensitive data included

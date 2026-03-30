@@ -8,25 +8,109 @@ permissions:
   contents: read
   pull-requests: read
 
+env:
+  PROTO_VERSION: "0.55.4"
+
 jobs:
-  lint-markdown:
-    name: Lint Markdown
+  detect-changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
+    outputs:
+      changed_count: ${{ steps.detect.outputs.changed_count }}
+      markdown_only: ${{ steps.detect.outputs.markdown_only }}
+      run_markdown: ${{ steps.detect.outputs.run_markdown }}
+      run_workflow_lint: ${{ steps.detect.outputs.run_workflow_lint }}
+      run_stack_validation: ${{ steps.detect.outputs.run_stack_validation }}
+      stack_matrix: ${{ steps.detect.outputs.stack_matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Detect intelligent validation plan
+        id: detect
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          export BASE_SHA="${BASE_SHA}"
+          export HEAD_SHA="${HEAD_SHA}"
+          export OUTPUT_FILE="$GITHUB_OUTPUT"
+          moon run repo:check-pr-changes
+
+      - name: Print validation plan
+        run: |
+          echo "changed_count=${{ steps.detect.outputs.changed_count }}"
+          echo "markdown_only=${{ steps.detect.outputs.markdown_only }}"
+          echo "run_markdown=${{ steps.detect.outputs.run_markdown }}"
+          echo "run_workflow_lint=${{ steps.detect.outputs.run_workflow_lint }}"
+          echo "run_stack_validation=${{ steps.detect.outputs.run_stack_validation }}"
+          echo "stack_matrix=${{ steps.detect.outputs.stack_matrix }}"
+
+  check-lint-md:
+    name: Check Lint Markdown
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_markdown == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
         with:
-          node-version: "24"
-          cache: npm
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Run markdown lint checks
+        run: moon run repo:check-lint-md
 
-      - name: Lint Markdown files
-        run: npx markdownlint-cli2 "**/*.md"
+  check-workflow-files:
+    name: Check Workflow Files
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_workflow_lint == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Run workflow lint checks
+        run: moon run repo:check-lint-workflows
+
+  check-stack-matrix:
+    name: Check Stack (${{ matrix.label }})
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_stack_validation == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.detect-changes.outputs.stack_matrix) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Run stack CI-safe checks
+        run: moon run "${{ matrix.project }}:check-ci"
 
   validate-commit-message:
     name: Validate Commit Message
@@ -37,56 +121,77 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
       - name: Check PR author team membership
         id: author-check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORG: ${{ github.repository_owner }}
+          USERNAME: ${{ github.event.pull_request.user.login }}
+          TEAM_SLUGS: idp-admin,idp-maintain
         run: |
-          AUTHOR="${{ github.event.pull_request.user.login }}"
-          IS_TEAM_MEMBER="false"
-
-          # Check idp-admin and idp-maintain team membership
-          for TEAM in idp-admin idp-maintain; do
-            STATUS=$(gh api \
-              -H "Accept: application/vnd.github+json" \
-              "orgs/${{ github.repository_owner }}/teams/${TEAM}/members/${AUTHOR}" \
-              --silent -i 2>&1 | head -1 | grep -o '[0-9]\{3\}' | head -1) || true
-            if [[ "$STATUS" == "200" ]]; then
-              IS_TEAM_MEMBER="true"
-              break
-            fi
-          done
-
-          echo "is_team_member=${IS_TEAM_MEMBER}" >> "$GITHUB_OUTPUT"
-          echo "Author '${AUTHOR}' is team member: ${IS_TEAM_MEMBER}"
+          export ORG="${ORG}"
+          export USERNAME="${USERNAME}"
+          export TEAM_SLUGS="${TEAM_SLUGS}"
+          export OUTPUT_FILE="$GITHUB_OUTPUT"
+          moon run repo:check-team-membership
 
       - name: Validate PR title as Conventional Commit
         env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
           IS_TEAM_MEMBER: ${{ steps.author-check.outputs.is_team_member }}
         run: |
-          TITLE="${{ github.event.pull_request.title }}"
-          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security|revert)(\(.+\))?!?: .+$'
+          export PR_TITLE="${PR_TITLE}"
+          export IS_TEAM_MEMBER="${IS_TEAM_MEMBER}"
+          moon run repo:check-pr-title
 
-          if [[ ! "$TITLE" =~ $PATTERN ]]; then
-            if [[ "$IS_TEAM_MEMBER" == "true" ]]; then
-              echo "::error::PR title does not follow Conventional Commits format."
-              echo "Expected: <type>(<scope>): <description>"
-              echo "Got: $TITLE"
-              exit 1
-            else
-              echo "::notice::PR title does not follow Conventional Commits format, but this is not required for external contributors. A maintainer will set the final commit message on merge."
-              exit 0
-            fi
+  pr-validation-result:
+    name: PR Validation Result
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - detect-changes
+      - check-lint-md
+      - check-workflow-files
+      - check-stack-matrix
+      - validate-commit-message
+    steps:
+      - name: Verify required checks
+        run: |
+          result_detect="${{ needs.detect-changes.result }}"
+          result_lint_md="${{ needs.check-lint-md.result }}"
+          result_workflows="${{ needs.check-workflow-files.result }}"
+          result_stack="${{ needs.check-stack-matrix.result }}"
+          result_commit="${{ needs.validate-commit-message.result }}"
+
+          if [[ "${result_detect}" != "success" ]]; then
+            echo "::error::detect-changes failed (${result_detect})"
+            exit 1
           fi
 
-          if [[ ${#TITLE} -gt 72 ]]; then
-            if [[ "$IS_TEAM_MEMBER" == "true" ]]; then
-              echo "::error::PR title exceeds 72 characters (${#TITLE})."
-              exit 1
-            else
-              echo "::notice::PR title exceeds 72 characters (${#TITLE}), but this is not enforced for external contributors."
-              exit 0
-            fi
+          if [[ "${result_commit}" != "success" ]]; then
+            echo "::error::validate-commit-message failed (${result_commit})"
+            exit 1
           fi
 
-          echo "PR title is valid: $TITLE"
+          if [[ "${result_lint_md}" != "success" && "${result_lint_md}" != "skipped" ]]; then
+            echo "::error::check-lint-md failed (${result_lint_md})"
+            exit 1
+          fi
+
+          if [[ "${result_workflows}" != "success" && "${result_workflows}" != "skipped" ]]; then
+            echo "::error::check-workflow-files failed (${result_workflows})"
+            exit 1
+          fi
+
+          if [[ "${result_stack}" != "success" && "${result_stack}" != "skipped" ]]; then
+            echo "::error::check-stack-matrix failed (${result_stack})"
+            exit 1
+          fi
+
+          echo "All required PR validation checks completed successfully."

@@ -60,3 +60,4 @@ Not ADR-worthy by default:
 | [0004](0004-implementation-portfolio-and-support-tiers.md) | Implementation Portfolio and Support Tiers | proposed | 2026-03-30 |
 | [0005](0005-shared-capability-contract-and-conformance-profiles.md) | Shared Capability Contract and Conformance Profiles | proposed | 2026-03-30 |
 | [0006](0006-cross-platform-local-runtime-ux-baseline.md) | Cross-Platform Local Runtime UX Baseline | proposed | 2026-03-30 |
+| [0007](0007-moon-required-proto-enhanced-toolchain-policy.md) | Moon-Required Orchestration and Proto-Enhanced Toolchain Policy | proposed | 2026-03-30 |

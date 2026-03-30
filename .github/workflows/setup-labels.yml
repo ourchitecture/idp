@@ -6,55 +6,27 @@ on:
 permissions:
   issues: write
 
+env:
+  PROTO_VERSION: "0.55.4"
+
 jobs:
   create-labels:
     name: Create Labels
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
       - name: Bootstrap repository labels
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
         run: |
-          create_label() {
-            gh label create "$1" --color "$2" --description "$3" \
-              --repo "$REPO" --force
-          }
-
-          # Type labels
-          create_label "requirement" "0075ca" "New feature or capability"
-          create_label "bug"         "d73a4a" "Something is not working"
-          create_label "task"        "006b75" "Maintenance or operational work"
-          create_label "spike"       "d4c5f9" "Time-boxed research or investigation"
-          create_label "design"      "c2e0c6" "Design proposal or discussion"
-          create_label "epic"        "3e4b9e" "Groups related issues"
-          create_label "chore"       "ededed" "Routine maintenance"
-
-          # Priority labels
-          create_label "p0-critical" "b60205" "Must fix immediately"
-          create_label "p1-high"     "d93f0b" "Fix in current cycle"
-          create_label "p2-medium"   "fbca04" "Plan for upcoming cycle"
-          create_label "p3-low"      "0e8a16" "Nice to have"
-
-          # Domain labels
-          create_label "security"       "ee0701" "Security domain"
-          create_label "ai"             "1d76db" "AI domain"
-          create_label "mcp"            "5319e7" "MCP domain"
-          create_label "infrastructure" "bfd4f2" "Infrastructure domain"
-          create_label "plugin"         "c5def5" "Plugin domain"
-          create_label "api"            "0052cc" "API domain"
-          create_label "ui"             "f9d0c4" "UI domain"
-          create_label "devops"         "b4a8d1" "DevOps domain"
-          create_label "docs"           "0075ca" "Documentation domain"
-
-          # Status labels
-          create_label "needs-triage"  "e4e669" "Awaiting maintainer review"
-          create_label "ready"         "0e8a16" "Triaged and ready for work"
-          create_label "in-progress"   "1d76db" "Actively being worked on"
-          create_label "blocked"       "b60205" "Blocked by dependency or question"
-          create_label "needs-review"  "fbca04" "Awaiting review or approval"
-
-          # Agent label
-          create_label "agent-eligible" "6f42c1" "Suitable for autonomous AI agent processing"
-
-          echo "All labels created or updated successfully."
+          export REPO="${REPO}"
+          moon run repo:issue-setup-labels
