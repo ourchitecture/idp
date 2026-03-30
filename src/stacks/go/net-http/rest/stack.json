@@ -1,0 +1,14 @@
+{
+  "language": "go",
+  "framework": "net-http",
+  "interface": "rest",
+  "contractProfiles": [
+    "core",
+    "operational"
+  ],
+  "capabilities": {
+    "ui": {
+      "enabled": false
+    }
+  }
+}

@@ -1,10 +1,10 @@
 # Stemix
 
-Stamix is an Intelligent Development System (IDS) with a Intelligent Development Portal (IDP); a modern, AI-native development system that connects the software development process and digital supply chain to an organization's product development lifecycle.
+Stemix is an Intelligent Development System (IDS) with an Intent-Driven Portal (IDP); a modern, AI-native development system that connects the software development process and digital supply chain to an organization's product development lifecycle.
 
 ## What is IDP?
 
-IDP is an evolution of the Internal Developer Portal concept. It shares the IDP acronym intentionally, but goes beyond traditional developer portals by deeply integrating AI and web technologies to improve the entire development experience.
+The Intent-Driven Portal is an evolution of the Internal Developer Portal concept. It shares the IDP acronym intentionally, but goes beyond traditional developer portals by deeply integrating AI and web technologies to improve the entire development experience.
 
 **Core design principles:**
 
@@ -34,12 +34,56 @@ tools/      Developer tooling, scripts, and MCP server definitions
 ### Prerequisites
 
 - Docker and Docker Compose
-- Node.js (see `.nvmrc` when available)
+- Go 1.25+
+- Node.js 20+
 - Access to the `ourchitecture` GitHub organization
 
 ### Development
 
 All development follows the issue-driven workflow defined in [AGENTS.md](AGENTS.md). Work is tracked via GitHub Issues and authorized through the `@idp-admin` and `@idp-maintain` teams.
+
+### Implementation Portfolio
+
+- Default and canonical reference stack: `src/stacks/go/net-http/rest`
+- Additional React-focused reference stack:
+  `src/stacks/nodejs/react-fastify/rest`
+
+Start the default stack:
+
+```bash
+make dev
+```
+
+Run conventional checks for the default stack:
+
+```bash
+make check
+```
+
+Run stack-only tests (without full check suite):
+
+```bash
+make check-test
+```
+
+Local runtime defaults bind to loopback (`127.0.0.1`). Override hosts only when
+you explicitly need LAN or container-network exposure:
+
+- `OUR_IDP_WEB_HOST`
+- `OUR_IDP_API_HOST`
+
+Run contract tests against a running stack:
+
+```bash
+make test
+```
+
+Start the additional React stack directly:
+
+```bash
+make -C src/stacks/nodejs/react-fastify/rest run-web
+make -C src/stacks/nodejs/react-fastify/rest run-bff
+```
 
 ## Contributing
 

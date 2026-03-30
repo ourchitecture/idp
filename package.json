@@ -2,12 +2,39 @@
   "name": "idp",
   "version": "1.0.0",
   "private": true,
-  "description": "Intelligent Development Portal (IDP)",
+  "description": "Intent-Driven Portal (IDP)",
   "license": "MIT",
   "scripts": {
-    "lint:md": "markdownlint-cli2"
+    "lint:md": "markdownlint-cli2",
+    "start:web": "make -C \"src/stacks/go/net-http/rest\" run-web",
+    "start:bff": "make -C \"src/stacks/go/net-http/rest\" run-bff",
+    "start:web:react-fastify": "tsx src/stacks/nodejs/react-fastify/rest/web/server.ts",
+    "start:bff:react-fastify": "tsx src/stacks/nodejs/react-fastify/rest/bff/src/server.ts",
+    "build:web:react-fastify": "vite build --config src/stacks/nodejs/react-fastify/rest/web/vite.config.ts",
+    "typecheck:web:react-fastify": "tsc --project src/stacks/nodejs/react-fastify/rest/web/tsconfig.json --noEmit",
+    "typecheck:bff:react-fastify": "tsc --project src/stacks/nodejs/react-fastify/rest/bff/tsconfig.json --noEmit",
+    "typecheck:stack:react-fastify": "npm run typecheck:web:react-fastify && npm run typecheck:bff:react-fastify",
+    "test:contract": "tsx tests/contract/src/index.ts",
+    "test:contract:watch": "tsx watch tests/contract/src/index.ts"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.1.0",
+    "@tanstack/react-query": "^5.90.10",
+    "fastify": "^5.6.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.4",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "markdownlint-cli2": "^0.21.0"
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^5.0.4",
+    "markdownlint-cli2": "^0.21.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5",
+    "vite": "^7.1.12",
+    "@types/node": "^20.12.7"
   }
 }
