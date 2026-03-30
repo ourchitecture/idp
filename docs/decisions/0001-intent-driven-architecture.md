@@ -196,6 +196,19 @@ The following decisions are explicitly deferred to dedicated follow-up ADRs:
   tests execute against any implementation, including protocol, transport, and
   assertion mechanisms.
 
+### Contract Test Harness (Initial)
+
+An initial TypeScript-based contract test harness lives under `tests/contract/`.
+It is implementation-agnostic and targets the standard HTTP interfaces exposed
+by any portal implementation. Implementations provide base URLs via environment
+variables (`IDP_WEB_URL`, `IDP_BFF_URL`) so the harness can validate compliance
+without importing implementation code.
+
+Implementation stacks live under `src/stacks/<language>/<framework>/<interface>/`
+and must expose identical behavior. Each stack includes a GNU Makefile with
+conventional targets so developers can start a stack and run the contract tests
+in a consistent way.
+
 ### Relationship to Project Principles
 
 This decision aligns with the project's core principles from AGENTS.md:

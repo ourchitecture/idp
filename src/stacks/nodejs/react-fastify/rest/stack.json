@@ -1,0 +1,16 @@
+{
+  "language": "nodejs",
+  "framework": "react-fastify",
+  "interface": "rest",
+  "contractProfiles": [
+    "core",
+    "operational",
+    "ui-profile"
+  ],
+  "capabilities": {
+    "ui": {
+      "enabled": true,
+      "mode": "spa"
+    }
+  }
+}
