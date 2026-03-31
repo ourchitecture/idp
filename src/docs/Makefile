@@ -1,6 +1,6 @@
 .PHONY: help all install build clean check-lint check-test check-ci check run-dev run-serve
 
-ROOT_DIR := ../../..
+ROOT_DIR := ../..
 DOCS_PATH := src/docs
 
 help:
