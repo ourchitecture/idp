@@ -25,7 +25,7 @@ jobs:
       run_docs_validation: ${{ steps.detect.outputs.run_docs_validation }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
 
@@ -63,7 +63,7 @@ jobs:
     if: needs.detect-changes.outputs.run_markdown == 'true'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
 
@@ -83,7 +83,7 @@ jobs:
     if: needs.detect-changes.outputs.run_workflow_lint == 'true'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
 
@@ -107,7 +107,7 @@ jobs:
         include: ${{ fromJson(needs.detect-changes.outputs.stack_matrix) }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
 
@@ -127,7 +127,7 @@ jobs:
     if: needs.detect-changes.outputs.run_docs_validation == 'true'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
 
@@ -144,7 +144,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
 

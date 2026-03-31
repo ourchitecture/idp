@@ -28,7 +28,7 @@ jobs:
       github.event.label.name == 'agent-eligible'
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
 
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@v0.6.4

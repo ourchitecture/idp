@@ -22,6 +22,7 @@ const sidebars: SidebarsConfig = {
             "architecture/decisions/shared-capability-contract-and-conformance-profiles",
             "architecture/decisions/cross-platform-local-runtime-ux-baseline",
             "architecture/decisions/moon-required-proto-enhanced-toolchain-policy",
+            "architecture/decisions/dependency-and-tooling-pinning-policy",
           ],
         },
       ],

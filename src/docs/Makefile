@@ -1,8 +1,5 @@
 .PHONY: help all install build clean check-lint check-test check-ci check run-dev run-serve
 
-ROOT_DIR := ../..
-DOCS_PATH := src/docs
-
 help:
 	@printf "Targets:\n"
 	@printf "  all           Run full docs verification flow\n"
@@ -19,7 +16,7 @@ help:
 all: install build check
 
 install:
-	@npm install
+	@npm ci
 
 build:
 	@npm run build
@@ -28,7 +25,7 @@ clean:
 	@rm -rf build .docusaurus
 
 check-lint:
-	@npm --prefix "$(ROOT_DIR)" run lint:md
+	@npm run lint:md
 
 check-test:
 	@npm run typecheck

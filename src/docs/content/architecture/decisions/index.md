@@ -51,3 +51,4 @@ Routing rule: Create an ADR when at least 3 gates are true and one is Gate 2 or 
 | [0005](./shared-capability-contract-and-conformance-profiles) | Shared Capability Contract and Conformance Profiles | proposed | 2026-03-30 |
 | [0006](./cross-platform-local-runtime-ux-baseline) | Cross-Platform Local Runtime UX Baseline | proposed | 2026-03-30 |
 | [0007](./moon-required-proto-enhanced-toolchain-policy) | Moon-Required Orchestration and Proto-Enhanced Toolchain Policy | proposed | 2026-03-30 |
+| [0008](./dependency-and-tooling-pinning-policy) | Dependency and Tooling Pinning Policy | proposed | 2026-03-31 |
