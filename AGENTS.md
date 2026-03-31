@@ -20,6 +20,7 @@ Current high-signal ADRs agents must respect:
 - `0005` shared capability contract and profile-based conformance model.
 - `0006` cross-platform local runtime UX baseline (loopback defaults,
   stable executable identity for compiled stacks).
+- `0007` moon-required orchestration and proto-enhanced pinned toolchain policy.
 
 When proposing a new ADR, include a short rationale for why the decision is
 long-lived, cross-cutting, and not better captured in regular docs.
@@ -61,6 +62,34 @@ Use this intake threshold before adding an ADR:
 - Only work on authorized issues from `@idp-admin` or `@idp-maintain`.
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
+
+## CI/CD and Make Reuse (Required)
+
+- `moon` is required for maintainer and CI orchestration flows.
+- `proto` should be used to provide pinned, reproducible maintainer/CI toolchain
+  installs, but contributors may use system-installed language toolchains.
+- GNU Make targets are **optional convenience wrappers** for common local
+  workflows. Contributors are not required to use them; direct `moon`, `npm`,
+  or language-toolchain commands are equally valid. Make targets must stay in
+  sync with their `moon`/script equivalents and must not duplicate logic that
+  diverges from the canonical command.
+
+- PR validation must be path-aware and run the minimum meaningful checks for the
+  changed scope.
+- For open-source/external pull requests, prefer careful, lower-cost validation
+  by default; run expensive full-system checks only when shared or
+  cross-cutting paths change.
+- Any CI/CD command that developers should be able to reproduce locally must be
+  exposed through GNU Make targets and/or repo scripts (for example
+  `scripts/ci/`).
+- GitHub workflows should call those Make targets/scripts rather than embedding
+  one-off inline shell logic when the logic is reusable.
+- Validation and test commands in Makefiles should use `check-` prefixed
+  targets (for example `check-lint-md`, `check-test`, `check-contract`).
+- Use `check-lint-md` as the canonical Markdown lint target name (not
+  `lint-md`).
+- Keep GNU Make targets as compatibility wrappers so local workflows remain
+  accessible even when moon is the canonical CI/maintainer orchestrator.
 
 ## Documentation Requirements (Required)
 
@@ -122,31 +151,52 @@ For each runnable stack, child project, or major component, document:
 
 ## Build, Lint, Test Commands
 
-This repo defines linting, runtime startup, and contract test scripts in
-`package.json`.
+This repo defines reusable GNU Make targets as **optional convenience wrappers**
+for common local workflows, alongside canonical `moon` and `npm` commands.
+Contributors may use any of the following interchangeably; `make` targets are
+not required but are always kept in sync with their `moon`/script equivalents.
 
 - Install deps: `npm install`
-- Lint Markdown: `npm run lint:md`
-- Lint a single file: `npm run lint:md -- "README.md"`
-- Lint a single file (direct): `npx markdownlint-cli2 "README.md"`
-- Run Go web server (default stack): `npm run start:web`
-- Run Go BFF server (default stack): `npm run start:bff`
-- Run React web server (additional reference): `npm run start:web:react-fastify`
-- Run React BFF server (additional reference): `npm run start:bff:react-fastify`
-- Run contract tests: `npm run test:contract`
-- Start default stack (web + BFF): `make dev`
-- Test running system: `make test`
+- Install pinned toolchain (recommended): `proto install`
+- Show moon project graph and tasks: `moon project <project-id>`
+- Lint Markdown (make shortcut): `make check-lint-md`
+- Lint Markdown (moon canonical): `moon run repo:check-lint-md`
+- Lint workflow files (make shortcut): `make check-lint-workflows`
+- Compute PR change-based validation plan:
+  `BASE_SHA=<sha> HEAD_SHA=<sha> make check-pr-changes`
+- Run Go web server (npm): `npm run start:web`
+- Run Go web server (make shortcut): `make run-web`
+- Run Go BFF server (npm): `npm run start:bff`
+- Run Go BFF server (make shortcut): `make run-bff`
+- Run React web server (npm): `npm run start:web:react-fastify`
+- Run React BFF server (npm): `npm run start:bff:react-fastify`
+- Run contract tests (npm): `npm run test:contract`
+- Start default stack web + BFF (make shortcut): `make dev`
+- Test running system (make shortcut): `make test`
+- Run full build/test verification for all detected stacks (make shortcut): `make all`
 
-Stack-level Makefile targets (from `src/stacks/<stack>/Makefile`):
+Moon project IDs currently used:
 
+- `repo`
+- `go-net-http-rest`
+- `nodejs-react-fastify-rest`
+- `contract-tests`
+
+Stack-level Makefile targets (from `src/stacks/<stack>/Makefile`).
+All are **optional convenience wrappers**; equivalent `moon` task invocations
+are equally valid.
+
+- `make all` runs install, build, lint, tests, and contract checks for that stack.
 - `make install` installs dependencies for that stack.
 - `make build` builds stack artifacts.
 - `make clean` removes stack build artifacts.
 - `make check-lint` runs stack linters.
 - `make check-test` runs stack tests.
+- `make check-contract` runs stack contract checks.
+- `make check-ci` runs CI-safe validation checks for the stack.
 - `make check` runs lint, tests, and contract checks for that stack.
 - `make test` is a stack-defined test alias (at minimum `check-test`).
-- `make test-contract` runs the contract harness against the stack.
+- `make test-contract` is a stack-defined alias for `check-contract`.
 - `make run-web` starts the web server for that stack.
 - `make run-bff` starts the BFF server for that stack.
 

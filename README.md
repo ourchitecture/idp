@@ -36,11 +36,72 @@ tools/      Developer tooling, scripts, and MCP server definitions
 - Docker and Docker Compose
 - Go 1.25+
 - Node.js 20+
-- Access to the `ourchitecture` GitHub organization
+
+### Quickstart
+
+The fastest path to a running local stack:
+
+```bash
+# Install Node.js dependencies
+npm install
+
+# (Optional) Pin and install the full toolchain via proto
+proto install
+
+# Start the default stack (web + BFF)
+make dev
+```
+
+That starts the Go web server and BFF, both bound to `127.0.0.1` by default.
+Open the web UI at `http://127.0.0.1:<port>` once the servers report ready.
+
+Run all checks before opening a PR:
+
+```bash
+make check
+```
+
+See all available `make` targets:
+
+```bash
+make help
+```
+
+### Tooling Policy
+
+This project standardizes workflows around `moon` while keeping language tooling
+flexible for contributors.
+
+- `moon` is required for maintainer and CI orchestration.
+- `proto` is recommended for consistent pinned toolchain setup, but contributors
+  may use system-installed Go/Node directly.
+- GNU Make targets are supported as convenient local shortcuts and CI
+  compatibility wrappers; use them whenever `moon` is not installed.
+
+Install and pin tooling with proto (recommended):
+
+```bash
+proto install
+```
+
+Run common checks with moon (or use the equivalent `make` targets below):
+
+```bash
+moon run repo:check-lint-md
+moon run go-net-http-rest:check-ci
+moon run nodejs-react-fastify-rest:check-ci
+```
 
 ### Development
 
 All development follows the issue-driven workflow defined in [AGENTS.md](AGENTS.md). Work is tracked via GitHub Issues and authorized through the `@idp-admin` and `@idp-maintain` teams.
+
+Agent workflow skills are available in `/.claude/skills/`:
+
+- `/find-work` to discover the next authorized issue.
+- `/plan-work issue_number=<N>` to prepare an implementation plan.
+- `/ship-changes issue_number=<N>` to commit, open a PR, and merge.
+- `/audit-work-integrity` to enforce strict branch/PR/issue linkage hygiene.
 
 ### Implementation Portfolio
 
@@ -48,16 +109,48 @@ All development follows the issue-driven workflow defined in [AGENTS.md](AGENTS.
 - Additional React-focused reference stack:
   `src/stacks/nodejs/react-fastify/rest`
 
-Start the default stack:
+Start the default stack (convenience shortcut):
 
 ```bash
 make dev
 ```
 
+Or invoke individual servers directly with moon:
+
+```bash
+moon run go-net-http-rest:run-web
+moon run go-net-http-rest:run-bff
+```
+
 Run conventional checks for the default stack:
 
 ```bash
+# Convenience shortcut (runs lint, tests, and contract checks)
 make check
+
+# Or with moon
+moon run go-net-http-rest:check-ci
+```
+
+Run Markdown lint checks:
+
+```bash
+# Convenience shortcut
+make check-lint-md
+
+# Or with moon
+moon run repo:check-lint-md
+```
+
+Run full verification across all detected stacks:
+
+```bash
+# Convenience shortcut (iterates all detected stacks automatically)
+make all
+
+# Or with moon (explicit per stack)
+moon run go-net-http-rest:all
+moon run nodejs-react-fastify-rest:all
 ```
 
 Run stack-only tests (without full check suite):
