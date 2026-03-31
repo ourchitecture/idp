@@ -1,4 +1,4 @@
-.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract run-web run-bff
+.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract e2e run-web run-bff
 
 ROOT_DIR := ../../../../..
 STACK_PATH := src/stacks/nodejs/react-fastify/rest
@@ -20,6 +20,7 @@ help:
 	@printf "  check         Run lint, tests, and contract checks\n"
 	@printf "  test          Alias for check-test\n"
 	@printf "  test-contract Alias for check-contract\n"
+	@printf "  e2e           Start stack, wait for readiness, run e2e tests\n"
 	@printf "  run-web       Start the web server\n"
 	@printf "  run-bff       Start the BFF server\n"
 
@@ -45,7 +46,7 @@ check-test:
 
 test: check-test
 
-check-ci: build check-lint check-test
+check-ci: install build check-lint check-test
 
 check: check-lint check-test check-contract
 
@@ -61,6 +62,16 @@ check-contract:
 	exit $$STATUS
 
 test-contract: check-contract
+
+e2e:
+	@STACK_PATH="$(STACK_PATH)" \
+	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
+	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+	CONTRACT_PROFILES="core,operational,ui-profile" \
+	ROOT_DIR="$(ROOT_DIR)" \
+	bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"
 
 run-web:
 	@npm --prefix "$(ROOT_DIR)" run start:web:react-fastify
