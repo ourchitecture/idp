@@ -1,0 +1,221 @@
+{
+  // VS Code tasks for the IDP repository.
+  //
+  // moon is the canonical orchestrator. Tasks invoke moon through the shell so
+  // that proto shims on PATH are used automatically on all platforms.
+  // GNU Make convenience wrappers are noted where relevant but moon is preferred.
+  //
+  // Default build task  : "Dev: Start Full System (Go)"  [Ctrl+Shift+B]
+  // Run selected task   : Ctrl+Shift+P > "Tasks: Run Task"
+  "version": "2.0.0",
+  "tasks": [
+    // -------------------------------------------------------------------------
+    // Build
+    // -------------------------------------------------------------------------
+    {
+      "label": "Build: Go Stack",
+      "detail": "moon run go-net-http-rest:build  (or: make -C src/stacks/go/net-http/rest build)",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:build",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "build"
+      },
+      "problemMatcher": "$go"
+    },
+    {
+      "label": "Build: Go Stack (debug symbols)",
+      "detail": "Compiles web and BFF binaries with -gcflags='all=-N -l' for delve debugger",
+      "type": "shell",
+      "command": "go build -gcflags=\"all=-N -l\" -o .bin/idp-go-web${GOEXE} ./web",
+      "options": {
+        "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "group": "build"
+      },
+      "problemMatcher": "$go"
+    },
+    {
+      "label": "Build: Go BFF (debug symbols)",
+      "detail": "Compiles BFF binary with -gcflags='all=-N -l' for delve debugger",
+      "type": "shell",
+      "command": "go build -gcflags=\"all=-N -l\" -o .bin/idp-go-bff${GOEXE} ./bff",
+      "options": {
+        "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "group": "build"
+      },
+      "problemMatcher": "$go"
+    },
+    {
+      "label": "Build: All Stacks",
+      "detail": "moon run go-net-http-rest:all nodejs-react-fastify-rest:all",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:all nodejs-react-fastify-rest:all",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "build"
+      },
+      "problemMatcher": ["$go", "$tsc"]
+    },
+
+    // -------------------------------------------------------------------------
+    // Run / Dev
+    // -------------------------------------------------------------------------
+    {
+      "label": "Run: Go Web Server",
+      "detail": "moon run go-net-http-rest:run-web  (or: make run-web)",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:run-web",
+      "isBackground": true,
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev",
+        "label": "Go Web"
+      },
+      "problemMatcher": {
+        "owner": "go-web",
+        "pattern": {
+          "regexp": "^(.*\\.go):(\\d+):(\\d+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\{.*\"msg\":\\s*\"IDP web server listening\"",
+          "endsPattern": "^\\{.*\"msg\":\\s*\"IDP web server listening\""
+        }
+      }
+    },
+    {
+      "label": "Run: Go BFF Server",
+      "detail": "moon run go-net-http-rest:run-bff  (or: make run-bff)",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:run-bff",
+      "isBackground": true,
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev",
+        "label": "Go BFF"
+      },
+      "problemMatcher": {
+        "owner": "go-bff",
+        "pattern": {
+          "regexp": "^(.*\\.go):(\\d+):(\\d+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\{.*\"msg\":\\s*\"IDP BFF listening\"",
+          "endsPattern": "^\\{.*\"msg\":\\s*\"IDP BFF listening\""
+        }
+      }
+    },
+    {
+      "label": "Dev: Start Full System (Go)",
+      "detail": "Starts Go web server (port 3000) and BFF (port 8000) in parallel",
+      "dependsOn": ["Run: Go Web Server", "Run: Go BFF Server"],
+      "dependsOrder": "parallel",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+
+    // -------------------------------------------------------------------------
+    // Check / Lint / Test
+    // -------------------------------------------------------------------------
+    {
+      "label": "Check: Go Stack (lint + test + contract)",
+      "detail": "moon run go-net-http-rest:check  (or: make check)",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:check",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": "$go"
+    },
+    {
+      "label": "Check: Go Stack (CI)",
+      "detail": "moon run go-net-http-rest:check-ci",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:check-ci",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": "$go"
+    },
+    {
+      "label": "Check: Lint Markdown",
+      "detail": "moon run repo:check-lint-md  (or: make check-lint-md)",
+      "type": "shell",
+      "command": "moon run repo:check-lint-md",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check: All Stacks",
+      "detail": "moon run go-net-http-rest:all nodejs-react-fastify-rest:all  (or: make all)",
+      "type": "shell",
+      "command": "moon run go-net-http-rest:all nodejs-react-fastify-rest:all",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": ["$go", "$tsc"]
+    },
+    {
+      "label": "Check: Contract Tests",
+      "detail": "npm run test:contract (requires a running stack)",
+      "type": "shell",
+      "command": "npm run test:contract",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

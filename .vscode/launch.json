@@ -1,0 +1,117 @@
+{
+  // VS Code launch configurations for IDP.
+  //
+  // All Go debug configs require the official Go extension (golang.go).
+  // Delve (dlv) is installed automatically by the Go extension.
+  //
+  // Binaries are compiled into src/stacks/go/net-http/rest/.bin/ by the
+  // "Build: Go Stack (debug symbols)" / "Build: Go BFF (debug symbols)" tasks,
+  // which disable compiler optimisations so delve can set breakpoints reliably.
+  //
+  // Default launch  : "Debug: Full System (Go)"  [F5]
+  // Pick a config   : Ctrl+Shift+D, then choose from the dropdown.
+  "version": "0.2.0",
+  "compounds": [
+    {
+      // Default F5 launch: starts both Go services with debuggers attached.
+      "name": "Debug: Full System (Go)",
+      "configurations": ["Debug: Go Web Server", "Debug: Go BFF Server"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "go",
+        "order": 1
+      }
+    }
+  ],
+  "configurations": [
+    // -------------------------------------------------------------------------
+    // Go Web Server
+    // -------------------------------------------------------------------------
+    {
+      "name": "Debug: Go Web Server",
+      "type": "go",
+      "request": "launch",
+      // Launch the pre-built binary so that the stable .bin/ path is used
+      // (ADR-0006: no ephemeral go run executables on Windows).
+      "mode": "exec",
+      "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-web",
+      "preLaunchTask": "Build: Go Stack (debug symbols)",
+      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "env": {
+        "OUR_IDP_WEB_HOST": "127.0.0.1",
+        "OUR_IDP_PORT": "3000"
+      },
+      "stopOnEntry": false,
+      "showLog": false,
+      "presentation": {
+        "hidden": false,
+        "group": "go",
+        "order": 2
+      },
+      // Windows: binary has .exe extension.
+      "windows": {
+        "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-web.exe"
+      }
+    },
+    {
+      // Attach variant — use when you have already started the web server
+      // with dlv running on port 2345 (e.g. dlv exec --headless --listen=:2345).
+      "name": "Attach: Go Web Server",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "host": "127.0.0.1",
+      "port": 2345,
+      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "remotePath": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "presentation": {
+        "hidden": false,
+        "group": "go-attach",
+        "order": 1
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // Go BFF Server
+    // -------------------------------------------------------------------------
+    {
+      "name": "Debug: Go BFF Server",
+      "type": "go",
+      "request": "launch",
+      "mode": "exec",
+      "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-bff",
+      "preLaunchTask": "Build: Go BFF (debug symbols)",
+      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "env": {
+        "OUR_IDP_API_HOST": "127.0.0.1",
+        "OUR_IDP_API_PORT": "8000"
+      },
+      "stopOnEntry": false,
+      "showLog": false,
+      "presentation": {
+        "hidden": false,
+        "group": "go",
+        "order": 3
+      },
+      "windows": {
+        "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-bff.exe"
+      }
+    },
+    {
+      "name": "Attach: Go BFF Server",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "host": "127.0.0.1",
+      "port": 2346,
+      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "remotePath": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "presentation": {
+        "hidden": false,
+        "group": "go-attach",
+        "order": 2
+      }
+    }
+  ]
+}

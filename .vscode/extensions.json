@@ -1,5 +1,10 @@
 {
   "recommendations": [
-    "redhat.vscode-yaml"
+    // Go language support + delve debugger integration
+    "golang.go",
+    // YAML schema validation (used for moon configs and SKILL.md frontmatter)
+    "redhat.vscode-yaml",
+    // Markdown linting (mirrors markdownlint-cli2 used in CI)
+    "DavidAnson.vscode-markdownlint"
   ]
 }
