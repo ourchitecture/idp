@@ -28,7 +28,7 @@ all: install build check
 
 install:
 	@npm --prefix "$(ROOT_DIR)" install
-
+	@npm ci
 
 build:
 	@npm --prefix "$(ROOT_DIR)" run build:web:react-fastify
@@ -39,7 +39,7 @@ clean:
 lint: check-lint
 
 check-lint:
-	@npm --prefix "$(ROOT_DIR)" run lint:md
+	@npm run lint:md
 
 check-test:
 	@npm --prefix "$(ROOT_DIR)" run typecheck:stack:react-fastify
