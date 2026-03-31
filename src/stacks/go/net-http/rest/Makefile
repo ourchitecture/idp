@@ -1,4 +1,4 @@
-.PHONY: help install build clean lint check-lint check-test check test test-contract run-web run-bff build-web build-bff
+.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract run-web run-bff build-web build-bff
 
 ROOT_DIR := ../../../../..
 BIN_DIR := .bin
@@ -19,18 +19,23 @@ BFF_BIN := $(BIN_DIR)/idp-go-bff$(EXE)
 
 help:
 	@printf "Targets:\n"
+	@printf "  all           Run full stack verification flow\n"
 	@printf "  install       Install dependencies for this stack\n"
 	@printf "  build         Build stack artifacts\n"
 	@printf "  clean         Remove local build artifacts\n"
 	@printf "  check-lint    Run lint checks\n"
 	@printf "  check-test    Run stack tests\n"
+	@printf "  check-contract Run contract tests against this stack\n"
+	@printf "  check-ci      Run CI-safe validation checks\n"
 	@printf "  check         Run lint, tests, and contract checks\n"
 	@printf "  test          Alias for check-test\n"
-	@printf "  test-contract Run contract tests against this stack\n"
+	@printf "  test-contract Alias for check-contract\n"
 	@printf "  build-web     Build stable web executable\n"
 	@printf "  build-bff     Build stable BFF executable\n"
 	@printf "  run-web       Start the web server\n"
 	@printf "  run-bff       Start the BFF server\n"
+
+all: install build check
 
 install:
 	@go mod download
@@ -51,9 +56,11 @@ check-test:
 
 test: check-test
 
-check: check-lint check-test test-contract
+check-ci: build check-lint check-test
 
-test-contract: build
+check: check-lint check-test check-contract
+
+check-contract: build
 	@OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(WEB_BIN)" >/dev/null 2>&1 & WEB_PID=$$!; \
 	OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" env -- "$(BFF_BIN)" >/dev/null 2>&1 & BFF_PID=$$!; \
 	trap 'kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true' EXIT; \
@@ -63,6 +70,8 @@ test-contract: build
 	kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true; \
 	wait $$WEB_PID $$BFF_PID 2>/dev/null || true; \
 	exit $$STATUS
+
+test-contract: check-contract
 
 build-web:
 	@mkdir -p "$(BIN_DIR)"

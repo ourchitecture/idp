@@ -1,0 +1,54 @@
+language: "javascript"
+layer: "tool"
+stack: "infrastructure"
+
+project:
+  title: "repo"
+  description: "Root orchestration, validation, and workflow utility tasks for IDP."
+
+tasks:
+  check-lint-md:
+    command: ["npx", "markdownlint-cli2", "**/*.md"]
+    options:
+      runFromWorkspaceRoot: true
+  check-lint-workflows:
+    command: ["bash", "./scripts/ci/check-lint-workflows.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  check-team-membership:
+    command: ["bash", "./scripts/ci/check-team-membership.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  check-pr-title:
+    command: ["bash", "./scripts/ci/check-pr-title.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  check-pr-changes:
+    command: ["bash", "./scripts/ci/detect-pr-changes.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  issue-number:
+    command: ["bash", "./scripts/ci/issue-number-from-dispatch.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  issue-triage:
+    command: ["bash", "./scripts/ci/issue-triage.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  issue-signal-ready:
+    command: ["bash", "./scripts/ci/issue-signal-ready.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  issue-setup-labels:
+    command: ["bash", "./scripts/ci/setup-labels.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  check:
+    command: ["make", "check"]
+    options:
+      runFromWorkspaceRoot: true
+  dev:
+    command: ["make", "dev"]
+    options:
+      runFromWorkspaceRoot: true
+      persistent: true

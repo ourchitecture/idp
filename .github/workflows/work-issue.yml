@@ -14,6 +14,9 @@ permissions:
   issues: write
   contents: read
 
+env:
+  PROTO_VERSION: "0.55.4"
+
 jobs:
   signal-ready:
     name: Signal Issue Ready for Agent
@@ -24,58 +27,34 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       github.event.label.name == 'agent-eligible'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
       - name: Determine issue number
         id: issue
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_ISSUE_NUMBER: ${{ github.event.inputs.issue_number }}
+          EVENT_ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "number=${{ github.event.inputs.issue_number }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
-          fi
+          export EVENT_NAME="${EVENT_NAME}"
+          export DISPATCH_ISSUE_NUMBER="${DISPATCH_ISSUE_NUMBER}"
+          export EVENT_ISSUE_NUMBER="${EVENT_ISSUE_NUMBER}"
+          export OUTPUT_FILE="$GITHUB_OUTPUT"
+          moon run repo:issue-number
 
-      - name: Verify issue is ready
-        id: verify
+      - name: Verify issue readiness and post signal
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
         run: |
-          LABELS=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" \
-            --json labels --jq '.labels[].name' 2>/dev/null) || true
-
-          if echo "$LABELS" | grep -q "^ready$"; then
-            echo "is_ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "Issue #${ISSUE_NUMBER} does not have the 'ready' label. Skipping."
-            echo "is_ready=false" >> "$GITHUB_OUTPUT"
-          fi
-
-          # Check if a signal comment was already posted (idempotent)
-          EXISTING=$(gh issue view "$ISSUE_NUMBER" --repo "$REPO" \
-            --json comments --jq '.comments[].body' 2>/dev/null \
-            | grep -c "ready for agent processing" || true)
-
-          if [[ "$EXISTING" -gt 0 ]]; then
-            echo "Signal comment already posted. Skipping duplicate."
-            echo "already_signaled=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "already_signaled=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Post ready signal
-        if: >
-          steps.verify.outputs.is_ready == 'true' &&
-          steps.verify.outputs.already_signaled == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
-        run: |
-          gh issue comment "$ISSUE_NUMBER" --repo "$REPO" --body \
-            "This issue is **ready for agent processing**. An agent can pick this up by running:
-
-          \`\`\`
-          /plan-work issue_number=${ISSUE_NUMBER}
-          \`\`\`
-
-          Or find it automatically with \`/find-work\`."
+          export REPO="${REPO}"
+          export ISSUE_NUMBER="${ISSUE_NUMBER}"
+          moon run repo:issue-signal-ready

@@ -1,8 +1,9 @@
 # Local AI assistant settings
 .claude/settings.json
 
-# moon build cache (generated, not committed)
+# Moon workspace cache/artifacts
 .moon/cache/
+.moon/docker/
 
 # Node.js
 node_modules/

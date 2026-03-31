@@ -1,4 +1,4 @@
-.PHONY: help install build clean lint check-lint check-test check test test-contract run-web run-bff
+.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract e2e run-web run-bff
 
 ROOT_DIR := ../../../../..
 STACK_PATH := src/stacks/nodejs/react-fastify/rest
@@ -9,16 +9,22 @@ BFF_TEST_PORT := 8400
 
 help:
 	@printf "Targets:\n"
+	@printf "  all           Run full stack verification flow\n"
 	@printf "  install       Install dependencies for this stack\n"
 	@printf "  build         Build stack artifacts\n"
 	@printf "  clean         Remove local build artifacts\n"
 	@printf "  check-lint    Run lint checks\n"
 	@printf "  check-test    Run stack tests\n"
+	@printf "  check-contract Run contract tests against this stack\n"
+	@printf "  check-ci      Run CI-safe validation checks\n"
 	@printf "  check         Run lint, tests, and contract checks\n"
 	@printf "  test          Alias for check-test\n"
-	@printf "  test-contract Run contract tests against this stack\n"
+	@printf "  test-contract Alias for check-contract\n"
+	@printf "  e2e           Start stack, wait for readiness, run e2e tests\n"
 	@printf "  run-web       Start the web server\n"
 	@printf "  run-bff       Start the BFF server\n"
+
+all: install build check
 
 install:
 	@npm --prefix "$(ROOT_DIR)" install
@@ -40,9 +46,11 @@ check-test:
 
 test: check-test
 
-check: check-lint check-test test-contract
+check-ci: install build check-lint check-test
 
-test-contract:
+check: check-lint check-test check-contract
+
+check-contract:
 	@OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify >/dev/null 2>&1 & WEB_PID=$$!; \
 	OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify >/dev/null 2>&1 & BFF_PID=$$!; \
 	trap 'kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true' EXIT; \
@@ -52,6 +60,18 @@ test-contract:
 	kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true; \
 	wait $$WEB_PID $$BFF_PID 2>/dev/null || true; \
 	exit $$STATUS
+
+test-contract: check-contract
+
+e2e:
+	@STACK_PATH="$(STACK_PATH)" \
+	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
+	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+	CONTRACT_PROFILES="core,operational,ui-profile" \
+	ROOT_DIR="$(ROOT_DIR)" \
+	bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"
 
 run-web:
 	@npm --prefix "$(ROOT_DIR)" run start:web:react-fastify
