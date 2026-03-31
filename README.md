@@ -33,6 +33,7 @@ tools/      Developer tooling, scripts, and MCP server definitions
 
 ### Prerequisites
 
+- Access to the [ourchitecture](https://github.com/ourchitecture) GitHub organization
 - Docker and Docker Compose
 - Go 1.25+
 - Node.js 20+
