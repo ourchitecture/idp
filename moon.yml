@@ -7,6 +7,10 @@ project:
   description: "Root orchestration, validation, and workflow utility tasks for IDP."
 
 tasks:
+  install:
+    command: ["npm", "install"]
+    options:
+      runFromWorkspaceRoot: true
   check-lint-md:
     command: ["npx", "markdownlint-cli2", "**/*.md"]
     options:
@@ -45,6 +49,10 @@ tasks:
       runFromWorkspaceRoot: true
   check:
     command: ["make", "check"]
+    options:
+      runFromWorkspaceRoot: true
+  ci:
+    command: ["make", "ci"]
     options:
       runFromWorkspaceRoot: true
   dev:

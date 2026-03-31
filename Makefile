@@ -1,4 +1,4 @@
-.PHONY: help all install build clean lint check-lint-md check-lint-workflows check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev
+.PHONY: help all ci install build clean lint check-lint-md check-lint-workflows check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev docs-site
 
 DEFAULT_STACK := src/stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -11,7 +11,8 @@ MOON_BIN := $(PROTO_HOME)/shims/moon
 
 help:
 	@printf "Targets:\n"
-	@printf "  all           Install, build, and validate all detected stacks\n"
+	@printf "  all           Bootstrap toolchain and validate all detected stacks\n"
+	@printf "  ci            Run CI-safe checks for all stacks via moon ci (affected-aware)\n"
 	@printf "  install       Install dependencies for selected stack\n"
 	@printf "  build         Build selected stack artifacts\n"
 	@printf "  clean         Clean selected stack artifacts\n"
@@ -31,7 +32,8 @@ help:
 	@printf "  check         Run lint, tests, and contract checks\n"
 	@printf "  test          Alias for check\n"
 	@printf "  test-contract Alias for check-contract\n"
-	@printf "  dev           Start selected stack (web + BFF)\n"
+	@printf "  dev           Bootstrap toolchain and start selected stack (web + BFF)\n"
+	@printf "  docs-site     Build and validate the Stemix documentation site\n"
 	@printf "\n"
 	@printf "Variables:\n"
 	@printf "  STACK  Override stack path (default: %s)\n" "$(DEFAULT_STACK)"
@@ -40,20 +42,47 @@ help:
 	@for stack in $(STACKS); do printf "  - %s\n" "$$stack"; done
 
 all:
-	@set -e; \
-	for stack in $(STACKS); do \
-		printf "Running full build/test validation for %s\n" "$$stack"; \
-		case "$$stack" in \
-			src/stacks/go/net-http/rest) project="go-net-http-rest" ;; \
-			src/stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
-			*) project="" ;; \
-		esac; \
-		if [ -x "$(MOON_BIN)" ] && [ -n "$$project" ]; then \
-			"$(MOON_BIN)" run "$$project:all"; \
-		else \
-			"$(MAKE)" -C "$$stack" all; \
+	@if [ -x "$(MOON_BIN)" ]; then \
+		if [ -x "$(PROTO_HOME)/bin/proto" ]; then \
+			"$(PROTO_HOME)/bin/proto" install; \
 		fi; \
-	done
+		set -e; \
+		for stack in $(STACKS); do \
+			printf "Running full build/test validation for %s\n" "$$stack"; \
+			case "$$stack" in \
+				src/stacks/go/net-http/rest) project="go-net-http-rest" ;; \
+				src/stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
+				*) project="" ;; \
+			esac; \
+			if [ -n "$$project" ]; then \
+				"$(MOON_BIN)" run "$$project:all"; \
+			else \
+				"$(MAKE)" -C "$$stack" all; \
+			fi; \
+		done; \
+		printf "Running full build/test validation for docs-site\n"; \
+		"$(MOON_BIN)" run docs-site:all; \
+	else \
+		set -e; \
+		for stack in $(STACKS); do \
+			printf "Running full build/test validation for %s\n" "$$stack"; \
+			"$(MAKE)" -C "$$stack" all; \
+		done; \
+		printf "Running full build/test validation for docs-site\n"; \
+		"$(MAKE)" -C src/docs all; \
+	fi
+
+ci:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci; \
+	else \
+		set -e; \
+		for stack in $(STACKS); do \
+			printf "Running CI-safe checks for %s\n" "$$stack"; \
+			"$(MAKE)" -C "$$stack" check-ci; \
+		done; \
+		"$(MAKE)" -C src/docs check-ci; \
+	fi
 
 check-lint-md:
 	@if [ -x "$(MOON_BIN)" ]; then \
@@ -149,6 +178,31 @@ test-contract: check-contract
 
 dev:
 	@printf "Starting stack at %s\n" "$(STACK)"
-	@"$(MAKE)" -C "$(STACK)" run-web & \
-	"$(MAKE)" -C "$(STACK)" run-bff & \
-	wait
+	@case "$(STACK)" in \
+		src/stacks/go/net-http/rest) project="go-net-http-rest" ;; \
+		src/stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
+		*) project="" ;; \
+	esac; \
+	if [ -x "$(MOON_BIN)" ]; then \
+		if [ -x "$(PROTO_HOME)/bin/proto" ]; then \
+			"$(PROTO_HOME)/bin/proto" install; \
+		fi; \
+		if [ -n "$$project" ]; then \
+			"$(MOON_BIN)" run "$$project:run-web" "$$project:run-bff"; \
+		else \
+			"$(MAKE)" -C "$(STACK)" run-web & \
+			"$(MAKE)" -C "$(STACK)" run-bff & \
+			wait; \
+		fi; \
+	else \
+		"$(MAKE)" -C "$(STACK)" run-web & \
+		"$(MAKE)" -C "$(STACK)" run-bff & \
+		wait; \
+	fi
+
+docs-site:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:all; \
+	else \
+		"$(MAKE)" -C src/docs all; \
+	fi

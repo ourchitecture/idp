@@ -1,5 +1,7 @@
 # Architecture Decision Records
 
+> The full ADR documentation is available on the [Stemix docs site](https://stemix.dev/docs/architecture/decisions/).
+
 This directory contains Architecture Decision Records (ADRs) for the Stemix / IDP project.
 
 ## Format

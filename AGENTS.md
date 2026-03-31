@@ -203,6 +203,12 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Start default stack web + BFF (make shortcut): `make dev`
 - Test running system (make shortcut): `make test`
 - Run full build/test verification for all detected stacks (make shortcut): `make all`
+- Run CI-safe affected-aware checks for all stacks (make shortcut): `make ci`
+- Run CI-safe checks via moon directly (moon canonical): `moon ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci`
+- Install npm deps explicitly (moon canonical): `moon run repo:install`
+- Run docs site dev server (moon canonical): `moon run docs-site:run-dev`
+- Build docs site (make shortcut): `make -C src/docs build`
+- Run full docs site validation (make shortcut): `make docs-site`
 
 Moon project IDs currently used:
 
@@ -210,6 +216,7 @@ Moon project IDs currently used:
 - `go-net-http-rest`
 - `nodejs-react-fastify-rest`
 - `contract-tests`
+- `docs-site`
 
 Stack-level Makefile targets (from `src/stacks/<stack>/Makefile`).
 All are **optional convenience wrappers**; equivalent `moon` task invocations
