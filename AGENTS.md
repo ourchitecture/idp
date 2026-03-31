@@ -33,6 +33,35 @@ Use this intake threshold before adding an ADR:
 - If the threshold is not met, document in regular docs instead of
   `docs/decisions/`.
 
+## Multi-Agent Collaboration (Priority Context)
+
+Multiple agents may work in this repo concurrently. Each agent operates independently but must assume others are making changes in parallel.
+
+### Cooperative defaults
+
+- Assume other agents are acting in good faith and following these same rules.
+- Prefer cooperative, additive changes over defensive guards against other agents' work.
+- Trust that concurrent agents are scoped to their own issues/branches; avoid re-validating their output unless you have direct evidence of breakage.
+- Minimize re-work: if a file or artifact already satisfies a requirement, do not re-generate or overwrite it.
+
+### Iterative and minimal changes
+
+- Make the smallest change that satisfies the current task. Do not refactor or reorganize unrelated code.
+- Prefer appending or patching over rewriting. Wholesale rewrites increase merge conflicts and wasted effort.
+- Commit atomically and frequently so concurrent agents can rebase cleanly.
+
+### Real-time adaptation
+
+- Before editing any file, re-read it to capture the latest state; do not rely on a cached version from earlier in the session.
+- After completing a change, verify the final state on disk before reporting done.
+- If a conflict or unexpected state is detected, stop and comment on the issue rather than guessing a resolution.
+
+### Protecting unique work
+
+- Scope branches tightly to the issue at hand. Avoid touching files outside the issue scope.
+- If a required shared file (for example `package.json`, a Makefile, or a workflow) must change, note the change in the issue comment so other agents can rebase.
+- Do not silently revert or overwrite another agent's recent commit. Surface conflicts explicitly.
+
 ## Core Principles
 
 - Secure by default: zero-trust, least privilege, no secrets in code, TLS 1.3+.
