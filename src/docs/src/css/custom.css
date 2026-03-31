@@ -1,0 +1,31 @@
+/**
+ * Stemix brand CSS variables.
+ * Docusaurus uses --ifm-color-primary-* for the theme color ramp.
+ */
+:root {
+  --ifm-color-primary: #1a56db;
+  --ifm-color-primary-dark: #1749c4;
+  --ifm-color-primary-darker: #1542b8;
+  --ifm-color-primary-darkest: #113697;
+  --ifm-color-primary-light: #2463e2;
+  --ifm-color-primary-lighter: #2d6ae4;
+  --ifm-color-primary-lightest: #4a7fe8;
+
+  --ifm-font-family-base: "Inter", system-ui, -apple-system, sans-serif;
+  --ifm-heading-font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --ifm-color-primary: #4a7fe8;
+  --ifm-color-primary-dark: #2d6ae4;
+  --ifm-color-primary-darker: #2463e2;
+  --ifm-color-primary-darkest: #1a56db;
+  --ifm-color-primary-light: #6794ec;
+  --ifm-color-primary-lighter: #7aa0ee;
+  --ifm-color-primary-lightest: #a0bcf3;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}

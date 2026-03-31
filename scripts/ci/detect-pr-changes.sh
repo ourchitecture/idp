@@ -30,6 +30,7 @@ run_go_stack="false"
 run_node_stack="false"
 run_workflow_lint="false"
 run_reference_all="false"
+run_docs_validation="false"
 
 for file in "${changed_files[@]}"; do
   if [[ "${file}" == *.md ]]; then
@@ -50,6 +51,9 @@ for file in "${changed_files[@]}"; do
       ;;
     src/stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
+      ;;
+    src/docs/*|docs/*)
+      run_docs_validation="true"
       ;;
     Makefile|package.json|package-lock.json|tests/contract/*)
       run_reference_all="true"
@@ -111,6 +115,7 @@ echo "run_markdown=${run_markdown}"
 echo "run_workflow_lint=${run_workflow_lint}"
 echo "run_stack_validation=${run_stack_validation}"
 echo "stack_matrix=${stack_matrix}"
+echo "run_docs_validation=${run_docs_validation}"
 
 if [[ -n "${OUTPUT_FILE}" ]]; then
   {
@@ -120,5 +125,6 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_workflow_lint=%s\n" "${run_workflow_lint}"
     printf "run_stack_validation=%s\n" "${run_stack_validation}"
     printf "stack_matrix=%s\n" "${stack_matrix}"
+    printf "run_docs_validation=%s\n" "${run_docs_validation}"
   } >> "${OUTPUT_FILE}"
 fi

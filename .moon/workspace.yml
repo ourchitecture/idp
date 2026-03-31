@@ -4,6 +4,7 @@ projects:
     go-net-http-rest: "src/stacks/go/net-http/rest"
     nodejs-react-fastify-rest: "src/stacks/nodejs/react-fastify/rest"
     contract-tests: "tests/contract"
+    docs-site: "src/docs"
 
 defaultProject: "repo"
 versionConstraint: ">=2.1.3"

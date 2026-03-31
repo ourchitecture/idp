@@ -2,6 +2,8 @@
 
 Stemix is an Intelligent Development System (IDS) with an Intent-Driven Portal (IDP); a modern, AI-native development system that connects the software development process and digital supply chain to an organization's product development lifecycle.
 
+**Documentation site**: [stemix.dev](https://stemix.dev)
+
 ## What is IDP?
 
 The Intent-Driven Portal is an evolution of the Internal Developer Portal concept. It shares the IDP acronym intentionally, but goes beyond traditional developer portals by deeply integrating AI and web technologies to improve the entire development experience.
@@ -26,6 +28,12 @@ docs/       Project documentation, ADRs, and guides
 tests/      Integration and end-to-end tests
 tools/      Developer tooling, scripts, and MCP server definitions
 ```
+
+**Key documentation:**
+
+- [docs/testing/contract-harness.md](docs/testing/contract-harness.md) —
+  Contract test harness guide (newcomers, implementers, and contributors)
+- [docs/decisions/](docs/decisions/) — Architecture Decision Records (ADR index)
 
 ## Getting Started
 
@@ -104,6 +112,34 @@ Agent workflow skills are available in `/.claude/skills/`:
 - `/ship-changes issue_number=<N>` to commit, open a PR, and merge.
 - `/audit-work-integrity` to enforce strict branch/PR/issue linkage hygiene.
 
+### Documentation Site
+
+The Stemix documentation site lives at [stemix.dev](https://stemix.dev) and is built with [Docusaurus 3](https://docusaurus.io/). Source is in `src/docs/`.
+
+Run the docs dev server locally:
+
+```bash
+# moon canonical
+moon run docs-site:run-dev
+
+# make convenience shortcut
+make docs-site
+```
+
+Build the static site:
+
+```bash
+make -C src/docs build
+# or: moon run docs-site:build
+```
+
+Run full docs validation (install, build, lint, typecheck):
+
+```bash
+make -C src/docs all
+# or: moon run docs-site:all
+```
+
 ### Implementation Portfolio
 
 - Default and canonical reference stack: `src/stacks/go/net-http/rest`
@@ -171,6 +207,10 @@ Run contract tests against a running stack:
 ```bash
 make test
 ```
+
+See [docs/testing/contract-harness.md](docs/testing/contract-harness.md) for a
+full guide to the test harness, including how to run individual profiles, how
+to test alternate stacks, and how to build a new compliant implementation.
 
 Start the additional React stack directly:
 

@@ -19,3 +19,7 @@ src/stacks/go/net-http/rest/go-web.log
 src/stacks/go/net-http/rest/go-bff.log
 go-web.log
 go-bff.log
+
+# Docs site build artifacts
+src/docs/build/
+src/docs/.docusaurus/

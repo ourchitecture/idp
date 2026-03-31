@@ -1,0 +1,62 @@
+name: Docs Publish
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/docs/**"
+      - "docs/**"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  PROTO_VERSION: "0.55.4"
+
+jobs:
+  build:
+    name: Build Docs Site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v6.0.0
+
+      - name: Build docs site
+        env:
+          DOCS_SITE_URL: "https://stemix.dev"
+          DOCS_BASE_URL: "/"
+        run: moon run docs-site:build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4.0.0
+        with:
+          path: src/docs/build
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5.0.0
