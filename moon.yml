@@ -19,45 +19,36 @@ tasks:
     command: ["bash", "./scripts/ci/check-team-membership.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   check-pr-title:
     command: ["bash", "./scripts/ci/check-pr-title.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   check-pr-changes:
     command: ["bash", "./scripts/ci/detect-pr-changes.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   issue-number:
     command: ["bash", "./scripts/ci/issue-number-from-dispatch.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   issue-triage:
     command: ["bash", "./scripts/ci/issue-triage.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   issue-signal-ready:
     command: ["bash", "./scripts/ci/issue-signal-ready.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   issue-setup-labels:
     command: ["bash", "./scripts/ci/setup-labels.sh"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   check:
     command: ["make", "check"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
   dev:
     command: ["make", "dev"]
     options:
       runFromWorkspaceRoot: true
-      runInCI: false
       persistent: true
