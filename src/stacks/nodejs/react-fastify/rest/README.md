@@ -59,3 +59,4 @@ GNU Make (compatibility):
 - `npm run build:web:react-fastify`
 - `npm run start:web:react-fastify`
 - `npm run start:bff:react-fastify`
+- `npm run lint:md` (local markdownlint-cli2 — run from this directory)
