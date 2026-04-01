@@ -1,0 +1,108 @@
+# Node.js React + Fastify (REST)
+
+This stack is an additional React-focused reference implementation for
+TypeScript-centric teams. It combines a Vite + React web portal with a Fastify
+BFF.
+
+## Components
+
+- **Web**: React 19 + TypeScript + Vite + React Router + TanStack Query
+- **BFF**: Fastify 5 + TypeScript + Zod validation
+
+## Port Contract
+
+- Web default: `3000` (`OUR_IDP_PORT` then `PORT` override)
+- BFF default: `8000` (`OUR_IDP_API_PORT` override)
+
+## Host Contract
+
+- Web default host: `127.0.0.1` (override with `OUR_IDP_WEB_HOST`)
+- BFF default host: `127.0.0.1` (override with `OUR_IDP_API_HOST`)
+
+## Contract Profiles
+
+- `core`
+- `operational`
+- `ui-profile`
+
+This stack declares UI capability mode `spa`.
+
+## Commands
+
+Moon (maintainer/CI canonical):
+
+- `moon run nodejs-react-fastify-rest:all`
+- `moon run nodejs-react-fastify-rest:check-ci`
+- `moon run nodejs-react-fastify-rest:check-contract`
+- `moon run nodejs-react-fastify-rest:run-web`
+- `moon run nodejs-react-fastify-rest:run-bff`
+
+GNU Make (compatibility):
+
+- `make -C stacks/nodejs/react-fastify/rest all`
+- `make -C stacks/nodejs/react-fastify/rest install`
+- `make -C stacks/nodejs/react-fastify/rest build`
+- `make -C stacks/nodejs/react-fastify/rest clean`
+- `make -C stacks/nodejs/react-fastify/rest check-lint`
+- `make -C stacks/nodejs/react-fastify/rest check-test`
+- `make -C stacks/nodejs/react-fastify/rest check-contract`
+- `make -C stacks/nodejs/react-fastify/rest check-ci`
+- `make -C stacks/nodejs/react-fastify/rest check`
+- `make -C stacks/nodejs/react-fastify/rest test` (alias for `check-test`)
+- `make -C stacks/nodejs/react-fastify/rest run-web`
+- `make -C stacks/nodejs/react-fastify/rest run-bff`
+- `make -C stacks/nodejs/react-fastify/rest test-contract` (alias for `check-contract`)
+
+### Native Tooling Shortcuts
+
+- `npm run typecheck:stack:react-fastify`
+- `npm run build:web:react-fastify`
+- `npm run start:web:react-fastify`
+- `npm run start:bff:react-fastify`
+- `npm run lint:md` (local markdownlint-cli2 -- run from this directory)
+
+## Container Images
+
+Container images are built from separate Dockerfiles for each component:
+
+- `web/Dockerfile` -- nginx-based SPA with BFF proxy
+- `bff/Dockerfile` -- Node.js Fastify server
+
+### Prerequisites
+
+- Docker (or compatible runtime such as Rancher Desktop with dockerd/moby)
+
+### Build
+
+```bash
+make -C stacks/nodejs/react-fastify/rest build-container-web
+make -C stacks/nodejs/react-fastify/rest build-container-bff
+make -C stacks/nodejs/react-fastify/rest build-containers
+```
+
+### Run
+
+```bash
+docker run --rm -p 8400:8400 localhost/stemix-nodejs-react-fastify-rest-bff:latest
+docker run --rm -p 3400:3400 -e BFF_URL=http://host.docker.internal:8400 localhost/stemix-nodejs-react-fastify-rest-web:latest
+```
+
+The web container uses nginx and proxies `/api/*` requests to the BFF via the
+`BFF_URL` environment variable (required at container startup).
+
+### Environment Variables
+
+**Web (nginx)**:
+
+- `BFF_URL` -- BFF backend URL for API proxy (required, example:
+  `http://host.docker.internal:8400`)
+
+**BFF (Fastify)**:
+
+- `OUR_IDP_API_HOST` -- bind address (default `0.0.0.0`)
+- `OUR_IDP_API_PORT` -- BFF port (default `8400`)
+
+### Published Images
+
+- `ghcr.io/ourchitecture/idp/stemix-nodejs-react-fastify-rest-web`
+- `ghcr.io/ourchitecture/idp/stemix-nodejs-react-fastify-rest-bff`

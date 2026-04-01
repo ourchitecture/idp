@@ -1,0 +1,21 @@
+language: "typescript"
+layer: "automation"
+stack: "backend"
+
+project:
+  title: "contract-tests"
+  description: "Implementation-agnostic contract test harness for IDP stacks."
+
+tasks:
+  check-contract:
+    command: ["npm", "run", "test:contract"]
+    options:
+      runFromWorkspaceRoot: true
+  test-contract:
+    command: ["npm", "run", "test:contract"]
+    options:
+      runFromWorkspaceRoot: true
+  build-container:
+    command: ["make", "build-container"]
+    options:
+      runInCI: false

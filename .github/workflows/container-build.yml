@@ -1,0 +1,262 @@
+name: Container Build
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "stacks/go/net-http/rest/**"
+      - "stacks/nodejs/react-fastify/rest/**"
+      - "tests/**"
+      - ".github/workflows/container-build.yml"
+  push:
+    branches: [main]
+    paths:
+      - "stacks/go/net-http/rest/**"
+      - "stacks/nodejs/react-fastify/rest/**"
+      - "tests/**"
+      - ".github/workflows/container-build.yml"
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/ourchitecture/idp
+
+jobs:
+  build-go-web:
+    name: Build go-net-http-rest-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: stacks/go/net-http/rest
+          file: stacks/go/net-http/rest/Dockerfile
+          build-args: SERVICE=web
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:edge
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test image (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build \
+            --build-arg SERVICE=web \
+            -t stemix-go-web-smoke:test \
+            -f stacks/go/net-http/rest/Dockerfile \
+            stacks/go/net-http/rest
+          CID=$(docker run -d -p 3300:3000 stemix-go-web-smoke:test)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
+
+  build-go-bff:
+    name: Build go-net-http-rest-bff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: stacks/go/net-http/rest
+          file: stacks/go/net-http/rest/Dockerfile
+          build-args: SERVICE=bff
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:edge
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test image (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build \
+            --build-arg SERVICE=bff \
+            -t stemix-go-bff-smoke:test \
+            -f stacks/go/net-http/rest/Dockerfile \
+            stacks/go/net-http/rest
+          CID=$(docker run -d -p 8300:8000 stemix-go-bff-smoke:test)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/api/health || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
+
+  build-nodejs-web:
+    name: Build nodejs-react-fastify-rest-web
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: stacks/nodejs/react-fastify/rest/web/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:edge
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test image (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build \
+            -t stemix-node-web-smoke:test \
+            -f stacks/nodejs/react-fastify/rest/web/Dockerfile \
+            .
+          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-node-web-smoke:test)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
+
+  build-nodejs-bff:
+    name: Build nodejs-react-fastify-rest-bff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:edge
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test image (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          docker build \
+            -t stemix-node-bff-smoke:test \
+            -f stacks/nodejs/react-fastify/rest/bff/Dockerfile \
+            .
+          CID=$(docker run -d -p 8400:8000 stemix-node-bff-smoke:test)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/api/health || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
+
+  build-contract-tests:
+    name: Build contract-tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: tests/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests:edge
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  container-build-result:
+    name: Container Build Result
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - build-go-web
+      - build-go-bff
+      - build-nodejs-web
+      - build-nodejs-bff
+      - build-contract-tests
+    steps:
+      - name: Verify all container builds passed
+        run: |
+          result_go_web="${{ needs.build-go-web.result }}"
+          result_go_bff="${{ needs.build-go-bff.result }}"
+          result_node_web="${{ needs.build-nodejs-web.result }}"
+          result_node_bff="${{ needs.build-nodejs-bff.result }}"
+          result_tests="${{ needs.build-contract-tests.result }}"
+
+          failed="false"
+          for result in "${result_go_web}" "${result_go_bff}" "${result_node_web}" "${result_node_bff}" "${result_tests}"; do
+            if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
+              failed="true"
+            fi
+          done
+
+          if [[ "${failed}" == "true" ]]; then
+            echo "::error::One or more container builds failed"
+            exit 1
+          fi
+
+          echo "All container builds completed successfully."

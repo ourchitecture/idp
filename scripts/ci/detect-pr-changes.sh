@@ -31,6 +31,9 @@ run_node_stack="false"
 run_workflow_lint="false"
 run_reference_all="false"
 run_docs_validation="false"
+run_go_containers="false"
+run_node_containers="false"
+run_tests_container="false"
 
 for file in "${changed_files[@]}"; do
   if [[ "${file}" == *.md ]]; then
@@ -46,17 +49,22 @@ for file in "${changed_files[@]}"; do
     scripts/ci/*)
       run_workflow_lint="true"
       ;;
-    src/stacks/go/net-http/rest/*)
+    stacks/go/net-http/rest/*)
       run_go_stack="true"
+      run_go_containers="true"
       ;;
-    src/stacks/nodejs/react-fastify/rest/*)
+    stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
+      run_node_containers="true"
       ;;
+    # docs/* includes architecture diagram sources under
+    # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
     src/docs/*|docs/*)
       run_docs_validation="true"
       ;;
-    Makefile|package.json|package-lock.json|tests/contract/*)
+    Makefile|package.json|package-lock.json|tests/*)
       run_reference_all="true"
+      run_tests_container="true"
       ;;
     *.md|.github/*|scripts/ci/*)
       ;;
@@ -81,6 +89,9 @@ fi
 if [[ "${run_reference_all}" == "true" ]]; then
   run_go_stack="true"
   run_node_stack="true"
+  run_go_containers="true"
+  run_node_containers="true"
+  run_tests_container="true"
 fi
 
 run_stack_validation="false"
@@ -90,6 +101,14 @@ fi
 
 if [[ "${markdown_only}" == "true" ]]; then
   run_stack_validation="false"
+  run_go_containers="false"
+  run_node_containers="false"
+  run_tests_container="false"
+fi
+
+run_any_containers="false"
+if [[ "${run_go_containers}" == "true" || "${run_node_containers}" == "true" || "${run_tests_container}" == "true" ]]; then
+  run_any_containers="true"
 fi
 
 stack_matrix='[]'
@@ -97,11 +116,11 @@ if [[ "${run_stack_validation}" == "true" ]]; then
   matrix_items=()
 
   if [[ "${run_go_stack}" == "true" ]]; then
-    matrix_items+=("{\"project\":\"go-net-http-rest\",\"stack\":\"src/stacks/go/net-http/rest\",\"label\":\"go-net-http-rest\"}")
+    matrix_items+=("{\"project\":\"go-net-http-rest\",\"stack\":\"stacks/go/net-http/rest\",\"label\":\"go-net-http-rest\"}")
   fi
 
   if [[ "${run_node_stack}" == "true" ]]; then
-    matrix_items+=("{\"project\":\"nodejs-react-fastify-rest\",\"stack\":\"src/stacks/nodejs/react-fastify/rest\",\"label\":\"nodejs-react-fastify-rest\"}")
+    matrix_items+=("{\"project\":\"nodejs-react-fastify-rest\",\"stack\":\"stacks/nodejs/react-fastify/rest\",\"label\":\"nodejs-react-fastify-rest\"}")
   fi
 
   if [[ ${#matrix_items[@]} -gt 0 ]]; then
@@ -116,6 +135,10 @@ echo "run_workflow_lint=${run_workflow_lint}"
 echo "run_stack_validation=${run_stack_validation}"
 echo "stack_matrix=${stack_matrix}"
 echo "run_docs_validation=${run_docs_validation}"
+echo "run_go_containers=${run_go_containers}"
+echo "run_node_containers=${run_node_containers}"
+echo "run_tests_container=${run_tests_container}"
+echo "run_any_containers=${run_any_containers}"
 
 if [[ -n "${OUTPUT_FILE}" ]]; then
   {
@@ -126,5 +149,9 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_stack_validation=%s\n" "${run_stack_validation}"
     printf "stack_matrix=%s\n" "${stack_matrix}"
     printf "run_docs_validation=%s\n" "${run_docs_validation}"
+    printf "run_go_containers=%s\n" "${run_go_containers}"
+    printf "run_node_containers=%s\n" "${run_node_containers}"
+    printf "run_tests_container=%s\n" "${run_tests_container}"
+    printf "run_any_containers=%s\n" "${run_any_containers}"
   } >> "${OUTPUT_FILE}"
 fi

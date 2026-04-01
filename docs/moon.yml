@@ -1,0 +1,41 @@
+language: "typescript"
+layer: "application"
+stack: "frontend"
+
+project:
+  title: "docs-site"
+  description: "Stemix documentation site built with Docusaurus 3."
+
+tasks:
+  all:
+    command: ["make", "all"]
+  install:
+    command: ["make", "install"]
+  build:
+    command: ["make", "build"]
+  clean:
+    command: ["make", "clean"]
+  generate-diagrams:
+    command: ["make", "generate-diagrams"]
+  check-diagrams:
+    command: ["make", "check-diagrams"]
+  check-lint:
+    command: ["make", "check-lint"]
+  check-test:
+    command: ["make", "check-test"]
+  check-ci:
+    command: ["make", "check-ci"]
+    options:
+      runInCI: true
+  check:
+    command: ["make", "check"]
+  run-dev:
+    command: ["make", "run-dev"]
+    options:
+      persistent: true
+      runInCI: false
+  run-serve:
+    command: ["make", "run-serve"]
+    options:
+      persistent: true
+      runInCI: false

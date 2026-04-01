@@ -1,9 +1,11 @@
 {
+  "globs": ["**/*.md"],
   "ignores": [
     "node_modules",
-    "src/docs/node_modules",
-    "src/docs/build",
-    "src/docs/.docusaurus",
-    "src/stacks/nodejs/react-fastify/rest/node_modules"
+    "src",
+    "docs/node_modules",
+    "docs/build",
+    "docs/.docusaurus",
+    "stacks/nodejs/react-fastify/rest/node_modules"
   ]
 }

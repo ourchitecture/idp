@@ -1,0 +1,33 @@
+server {
+    listen 3000;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Proxy /api/* to the BFF at runtime.
+    # BFF_URL must be set via environment variable at container start.
+    # Default falls back to localhost:8000 for convenience.
+    location /api/ {
+        proxy_pass ${BFF_URL}/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 30s;
+        proxy_connect_timeout 10s;
+    }
+
+    # Serve static assets with cache headers.
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # SPA fallback: all non-file, non-api requests serve index.html.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

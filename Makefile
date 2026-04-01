@@ -1,8 +1,8 @@
-.PHONY: help all ci install build clean lint check-lint-md check-lint-workflows check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev docs-site
+.PHONY: help all ci install build clean lint check-lint-md check-lint-workflows check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev docs-site build-containers
 
-DEFAULT_STACK := src/stacks/go/net-http/rest
+DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
-STACK_MAKEFILES := $(wildcard src/stacks/*/*/*/Makefile)
+STACK_MAKEFILES := $(wildcard stacks/*/*/*/Makefile)
 STACKS := $(patsubst %/Makefile,%,$(STACK_MAKEFILES))
 CI_SCRIPTS_DIR := scripts/ci
 
@@ -34,6 +34,7 @@ help:
 	@printf "  test-contract Alias for check-contract\n"
 	@printf "  dev           Bootstrap toolchain and start selected stack (web + BFF)\n"
 	@printf "  docs-site     Build and validate the Stemix documentation site\n"
+	@printf "  build-containers Build all container images for all stacks (opt-in, requires docker)\n"
 	@printf "\n"
 	@printf "Variables:\n"
 	@printf "  STACK  Override stack path (default: %s)\n" "$(DEFAULT_STACK)"
@@ -50,8 +51,8 @@ all:
 		for stack in $(STACKS); do \
 			printf "Running full build/test validation for %s\n" "$$stack"; \
 			case "$$stack" in \
-				src/stacks/go/net-http/rest) project="go-net-http-rest" ;; \
-				src/stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
+			stacks/go/net-http/rest) project="go-net-http-rest" ;; \
+			stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
 				*) project="" ;; \
 			esac; \
 			if [ -n "$$project" ]; then \
@@ -69,7 +70,13 @@ all:
 			"$(MAKE)" -C "$$stack" all; \
 		done; \
 		printf "Running full build/test validation for docs-site\n"; \
-		"$(MAKE)" -C src/docs all; \
+		"$(MAKE)" -C docs all; \
+	fi
+	@if command -v docker >/dev/null 2>&1; then \
+		printf "Docker detected — building container images\n"; \
+		"$(MAKE)" build-containers; \
+	else \
+		printf "Docker not found — skipping container builds (opt-in only)\n"; \
 	fi
 
 ci:
@@ -81,14 +88,14 @@ ci:
 			printf "Running CI-safe checks for %s\n" "$$stack"; \
 			"$(MAKE)" -C "$$stack" check-ci; \
 		done; \
-		"$(MAKE)" -C src/docs check-ci; \
+		"$(MAKE)" -C docs check-ci; \
 	fi
 
 check-lint-md:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run repo:check-lint-md; \
 	else \
-		"npx" markdownlint-cli2 "**/*.md"; \
+		npm run lint:md; \
 	fi
 
 check-lint-workflows:
@@ -179,8 +186,8 @@ test-contract: check-contract
 dev:
 	@printf "Starting stack at %s\n" "$(STACK)"
 	@case "$(STACK)" in \
-		src/stacks/go/net-http/rest) project="go-net-http-rest" ;; \
-		src/stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
+		stacks/go/net-http/rest) project="go-net-http-rest" ;; \
+		stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
 		*) project="" ;; \
 	esac; \
 	if [ -x "$(MOON_BIN)" ]; then \
@@ -204,5 +211,16 @@ docs-site:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:all; \
 	else \
-		"$(MAKE)" -C src/docs all; \
+		"$(MAKE)" -C docs all; \
 	fi
+
+build-containers:
+	@set -e; \
+	for stack in $(STACKS); do \
+		if [ -f "$$stack/Makefile" ]; then \
+			printf "Building container images for %s\n" "$$stack"; \
+			"$(MAKE)" -C "$$stack" build-containers; \
+		fi; \
+	done; \
+	printf "Building container image for tests\n"; \
+	"$(MAKE)" -C tests build-container

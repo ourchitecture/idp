@@ -12,7 +12,7 @@ tasks:
     options:
       runFromWorkspaceRoot: true
   check-lint-md:
-    command: ["npx", "markdownlint-cli2", "**/*.md"]
+    command: ["npm", "run", "lint:md"]
     options:
       runFromWorkspaceRoot: true
   check-lint-workflows:

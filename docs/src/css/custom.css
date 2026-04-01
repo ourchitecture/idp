@@ -1,0 +1,108 @@
+/**
+ * Stemix brand CSS variables.
+ * Docusaurus uses --ifm-color-primary-* for the theme color ramp.
+ */
+:root {
+  --ifm-color-primary: #1a56db;
+  --ifm-color-primary-dark: #1749c4;
+  --ifm-color-primary-darker: #1542b8;
+  --ifm-color-primary-darkest: #113697;
+  --ifm-color-primary-light: #2463e2;
+  --ifm-color-primary-lighter: #2d6ae4;
+  --ifm-color-primary-lightest: #4a7fe8;
+
+  --ifm-font-family-base: "Inter", system-ui, -apple-system, sans-serif;
+  --ifm-heading-font-family: "Inter", system-ui, -apple-system, sans-serif;
+
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --ifm-color-primary: #4a7fe8;
+  --ifm-color-primary-dark: #2d6ae4;
+  --ifm-color-primary-darker: #2463e2;
+  --ifm-color-primary-darkest: #1a56db;
+  --ifm-color-primary-light: #6794ec;
+  --ifm-color-primary-lighter: #7aa0ee;
+  --ifm-color-primary-lightest: #a0bcf3;
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Cookie consent banner ──────────────────────────────────────────────── */
+
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: var(--ifm-navbar-background-color);
+  border-top: 1px solid var(--ifm-color-emphasis-300);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1.5rem;
+  flex-wrap: wrap;
+}
+
+.cookie-banner__text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ifm-font-color-base);
+  flex: 1 1 280px;
+}
+
+.cookie-banner__link {
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+}
+
+.cookie-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cookie-banner__btn {
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
+  line-height: 1.4;
+}
+
+.cookie-banner__btn:hover {
+  opacity: 0.82;
+}
+
+.cookie-banner__btn--primary {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.cookie-banner__btn--secondary {
+  background: transparent;
+  color: var(--ifm-font-color-secondary);
+  border: 1px solid var(--ifm-color-emphasis-400);
+}
+
+@media (max-width: 600px) {
+  .cookie-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cookie-banner__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

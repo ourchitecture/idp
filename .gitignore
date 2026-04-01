@@ -9,17 +9,21 @@
 node_modules/
 
 # Local stack artifacts
+stacks/go/net-http/rest/.bin/
+stacks/nodejs/react-fastify/rest/web/dist/
 src/stacks/go/net-http/rest/.bin/
 src/stacks/nodejs/react-fastify/rest/web/dist/
 web.log
 bff.log
 rf-web.log
 rf-bff.log
-src/stacks/go/net-http/rest/go-web.log
-src/stacks/go/net-http/rest/go-bff.log
+stacks/go/net-http/rest/go-web.log
+stacks/go/net-http/rest/go-bff.log
 go-web.log
 go-bff.log
 
 # Docs site build artifacts
+docs/build/
+docs/.docusaurus/
 src/docs/build/
 src/docs/.docusaurus/

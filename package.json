@@ -6,16 +6,16 @@
   "license": "MIT",
   "scripts": {
     "lint:md": "markdownlint-cli2",
-    "start:web": "make -C \"src/stacks/go/net-http/rest\" run-web",
-    "start:bff": "make -C \"src/stacks/go/net-http/rest\" run-bff",
-    "start:web:react-fastify": "tsx src/stacks/nodejs/react-fastify/rest/web/server.ts",
-    "start:bff:react-fastify": "tsx src/stacks/nodejs/react-fastify/rest/bff/src/server.ts",
-    "build:web:react-fastify": "vite build --config src/stacks/nodejs/react-fastify/rest/web/vite.config.ts",
-    "typecheck:web:react-fastify": "tsc --project src/stacks/nodejs/react-fastify/rest/web/tsconfig.json --noEmit",
-    "typecheck:bff:react-fastify": "tsc --project src/stacks/nodejs/react-fastify/rest/bff/tsconfig.json --noEmit",
+    "start:web": "make -C \"stacks/go/net-http/rest\" run-web",
+    "start:bff": "make -C \"stacks/go/net-http/rest\" run-bff",
+    "start:web:react-fastify": "tsx stacks/nodejs/react-fastify/rest/web/server.ts",
+    "start:bff:react-fastify": "tsx stacks/nodejs/react-fastify/rest/bff/src/server.ts",
+    "build:web:react-fastify": "vite build --config stacks/nodejs/react-fastify/rest/web/vite.config.ts",
+    "typecheck:web:react-fastify": "tsc --project stacks/nodejs/react-fastify/rest/web/tsconfig.json --noEmit",
+    "typecheck:bff:react-fastify": "tsc --project stacks/nodejs/react-fastify/rest/bff/tsconfig.json --noEmit",
     "typecheck:stack:react-fastify": "npm run typecheck:web:react-fastify && npm run typecheck:bff:react-fastify",
-    "test:contract": "tsx tests/contract/src/index.ts",
-    "test:contract:watch": "tsx watch tests/contract/src/index.ts"
+    "test:contract": "tsx tests/src/index.ts",
+    "test:contract:watch": "tsx watch tests/src/index.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.1.0",
