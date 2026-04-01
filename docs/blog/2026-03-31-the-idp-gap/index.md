@@ -8,221 +8,260 @@ tags:
   - ai
   - mcp
   - developer-experience
-draft: true
+draft: false
 date: 2026-03-31
 ---
 
 <!-- markdownlint-disable MD041 -->
 
-The Internal Developer Portal has earned its place in the modern engineering
-platform stack. Over the past several years, platforms like Backstage, Port,
-Cortex, and OpsLevel have helped organizations bring order to sprawling service
-catalogs, surface software health at a glance, and give developers a
-self-service front door to infrastructure and tooling. That is real, meaningful
-progress — and the engineering teams behind those platforms deserve credit for
-advancing the discipline.
+The Internal Developer Portal earned its place in modern engineering.
 
-But the pace of change in software engineering — particularly the shift toward
-AI-native development workflows — is now outrunning the architectural
-assumptions that most IDPs were built on. The gap is widening, and it shows up
-across nearly every layer of the platform.
+Platforms like Backstage, Port, Cortex, and OpsLevel helped teams bring order
+to growing software estates. They gave developers a front door to tooling,
+service metadata, and self-service workflows. That was real progress, and the
+teams behind those platforms moved the discipline forward.
+
+But software delivery is changing faster than the assumptions many IDPs were
+built on.
+
+AI is changing how work is initiated, how context is gathered, how actions are
+taken, and who participates in the flow of delivery. That does not make the
+Internal Developer Portal obsolete. It does create a gap between what many
+portals were designed to do and what teams will increasingly need from them.
 
 <!-- truncate -->
 
-## The Web Technology Foundation
+## The gap is not one thing
 
-Internal Developer Portals arrived alongside the rise of the single-page
-application. React, Angular, and Vue.js were the modern web, and a portal built
-on one of them was, by definition, a modern portal. That moment has passed.
+This is not just a UI problem. It is not just a chat problem. It is not just an
+API problem.
 
-Today's web platform is meaningfully different: component streaming, edge
-rendering, fine-grained reactivity, design systems that span multiple products
-and teams. More importantly, the bar for _what a web interface needs to do_ has
-risen. Modern users expect real-time updates, optimistic UI, seamless
-transitions, and personalized layouts — not because expectations are
-unreasonable, but because every other surface they use every day now delivers
-this.
+It is a stack problem.
 
-Most IDPs are carrying 3–5 year old UI foundations. Modernizing them means
-either a disruptive rewrite or a slow, painful incremental migration. Neither
-is easy to pursue while simultaneously shipping features. The result is that UX
-innovation in the IDP space has been cautious and incremental — a redesigned
-sidebar or a fresh color palette, rather than a rethought interaction model.
+The next stage of platform experience will require teams to think differently
+about interfaces, data models, APIs, collaboration, and system visibility. Many
+current portals can evolve in that direction. Some will struggle. The point is
+not to declare winners early. The point is to understand what is changing so
+teams can evaluate their platform direction with clearer eyes.
 
-## The AI Capabilities Gap
+## The web foundation is aging
 
-The first wave of AI integration in developer tooling followed a predictable
-pattern: add a chat widget, surface an LLM behind a search box, wrap a
-generative model around documentation search. These additions have genuine
-utility. But they are additive in the same way that adding a GPS to a
-horse-drawn carriage is useful — the fundamental transport model has not
-changed.
+Many Internal Developer Portals were built in the era when the single-page
+application defined modern web architecture. At the time, that was a reasonable
+foundation.
 
-An AI-first platform is designed differently at its core. It treats AI not as
-a feature to be added, but as a first-class participant in every workflow. That
-means:
+The bar has moved.
 
-- Platform knowledge is structured so AI agents can reason over it, not just
-  search it.
-- User intent can be expressed in natural language and resolved to platform
-  actions without navigating menus.
-- Recommendations, alerts, and insights are generated proactively — the
-  platform finds the engineer, not the other way around.
+Modern users now expect real-time updates, fast transitions, flexible layouts,
+and interfaces that adapt well across products and contexts. This is not about
+chasing design trends. It is about the practical reality that every system
+competes with the quality expectations created by other software people use all
+day.
 
-Most IDPs were not designed this way. Their data models, plugin APIs, and
-interaction patterns all assume a human who knows what they are looking for and
-knows where to find it. Retrofitting an AI-first experience onto that
-foundation is possible, but it requires rethinking what the platform's job is —
-not just reconfiguring it.
+A portal built on an older UI foundation can still be useful. But older
+foundations make deeper UX changes harder. Teams often end up choosing between a
+costly rewrite and a slow migration while still trying to ship features. That
+usually leads to incremental changes instead of rethinking the experience.
 
-## The API Gap: Designed for Humans, Not Intelligence
+The issue is not that current portals look old. The issue is that older
+foundations can limit what the platform can become.
 
-The REST and GraphQL APIs that IDPs expose were designed for one consumer: a
-human-driven browser client. Request/response cycles are short. Payloads are
-shaped for UI rendering. Authentication flows assume interactive sessions. This
-works well for dashboards. It works poorly for AI agents.
+## The AI gap is deeper than adding chat
 
-The **Model Context Protocol (MCP)** is an emerging standard that defines how
-AI systems discover, invoke, and compose platform tools. It represents a
-fundamentally different API surface — one built for tool use, context
-accumulation, and non-linear traversal. An MCP-native platform API looks and
-behaves nothing like a REST API optimized for a React frontend.
+The first wave of AI in developer platforms was predictable. Add a chat panel.
+Add summarization. Add a generative layer over search.
 
-Today's IDP APIs need to speak both languages. The challenge is that the
-requirements pull in different directions:
+Some of that is useful. But it does not yet change the operating model of the
+platform.
 
-- REST APIs optimize for human-scale payloads; MCP tool definitions optimize
-  for machine-interpretable schemas.
-- Human sessions are stateful and short; agent sessions are often stateless,
-  long-running, or parallel.
-- Human authentication flows assume a browser; agent authentication requires
-  non-interactive credential delegation and scoped capability grants.
+An AI-aware platform needs more than an assistant bolted onto the side. It needs
+to treat AI as a participant in the workflow. That means the platform should be
+able to support things like:
 
-Building an API surface that serves both human interfaces and AI agents well —
-without compromise in either direction — is an unsolved design problem for most
-platforms in this space.
+- structured platform knowledge that can be reasoned over, not just searched
+- intent expressed in natural language and resolved into platform actions
+- proactive recommendations and signals based on context, not just user clicks
 
-## The Conversational Interface Gap
+Most IDPs were not designed around those assumptions. Their models and
+interaction patterns largely assume a human user who knows what they need and
+where to click.
 
-The interface metaphor that defined the IDP — the portal, the catalog, the
-dashboard — assumes a user who browses, searches, and clicks a path to their
-destination. This is the document-and-form web, and it remains genuinely useful
-for structured workflows where the user knows what they need.
+That is still useful. It is just no longer enough on its own.
 
-But a growing share of development work is exploratory and cross-cutting. An
-engineer investigating a production incident does not know in advance which
-service, dependency, runbook, or team they will need. A platform engineering
-lead reviewing architecture health does not start from a single catalog entry.
-A product manager assessing delivery risk does not speak the vocabulary of
-service graphs.
+## The API gap is growing
 
-For these users, a conversational interface — one that accepts intent as a
-question and returns relevant context, actions, and next steps — is
-dramatically more useful than a portal. Not as a replacement for structured
-navigation, but as a complement to it: a way to start from intent rather than
-from knowledge of where things live.
+Many IDP APIs were designed for browser clients. That made sense. Payloads were
+shaped for screens. Authentication assumed an interactive user session. Request
+patterns assumed a person moving through pages and forms.
 
-Today's IDPs have invested little in this direction. The chat interfaces that
-do exist are largely disconnected from platform state — they answer questions
-about documentation rather than questions about your specific environment, your
-team's services, or what changed last week. The context that makes a
-conversational interface genuinely useful — organizational, environmental, and
-historical — is not yet a first-class concept in these platforms.
+AI agents need something different.
 
-## The Agentic Visibility Gap
+The Model Context Protocol, or MCP, is one emerging direction for tool-oriented
+AI interaction. Whether MCP becomes dominant or not, the broader shift is clear:
+platforms increasingly need machine-usable interfaces alongside human-oriented
+ones.
 
-The shift that will matter most in the next several years is not AI-assisted
-code completion. It is AI agents performing work autonomously within the
-software development lifecycle: running pipelines, drafting change proposals,
-executing migrations, reviewing code, creating tickets, and deploying services.
-This is already happening — not as a future prospect but as a present reality
-at the leading edge.
+That creates tension:
 
-Today's IDP has no native model for this. There is no concept of an "agent
-workstream" — no place to see what agents are running, what they have
-completed, where they are blocked, or what human approvals are waiting. There
-is no audit trail built for non-human actors. There is no access control model
-that accounts for the difference between a developer asking a question and an
-AI agent with the ability to push code to production.
+- UI APIs are often shaped for rendering
+- agent-facing tools need clearer schemas and safer capability boundaries
+- human sessions are interactive and short
+- agent interactions may be delegated, parallel, or long-running
 
-This is not a small feature gap. It requires new concepts at the platform
-level: agent identity, task lifecycle, outcome accountability, and escalation
-paths to human review. Platforms that do not develop these concepts will not be
-able to safely or usefully participate in agentic workflows — and the
-development teams using them will route around the portal entirely.
+This is not a minor extension to existing APIs. It raises design questions about
+identity, authorization, context handling, and action boundaries.
 
-## The Collaboration Gap
+Teams do not need all the answers yet. But they do need to start evaluating
+whether their platform direction can support both human interfaces and machine
+actors without forcing one model to awkwardly imitate the other.
 
-If all of the above were the full extent of the problem, the path forward would
-be clear enough: modernize the tech stack, add MCP support, build a chat
-interface, model agent workflows. Hard, but scoped.
+## The portal metaphor is under pressure
 
-The deeper challenge is collaborative context across stakeholders.
+The portal, catalog, and dashboard model assumes a user who browses, searches,
+and clicks toward an answer.
 
-Software delivery has never been solely a developer activity, but the IDP was
-largely built for developers. Product managers, architects, security engineers,
-compliance officers, SRE teams, operations leads, and organizational leadership
-all have legitimate roles in the software delivery process — different views on
-different concerns, but ultimately operating on the same systems and the same
-risks.
+That works well when the user knows what they are looking for.
 
-Today's portals offer very little for this broader group. They might surface a
-health dashboard that a manager can glance at, or a catalog that a security
-team can audit. But there is no shared, role-aware surface that gives every
-stakeholder a relevant view of the work they care about — connected to the same
-underlying data, with appropriate permissions and appropriate context, without
-requiring every stakeholder to become a developer-portal expert.
+A growing share of software delivery does not start that way.
 
-The result is fragmentation familiar to anyone who has worked across a large
-engineering organization. Product roadmaps live in one tool. Architectural
-decisions live in wikis. Deployment state lives in the platform tool. Compliance
-evidence lives in spreadsheets. Incident data lives in the on-call tool. Each
-team builds a fragmented picture of what is happening, and the gaps between
-those pictures are where surprises — and risk — accumulate.
+An engineer investigating a production issue may not know which service,
+dependency, runbook, owner, or recent change matters yet. A product leader
+trying to understand delivery risk may not think in terms of catalog entities. A
+security or compliance stakeholder may care about exposure and readiness, not
+service page navigation.
 
-This is not a failure of any particular tool. It is a consequence of building
-tools for a single audience in a multi-stakeholder process.
+For this kind of work, intent is a better starting point than location.
 
-## The Path Forward: Intelligent Development Portal
+That is why conversational and intent-driven interfaces matter. Not because chat
+is fashionable, but because some work begins with uncertainty. The user has a
+question, not a path.
 
-The answer is not to bolt more features onto existing portals, and it is not to
-dismiss the platforms that got us this far. The answer is to articulate clearly
-what the next generation of developer platform needs to be — and to define it
-in a way that any implementation can achieve.
+Current portals often provide limited support here. They may answer questions
+about documentation. Fewer can answer questions grounded in the actual state of
+the environment, recent changes, cross-team dependencies, or role-specific
+context.
 
-That is the premise behind **Stemix** and the concept of the
-**Intelligent Development Portal**.
+That is the real interface gap.
 
-Rather than prescribing a specific technology stack, framework, or vendor, the
-Intelligent Development Portal is defined as a _specification_: a set of
-capabilities, contracts, and conformance profiles that any implementation —
-built on any tech stack, deployed in any environment — can satisfy. The
-specification defines:
+## Agentic work needs first-class visibility
 
-- **What the platform must know** — a common model for services, teams,
-  policies, intent, and state, structured for both human navigation and machine
-  reasoning.
-- **How it must be queryable** — both by humans through rich interfaces and by
-  AI agents through MCP-native tool APIs, without compromise in either
-  direction.
-- **What interactions it must support** — structured navigation, conversational
-  access, and full participation in agentic development workflows.
-- **Who it serves** — role-aware views and shared surfaces that give every
-  stakeholder relevant context without requiring portal expertise.
-- **What it must make visible** — agent workstreams, intent-to-implementation
-  traceability, and cross-team delivery health in a single coherent model.
+The most important shift ahead may not be AI-assisted coding. It may be AI
+systems performing meaningful work inside the delivery lifecycle.
 
-This is not a product announcement. It is a design direction — and one that we
-believe is necessary to keep the developer platform relevant as the practice of
-software engineering transforms around it.
+That includes things like reviewing changes, opening pull requests, drafting
+migrations, running operational tasks, creating tickets, or coordinating work
+across systems with humans still in the loop for review and control.
 
-The IDP of 2018 did its job well. The IDP of 2026 needs to do something
-different — and the teams building on top of these platforms deserve a
-clear-eyed articulation of what that something is.
+Many current IDPs have no strong native model for this.
+
+Where does a team see agent work in progress? How do they tell what an agent has
+done, what it is waiting on, what approvals are needed, or what scope it was
+allowed to act within? How is accountability represented when the actor is not a
+person but also not a black box?
+
+These are platform questions, not just feature requests.
+
+A portal that cannot represent agent identity, delegated capability, task
+history, and human approval points may become less central as agentic workflows
+grow around it.
+
+## The hardest gap is shared context
+
+Even that is not the deepest issue.
+
+The deeper problem is that software delivery is not only for developers, but the
+Internal Developer Portal has largely been shaped around the developer as the
+main user.
+
+That leaves other stakeholders partially served.
+
+Architects care about patterns and drift. Security teams care about exposure and
+control coverage. Product leaders care about dependency risk and delivery
+confidence. Compliance teams care about traceability. Executives care about
+outcomes, bottlenecks, and strategic risk.
+
+These are not separate realities. They are different views of the same systems.
+
+Most organizations still spread those views across disconnected tools. Product
+plans live in one place. architecture notes live in another. operational state
+lives somewhere else. compliance evidence gets exported into documents or
+spreadsheets. The result is not just inconvenience. It is decision friction.
+
+People are forced to assemble their own picture of reality from fragments.
+
+That is where the gap becomes operational. The issue is not that current portals
+do not contain enough information. It is that they often do not turn enough of
+that information into shared, role-aware context that helps people decide what
+to do next.
+
+## From Internal Developer Portal to Intelligent Development Portal
+
+This is where the Intelligent Development Portal idea begins.
+
+Not as a replacement announcement. Not as a demand to throw out today's portal.
+And not as a claim that one product has solved the next era already.
+
+The idea is simpler than that.
+
+The Internal Developer Portal helped centralize access to engineering systems.
+The Intelligent Development Portal is a direction for what comes next: a platform
+surface that helps people and systems interpret context, make better decisions,
+and act with clearer boundaries.
+
+At a high level, that means moving toward a platform that can:
+
+- model services, teams, policies, state, and intent in ways both people and
+  machines can use
+- support role-aware experiences without forcing every stakeholder to think like
+  a platform engineer
+- combine structured navigation with conversational and intent-driven access
+- make agent work visible, governable, and reviewable
+- connect fragmented delivery signals into clearer operational perspective
+
+That is the shift.
+
+Not from portal to chatbot.
+From portal to decision support.
+
+## What to do now
+
+Most teams should not rush to replace the portal they have.
+
+But they should start asking better questions about where their platform
+direction is heading.
+
+Questions like:
+
+- Can our platform knowledge support both human use and machine use?
+- Can non-developer stakeholders get relevant context without learning the whole
+  portal model?
+- Can we represent agent actions, approvals, and boundaries clearly?
+- Are we improving access to information, or improving decisions?
+- Will our current architecture let us evolve as these needs become normal?
+
+Those questions matter now, even if the answers are still forming.
+
+## Why Stemix exists
+
+Stemix exists to explore that gap in the open.
+
+It is not production-ready. It is not positioned here as a system teams should
+adopt today. And it is not a finished answer.
+
+It is an early open project working toward a clearer specification and reference
+direction for what an Intelligent Development Portal could become.
+
+For now, the right action is simple: watch the project, follow the ideas as they
+mature, and use them as a lens for evaluating your current platform direction.
+
+The Internal Developer Portal helped teams organize access.
+
+The next stage will need to do more than organize. It will need to help people
+and systems understand what is happening, why it matters, and what should happen
+next.
 
 ---
 
-_Stemix is an open, standards-based Intelligent Development System currently in
-early alpha. The specification and reference implementations are developed in
-the open at
+_Stemix is an open project exploring the Intelligent Development Portal in the
+open at
 [github.com/ourchitecture/idp](https://github.com/ourchitecture/idp)._
