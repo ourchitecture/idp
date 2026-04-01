@@ -367,13 +367,13 @@ After generating all artifacts:
 3. Run markdown linting on any new or modified `.md` files:
 
    ```bash
-   npx markdownlint-cli2 <new-doc-files>
+   moon run repo:check-lint-md
    ```
 
 4. Verify TypeScript compiles without errors:
 
    ```bash
-   npx tsc --noEmit -p tests/tsconfig.json
+   moon run docs-site:check-test
    ```
 
 If any validation fails, fix the issue and re-validate before
