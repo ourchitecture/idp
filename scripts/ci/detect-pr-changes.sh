@@ -57,6 +57,8 @@ for file in "${changed_files[@]}"; do
       run_node_stack="true"
       run_node_containers="true"
       ;;
+    # docs/* includes architecture diagram sources under
+    # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
     src/docs/*|docs/*)
       run_docs_validation="true"
       ;;

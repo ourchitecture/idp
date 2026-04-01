@@ -34,6 +34,7 @@ tools/      Developer tooling, scripts, and MCP server definitions
 - [docs/content/testing/contract-harness.md](docs/content/testing/contract-harness.md) --
   Contract test harness guide (newcomers, implementers, and contributors)
 - [docs/content/architecture/decisions/](docs/content/architecture/decisions/) -- Architecture Decision Records (ADR index)
+- [docs/content/architecture/diagrams/](docs/content/architecture/diagrams/) -- C4 architecture diagrams (context, container, and component views)
 - [docs/content/containers/](docs/content/containers/) -- Container images: building, running, and publishing
 
 ## Getting Started
@@ -140,6 +141,20 @@ Run full docs validation (install, build, lint, typecheck):
 ```bash
 make -C docs all
 # or: moon run docs-site:all
+```
+
+Generate architecture diagram SVG assets from Mermaid C4 sources:
+
+```bash
+make -C docs generate-diagrams
+# or: moon run docs-site:generate-diagrams
+```
+
+Validate the diagram generation pipeline:
+
+```bash
+make -C docs check-diagrams
+# or: moon run docs-site:check-diagrams
 ```
 
 ### Implementation Portfolio

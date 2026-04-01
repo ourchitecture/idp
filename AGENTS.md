@@ -122,6 +122,12 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
   `lint-md`).
 - Keep GNU Make targets as compatibility wrappers so local workflows remain
   accessible even when moon is the canonical CI/maintainer orchestrator.
+- **Never invoke tools via `npx <tool>` directly** when a `moon` task or `make`
+  target exists for that tool. Always prefer the canonical task (for example,
+  use `moon run repo:check-lint-md` or `make check-lint-md` — never
+  `npx markdownlint-cli2`). Direct `npx` calls bypass the pinned toolchain,
+  ignore project configuration resolution, and may produce different results
+  than CI.
 
 ## Documentation Requirements (Required)
 
@@ -212,6 +218,10 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Run docs site dev server (moon canonical): `moon run docs-site:run-dev`
 - Build docs site (make shortcut): `make -C docs build`
 - Run full docs site validation (make shortcut): `make docs-site`
+- Generate docs architecture diagrams (moon canonical): `moon run docs-site:generate-diagrams`
+- Generate docs architecture diagrams (make shortcut): `make -C docs generate-diagrams`
+- Validate docs diagram generation (moon canonical): `moon run docs-site:check-diagrams`
+- Validate docs diagram generation (make shortcut): `make -C docs check-diagrams`
 
 Moon project IDs currently used:
 
@@ -366,6 +376,7 @@ Agents must validate that requested changes actually took effect and report evid
 - `/plugins/` plug-ins and SDKs
 - `/docs/` Docusaurus documentation site; `docs/content/` is the single source of truth for all docs
 - `/docs/content/architecture/decisions/` Architecture Decision Records (ADRs)
+- `/docs/content/architecture/diagrams/` C4 architecture diagrams authored in Mermaid syntax
 - `/tests/` contract test harness (TypeScript) and Layer 1 Gherkin intent specs
 - `/tests/features/` Layer 1 Gherkin `.feature` files — ground truth for all contract intent
 - `/tests/src/profiles/` Layer 2 TypeScript test implementations derived from `.feature` files
@@ -383,6 +394,16 @@ an update to `docs/content/testing/` in the same change:
   if a `.feature` file must be updated, update both together.
 - Adding a new profile → create both the `.feature` file and the matching
   `docs/content/testing/profiles/<profile>.md` page in the same change.
+
+### Architecture Diagram Sync Rule
+
+Any change to files under `docs/content/architecture/diagrams/` **obligates**
+an update to generated assets in `docs/static/diagrams/` in the same change.
+
+- Source of truth: Mermaid C4 diagrams in `docs/content/architecture/diagrams/*.md`.
+- Generated artifacts: `docs/static/diagrams/*.svg`.
+- Generate with: `moon run docs-site:generate-diagrams` or `make -C docs generate-diagrams`.
+- Validate generation with: `moon run docs-site:check-diagrams` or `make -C docs check-diagrams`.
 
 ## Editor Rules (Cursor/Copilot)
 

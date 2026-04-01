@@ -38,9 +38,9 @@ check-lint:
 check-test:
 	@npm run typecheck
 
-check-ci: install build generate-diagrams check-lint check-test
+check-ci: install build check-diagrams check-lint check-test
 
-check: check-lint check-test
+check: check-diagrams check-lint check-test
 
 run-dev:
 	@npm run start
