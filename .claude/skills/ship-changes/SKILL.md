@@ -227,23 +227,22 @@ Identify every `.md` file that appears in the staged changes:
 git diff --cached --name-only --diff-filter=ACMR -- '*.md'
 ```
 
-If the list is non-empty, run `markdownlint-cli2` on exactly those
-files:
+If the list is non-empty, run the repo's canonical Markdown lint task.
+**Never invoke `npx markdownlint-cli2` directly** — always use the
+`moon` task or `make` target so the pinned toolchain and project
+configuration are respected:
 
 ```bash
-npx markdownlint-cli2 <file1.md> <file2.md> ...
+moon run repo:check-lint-md
+# or: make check-lint-md
 ```
 
 - If linting **passes** (exit 0), proceed to the next step.
-- If linting **fails** (exit non-zero), attempt auto-fix:
-
-  ```bash
-  npx markdownlint-cli2 --fix <file1.md> <file2.md> ...
-  ```
-
-  After auto-fix, re-stage the fixed files with `git add <file>`
-  and re-run the lint check. If lint still fails after auto-fix,
-  stop and report the remaining errors to the user.
+- If linting **fails** (exit non-zero), inspect the errors. If
+  failures are limited to staged files, fix them, re-stage, and
+  re-run. If failures are in pre-existing files not part of the
+  current change, note them and proceed — do not block the commit
+  on unrelated lint debt.
 
 If no `.md` files are staged, skip this step.
 
