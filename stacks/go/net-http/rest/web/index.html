@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Stemix — Intelligent Development System · Early Alpha" />
+    <meta name="theme-color" content="#116466" />
+    <title>Stemix — Coming Soon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --surface: #fffdf8;
+        --surface-alt: #f1ece3;
+        --text: #1f2a37;
+        --muted: #4f5d75;
+        --accent: #116466;
+        --accent-soft: #d8eeeb;
+        --shadow: 0 20px 40px rgba(30, 34, 45, 0.08);
+        --ring: rgba(17, 100, 102, 0.35);
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      html, body { min-height: 100%; margin: 0; }
+
+      body {
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 10% 0%, rgba(17, 100, 102, 0.2), transparent 35%),
+          radial-gradient(circle at 90% 10%, rgba(255, 182, 120, 0.25), transparent 40%),
+          linear-gradient(165deg, #f8f7f2 0%, #ece7dd 100%);
+      }
+
+      .shell {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 2.5rem 1rem 3rem;
+        display: grid;
+        gap: 1.25rem;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, var(--surface) 0%, #f3efe5 100%);
+        border: 1px solid rgba(31, 42, 55, 0.08);
+        border-radius: 24px;
+        padding: 2rem 1.5rem;
+        box-shadow: var(--shadow);
+      }
+
+      .kicker {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 0 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+      }
+
+      .badge {
+        display: inline-block;
+        background: var(--accent);
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.18rem 0.5rem;
+        border-radius: 999px;
+      }
+
+      h1 {
+        margin: 0 0 0.75rem;
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        font-size: clamp(1.85rem, 4.5vw, 2.8rem);
+        line-height: 1.15;
+      }
+
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        max-width: 66ch;
+        line-height: 1.6;
+      }
+
+      .feature-grid {
+        display: grid;
+        gap: 0.9rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .feature-card {
+        background: var(--surface);
+        border-radius: 18px;
+        border: 1px solid rgba(31, 42, 55, 0.08);
+        padding: 1rem 1.1rem 1.1rem;
+        box-shadow: var(--shadow);
+        transform: translateY(12px);
+        opacity: 0;
+        animation: rise 500ms ease forwards;
+      }
+
+      .feature-card:nth-child(2) { animation-delay:  75ms; }
+      .feature-card:nth-child(3) { animation-delay: 150ms; }
+      .feature-card:nth-child(4) { animation-delay: 225ms; }
+      .feature-card:nth-child(5) { animation-delay: 300ms; }
+      .feature-card:nth-child(6) { animation-delay: 375ms; }
+
+      .feature-card__icon {
+        font-size: 1.4rem;
+        margin-bottom: 0.5rem;
+        line-height: 1;
+      }
+
+      .feature-card h2 {
+        margin: 0 0 0.35rem;
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .feature-card p {
+        margin: 0;
+        font-size: 0.86rem;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .disclaimer {
+        background: var(--surface);
+        border-radius: 20px;
+        border: 1px solid rgba(31, 42, 55, 0.08);
+        padding: 1rem 1.25rem;
+        box-shadow: var(--shadow);
+      }
+
+      .disclaimer p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .disclaimer a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid var(--accent-soft);
+      }
+
+      .disclaimer a:hover { border-bottom-color: var(--accent); }
+
+      :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
+
+      @keyframes rise {
+        from { transform: translateY(12px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+
+      @media (max-width: 700px) {
+        .shell { padding: 1rem 0.75rem 1.75rem; }
+        .hero { padding: 1.25rem 1rem; }
+        .feature-card { border-radius: 16px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hero">
+        <p class="kicker">
+          Stemix
+          <span class="badge">Early Alpha</span>
+        </p>
+        <h1>The development experience<br />is being reimagined.</h1>
+        <p class="subtitle">
+          Stemix is an AI-native Intelligent Development System — connecting product intent
+          to engineering reality through a secure, extensible, self-hosted platform. We're
+          still building. What you're looking at is a pre-release reference stack; much
+          more work lies ahead.
+        </p>
+      </header>
+
+      <section class="feature-grid" aria-label="Capabilities in development">
+        <article class="feature-card">
+          <div class="feature-card__icon">&#127919;</div>
+          <h2>Intent-Driven Portal</h2>
+          <p>
+            Translate high-level product decisions into actionable engineering work.
+            Automatically surface gaps between intent and implementation.
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon">&#129302;</div>
+          <h2>AI &amp; MCP-First</h2>
+          <p>
+            Model Context Protocol as the standard AI integration layer. AI capabilities
+            built in from day one — not bolted on as an afterthought.
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon">&#128274;</div>
+          <h2>Secure by Default</h2>
+          <p>
+            Zero-trust architecture. Encrypted at rest and in transit. Least privilege
+            everywhere. Security is never optional.
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon">&#127968;</div>
+          <h2>Self-Service Hosting</h2>
+          <p>
+            Run the full platform privately, on your own infrastructure, with minimal
+            operational overhead and no vendor lock-in.
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon">&#128268;</div>
+          <h2>Extensible Plug-ins</h2>
+          <p>
+            Clear contracts, sandboxed execution, and a plug-in SDK to extend the platform
+            without touching core systems.
+          </p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon">&#127970;</div>
+          <h2>Multi-Tenant Ready</h2>
+          <p>
+            Strong tenant isolation with options for dedicated physical infrastructure and
+            flexible multi-tenant SaaS deployment modes.
+          </p>
+        </article>
+      </section>
+
+      <footer class="disclaimer" role="note">
+        <p>
+          This is a pre-release alpha reference stack. Contracts, APIs, and UI are
+          actively evolving — expect breaking changes between releases. Not
+          production-ready. Follow progress and explore the architecture at
+          <a href="https://stemix.dev" rel="noopener noreferrer">stemix.dev</a>.
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

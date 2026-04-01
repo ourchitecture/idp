@@ -1,0 +1,5 @@
+{
+  "stacks/go/net-http/rest": "0.0.0",
+  "stacks/nodejs/react-fastify/rest": "0.0.0",
+  "tests": "0.0.0"
+}

@@ -23,6 +23,7 @@ jobs:
       run_stack_validation: ${{ steps.detect.outputs.run_stack_validation }}
       stack_matrix: ${{ steps.detect.outputs.stack_matrix }}
       run_docs_validation: ${{ steps.detect.outputs.run_docs_validation }}
+      run_any_containers: ${{ steps.detect.outputs.run_any_containers }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -55,6 +56,7 @@ jobs:
           echo "run_stack_validation=${{ steps.detect.outputs.run_stack_validation }}"
           echo "stack_matrix=${{ steps.detect.outputs.stack_matrix }}"
           echo "run_docs_validation=${{ steps.detect.outputs.run_docs_validation }}"
+          echo "run_any_containers=${{ steps.detect.outputs.run_any_containers }}"
 
   check-lint-md:
     name: Check Lint Markdown
@@ -177,6 +179,55 @@ jobs:
           export IS_TEAM_MEMBER="${IS_TEAM_MEMBER}"
           moon run repo:check-pr-title
 
+  check-container-build:
+    name: Check Container Build
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_any_containers == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Go web container
+        run: |
+          docker build \
+            --build-arg SERVICE=web \
+            -t stemix-go-web:pr-check \
+            -f stacks/go/net-http/rest/Dockerfile \
+            .
+
+      - name: Build Go BFF container
+        run: |
+          docker build \
+            --build-arg SERVICE=bff \
+            -t stemix-go-bff:pr-check \
+            -f stacks/go/net-http/rest/Dockerfile \
+            .
+
+      - name: Build Node.js web container
+        run: |
+          docker build \
+            -t stemix-node-web:pr-check \
+            -f stacks/nodejs/react-fastify/rest/web/Dockerfile \
+            .
+
+      - name: Build Node.js BFF container
+        run: |
+          docker build \
+            -t stemix-node-bff:pr-check \
+            -f stacks/nodejs/react-fastify/rest/bff/Dockerfile \
+            .
+
+      - name: Build contract tests container
+        run: |
+          docker build \
+            -t stemix-contract-tests:pr-check \
+            -f tests/Dockerfile \
+            .
+
   pr-validation-result:
     name: PR Validation Result
     runs-on: ubuntu-latest
@@ -188,6 +239,7 @@ jobs:
       - check-stack-matrix
       - check-docs-site
       - validate-commit-message
+      - check-container-build
     steps:
       - name: Verify required checks
         run: |
@@ -197,6 +249,7 @@ jobs:
           result_stack="${{ needs.check-stack-matrix.result }}"
           result_docs="${{ needs.check-docs-site.result }}"
           result_commit="${{ needs.validate-commit-message.result }}"
+          result_containers="${{ needs.check-container-build.result }}"
 
           if [[ "${result_detect}" != "success" ]]; then
             echo "::error::detect-changes failed (${result_detect})"
@@ -225,6 +278,11 @@ jobs:
 
           if [[ "${result_docs}" != "success" && "${result_docs}" != "skipped" ]]; then
             echo "::error::check-docs-site failed (${result_docs})"
+            exit 1
+          fi
+
+          if [[ "${result_containers}" != "success" && "${result_containers}" != "skipped" ]]; then
+            echo "::error::check-container-build failed (${result_containers})"
             exit 1
           fi
 

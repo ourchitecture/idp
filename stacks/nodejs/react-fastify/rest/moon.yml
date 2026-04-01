@@ -1,0 +1,55 @@
+language: "typescript"
+layer: "application"
+stack: "frontend"
+
+project:
+  title: "nodejs-react-fastify-rest"
+  description: "React + Fastify TypeScript reference stack for IDP."
+
+tasks:
+  all:
+    command: ["make", "all"]
+  install:
+    command: ["make", "install"]
+  build:
+    command: ["make", "build"]
+  clean:
+    command: ["make", "clean"]
+  check-lint:
+    command: ["make", "check-lint"]
+  check-test:
+    command: ["make", "check-test"]
+  check-contract:
+    command: ["make", "check-contract"]
+  check-ci:
+    command: ["make", "check-ci"]
+    options:
+      runInCI: true
+  check:
+    command: ["make", "check"]
+  test:
+    command: ["make", "test"]
+  test-contract:
+    command: ["make", "test-contract"]
+  run-web:
+    command: ["make", "run-web"]
+    options:
+      persistent: true
+      runInCI: false
+  run-bff:
+    command: ["make", "run-bff"]
+    options:
+      persistent: true
+      runInCI: false
+  build-container-web:
+    command: ["make", "build-container-web"]
+    options:
+      runInCI: false
+  build-container-bff:
+    command: ["make", "build-container-bff"]
+    options:
+      runInCI: false
+  build-containers:
+    command: ["make", "build-containers"]
+    options:
+      runInCI: false

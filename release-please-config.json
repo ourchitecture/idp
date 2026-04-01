@@ -1,0 +1,27 @@
+{
+  "bootstrap-sha": "e93ded164703a3ffb4ac379fc626681e83e65858",
+  "separate-pull-requests": true,
+  "prerelease": true,
+  "prerelease-type": "alpha",
+  "bump-minor-pre-major": true,
+  "packages": {
+    "stacks/go/net-http/rest": {
+      "release-type": "simple",
+      "component": "go-net-http-rest",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "stacks/nodejs/react-fastify/rest": {
+      "release-type": "node",
+      "component": "nodejs-react-fastify-rest",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "tests": {
+      "release-type": "simple",
+      "component": "contract-tests",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}

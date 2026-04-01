@@ -7,7 +7,7 @@ This file is the operating manual for coding agents working in this repo. Follow
 ## Important Long-Lived Decisions (ADR Guardrails)
 
 To avoid documentation bloat and context explosion, only record decisions in
-`docs/decisions/` when they are expected to be long-lived and expensive to
+`docs/content/architecture/decisions/` when they are expected to be long-lived and expensive to
 reverse (architecture boundaries, contracts, runtime conventions, security baselines).
 
 Current high-signal ADRs agents must respect:
@@ -21,6 +21,9 @@ Current high-signal ADRs agents must respect:
 - `0006` cross-platform local runtime UX baseline (loopback defaults,
   stable executable identity for compiled stacks).
 - `0007` moon-required orchestration and proto-enhanced pinned toolchain policy.
+- `0009` Gherkin as the Layer 1 intent specification format (`tests/features/*.feature`
+  files are ground truth; the TypeScript harness in `tests/src/profiles/` is derived
+  from them — when they disagree, the `.feature` file wins).
 
 When proposing a new ADR, include a short rationale for why the decision is
 long-lived, cross-cutting, and not better captured in regular docs.
@@ -31,7 +34,7 @@ Use this intake threshold before adding an ADR:
   contract surface, multi-quarter longevity, drift risk.
 - At least one true gate must be either costly to reverse or contract surface.
 - If the threshold is not met, document in regular docs instead of
-  `docs/decisions/`.
+  `docs/content/architecture/decisions/`.
 
 ## Multi-Agent Collaboration (Priority Context)
 
@@ -207,7 +210,7 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Run CI-safe checks via moon directly (moon canonical): `moon ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci`
 - Install npm deps explicitly (moon canonical): `moon run repo:install`
 - Run docs site dev server (moon canonical): `moon run docs-site:run-dev`
-- Build docs site (make shortcut): `make -C src/docs build`
+- Build docs site (make shortcut): `make -C docs build`
 - Run full docs site validation (make shortcut): `make docs-site`
 
 Moon project IDs currently used:
@@ -218,7 +221,7 @@ Moon project IDs currently used:
 - `contract-tests`
 - `docs-site`
 
-Stack-level Makefile targets (from `src/stacks/<stack>/Makefile`).
+Stack-level Makefile targets (from `stacks/<stack>/Makefile`).
 All are **optional convenience wrappers**; equivalent `moon` task invocations
 are equally valid.
 
@@ -235,11 +238,45 @@ are equally valid.
 - `make test-contract` is a stack-defined alias for `check-contract`.
 - `make run-web` starts the web server for that stack.
 - `make run-bff` starts the BFF server for that stack.
+- `make build-container-web` builds the web container image (requires docker).
+- `make build-container-bff` builds the BFF container image (requires docker).
+- `make build-containers` builds all container images for that stack (requires docker).
+
+Container targets (root Makefile):
+
+- Build all containers for all stacks: `make build-containers`
+- `make all` silently skips container builds when docker is not in PATH.
+
+Container targets (tests/Makefile):
+
+- `make -C tests build-container` builds the contract test container image.
+- `make -C tests run-container` runs the contract test container.
 
 Notes:
 
 - Markdown lint config: `.markdownlint.jsonc` and `.markdownlint-cli2.jsonc`.
 - No test scripts are defined yet. If you add tests, add scripts and document them here.
+- Docker is **not** managed by proto; do not add docker to `.prototools`.
+  Docker (or a compatible runtime like Rancher Desktop with dockerd/moby) must
+  be installed separately by the developer. Container build targets are opt-in
+  and fail loudly if docker is absent.
+
+## Repository Boundary (Required)
+
+Agents must never navigate, read, write, or execute commands outside the
+repository root. This rule applies regardless of where the repository is cloned.
+
+- The repository root is the directory that contains this `AGENTS.md` file and
+  the `.git/` directory. Determine it with `git rev-parse --show-toplevel` when
+  needed; never hard-code an absolute path.
+- Do not traverse to parent directories (for example `../`, `../../`) of the
+  repository root. Tools such as file search, glob, read, and bash must be
+  constrained to paths at or below the repository root.
+- Do not read, copy, or reference config files from the host machine or from
+  sibling repositories (for example a `.markdownlint.jsonc` in a parent
+  directory). Use only the config files that exist inside this repository.
+- If a tool or command unexpectedly resolves a path outside the repository root,
+  treat it as an error, stop, and report it rather than proceeding.
 
 ## Validation and Verification
 
@@ -323,15 +360,29 @@ Agents must validate that requested changes actually took effect and report evid
 
 ## File and Directory Conventions
 
-- `/src/` application code
-- `/src/stacks/<language>/<framework>/<interface>/` technology-specific implementations with a GNU Makefile
+- `/stacks/<language>/<framework>/<interface>/` technology-specific implementations with a GNU Makefile
 - Stack names encode language, server framework, and interface type (for web or BFF).
 - `/deploy/` container and infra definitions
 - `/plugins/` plug-ins and SDKs
-- `/docs/` documentation and ADRs
-- `/tests/` integration and end-to-end tests
+- `/docs/` Docusaurus documentation site; `docs/content/` is the single source of truth for all docs
+- `/docs/content/architecture/decisions/` Architecture Decision Records (ADRs)
+- `/tests/` contract test harness (TypeScript) and Layer 1 Gherkin intent specs
+- `/tests/features/` Layer 1 Gherkin `.feature` files — ground truth for all contract intent
+- `/tests/src/profiles/` Layer 2 TypeScript test implementations derived from `.feature` files
 - `/tools/` tooling and MCP definitions
 - `/.claude/skills/` agent skills
+
+### Test Harness Sync Rule
+
+Any change to `tests/features/*.feature` files or `tests/src/profiles/*.ts` files **obligates**
+an update to `docs/content/testing/` in the same change:
+
+- Adding or changing a scenario in a `.feature` file → update the corresponding profile doc in
+  `docs/content/testing/profiles/`.
+- Adding or changing a test in `tests/src/profiles/*.ts` → verify it matches the `.feature` spec;
+  if a `.feature` file must be updated, update both together.
+- Adding a new profile → create both the `.feature` file and the matching
+  `docs/content/testing/profiles/<profile>.md` page in the same change.
 
 ## Editor Rules (Cursor/Copilot)
 
@@ -340,6 +391,7 @@ Agents must validate that requested changes actually took effect and report evid
 
 ## What Not To Do
 
+- Do not navigate, read, write, or execute commands outside the repository root.
 - Do not use symlinks.
 - Do not disable security features.
 - Do not introduce cloud-provider lock-in without an abstraction.

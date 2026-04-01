@@ -1,0 +1,45 @@
+name: Container Cleanup
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  packages: write
+
+env:
+  # Minimum number of versions to keep per image (floor threshold)
+  KEEP_VERSIONS_GO_WEB: "5"
+  KEEP_VERSIONS_GO_BFF: "5"
+  KEEP_VERSIONS_NODE_WEB: "5"
+  KEEP_VERSIONS_NODE_BFF: "5"
+  KEEP_VERSIONS_TESTS: "5"
+
+jobs:
+  cleanup:
+    name: Clean up old package versions
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: stemix-go-net-http-rest-web
+            keep_env: KEEP_VERSIONS_GO_WEB
+          - package: stemix-go-net-http-rest-bff
+            keep_env: KEEP_VERSIONS_GO_BFF
+          - package: stemix-nodejs-react-fastify-rest-web
+            keep_env: KEEP_VERSIONS_NODE_WEB
+          - package: stemix-nodejs-react-fastify-rest-bff
+            keep_env: KEEP_VERSIONS_NODE_BFF
+          - package: stemix-contract-tests
+            keep_env: KEEP_VERSIONS_TESTS
+    steps:
+      - name: Delete old container versions
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: idp/${{ matrix.package }}
+          package-type: container
+          min-versions-to-keep: ${{ env[matrix.keep_env] }}
+          delete-only-untagged-versions: false
+          ignore-versions: "^(latest|edge|\\d+|\\d+\\.\\d+)$"

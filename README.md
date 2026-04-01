@@ -21,19 +21,20 @@ The Intent-Driven Portal is an evolution of the Internal Developer Portal concep
 ## Project Structure
 
 ```text
-src/        Application source code, organized by service or module
+stacks/     Reference implementation stacks, organized by language/framework/interface
 deploy/     Container definitions, Kubernetes manifests, Helm charts
 plugins/    Plug-in SDK and example plug-ins
-docs/       Project documentation, ADRs, and guides
-tests/      Integration and end-to-end tests
+docs/       Docusaurus documentation site (docs/content/ is the source of truth)
+tests/      Contract test harness (TypeScript) and Layer 1 Gherkin intent specs
 tools/      Developer tooling, scripts, and MCP server definitions
 ```
 
 **Key documentation:**
 
-- [docs/testing/contract-harness.md](docs/testing/contract-harness.md) —
+- [docs/content/testing/contract-harness.md](docs/content/testing/contract-harness.md) --
   Contract test harness guide (newcomers, implementers, and contributors)
-- [docs/decisions/](docs/decisions/) — Architecture Decision Records (ADR index)
+- [docs/content/architecture/decisions/](docs/content/architecture/decisions/) -- Architecture Decision Records (ADR index)
+- [docs/content/containers/](docs/content/containers/) -- Container images: building, running, and publishing
 
 ## Getting Started
 
@@ -42,9 +43,10 @@ tools/      Developer tooling, scripts, and MCP server definitions
 ### Prerequisites
 
 - Access to the [ourchitecture](https://github.com/ourchitecture) GitHub organization
-- Docker and Docker Compose
 - Go 1.25+
 - Node.js 20+
+- Docker (optional -- only required for container builds; Rancher Desktop with
+  `dockerd (moby)` engine is the recommended FOSS alternative)
 
 ### Quickstart
 
@@ -114,7 +116,7 @@ Agent workflow skills are available in `/.claude/skills/`:
 
 ### Documentation Site
 
-The Stemix documentation site lives at [stemix.dev](https://stemix.dev) and is built with [Docusaurus 3](https://docusaurus.io/). Source is in `src/docs/`.
+The Stemix documentation site lives at [stemix.dev](https://stemix.dev) and is built with [Docusaurus 3](https://docusaurus.io/). Source is in `docs/`.
 
 Run the docs dev server locally:
 
@@ -129,22 +131,22 @@ make docs-site
 Build the static site:
 
 ```bash
-make -C src/docs build
+make -C docs build
 # or: moon run docs-site:build
 ```
 
 Run full docs validation (install, build, lint, typecheck):
 
 ```bash
-make -C src/docs all
+make -C docs all
 # or: moon run docs-site:all
 ```
 
 ### Implementation Portfolio
 
-- Default and canonical reference stack: `src/stacks/go/net-http/rest`
+- Default and canonical reference stack: `stacks/go/net-http/rest`
 - Additional React-focused reference stack:
-  `src/stacks/nodejs/react-fastify/rest`
+  `stacks/nodejs/react-fastify/rest`
 
 Start the default stack (convenience shortcut):
 
@@ -208,20 +210,56 @@ Run contract tests against a running stack:
 make test
 ```
 
-See [docs/testing/contract-harness.md](docs/testing/contract-harness.md) for a
+See [docs/content/testing/contract-harness.md](docs/content/testing/contract-harness.md) for a
 full guide to the test harness, including how to run individual profiles, how
 to test alternate stacks, and how to build a new compliant implementation.
 
 Start the additional React stack directly:
 
 ```bash
-make -C src/stacks/nodejs/react-fastify/rest run-web
-make -C src/stacks/nodejs/react-fastify/rest run-bff
+make -C stacks/nodejs/react-fastify/rest run-web
+make -C stacks/nodejs/react-fastify/rest run-bff
 ```
+
+### Container Images
+
+All reference stacks and the contract test harness have container images.
+Container builds are opt-in and silently skipped when Docker is not installed.
+
+Build all container images locally:
+
+```bash
+make build-containers
+```
+
+Build a single stack's containers:
+
+```bash
+make -C stacks/go/net-http/rest build-containers
+make -C stacks/nodejs/react-fastify/rest build-containers
+make -C tests build-container
+```
+
+Run containers locally:
+
+```bash
+# Go stack
+docker run --rm -p 8300:8300 localhost/stemix-go-net-http-rest-bff:latest
+docker run --rm -p 3300:3300 localhost/stemix-go-net-http-rest-web:latest
+
+# Contract tests against a running stack
+docker run --rm \
+  -e IDP_WEB_URL=http://host.docker.internal:3300 \
+  -e IDP_BFF_URL=http://host.docker.internal:8300 \
+  localhost/stemix-contract-tests:latest
+```
+
+Published images are available at `ghcr.io/ourchitecture/idp/stemix-*`.
+See [docs/content/containers/](docs/content/containers/) for the full guide.
 
 ## Contributing
 
-Contributions are welcome from authorized team members. See [AGENTS.md](AGENTS.md) for development standards, verification flows, and the change promotion pipeline.
+Contributions are welcome from authorized team members. See [AGENTS.md](AGENTS.md) for development standards, verification flows, and the change promotion pipeline. See [CONTRIBUTING.md](CONTRIBUTING.md) for the contributor guide.
 
 External contributions are accepted via issues and pull requests, subject to triage and approval by the maintainer team.
 

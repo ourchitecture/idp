@@ -1,0 +1,28 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    outputs:
+      go_net_http_rest_released: ${{ steps.release.outputs['stacks/go/net-http/rest--release_created'] }}
+      go_net_http_rest_tag: ${{ steps.release.outputs['stacks/go/net-http/rest--tag_name'] }}
+      nodejs_react_fastify_rest_released: ${{ steps.release.outputs['stacks/nodejs/react-fastify/rest--release_created'] }}
+      nodejs_react_fastify_rest_tag: ${{ steps.release.outputs['stacks/nodejs/react-fastify/rest--tag_name'] }}
+      contract_tests_released: ${{ steps.release.outputs['tests--release_created'] }}
+      contract_tests_tag: ${{ steps.release.outputs['tests--tag_name'] }}
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
