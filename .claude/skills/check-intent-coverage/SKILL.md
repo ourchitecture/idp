@@ -147,12 +147,12 @@ For each stack, read `stack.json` to extract:
 
 Then explore the stack's source code to identify:
 
-4. **BFF route handlers** -- search for HTTP route registrations
+1. **BFF route handlers** -- search for HTTP route registrations
    (e.g., Go `http.HandleFunc`, Express/Fastify route definitions)
    and extract every registered endpoint path and HTTP method.
-5. **Response shapes** -- for each route handler, identify the
+2. **Response shapes** -- for each route handler, identify the
    JSON fields being returned in the response body.
-6. **Web server behavior** -- identify what the web server returns
+3. **Web server behavior** -- identify what the web server returns
    for `GET /` (HTML, static files, SPA shell, etc.).
 
 ## Step 4: Cross-Layer Gap Analysis

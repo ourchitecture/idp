@@ -192,28 +192,28 @@ can match multiple rules; record every applicable reason.
 
 ### Pull Request Attention Rules
 
-4. **Stale PR (no recent activity)**
+1. **Stale PR (no recent activity)**
    - Condition: open PR has no commits, comments, or review activity
      within `stale_days`.
    - Why: stale PRs block progress and accumulate merge conflicts.
    - Next step: review the PR and either merge, request changes, or
      close it with a reason.
 
-5. **Draft PR open too long**
+2. **Draft PR open too long**
    - Condition: PR is marked as draft and was created more than
      `stale_days` ago.
    - Why: long-lived drafts suggest blocked or abandoned work.
    - Next step: convert to ready-for-review if the work is complete,
      or close the draft and reopen when ready.
 
-6. **PR has failing status checks**
+3. **PR has failing status checks**
    - Condition: PR has one or more failed required status checks.
    - Why: failing checks block merge and may indicate broken code or
      configuration issues.
    - Next step: investigate the failing checks, push fixes, or
      re-run if the failure is transient.
 
-7. **PR has no linked issue**
+4. **PR has no linked issue**
    - Condition: PR body and title contain no issue reference
      (`Closes #N`, `Fixes #N`, `Refs #N`).
    - Why: PRs without linked issues break traceability and the
@@ -221,14 +221,14 @@ can match multiple rules; record every applicable reason.
    - Next step: add an issue reference to the PR body using
      `Closes #N` or `Refs #N`.
 
-8. **PR has unresolved review comments**
+5. **PR has unresolved review comments**
    - Condition: PR has review comments or change requests that have
      not been addressed (no subsequent commits or replies).
    - Why: unresolved feedback stalls the review cycle.
    - Next step: address the review comments and push updates, or
      reply explaining why the feedback does not apply.
 
-9. **PR has merge conflicts**
+6. **PR has merge conflicts**
    - Condition: PR is not mergeable due to conflicts with the base
      branch.
    - Why: conflicts block merge and grow worse over time.
@@ -237,7 +237,7 @@ can match multiple rules; record every applicable reason.
 
 ### Issue Attention Rules
 
-10. **In-progress issue with no active PR**
+1. **In-progress issue with no active PR**
     - Condition: issue has the `in-progress` label but no open PR
       links to it.
     - Why: the issue claims active work but has no visible code
@@ -245,20 +245,20 @@ can match multiple rules; record every applicable reason.
     - Next step: create a PR for the work, or remove the `in-progress`
       label if work has not started.
 
-11. **In-progress issue with no recent activity**
+2. **In-progress issue with no recent activity**
     - Condition: issue has the `in-progress` label and no comments or
       linked PR activity within `stale_days`.
     - Why: the issue may be stuck or the assignee may be blocked.
     - Next step: check in with the assignee, unblock, or reassign.
 
-12. **Blocked issue needs resolution**
+3. **Blocked issue needs resolution**
     - Condition: issue has the `blocked` label.
     - Why: blocked issues represent stalled work that may cascade
       delays.
     - Next step: investigate the blocker (check comments for context),
       resolve or escalate, then remove the `blocked` label.
 
-13. **Assigned issue with no activity**
+4. **Assigned issue with no activity**
     - Condition: issue is assigned to a maintainer or agent but has no
       comments or linked PRs, and was last updated more than
       `stale_days` ago.
@@ -267,7 +267,7 @@ can match multiple rules; record every applicable reason.
     - Next step: check with the assignee, update the issue with
       current status, or unassign and return to the backlog.
 
-14. **Needs-review issue sitting too long**
+5. **Needs-review issue sitting too long**
     - Condition: issue has the `needs-review` label and was last
       updated more than `stale_days` ago.
     - Why: items awaiting review that go stale lose context and delay
@@ -275,7 +275,7 @@ can match multiple rules; record every applicable reason.
     - Next step: review the issue (or the linked plan/PR), approve
       or request changes.
 
-15. **Ready issue with no assignee**
+6. **Ready issue with no assignee**
     - Condition: issue has the `ready` label but no assignee.
     - Why: ready work with no owner will not progress.
     - Next step: assign the issue to a maintainer or agent, or use

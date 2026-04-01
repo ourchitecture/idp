@@ -176,7 +176,7 @@ item can match multiple rules; record every applicable reason.
 
 ### Issue Attention Rules
 
-7. **Community issue needs triage**
+1. **Community issue needs triage**
    - Condition: issue from a community contributor has the
      `needs-triage` label, or has no workflow labels at all (no
      `ready`, `in-progress`, `blocked`, or `needs-review`).
@@ -185,7 +185,7 @@ item can match multiple rules; record every applicable reason.
    - Next step: review the issue, add appropriate labels (`ready`,
      `blocked`, or close with explanation), and post a response.
 
-8. **Community issue with no maintainer response**
+2. **Community issue with no maintainer response**
    - Condition: issue from a community contributor has zero comments
      from maintainers.
    - Why: a silent issue signals that the project is not actively
@@ -194,7 +194,7 @@ item can match multiple rules; record every applicable reason.
      is not yet complete. A simple "Thanks for reporting, we'll look
      into this" goes a long way.
 
-9. **Community issue awaiting response for too long**
+3. **Community issue awaiting response for too long**
    - Condition: the most recent comment on the issue is from the
      community contributor (not a maintainer), and it has been more
      than `stale_days` since that comment.
@@ -203,23 +203,23 @@ item can match multiple rules; record every applicable reason.
    - Next step: respond to the contributor's latest comment with an
      answer, status update, or next steps.
 
-10. **Community issue is stale with no resolution**
-    - Condition: issue from a community contributor has been open for
-      more than 30 days with no `ready` or `in-progress` label and
-      fewer than 2 maintainer comments.
-    - Why: long-open issues with minimal engagement suggest the issue
-      is being ignored.
-    - Next step: make a triage decision -- accept and label `ready`,
-      request more information, or close with a clear explanation.
+4. **Community issue is stale with no resolution**
+   - Condition: issue from a community contributor has been open for
+     more than 30 days with no `ready` or `in-progress` label and
+     fewer than 2 maintainer comments.
+   - Why: long-open issues with minimal engagement suggest the issue
+     is being ignored.
+   - Next step: make a triage decision -- accept and label `ready`,
+     request more information, or close with a clear explanation.
 
-11. **Community bug report with no reproduction acknowledgment**
-    - Condition: issue has a `bug` label, was submitted by a community
-      contributor, and no maintainer comment confirms or denies
-      reproduction of the issue.
-    - Why: bug reporters need to know whether their issue has been
-      validated.
-    - Next step: attempt to reproduce the bug, then comment with
-      confirmation or request for more details.
+5. **Community bug report with no reproduction acknowledgment**
+   - Condition: issue has a `bug` label, was submitted by a community
+     contributor, and no maintainer comment confirms or denies
+     reproduction of the issue.
+   - Why: bug reporters need to know whether their issue has been
+     validated.
+   - Next step: attempt to reproduce the bug, then comment with
+     confirmation or request for more details.
 
 ## Step 5: Assign Severity
 
