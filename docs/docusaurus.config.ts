@@ -60,6 +60,28 @@ const config: Config = {
     ],
   ],
 
+  plugins: [
+    function suppressLangiumDynamicRequireWarning() {
+      return {
+        name: "suppress-langium-dynamic-require-warning",
+        configureWebpack() {
+          return {
+            ignoreWarnings: [
+              {
+                // Mermaid pulls in Langium's UMD parser dependencies.
+                // The bundle intentionally uses dynamic require calls that webpack cannot statically analyze.
+                // Suppress only this known transitive warning so real build issues remain visible.
+                module: /vscode-languageserver-types[\\/]lib[\\/]umd[\\/]main\.js$/,
+                message:
+                  /Critical dependency: require function is used in a way in which dependencies cannot be statically extracted/,
+              },
+            ],
+          };
+        },
+      };
+    },
+  ],
+
   themes: ["@docusaurus/theme-mermaid"],
 
   themeConfig: {
@@ -76,6 +98,11 @@ const config: Config = {
           sidebarId: "mainSidebar",
           position: "left",
           label: "Docs",
+        },
+        {
+          to: "/blog",
+          label: "Blog",
+          position: "left",
         },
         {
           href: "https://github.com/ourchitecture/idp",
@@ -109,6 +136,15 @@ const config: Config = {
             {
               label: "Containers",
               to: "/docs/containers/",
+            },
+          ],
+        },
+        {
+          title: "Blog",
+          items: [
+            {
+              label: "All Posts",
+              to: "/blog",
             },
           ],
         },
