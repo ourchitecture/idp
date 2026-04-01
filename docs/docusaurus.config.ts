@@ -78,11 +78,6 @@ const config: Config = {
           label: "Docs",
         },
         {
-          to: "/blog",
-          label: "Blog",
-          position: "left",
-        },
-        {
           href: "https://github.com/ourchitecture/idp",
           label: "GitHub",
           position: "right",
@@ -114,15 +109,6 @@ const config: Config = {
             {
               label: "Containers",
               to: "/docs/containers/",
-            },
-          ],
-        },
-        {
-          title: "Blog",
-          items: [
-            {
-              label: "All Posts",
-              to: "/blog",
             },
           ],
         },
