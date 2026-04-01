@@ -3,15 +3,13 @@ sidebar_position: 5
 title: Contract Tests
 ---
 
-# Contract Test Container
-
 The contract test container packages the TypeScript test harness so it can
 run against any stack without requiring Node.js on the host.
 
 ## Image
 
 | Image | Base Image |
-|---|---|
+| --- | --- |
 | `stemix-contract-tests` | `node:24-alpine` |
 
 ## Build
@@ -33,7 +31,7 @@ docker run --rm \
 ## Environment Variables
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `IDP_WEB_URL` | `http://localhost:3000` | Web server URL to test |
 | `IDP_BFF_URL` | `http://localhost:8000` | BFF server URL to test |
 | `IDP_STACK_PATH` | (none) | Stack path for profile/capability loading |

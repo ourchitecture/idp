@@ -3,8 +3,6 @@ sidebar_position: 6
 title: Versioning and Releases
 ---
 
-# Container Versioning and Releases
-
 Stemix IDP uses independent semantic versioning for each component, managed
 by [release-please](https://github.com/googleapis/release-please).
 
@@ -13,7 +11,7 @@ by [release-please](https://github.com/googleapis/release-please).
 Each component is versioned independently:
 
 | Component | Tag Prefix | Version File |
-|---|---|---|
+| --- | --- | --- |
 | Go net/http REST | `go-net-http-rest-v` | `stacks/go/net-http/rest/version.txt` |
 | Node.js React + Fastify REST | `nodejs-react-fastify-rest-v` | `stacks/nodejs/react-fastify/rest/package.json` |
 | Contract Tests | `contract-tests-v` | `tests/version.txt` |

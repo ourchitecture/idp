@@ -3,8 +3,6 @@ sidebar_position: 2
 title: Running Containers
 ---
 
-# Running Containers
-
 This guide covers how to run Stemix IDP container images locally.
 
 ## Prerequisites

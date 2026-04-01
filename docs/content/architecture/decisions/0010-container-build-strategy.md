@@ -38,7 +38,7 @@ encodes the language, framework, and interface of the stack and `<service>` is
 Current images:
 
 | Image name | Stack |
-|---|---|
+| --- | --- |
 | `stemix-go-net-http-rest-web` | Go net/http REST — web tier |
 | `stemix-go-net-http-rest-bff` | Go net/http REST — BFF tier |
 | `stemix-nodejs-react-fastify-rest-web` | Node.js React/Fastify REST — web tier |
@@ -48,7 +48,7 @@ Current images:
 ### 2. Registry prefix model
 
 | Context | Registry prefix | Example |
-|---|---|---|
+| --- | --- | --- |
 | Local developer builds | `localhost/` | `localhost/stemix-go-net-http-rest-web:dev` |
 | CI intermediate builds | `localhost/` | `localhost/stemix-go-net-http-rest-web:ci` |
 | Published releases | `ghcr.io/ourchitecture/idp/` | `ghcr.io/ourchitecture/idp/stemix-go-net-http-rest-web:0.1.0-alpha.1` |
@@ -61,7 +61,7 @@ organization level.
 
 #### Go stacks — multi-stage with distroless final image
 
-```
+```text
 Stage 1 (builder): golang:<version>-alpine
   - go mod download
   - go build -o /app/service ./<web|bff>
@@ -79,7 +79,7 @@ builder stage.
 
 #### Node.js BFF — multi-stage TypeScript compile then slim Node runtime
 
-```
+```text
 Stage 1 (builder): node:<version>-alpine
   - npm ci (from repo root context)
   - tsc --project bff/tsconfig.json
@@ -92,7 +92,7 @@ Stage 2 (runtime): node:<version>-alpine
 
 #### Node.js web — multi-stage Vite build then nginx production server
 
-```
+```text
 Stage 1 (builder): node:<version>-alpine
   - npm ci (from repo root context)
   - vite build
@@ -111,7 +111,7 @@ resolves against the web server origin.
 
 #### Contract tests — single-stage Node runtime
 
-```
+```text
 Stage 1: node:<version>-alpine
   - npm ci
   - COPY tests/src tests/features
@@ -148,7 +148,7 @@ Per-component independent SemVer (see ADR-0004 and the release-please
 configuration) produces the following tag matrix per image:
 
 | Tag | Example | When created |
-|---|---|---|
+| --- | --- | --- |
 | Full semver | `0.1.0-alpha.1` | Every release (pre-release and stable) |
 | `edge` | `edge` | Every push to `main` (latest unreleased build) |
 | `major.minor` | `0.1` | Stable (non-pre-release) releases only |

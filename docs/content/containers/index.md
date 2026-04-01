@@ -3,8 +3,6 @@ sidebar_position: 1
 title: Container Overview
 ---
 
-# Container Images
-
 Stemix IDP publishes container images for every reference stack and the contract
 test harness. Containers let you run the portal without installing language
 toolchains or build tools on your machine.
@@ -21,7 +19,7 @@ toolchains or build tools on your machine.
 ## Available Images
 
 | Image | Description |
-|---|---|
+| --- | --- |
 | `stemix-go-net-http-rest-web` | Go net/http web server |
 | `stemix-go-net-http-rest-bff` | Go net/http BFF API server |
 | `stemix-nodejs-react-fastify-rest-web` | React + nginx web server with BFF proxy |
@@ -39,7 +37,7 @@ ghcr.io/ourchitecture/idp/stemix-<image-name>:<tag>
 ## Tags
 
 | Tag | Meaning |
-|---|---|
+| --- | --- |
 | `edge` | Latest build from `main` branch (may be unstable) |
 | `0.1.0-alpha.1` | Exact version |
 | `0.1` | Latest patch within that minor |

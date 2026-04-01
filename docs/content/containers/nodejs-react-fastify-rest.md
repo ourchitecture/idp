@@ -3,15 +3,13 @@ sidebar_position: 4
 title: Node.js React + Fastify REST
 ---
 
-# Node.js React + Fastify REST Containers
-
 The Node.js stack uses separate Dockerfiles for each component due to
 different runtime requirements.
 
 ## Images
 
 | Image | Default Port | Base Image |
-|---|---|---|
+| --- | --- | --- |
 | `stemix-nodejs-react-fastify-rest-web` | 3400 | `nginx:alpine` |
 | `stemix-nodejs-react-fastify-rest-bff` | 8400 | `node:24-alpine` |
 
@@ -34,7 +32,7 @@ The web container serves the Vite-built React SPA via nginx and proxies
 ### Environment Variables
 
 | Variable | Required | Description |
-|---|---|---|
+| --- | --- | --- |
 | `BFF_URL` | Yes | BFF backend URL (example: `http://host.docker.internal:8400`) |
 
 The `BFF_URL` variable is injected at container startup using the nginx
@@ -53,7 +51,7 @@ Browser --> nginx:3400 --> /api/* proxy_pass --> BFF_URL
 ### Environment Variables
 
 | Variable | Default | Description |
-|---|---|---|
+| --- | --- | --- |
 | `OUR_IDP_API_HOST` | `0.0.0.0` | Bind address |
 | `OUR_IDP_API_PORT` | `8400` | Listen port |
 
