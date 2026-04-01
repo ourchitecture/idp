@@ -85,7 +85,7 @@ ORG="${ORG}" \
 USERNAME="${ISSUE_AUTHOR}" \
 TEAM_SLUGS="idp-admin,idp-maintain" \
 OUTPUT_FILE="${membership_output}" \
-"${script_dir}/check-team-membership.sh"
+bash "${script_dir}/check-team-membership.sh"
 
 # shellcheck source=/dev/null
 source "${membership_output}"
