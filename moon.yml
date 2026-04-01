@@ -19,6 +19,10 @@ tasks:
     command: ["bash", "./scripts/ci/check-lint-workflows.sh"]
     options:
       runFromWorkspaceRoot: true
+  check-privacy:
+    command: ["bash", "./scripts/ci/check-privacy.sh"]
+    options:
+      runFromWorkspaceRoot: true
   check-team-membership:
     command: ["bash", "./scripts/ci/check-team-membership.sh"]
     options:

@@ -1,0 +1,84 @@
+.wrapper {
+  position: relative;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  overflow: hidden;
+  margin-bottom: var(--ifm-leading);
+}
+
+.viewport {
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 200px;
+}
+
+.viewport :global(svg),
+.viewport :global(svg *) {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.viewport:active {
+  cursor: grabbing;
+}
+
+.canvas {
+  transform-origin: 0 0;
+  will-change: transform;
+  display: flex;
+  justify-content: center;
+}
+
+.canvas > :global(.docusaurus-mermaid-container) {
+  max-width: none;
+}
+
+.canvas > :global(.docusaurus-mermaid-container) > svg {
+  max-width: none;
+}
+
+.toolbar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem;
+  z-index: 2;
+  opacity: 0.7;
+  transition: opacity 0.15s ease;
+}
+
+.wrapper:hover .toolbar {
+  opacity: 1;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0;
+  user-select: none;
+  transition: background 0.1s ease;
+}
+
+.btn:hover {
+  background: var(--ifm-color-emphasis-200);
+}
+
+.btn[title="Reset zoom"] {
+  font-size: 0.7rem;
+  font-weight: 700;
+}

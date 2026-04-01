@@ -6,7 +6,7 @@
 #
 # Usage (called from a stack Makefile via `make e2e`):
 #
-#   STACK_PATH=src/stacks/go/net-http/rest \
+#   STACK_PATH=stacks/go/net-http/rest \
 #   WEB_START_CMD="..." \
 #   BFF_START_CMD="..." \
 #   WEB_URL=http://127.0.0.1:3300 \
@@ -16,7 +16,7 @@
 #     bash scripts/e2e/run-stack-e2e.sh
 #
 # Required environment variables:
-#   STACK_PATH        Relative path to the stack (e.g. src/stacks/go/net-http/rest)
+#   STACK_PATH        Relative path to the stack (e.g. stacks/go/net-http/rest)
 #   WEB_START_CMD     Shell command to start the web server (runs in background)
 #   BFF_START_CMD     Shell command to start the BFF server (runs in background)
 #   WEB_URL           Full base URL for the web server readiness check
@@ -44,7 +44,7 @@ CONTRACT_PROFILES="${CONTRACT_PROFILES:-}"
 READY_TIMEOUT="${READY_TIMEOUT:-30}"
 READY_INTERVAL="${READY_INTERVAL:-1}"
 
-READINESS_PATH="/api/readiness"
+READINESS_PATH="/readiness"
 BFF_READY_URL="${BFF_URL%/}${READINESS_PATH}"
 
 WEB_PID=""
@@ -145,7 +145,7 @@ log "Web server started (pid ${WEB_PID})"
 
 log_section "Waiting for readiness"
 
-# BFF exposes the authoritative /api/readiness endpoint.
+# BFF exposes the authoritative /readiness endpoint.
 if ! wait_for_ready "BFF readiness" "${BFF_READY_URL}" "${READY_TIMEOUT}" "${READY_INTERVAL}"; then
   printf "[e2e:%s] FAIL: BFF did not become ready — aborting test run\n" "${STACK_PATH}" >&2
   exit 1

@@ -132,4 +132,4 @@ bleeding-edge-only choices and legacy scaffolds such as Create React App.
   - [0005](0005-shared-capability-contract-and-conformance-profiles.md)
 - Related docs:
   - [AGENTS.md](https://github.com/ourchitecture/idp/blob/main/AGENTS.md)
-  - [src/stacks/README.md](https://github.com/ourchitecture/idp/blob/main/src/stacks/README.md)
+  - [stacks/README.md](https://github.com/ourchitecture/idp/blob/main/stacks/README.md)

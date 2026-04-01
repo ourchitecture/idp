@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean lint check-lint-md check-lint-workflows check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev docs-site build-containers
+.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev docs-site build-containers
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -16,8 +16,10 @@ help:
 	@printf "  install       Install dependencies for selected stack\n"
 	@printf "  build         Build selected stack artifacts\n"
 	@printf "  clean         Clean selected stack artifacts\n"
+	@printf "  reset         Reset (full clean) the project\n"
 	@printf "  check-lint-md Lint all Markdown files\n"
 	@printf "  check-lint-workflows Lint GitHub workflow definitions\n"
+	@printf "  check-privacy Run privacy and secret scanning\n"
 	@printf "  check-stack   Run full checks for STACK\n"
 	@printf "  check-team-membership Check org team authorization\n"
 	@printf "  check-pr-title Validate PR title policy\n"
@@ -105,6 +107,13 @@ check-lint-workflows:
 		"bash" "./$(CI_SCRIPTS_DIR)/check-lint-workflows.sh"; \
 	fi
 
+check-privacy:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:check-privacy; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/check-privacy.sh"; \
+	fi
+
 check-stack:
 	@"$(MAKE)" -C "$(STACK)" all
 
@@ -165,6 +174,10 @@ build:
 
 clean:
 	@"$(MAKE)" -C "$(STACK)" clean
+	@rm -rf ./.tmp/ ./docs/.docusaurus/ ./docs/build/
+
+reset: clean
+	@rm -rf ./.venv/ ./node_modules/ ./docs/node_modules/
 
 lint: check-lint
 

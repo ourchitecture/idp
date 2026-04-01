@@ -5,6 +5,13 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Health endpoint for container orchestration and monitoring.
+    # Returns a static IETF health+json response (ADR-0011).
+    location = /health {
+        default_type application/health+json;
+        return 200 '{"status":"pass","serviceId":"idp-web","description":"IDP Web Server"}';
+    }
+
     # Proxy /api/* to the BFF at runtime.
     # BFF_URL must be set via environment variable at container start.
     # Default falls back to localhost:8000 for convenience.

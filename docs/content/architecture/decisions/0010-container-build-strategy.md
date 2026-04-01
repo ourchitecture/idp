@@ -120,7 +120,28 @@ Stage 1: node:<version>-alpine
   - CMD ["npm", "run", "test:contract"]
 ```
 
-### 4. Container host binding
+### 4. Container HEALTHCHECK instructions
+
+All service Dockerfiles should include a `HEALTHCHECK` instruction targeting the
+`/health` endpoint defined in ADR-0011. This enables Docker, Compose, and
+orchestrators to monitor container health without external configuration.
+
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD ["wget", "--quiet", "--tries=1", "--spider", "http://localhost:<port>/health"]
+```
+
+Where `<port>` is the service default (`3000` for web, `8000` for BFF). The
+`wget` command is preferred over `curl` because distroless and Alpine-based
+images may not include `curl` but `wget` is available in Alpine and can be added
+as a static binary in distroless stages. For distroless images that lack a shell
+and `wget`, a compiled health-check binary or `/bin/true`-based probe may be
+used as a fallback (document the trade-off in the Dockerfile).
+
+The nginx-based Node.js web container uses `curl` or `wget` from the Alpine
+layer available in the nginx image.
+
+### 5. Container host binding
 
 Native runs default to `127.0.0.1` (loopback) per ADR-0006 to avoid OS
 firewall prompts on Windows and macOS during local development. Inside a
@@ -129,7 +150,7 @@ container namespace. Dockerfiles set `OUR_IDP_WEB_HOST=0.0.0.0` and
 `OUR_IDP_API_HOST=0.0.0.0` as `ENV` defaults, overriding the loopback default
 without touching source code.
 
-### 5. Docker is opt-in; not managed by proto
+### 6. Docker is opt-in; not managed by proto
 
 Docker (Docker Desktop, Rancher Desktop, or Docker Engine) is a system-level
 tool and is not managed by `proto`. It is **optional** for local development.
@@ -142,7 +163,7 @@ On Windows 11, Rancher Desktop with the `dockerd (moby)` engine setting provides
 a fully compatible `docker` CLI. Using the `containerd (nerdctl)` engine setting
 may result in compatibility differences.
 
-### 6. Version tag matrix
+### 7. Version tag matrix
 
 Per-component independent SemVer (see ADR-0004 and the release-please
 configuration) produces the following tag matrix per image:
@@ -159,7 +180,7 @@ The `latest` tag is maintained by a dedicated workflow that runs after each
 successful container publish. It is never updated when the new version is a
 pre-release, ensuring `latest` always points to a stable release.
 
-### 7. Cleanup policy
+### 8. Cleanup policy
 
 A daily scheduled workflow deletes container versions below configurable floor
 thresholds. Floor thresholds are defined as environment variables inline in the

@@ -1,4 +1,4 @@
-.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract run-web run-bff build-web build-bff build-container-web build-container-bff build-containers
+.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract run-web run-bff setup-debug-tools build-web build-bff build-debug-web build-debug-bff build-container-web build-container-bff build-containers
 
 ROOT_DIR := ../../../..
 BIN_DIR := .bin
@@ -9,6 +9,9 @@ WEB_TEST_PORT := 3300
 BFF_TEST_PORT := 8300
 CONTAINER_LOCAL_PREFIX := localhost
 CONTAINER_IMAGE_BASE := stemix-go-net-http-rest
+PROTO_HOME ?= $(HOME)/.proto
+PROTO_BIN := $(PROTO_HOME)/bin/proto
+DLV_VERSION ?= v1.25.2
 
 ifeq ($(OS),Windows_NT)
 EXE := .exe
@@ -18,6 +21,7 @@ endif
 
 WEB_BIN := $(BIN_DIR)/idp-go-web$(EXE)
 BFF_BIN := $(BIN_DIR)/idp-go-bff$(EXE)
+DLV_BIN := $(BIN_DIR)/dlv$(EXE)
 
 help:
 	@printf "Targets:\n"
@@ -34,6 +38,9 @@ help:
 	@printf "  test-contract Alias for check-contract\n"
 	@printf "  build-web     Build stable web executable\n"
 	@printf "  build-bff     Build stable BFF executable\n"
+	@printf "  setup-debug-tools Ensure delve debugger for F5 workflows\n"
+	@printf "  build-debug-web Build web executable with debug symbols\n"
+	@printf "  build-debug-bff Build BFF executable with debug symbols\n"
 	@printf "  run-web       Start the web server\n"
 	@printf "  build-container-web Build web container image (requires docker)\n"
 	@printf "  build-container-bff Build BFF container image (requires docker)\n"
@@ -84,6 +91,26 @@ build-web:
 build-bff:
 	@mkdir -p "$(BIN_DIR)"
 	@go build -o "$(BFF_BIN)" ./bff
+
+setup-debug-tools:
+	@mkdir -p "$(BIN_DIR)"
+	@if [ -x "$(PROTO_BIN)" ]; then \
+		GOBIN="$(abspath $(BIN_DIR))" "$(PROTO_BIN)" run go -- install -v github.com/go-delve/delve/cmd/dlv@$(DLV_VERSION); \
+	else \
+		GOBIN="$(abspath $(BIN_DIR))" go install -v github.com/go-delve/delve/cmd/dlv@$(DLV_VERSION); \
+	fi
+	@if [ ! -x "$(DLV_BIN)" ]; then \
+		echo "ERROR: delve install failed; expected $(DLV_BIN)" >&2; \
+		exit 1; \
+	fi
+
+build-debug-web: setup-debug-tools
+	@mkdir -p "$(BIN_DIR)"
+	@go build -gcflags="all=-N -l" -o "$(WEB_BIN)" ./web
+
+build-debug-bff: setup-debug-tools
+	@mkdir -p "$(BIN_DIR)"
+	@go build -gcflags="all=-N -l" -o "$(BFF_BIN)" ./bff
 
 run-web: build-web
 	@env -- "$(WEB_BIN)"

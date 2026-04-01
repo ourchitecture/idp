@@ -14,7 +14,7 @@
     // -------------------------------------------------------------------------
     {
       "label": "Build: Go Stack",
-      "detail": "moon run go-net-http-rest:build  (or: make -C src/stacks/go/net-http/rest build)",
+      "detail": "moon run go-net-http-rest:build  (or: make -C stacks/go/net-http/rest build)",
       "type": "shell",
       "command": "moon run go-net-http-rest:build",
       "group": "build",
@@ -27,12 +27,9 @@
     },
     {
       "label": "Build: Go Stack (debug symbols)",
-      "detail": "Compiles web and BFF binaries with -gcflags='all=-N -l' for delve debugger",
+      "detail": "moon run go-net-http-rest:build-debug-web  (installs dlv via make/proto)",
       "type": "shell",
-      "command": "go build -gcflags=\"all=-N -l\" -o .bin/idp-go-web${GOEXE} ./web",
-      "options": {
-        "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest"
-      },
+      "command": "moon run go-net-http-rest:build-debug-web",
       "group": "build",
       "presentation": {
         "reveal": "silent",
@@ -43,12 +40,9 @@
     },
     {
       "label": "Build: Go BFF (debug symbols)",
-      "detail": "Compiles BFF binary with -gcflags='all=-N -l' for delve debugger",
+      "detail": "moon run go-net-http-rest:build-debug-bff  (installs dlv via make/proto)",
       "type": "shell",
-      "command": "go build -gcflags=\"all=-N -l\" -o .bin/idp-go-bff${GOEXE} ./bff",
-      "options": {
-        "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest"
-      },
+      "command": "moon run go-net-http-rest:build-debug-bff",
       "group": "build",
       "presentation": {
         "reveal": "silent",
@@ -69,6 +63,19 @@
         "group": "build"
       },
       "problemMatcher": ["$go", "$tsc"]
+    },
+    {
+      "label": "Build: Docs Site",
+      "detail": "moon run docs-site:build  (or: make -C docs build)",
+      "type": "shell",
+      "command": "moon run docs-site:build",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "build"
+      },
+      "problemMatcher": []
     },
 
     // -------------------------------------------------------------------------
@@ -133,6 +140,38 @@
       }
     },
     {
+      "label": "Run: Docs Site (Docusaurus Dev)",
+      "detail": "moon run docs-site:run-dev  (or: make -C docs run-dev)",
+      "type": "shell",
+      "command": "moon run docs-site:run-dev",
+      "options": {
+        "env": {
+          "PORT": "3001",
+          "BROWSER": "none"
+        }
+      },
+      "isBackground": true,
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "dev",
+        "label": "Docs Site"
+      },
+      "problemMatcher": {
+        "owner": "docs-site",
+        "pattern": {
+          "regexp": "^(.*)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\[INFO\\] Starting the development server\\.\\.\\.$",
+          "endsPattern": "^\\[SUCCESS\\] Docusaurus website is running at: https?://.*$"
+        }
+      }
+    },
+    {
       "label": "Dev: Start Full System (Go)",
       "detail": "Starts Go web server (port 3000) and BFF (port 8000) in parallel",
       "dependsOn": ["Run: Go Web Server", "Run: Go BFF Server"],
@@ -141,6 +180,23 @@
         "kind": "build",
         "isDefault": true
       },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Start Full System + Docs",
+      "detail": "Starts Go web server, Go BFF, and Docusaurus docs in parallel",
+      "dependsOn": [
+        "Run: Go Web Server",
+        "Run: Go BFF Server",
+        "Run: Docs Site (Docusaurus Dev)"
+      ],
+      "dependsOrder": "parallel",
+      "group": "none",
       "presentation": {
         "reveal": "always",
         "panel": "shared",
@@ -177,6 +233,32 @@
         "group": "check"
       },
       "problemMatcher": "$go"
+    },
+    {
+      "label": "Check: Docs Site (lint + typecheck + diagrams)",
+      "detail": "moon run docs-site:check  (or: make -C docs check)",
+      "type": "shell",
+      "command": "moon run docs-site:check",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check: Docs Site (CI)",
+      "detail": "moon run docs-site:check-ci  (or: make -C docs check-ci)",
+      "type": "shell",
+      "command": "moon run docs-site:check-ci",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "group": "check"
+      },
+      "problemMatcher": []
     },
     {
       "label": "Check: Lint Markdown",

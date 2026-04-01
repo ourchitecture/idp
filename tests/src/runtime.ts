@@ -5,7 +5,7 @@ import { assert } from "./assertions";
 import { request } from "./http";
 import type { ProfileName, StackMetadata } from "./types";
 
-const DEFAULT_STACK = "src/stacks/go/net-http/rest";
+const DEFAULT_STACK = "stacks/go/net-http/rest";
 
 function parseProfiles(raw: string | undefined): string[] {
   if (raw === undefined || raw.trim().length === 0) {

@@ -40,6 +40,13 @@ Use these gates:
 
 Routing rule: Create an ADR when at least 3 gates are true and one is Gate 2 or Gate 3.
 
+## Audience views
+
+- [IDP Platform Decisions](./platform-decisions) — user-facing contracts,
+  platform behavior, and cross-stack conformance expectations.
+- [Internal Engineering Decisions](./internal-engineering-decisions) — repository
+  build/orchestration/tooling constraints for maintainers and contributors.
+
 ## Index
 
 | ADR | Title | Status | Date |
@@ -54,3 +61,5 @@ Routing rule: Create an ADR when at least 3 gates are true and one is Gate 2 or 
 | [0008](./dependency-and-tooling-pinning-policy) | Dependency and Tooling Pinning Policy | proposed | 2026-03-31 |
 | [0009](./intent-specification-format) | Gherkin as Layer 1 Intent Specification Format | proposed | 2026-03-31 |
 | [0010](./container-build-strategy) | Container Build Strategy | proposed | 2026-03-31 |
+| [0011](./ietf-health-endpoint-contract) | IETF Health Endpoint Contract | proposed | 2026-04-01 |
+| [0012](./moon-python-uv-toolchain-integration-constraint) | Moon Python/uv Toolchain Integration Constraint | accepted | 2026-04-01 |

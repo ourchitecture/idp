@@ -1,8 +1,8 @@
 Feature: Operational contract — runtime and semantic stability
   Beyond the baseline shape checks, Tier 1 stacks must prove that runtime
   conventions are honored and that response payloads carry the correct semantic
-  values. These three scenarios validate exact enum values, exact string
-  identity, and ISO-8601 timestamp format.
+  values. These scenarios validate exact enum values, exact string identity,
+  IETF health check compliance, and ISO-8601 timestamp format.
 
   Background:
     Given the web server is running at the URL defined by IDP_WEB_URL
@@ -12,19 +12,38 @@ Feature: Operational contract — runtime and semantic stability
     When the client sends GET / to the web server
     Then the response status code is in the 2xx range
 
+  Scenario: Web server health payload semantics are stable
+    When the client sends GET /health to the web server
+    Then the response status code is in the 2xx range
+    And the response Content-Type header contains "application/health+json"
+    And the response body is a valid JSON object
+    And the JSON field "status" is exactly "pass"
+    And the JSON field "serviceId" is exactly "idp-web"
+    And the JSON field "description" is exactly "IDP Web Server"
+
   Scenario: BFF health payload semantics are stable
-    When the client sends GET /api/health to the BFF server
+    When the client sends GET /health to the BFF server
+    Then the response status code is in the 2xx range
+    And the response Content-Type header contains "application/health+json"
+    And the response body is a valid JSON object
+    And the JSON field "status" is one of "pass", "fail", or "warn"
+    And the JSON field "serviceId" is exactly "idp-bff"
+    And the JSON field "description" is exactly "IDP BFF Server"
+
+  Scenario: BFF health checks sub-components use IETF format
+    When the client sends GET /health to the BFF server
     Then the response status code is in the 2xx range
     And the response body is a valid JSON object
-    And the JSON field "status" is exactly "ok" or exactly "degraded"
-    And the JSON field "service" is exactly "idp-bff"
-    And the JSON field "timestamp" is a non-empty ISO-8601 compatible string
+    And the JSON field "checks" is an object
+    And each key in "checks" uses the "componentName:measurementName" format
+    And each check entry contains a field named "status"
+    And each check entry contains a field named "componentType"
+    And each check entry contains a field named "time" with an ISO-8601 value
 
   Scenario: BFF readiness contract semantics are stable
-    When the client sends GET /api/readiness to the BFF server
+    When the client sends GET /readiness to the BFF server
     Then the response status code is in the 2xx range
+    And the response Content-Type header contains "application/health+json"
     And the response body is a valid JSON object
-    And the JSON field "status" is exactly "ready"
-    And the JSON field "checks" is an object that contains the key "bff"
-    And the JSON field "checks" is an object that contains the key "routing"
-    And the JSON field "timestamp" is a non-empty ISO-8601 compatible string
+    And the JSON field "status" is one of "pass" or "fail"
+    And the JSON field "checks" is an object that is not empty

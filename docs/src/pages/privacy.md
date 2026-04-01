@@ -66,9 +66,16 @@ or advertising purposes.
 
 ## Third-Party Services
 
-We use third-party analytics and session insight services to collect and process
-usage data as described above. These services operate under their own privacy
-policies and data processing agreements. We have configured these services to:
+We use the following third-party analytics and session insight services to
+collect and process usage data as described above. These services operate under
+their own privacy policies and data processing agreements.
+
+| Service | Purpose | Privacy Policy |
+| ------- | ------- | -------------- |
+| Google Analytics 4 (GA4) | Aggregated usage analytics and traffic analysis | [policies.google.com/privacy](https://policies.google.com/privacy) |
+| Microsoft Clarity | Session recording, heatmaps, and interaction insights | [privacy.microsoft.com](https://privacy.microsoft.com/privacystatement) |
+
+We have configured these services to:
 
 - Anonymize IP addresses before storage
 - Limit data retention to what is necessary for site improvement purposes

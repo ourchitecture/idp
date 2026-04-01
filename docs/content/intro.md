@@ -28,7 +28,7 @@ The fastest path to a running local stack:
 # Install Node.js dependencies
 npm install
 
-# (Optional) Pin and install the full toolchain via proto
+# (Recommended) Pin and install the full toolchain via proto
 proto install
 
 # Start the default stack (web + BFF)
@@ -53,6 +53,13 @@ docs/       Docusaurus documentation site (docs/content/ is the source of truth)
 tests/      Contract test harness (TypeScript) and Layer 1 Gherkin intent specs
 tools/      Developer tooling, scripts, and MCP server definitions
 ```
+
+## Toolchain Baseline
+
+- Managed with `proto` + `.prototools` for reproducible local and CI tooling.
+- Pinned runtimes include Go, Node.js/npm, Python, and `uv`.
+- Python-based security scanning uses `uv tool run` for isolated ephemeral
+  environments instead of global pip installs.
 
 ## Further Reading
 

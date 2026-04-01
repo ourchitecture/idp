@@ -17,6 +17,8 @@ Maintainers responsible for code review, merging, and release management.
 
 - Review and merge pull requests.
 - Triage incoming issues and apply appropriate labels.
+- Review weekly `stale` labels as inbox hygiene and apply `keep-open` when work
+  should remain active.
 - Manage releases via release-please automation.
 - Monitor CI/CD pipelines and container image publishing.
 - Ensure documentation stays current with code changes.

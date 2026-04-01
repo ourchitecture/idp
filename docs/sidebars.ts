@@ -15,16 +15,38 @@ const sidebars: SidebarsConfig = {
             id: "architecture/decisions/index",
           },
           items: [
-            "architecture/decisions/intent-driven-architecture",
-            "architecture/decisions/stack-layout-and-make-contract",
-            "architecture/decisions/contract-harness-and-runtime-port-contract",
-            "architecture/decisions/implementation-portfolio-and-support-tiers",
-            "architecture/decisions/shared-capability-contract-and-conformance-profiles",
-            "architecture/decisions/cross-platform-local-runtime-ux-baseline",
-            "architecture/decisions/moon-required-proto-enhanced-toolchain-policy",
-            "architecture/decisions/dependency-and-tooling-pinning-policy",
-            "architecture/decisions/intent-specification-format",
-            "architecture/decisions/container-build-strategy",
+            {
+              type: "category",
+              label: "IDP Platform Decisions",
+              link: {
+                type: "doc",
+                id: "architecture/decisions/platform-decisions",
+              },
+              items: [
+                "architecture/decisions/intent-driven-architecture",
+                "architecture/decisions/contract-harness-and-runtime-port-contract",
+                "architecture/decisions/implementation-portfolio-and-support-tiers",
+                "architecture/decisions/shared-capability-contract-and-conformance-profiles",
+                "architecture/decisions/cross-platform-local-runtime-ux-baseline",
+                "architecture/decisions/intent-specification-format",
+                "architecture/decisions/container-build-strategy",
+                "architecture/decisions/ietf-health-endpoint-contract",
+              ],
+            },
+            {
+              type: "category",
+              label: "Internal Engineering Decisions",
+              link: {
+                type: "doc",
+                id: "architecture/decisions/internal-engineering-decisions",
+              },
+              items: [
+                "architecture/decisions/stack-layout-and-make-contract",
+                "architecture/decisions/moon-required-proto-enhanced-toolchain-policy",
+                "architecture/decisions/dependency-and-tooling-pinning-policy",
+                "architecture/decisions/moon-python-uv-toolchain-integration-constraint",
+              ],
+            },
           ],
         },
         {
@@ -78,6 +100,7 @@ const sidebars: SidebarsConfig = {
         },
       ],
     },
+    "security",
   ],
 };
 

@@ -24,6 +24,12 @@ Current high-signal ADRs agents must respect:
 - `0009` Gherkin as the Layer 1 intent specification format (`tests/features/*.feature`
   files are ground truth; the TypeScript harness in `tests/src/profiles/` is derived
   from them — when they disagree, the `.feature` file wins).
+- `0011` IETF health endpoint contract (`/health` and `/readiness` paths,
+  `application/health+json` media type, `pass`/`fail`/`warn` status values
+  per `draft-inadarei-api-health-check-06`; applies to all hosted services).
+- `0012` moon/proto Python-uv integration constraint (use `unstable_python` and
+  `unstable_uv` moon toolchains mapped via `.prototools [plugins.tools]`;
+  avoid unsupported direct `python`/`uv` moon toolchain IDs).
 
 When proposing a new ADR, include a short rationale for why the decision is
 long-lived, cross-cutting, and not better captured in regular docs.
@@ -196,6 +202,8 @@ not required but are always kept in sync with their `moon`/script equivalents.
 
 - Install deps: `npm install`
 - Install pinned toolchain (recommended): `proto install`
+- Run privacy and secret scanning (moon canonical): `moon run repo:check-privacy`
+- Run privacy and secret scanning (make shortcut): `make check-privacy`
 - Show moon project graph and tasks: `moon project <project-id>`
 - Lint Markdown (make shortcut): `make check-lint-md`
 - Lint Markdown (moon canonical): `moon run repo:check-lint-md`
@@ -352,7 +360,8 @@ Agents must validate that requested changes actually took effect and report evid
 - Never commit secrets, credentials, or environment-specific configs.
 - Do not bypass auth/permission checks for convenience.
 - Prefer secure defaults; document any exceptions.
-- After every code implementation or edit, run the relevant dependency vulnerability scan before handoff (`npm audit --audit-level=high` for this repo).
+- Run dependency vulnerability scans when changes affect dependency graphs or executable behavior (for example manifests/lockfiles, runtime source, build scripts, CI scripts, Makefiles, moon task definitions, or container definitions).
+- For documentation-only or Markdown-only changes, skip dependency audits and run markdown lint (`moon run repo:check-lint-md`) as the required validation.
 - Never leave known high or critical vulnerabilities unaddressed: fix them in the same change, then re-run the audit and confirm a clean result.
 - If a vulnerability has no safe fix available, document the mitigation and risk in the issue/PR and create a follow-up issue before closing work.
 

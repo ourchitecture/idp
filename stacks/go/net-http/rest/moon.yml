@@ -13,6 +13,12 @@ tasks:
     command: ["make", "install"]
   build:
     command: ["make", "build"]
+  setup-debug-tools:
+    command: ["make", "setup-debug-tools"]
+  build-debug-web:
+    command: ["make", "build-debug-web"]
+  build-debug-bff:
+    command: ["make", "build-debug-bff"]
   clean:
     command: ["make", "clean"]
   check-lint:

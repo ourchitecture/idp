@@ -44,6 +44,8 @@ create_label "ready" "0e8a16" "Triaged and ready for work"
 create_label "in-progress" "1d76db" "Actively being worked on"
 create_label "blocked" "b60205" "Blocked by dependency or question"
 create_label "needs-review" "fbca04" "Awaiting review or approval"
+create_label "stale" "fbca04" "No recent activity; confirm if this should remain open"
+create_label "keep-open" "0052cc" "Exempt from stale automation"
 
 create_label "agent-eligible" "6f42c1" "Suitable for autonomous AI agent processing"
 

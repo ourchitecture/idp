@@ -59,7 +59,7 @@ for file in "${changed_files[@]}"; do
       ;;
     # docs/* includes architecture diagram sources under
     # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
-    src/docs/*|docs/*)
+    docs/*)
       run_docs_validation="true"
       ;;
     Makefile|package.json|package-lock.json|tests/*)
