@@ -45,7 +45,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
           build-args: SERVICE=web
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -60,8 +60,8 @@ jobs:
             --build-arg SERVICE=web \
             -t stemix-go-web-smoke:test \
             -f stacks/go/net-http/rest/Dockerfile \
-            .
-          CID=$(docker run -d -p 3300:3300 stemix-go-web-smoke:test)
+            stacks/go/net-http/rest
+          CID=$(docker run -d -p 3300:3000 stemix-go-web-smoke:test)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
           docker stop "${CID}" || true
@@ -90,7 +90,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
           build-args: SERVICE=bff
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -105,8 +105,8 @@ jobs:
             --build-arg SERVICE=bff \
             -t stemix-go-bff-smoke:test \
             -f stacks/go/net-http/rest/Dockerfile \
-            .
-          CID=$(docker run -d -p 8300:8300 stemix-go-bff-smoke:test)
+            stacks/go/net-http/rest
+          CID=$(docker run -d -p 8300:8000 stemix-go-bff-smoke:test)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/api/health || true)
           docker stop "${CID}" || true
@@ -149,7 +149,7 @@ jobs:
             -t stemix-node-web-smoke:test \
             -f stacks/nodejs/react-fastify/rest/web/Dockerfile \
             .
-          CID=$(docker run -d -p 3400:3400 -e BFF_URL=http://localhost:8400 stemix-node-web-smoke:test)
+          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-node-web-smoke:test)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
           docker stop "${CID}" || true
@@ -192,7 +192,7 @@ jobs:
             -t stemix-node-bff-smoke:test \
             -f stacks/nodejs/react-fastify/rest/bff/Dockerfile \
             .
-          CID=$(docker run -d -p 8400:8400 stemix-node-bff-smoke:test)
+          CID=$(docker run -d -p 8400:8000 stemix-node-bff-smoke:test)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/api/health || true)
           docker stop "${CID}" || true

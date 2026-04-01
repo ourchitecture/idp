@@ -197,7 +197,7 @@ jobs:
             --build-arg SERVICE=web \
             -t stemix-go-web:pr-check \
             -f stacks/go/net-http/rest/Dockerfile \
-            .
+            stacks/go/net-http/rest
 
       - name: Build Go BFF container
         run: |
@@ -205,7 +205,7 @@ jobs:
             --build-arg SERVICE=bff \
             -t stemix-go-bff:pr-check \
             -f stacks/go/net-http/rest/Dockerfile \
-            .
+            stacks/go/net-http/rest
 
       - name: Build Node.js web container
         run: |

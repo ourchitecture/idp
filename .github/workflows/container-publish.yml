@@ -45,14 +45,16 @@ jobs:
           MAJOR="${VERSION%%.*}"
           MINOR="${VERSION%.*}"
           MINOR="${MINOR#*.}"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "major=${MAJOR}" >> "$GITHUB_OUTPUT"
-          echo "major_minor=${MAJOR}.${MINOR}" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=${VERSION}"
+            echo "major=${MAJOR}"
+            echo "major_minor=${MAJOR}.${MINOR}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build and push versioned image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
           build-args: SERVICE=${{ matrix.service }}
           push: true
@@ -96,9 +98,11 @@ jobs:
           MAJOR="${VERSION%%.*}"
           MINOR="${VERSION%.*}"
           MINOR="${MINOR#*.}"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "major=${MAJOR}" >> "$GITHUB_OUTPUT"
-          echo "major_minor=${MAJOR}.${MINOR}" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=${VERSION}"
+            echo "major=${MAJOR}"
+            echo "major_minor=${MAJOR}.${MINOR}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build and push versioned image
         uses: docker/build-push-action@v6
@@ -139,9 +143,11 @@ jobs:
           MAJOR="${VERSION%%.*}"
           MINOR="${VERSION%.*}"
           MINOR="${MINOR#*.}"
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "major=${MAJOR}" >> "$GITHUB_OUTPUT"
-          echo "major_minor=${MAJOR}.${MINOR}" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=${VERSION}"
+            echo "major=${MAJOR}"
+            echo "major_minor=${MAJOR}.${MINOR}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build and push versioned image
         uses: docker/build-push-action@v6
