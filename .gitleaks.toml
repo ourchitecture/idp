@@ -1,0 +1,15 @@
+title = "IDP gitleaks config"
+
+[allowlist]
+description = "Known non-secret analytics identifiers and local cache artifacts"
+paths = [
+  '''^\.moon/cache/''',
+  '''^\.tmp/''',
+  '''^node_modules/''',
+  '''^docs/node_modules/''',
+  '''^\.venv/''',
+]
+
+regexes = [
+  '''ga-disable-G-DF7EEF2WEZ''',
+]

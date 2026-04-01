@@ -33,6 +33,7 @@ tools/      Developer tooling, scripts, and MCP server definitions
 
 - [docs/content/testing/contract-harness.md](docs/content/testing/contract-harness.md) --
   Contract test harness guide (newcomers, implementers, and contributors)
+- [docs/content/security.md](docs/content/security.md) -- Security and privacy scanning guide
 - [docs/content/architecture/decisions/](docs/content/architecture/decisions/) -- Architecture Decision Records (ADR index)
 - [docs/content/architecture/diagrams/](docs/content/architecture/diagrams/) -- C4 architecture diagrams (context, container, and component views)
 - [docs/content/containers/](docs/content/containers/) -- Container images: building, running, and publishing
@@ -44,8 +45,10 @@ tools/      Developer tooling, scripts, and MCP server definitions
 ### Prerequisites
 
 - Access to the [ourchitecture](https://github.com/ourchitecture) GitHub organization
-- Go 1.25+
-- Node.js 20+
+- proto `0.55.4` (recommended for pinned toolchain installs)
+- Go `1.25.0` (managed by proto)
+- Node.js `24.0.0` with npm bundled (managed by proto)
+- Python `3.12.11` + `uv 0.9.11` (managed by proto for privacy scanning)
 - Docker (optional -- only required for container builds; Rancher Desktop with
   `dockerd (moby)` engine is the recommended FOSS alternative)
 
@@ -90,6 +93,12 @@ flexible for contributors.
 - GNU Make targets are supported as convenient local shortcuts and CI
   compatibility wrappers; use them whenever `moon` is not installed.
 
+For Python-based security tooling, this repository uses `uv` with isolated
+ephemeral environments (`uv tool run`) instead of ad-hoc global pip installs.
+When `proto` is installed, both `python` and `uv` versions are pinned via
+`.prototools`. Moon integrates this via `unstable_python` and `unstable_uv`
+toolchain IDs mapped through `.prototools [plugins.tools]`.
+
 Install and pin tooling with proto (recommended):
 
 ```bash
@@ -100,6 +109,7 @@ Run common checks with moon (or use the equivalent `make` targets below):
 
 ```bash
 moon run repo:check-lint-md
+moon run repo:check-privacy
 moon run go-net-http-rest:check-ci
 moon run nodejs-react-fastify-rest:check-ci
 ```
@@ -118,6 +128,19 @@ Agent workflow skills are available in `/.claude/skills/`:
 ### Documentation Site
 
 The Stemix documentation site lives at [stemix.dev](https://stemix.dev) and is built with [Docusaurus 3](https://docusaurus.io/). Source is in `docs/`.
+
+VS Code includes first-class docs workflows in `.vscode/tasks.json` and `.vscode/launch.json`:
+
+- Task: `Run: Docs Site (Docusaurus Dev)`
+- Task: `Dev: Start Full System + Docs`
+- Task: `Build: Docs Site`
+- Task: `Check: Docs Site (lint + typecheck + diagrams)`
+- Launch profile: `Launch: Docs Site (Browser)`
+- Launch compound: `Debug: Full System + Docs`
+
+For Go F5 debugging, debug prerequisites are installed through stack Make/moon
+tasks (`build-debug-web` / `build-debug-bff`) rather than manual ad-hoc tool
+installs.
 
 Run the docs dev server locally:
 
@@ -194,6 +217,16 @@ make check-lint-md
 
 # Or with moon
 moon run repo:check-lint-md
+```
+
+Run privacy and secret scanning:
+
+```bash
+# Convenience shortcut
+make check-privacy
+
+# Or with moon
+moon run repo:check-privacy
 ```
 
 Run full verification across all detected stacks:

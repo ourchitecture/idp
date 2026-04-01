@@ -1,6 +1,6 @@
 Feature: Core contract — baseline HTTP surface
   Every reference implementation must expose a minimal HTTP surface that is
-  reachable and returns correctly shaped responses. These four scenarios are
+  reachable and returns correctly shaped responses. These scenarios are
   required by all stacks and form the lowest layer of the conformance pyramid.
 
   Background:
@@ -11,6 +11,15 @@ Feature: Core contract — baseline HTTP surface
     When the client sends GET / to the web server
     Then the response status code is in the 2xx range
 
+  Scenario: Web server health endpoint returns the expected shape
+    When the client sends GET /health to the web server
+    Then the response status code is in the 2xx range
+    And the response Content-Type header contains "application/health+json"
+    And the response body is a valid JSON object
+    And the JSON object contains a field named "status"
+    And the JSON object contains a field named "serviceId"
+    And the JSON object contains a field named "description"
+
   Scenario: BFF root returns a JSON status envelope
     When the client sends GET / to the BFF server
     Then the response status code is in the 2xx range
@@ -20,16 +29,18 @@ Feature: Core contract — baseline HTTP surface
     And the JSON object contains a field named "service" of type string
 
   Scenario: BFF health endpoint returns the expected shape
-    When the client sends GET /api/health to the BFF server
+    When the client sends GET /health to the BFF server
     Then the response status code is in the 2xx range
+    And the response Content-Type header contains "application/health+json"
     And the response body is a valid JSON object
     And the JSON object contains a field named "status"
-    And the JSON object contains a field named "service"
-    And the JSON object contains a field named "timestamp"
+    And the JSON object contains a field named "serviceId"
+    And the JSON object contains a field named "description"
 
   Scenario: BFF readiness endpoint returns the expected shape
-    When the client sends GET /api/readiness to the BFF server
+    When the client sends GET /readiness to the BFF server
     Then the response status code is in the 2xx range
+    And the response Content-Type header contains "application/health+json"
     And the response body is a valid JSON object
     And the JSON object contains a field named "status"
     And the JSON object contains a field named "checks"

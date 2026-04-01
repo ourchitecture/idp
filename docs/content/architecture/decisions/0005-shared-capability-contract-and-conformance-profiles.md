@@ -130,4 +130,4 @@ Minimum fields for capability-aware contract execution:
   - [0004](0004-implementation-portfolio-and-support-tiers.md)
 - Related docs:
   - [tests/contract/README.md](https://github.com/ourchitecture/idp/blob/main/tests/contract/README.md)
-  - [src/stacks/README.md](https://github.com/ourchitecture/idp/blob/main/src/stacks/README.md)
+  - [stacks/README.md](https://github.com/ourchitecture/idp/blob/main/stacks/README.md)

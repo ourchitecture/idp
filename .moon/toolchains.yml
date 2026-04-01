@@ -13,3 +13,11 @@ node:
 
 npm:
   versionFromPrototools: true
+
+unstable_python:
+  versionFromPrototools: "python"
+  packageManager: "uv"
+  venvName: ".venv"
+
+unstable_uv:
+  versionFromPrototools: "uv"

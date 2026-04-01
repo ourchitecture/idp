@@ -21,6 +21,7 @@
     "@docusaurus/preset-classic": "3.9.2",
     "@docusaurus/theme-mermaid": "3.9.2",
     "@mdx-js/react": "^3.0.0",
+    "@microsoft/clarity": "^1.0.0",
     "clsx": "^2.0.0",
     "prism-react-renderer": "^2.3.0",
     "react": "^18.0.0",
@@ -50,6 +51,7 @@
     "node": ">=20.0.0"
   },
   "overrides": {
+    "lodash": "4.17.21",
     "serialize-javascript": "7.0.5"
   }
 }

@@ -1,0 +1,39 @@
+name: Stale Triage
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  stale:
+    name: Mark Stale Issues and PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mark stale issues and pull requests
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 45
+          days-before-close: -1
+          days-before-pr-stale: 21
+          days-before-pr-close: -1
+          stale-issue-label: stale
+          stale-pr-label: stale
+          exempt-issue-labels: p0-critical,security,epic,blocked,in-progress,needs-review,keep-open
+          exempt-pr-labels: p0-critical,security,epic,blocked,in-progress,needs-review,keep-open
+          remove-stale-when-updated: true
+          operations-per-run: 200
+          stale-issue-message: >
+            This issue has had no activity for 45 days and is now marked `stale`.
+            If this work should remain open, add context in a comment or apply the
+            `keep-open` label.
+          stale-pr-message: >
+            This pull request has had no activity for 21 days and is now marked
+            `stale`. If this work should remain open, add context in a comment or
+            apply the `keep-open` label.

@@ -3,7 +3,13 @@ moon = "2.1.3"
 go = "1.25.0"
 node = "24.0.0"
 npm = "bundled"
+python = "3.12.11"
+uv = "0.9.11"
 
 [settings]
 detect-strategy = "prefer-prototools"
 auto-install = true
+
+[plugins.tools]
+unstable_python = "https://github.com/moonrepo/plugins/releases/download/python_tool-v0.14.6/python_tool.wasm"
+unstable_uv = "https://github.com/moonrepo/plugins/releases/download/python_uv_tool-v0.3.2/python_uv_tool.wasm"

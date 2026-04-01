@@ -26,16 +26,22 @@ type rootResponse struct {
 	Service string `json:"service"`
 }
 
+type checkEntry struct {
+	ComponentType string `json:"componentType"`
+	Status        string `json:"status"`
+	Time          string `json:"time"`
+}
+
 type healthResponse struct {
-	Status    string `json:"status"`
-	Service   string `json:"service"`
-	Timestamp string `json:"timestamp"`
+	Status      string                  `json:"status"`
+	ServiceID   string                  `json:"serviceId"`
+	Description string                  `json:"description"`
+	Checks      map[string][]checkEntry `json:"checks,omitempty"`
 }
 
 type readinessResponse struct {
-	Status    string            `json:"status"`
-	Checks    map[string]string `json:"checks"`
-	Timestamp string            `json:"timestamp"`
+	Status string                  `json:"status"`
+	Checks map[string][]checkEntry `json:"checks"`
 }
 
 func parsePort(value string) (int, bool) {
@@ -68,6 +74,12 @@ func resolveHost() string {
 	return host
 }
 
+func writeHealthJSON(w http.ResponseWriter, status int, payload any) {
+	w.Header().Set("Content-Type", "application/health+json; charset=utf-8")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(payload)
+}
+
 func writeJSON(w http.ResponseWriter, payload any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
@@ -82,21 +94,50 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 }
 
 func handleHealth(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, healthResponse{
-		Status:    "ok",
-		Service:   "idp-bff",
-		Timestamp: time.Now().UTC().Format(time.RFC3339),
+	now := time.Now().UTC().Format(time.RFC3339)
+	writeHealthJSON(w, http.StatusOK, healthResponse{
+		Status:      "pass",
+		ServiceID:   "idp-bff",
+		Description: "IDP BFF Server",
+		Checks: map[string][]checkEntry{
+			"bff:responseTime": {
+				{
+					ComponentType: "system",
+					Status:        "pass",
+					Time:          now,
+				},
+			},
+			"routing:availability": {
+				{
+					ComponentType: "component",
+					Status:        "pass",
+					Time:          now,
+				},
+			},
+		},
 	})
 }
 
 func handleReadiness(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, readinessResponse{
-		Status: "ready",
-		Checks: map[string]string{
-			"bff":     "ok",
-			"routing": "ok",
+	now := time.Now().UTC().Format(time.RFC3339)
+	writeHealthJSON(w, http.StatusOK, readinessResponse{
+		Status: "pass",
+		Checks: map[string][]checkEntry{
+			"bff:ready": {
+				{
+					ComponentType: "system",
+					Status:        "pass",
+					Time:          now,
+				},
+			},
+			"routing:ready": {
+				{
+					ComponentType: "component",
+					Status:        "pass",
+					Time:          now,
+				},
+			},
 		},
-		Timestamp: time.Now().UTC().Format(time.RFC3339),
 	})
 }
 
@@ -107,8 +148,8 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
-	mux.HandleFunc("/api/health", handleHealth)
-	mux.HandleFunc("/api/readiness", handleReadiness)
+	mux.HandleFunc("/health", handleHealth)
+	mux.HandleFunc("/readiness", handleReadiness)
 
 	payload, err := json.Marshal(startupLog{
 		Level: "info",

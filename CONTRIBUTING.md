@@ -86,6 +86,20 @@ make check-lint-workflows
 5. Open a pull request against `main`.
 6. Ensure PR validation checks pass.
 
+### Stale Issue and PR Policy
+
+To keep the work queue current and reduce abandoned context, this repository
+runs weekly stale triage automation.
+
+- Issues with no activity for 45 days are marked `stale`.
+- Pull requests with no activity for 21 days are marked `stale`.
+- Activity on an item removes the `stale` label automatically.
+- During the initial rollout, stale automation does not auto-close items.
+- Add `keep-open` to explicitly exempt an issue or PR from stale automation.
+
+Maintainers and contributors should leave a short comment when applying
+`keep-open` so future triage has clear context.
+
 ## Code Style
 
 - Match existing patterns in the repo.

@@ -24,6 +24,12 @@ type startupLog struct {
 	Port  int    `json:"port"`
 }
 
+type healthResponse struct {
+	Status      string `json:"status"`
+	ServiceID   string `json:"serviceId"`
+	Description string `json:"description"`
+}
+
 func parsePort(value string) (int, bool) {
 	if value == "" {
 		return 0, false
@@ -64,6 +70,16 @@ func handleRoot(w http.ResponseWriter, _ *http.Request) {
 	_, _ = w.Write(indexHTML)
 }
 
+func handleHealth(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/health+json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(healthResponse{
+		Status:      "pass",
+		ServiceID:   "idp-web",
+		Description: "IDP Web Server",
+	})
+}
+
 func main() {
 	host := resolveHost()
 	port := resolvePort()
@@ -71,6 +87,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleRoot)
+	mux.HandleFunc("/health", handleHealth)
 
 	logger := log.New(os.Stdout, "", 0)
 	payload, err := json.Marshal(startupLog{

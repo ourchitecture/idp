@@ -40,6 +40,9 @@ Moon (maintainer/CI canonical):
 - `moon run go-net-http-rest:check-contract`
 - `moon run go-net-http-rest:run-web`
 - `moon run go-net-http-rest:run-bff`
+- `moon run go-net-http-rest:setup-debug-tools`
+- `moon run go-net-http-rest:build-debug-web`
+- `moon run go-net-http-rest:build-debug-bff`
 
 GNU Make (compatibility):
 
@@ -56,6 +59,9 @@ GNU Make (compatibility):
 - `make -C stacks/go/net-http/rest run-web`
 - `make -C stacks/go/net-http/rest run-bff`
 - `make -C stacks/go/net-http/rest test-contract` (alias for `check-contract`)
+- `make -C stacks/go/net-http/rest setup-debug-tools`
+- `make -C stacks/go/net-http/rest build-debug-web`
+- `make -C stacks/go/net-http/rest build-debug-bff`
 
 ### Native Tooling Shortcuts
 

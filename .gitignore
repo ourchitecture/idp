@@ -6,6 +6,12 @@
 .moon/cache/
 .moon/docker/
 
+# Local privacy scan artifacts
+.tmp/
+
+# Python virtual environments
+.venv/
+
 # Node.js
 node_modules/
 

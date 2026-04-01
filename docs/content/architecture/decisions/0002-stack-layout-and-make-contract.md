@@ -40,7 +40,7 @@ consistency and makes future stack additions straightforward.
 ### Consequences
 
 - Good, because stack identity is explicit and extensible:
-  `src/stacks/<language>/<framework>/<interface>/`
+  `stacks/<language>/<framework>/<interface>/`
 - Good, because each stack exposes the same GNU Make targets:
   `install`, `build`, `clean`, `check-lint`, `check-test`, `check`, `test`,
   `test-contract`, `run-web`, `run-bff`
@@ -78,7 +78,7 @@ consistency and makes future stack additions straightforward.
 
 ## More Information
 
-- Related directories: `src/stacks/`, root `Makefile`
+- Related directories: `stacks/`, root `Makefile`
 - Related decisions:
   - [0001](0001-intent-driven-architecture.md)
   - [0006](0006-cross-platform-local-runtime-ux-baseline.md)

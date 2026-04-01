@@ -1,5 +1,6 @@
 type PortalStatus = "ok" | "degraded";
 type ServiceStatus = "healthy" | "degraded";
+type HealthStatus = "pass" | "fail" | "warn";
 
 export type PortalSummary = {
   generatedAt: string;
@@ -18,9 +19,17 @@ export type PortalSummary = {
 };
 
 export type BffHealth = {
-  status: PortalStatus;
-  service: "idp-bff";
-  timestamp: string;
+  status: HealthStatus;
+  serviceId: "idp-bff";
+  description: string;
+  checks?: Record<
+    string,
+    Array<{
+      componentType: string;
+      status: HealthStatus;
+      time: string;
+    }>
+  >;
 };
 
 const REQUEST_TIMEOUT_MS = 8_000;
@@ -52,7 +61,7 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
       ...init,
       signal: controller.signal,
       headers: {
-        Accept: "application/json",
+        Accept: "application/health+json, application/json",
         ...init?.headers,
       },
     });
@@ -62,7 +71,11 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
     }
 
     const contentType = response.headers.get("content-type");
-    if (contentType !== null && !contentType.includes("application/json")) {
+    if (
+      contentType !== null &&
+      !contentType.includes("application/json") &&
+      !contentType.includes("application/health+json")
+    ) {
       throw new Error(`Expected JSON response, received '${contentType}'`);
     }
 
@@ -83,8 +96,8 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 function assertHealthPayload(payload: BffHealth): BffHealth {
-  if (payload.service !== "idp-bff") {
-    throw new Error("Invalid health payload: expected service to be 'idp-bff'");
+  if (payload.serviceId !== "idp-bff") {
+    throw new Error("Invalid health payload: expected serviceId to be 'idp-bff'");
   }
 
   return payload;
@@ -95,5 +108,5 @@ export function fetchPortalSummary(): Promise<PortalSummary> {
 }
 
 export function fetchBffHealth(): Promise<BffHealth> {
-  return fetchJson<BffHealth>("/api/health").then(assertHealthPayload);
+  return fetchJson<BffHealth>("/health").then(assertHealthPayload);
 }

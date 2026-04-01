@@ -2,9 +2,9 @@
   // VS Code launch configurations for IDP.
   //
   // All Go debug configs require the official Go extension (golang.go).
-  // Delve (dlv) is installed automatically by the Go extension.
+  // Delve (dlv) is installed by stack build-debug tasks via make/moon/proto.
   //
-  // Binaries are compiled into src/stacks/go/net-http/rest/.bin/ by the
+  // Binaries are compiled into stacks/go/net-http/rest/.bin/ by the
   // "Build: Go Stack (debug symbols)" / "Build: Go BFF (debug symbols)" tasks,
   // which disable compiler optimisations so delve can set breakpoints reliably.
   //
@@ -22,6 +22,21 @@
         "group": "go",
         "order": 1
       }
+    },
+    {
+      // Starts both Go services and opens the docs site in a browser debugger.
+      "name": "Debug: Full System + Docs",
+      "configurations": [
+        "Debug: Go Web Server",
+        "Debug: Go BFF Server",
+        "Launch: Docs Site (Browser)"
+      ],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "go",
+        "order": 2
+      }
     }
   ],
   "configurations": [
@@ -35,9 +50,10 @@
       // Launch the pre-built binary so that the stable .bin/ path is used
       // (ADR-0006: no ephemeral go run executables on Windows).
       "mode": "exec",
-      "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-web",
+      "program": "${workspaceFolder}/stacks/go/net-http/rest/.bin/idp-go-web",
+      "dlvToolPath": "${workspaceFolder}/stacks/go/net-http/rest/.bin/dlv",
       "preLaunchTask": "Build: Go Stack (debug symbols)",
-      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "cwd": "${workspaceFolder}/stacks/go/net-http/rest",
       "env": {
         "OUR_IDP_WEB_HOST": "127.0.0.1",
         "OUR_IDP_PORT": "3000"
@@ -51,7 +67,8 @@
       },
       // Windows: binary has .exe extension.
       "windows": {
-        "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-web.exe"
+        "program": "${workspaceFolder}/stacks/go/net-http/rest/.bin/idp-go-web.exe",
+        "dlvToolPath": "${workspaceFolder}/stacks/go/net-http/rest/.bin/dlv.exe"
       }
     },
     {
@@ -63,8 +80,8 @@
       "mode": "remote",
       "host": "127.0.0.1",
       "port": 2345,
-      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
-      "remotePath": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "cwd": "${workspaceFolder}/stacks/go/net-http/rest",
+      "remotePath": "${workspaceFolder}/stacks/go/net-http/rest",
       "presentation": {
         "hidden": false,
         "group": "go-attach",
@@ -80,9 +97,10 @@
       "type": "go",
       "request": "launch",
       "mode": "exec",
-      "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-bff",
+      "program": "${workspaceFolder}/stacks/go/net-http/rest/.bin/idp-go-bff",
+      "dlvToolPath": "${workspaceFolder}/stacks/go/net-http/rest/.bin/dlv",
       "preLaunchTask": "Build: Go BFF (debug symbols)",
-      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "cwd": "${workspaceFolder}/stacks/go/net-http/rest",
       "env": {
         "OUR_IDP_API_HOST": "127.0.0.1",
         "OUR_IDP_API_PORT": "8000"
@@ -95,7 +113,8 @@
         "order": 3
       },
       "windows": {
-        "program": "${workspaceFolder}/src/stacks/go/net-http/rest/.bin/idp-go-bff.exe"
+        "program": "${workspaceFolder}/stacks/go/net-http/rest/.bin/idp-go-bff.exe",
+        "dlvToolPath": "${workspaceFolder}/stacks/go/net-http/rest/.bin/dlv.exe"
       }
     },
     {
@@ -105,12 +124,29 @@
       "mode": "remote",
       "host": "127.0.0.1",
       "port": 2346,
-      "cwd": "${workspaceFolder}/src/stacks/go/net-http/rest",
-      "remotePath": "${workspaceFolder}/src/stacks/go/net-http/rest",
+      "cwd": "${workspaceFolder}/stacks/go/net-http/rest",
+      "remotePath": "${workspaceFolder}/stacks/go/net-http/rest",
       "presentation": {
         "hidden": false,
         "group": "go-attach",
         "order": 2
+      }
+    },
+
+    // -------------------------------------------------------------------------
+    // Docs Site (Docusaurus)
+    // -------------------------------------------------------------------------
+    {
+      "name": "Launch: Docs Site (Browser)",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:3001/docs/intro",
+      "webRoot": "${workspaceFolder}/docs",
+      "preLaunchTask": "Run: Docs Site (Docusaurus Dev)",
+      "presentation": {
+        "hidden": false,
+        "group": "docs",
+        "order": 1
       }
     }
   ]

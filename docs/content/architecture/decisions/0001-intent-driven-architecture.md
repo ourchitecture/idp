@@ -204,7 +204,7 @@ by any portal implementation. Implementations provide base URLs via environment
 variables (`IDP_WEB_URL`, `IDP_BFF_URL`) so the harness can validate compliance
 without importing implementation code.
 
-Implementation stacks live under `src/stacks/<language>/<framework>/<interface>/`
+Implementation stacks live under `stacks/<language>/<framework>/<interface>/`
 and must expose identical behavior. Each stack includes a GNU Makefile with
 conventional targets so developers can start a stack and run the contract tests
 in a consistent way.

@@ -37,13 +37,16 @@ This is Layer 2 of the three-layer architecture defined in
 The fastest way to see the harness in action:
 
 ```bash
-# 1. Install Node.js dependencies
+# 1. Install pinned toolchain (Go, Node.js/npm, Python, uv)
+proto install
+
+# 2. Install Node.js dependencies
 npm install
 
-# 2. Start the default stack (Go web + BFF servers)
+# 3. Start the default stack (Go web + BFF servers)
 make dev
 
-# 3. In a second terminal, run the contract tests
+# 4. In a second terminal, run the contract tests
 make test
 ```
 
@@ -85,8 +88,8 @@ tests/
     ├── runtime.ts     URL resolution, stack.json loading, profile selection
     └── profiles/
         ├── index.ts          Routes a profile name to its test factory
-        ├── core.ts           4 baseline tests
-        ├── operational.ts    3 runtime/semantic tests
+        ├── core.ts           5 baseline tests
+        ├── operational.ts    5 runtime/semantic tests
         └── ui-profile.ts     3 UI capability tests
 ```
 
@@ -108,29 +111,36 @@ Tests are grouped into **conformance profiles**. Each profile covers a distinct
 area of expected behavior. Stacks declare which profiles they support in their
 `stack.json` metadata file.
 
-### `core` — baseline behavior (4 tests)
+### `core` — baseline behavior (5 tests)
 
 Required by every implementation. Validates that the fundamental HTTP surface
-is present and shaped correctly.
+is present and shaped correctly. Health and readiness endpoints follow the
+[IETF Health Check Response Format](https://datatracker.ietf.org/doc/html/draft-inadarei-api-health-check-06)
+([ADR-0011](../architecture/decisions/ietf-health-endpoint-contract)).
 
 | Test | What is checked |
 | --- | --- |
 | `core:web responds to GET /` | Web server is reachable; responds with a 2xx status |
+| `core:web health endpoint returns the expected shape` | `GET /health` returns 2xx `application/health+json` with `status`, `serviceId`, and `description` |
 | `core:bff root returns JSON status` | BFF `/` returns `application/json` with `status` and `service` fields |
-| `core:bff health endpoint returns expected shape` | `GET /api/health` returns 2xx JSON with `status`, `service`, and `timestamp` |
-| `core:bff readiness endpoint returns expected shape` | `GET /api/readiness` returns 2xx JSON with `status` and `checks` |
+| `core:bff health endpoint returns expected shape` | `GET /health` returns 2xx `application/health+json` with `status`, `serviceId`, and `description` |
+| `core:bff readiness endpoint returns expected shape` | `GET /readiness` returns 2xx `application/health+json` with `status` and `checks` |
 
-### `operational` — runtime and semantic stability (3 tests)
+### `operational` — runtime and semantic stability (5 tests)
 
 Required for all supported Tier 1 stacks. Validates that runtime conventions
 are honored and that response payloads carry the correct semantic values, not
-just the correct shape.
+just the correct shape. All health-related assertions conform to
+[IETF `draft-inadarei-api-health-check-06`](https://datatracker.ietf.org/doc/html/draft-inadarei-api-health-check-06)
+([ADR-0011](../architecture/decisions/ietf-health-endpoint-contract)).
 
 | Test | What is checked |
 | --- | --- |
 | `operational:web honors override-aware runtime port contract` | Web server is reachable on the configured port (validates the env-var override chain) |
-| `operational:bff health payload semantics are stable` | `status` is `"ok"` or `"degraded"`; `service` is exactly `"idp-bff"`; `timestamp` is ISO-8601 |
-| `operational:bff readiness contract semantics are stable` | `status` is `"ready"`; `checks` contains `"bff"` and `"routing"` keys; `timestamp` is ISO-8601 |
+| `operational:web health payload semantics are stable` | `status` is `"pass"`; `serviceId` is exactly `"idp-web"`; `description` is exactly `"IDP Web Server"` |
+| `operational:bff health payload semantics are stable` | `status` is one of `"pass"`, `"fail"`, or `"warn"`; `serviceId` is exactly `"idp-bff"`; `description` is exactly `"IDP BFF Server"` |
+| `operational:bff health checks sub-components use IETF format` | `checks` is an object; each key uses `componentName:measurementName` format; each entry has `status`, `componentType`, and `time` (ISO-8601) |
+| `operational:bff readiness contract semantics are stable` | `status` is `"pass"` or `"fail"`; `checks` is a non-empty object |
 
 ### `ui-profile` — UI capability checks (3 tests)
 
@@ -336,8 +346,8 @@ declared profiles on every change.
 - **Moon project ID**: `go-net-http-rest`
 - **Profiles**: `core`, `operational`
 - **Components**: two compiled binaries in `.bin/`
-  - `idp-go-web` — serves `GET /`, binds `127.0.0.1:3000`
-  - `idp-go-bff` — serves `GET /`, `GET /api/health`, `GET /api/readiness`,
+  - `idp-go-web` — serves `GET /`, `GET /health`, binds `127.0.0.1:3000`
+  - `idp-go-bff` — serves `GET /`, `GET /health`, `GET /readiness`,
     binds `127.0.0.1:8000`
 - **Stable binary paths**: avoids ephemeral `go run` temp executables for
   Windows compatibility (see [ADR-0006](../architecture/decisions/cross-platform-local-runtime-ux-baseline))
@@ -412,7 +422,33 @@ Add `"ui-profile"` to `contractProfiles` and set `capabilities.ui.enabled` to
 
 ### Step 3: Implement the required HTTP endpoints
 
-Your BFF must expose:
+All health and readiness endpoints must conform to
+[IETF `draft-inadarei-api-health-check-06`](https://datatracker.ietf.org/doc/html/draft-inadarei-api-health-check-06)
+([ADR-0011](../architecture/decisions/ietf-health-endpoint-contract)).
+
+Your **web server** must expose:
+
+#### BFF `GET /`
+
+Returns a `200` response. If `ui-profile` is declared, the response must
+be `text/html` and the body must include `<html` and `<title`.
+
+#### BFF `GET /health`
+
+Returns `200 application/health+json` with at minimum:
+
+```json
+{
+  "status": "pass",
+  "serviceId": "idp-web",
+  "description": "IDP Web Server"
+}
+```
+
+`status` must be `"pass"` for a healthy server. `serviceId` must be exactly
+`"idp-web"`. `description` must be exactly `"IDP Web Server"`.
+
+Your **BFF** must expose:
 
 #### `GET /`
 
@@ -425,39 +461,57 @@ Returns `200 application/json` with at minimum:
 }
 ```
 
-#### `GET /api/health`
+#### `GET /health`
 
-Returns `200 application/json`. The `operational` profile additionally requires:
-
-```json
-{
-  "status": "ok",
-  "service": "idp-bff",
-  "timestamp": "<ISO-8601 string>"
-}
-```
-
-`status` must be `"ok"` or `"degraded"`. `service` must be exactly `"idp-bff"`.
-
-#### `GET /api/readiness`
-
-Returns `200 application/json`. The `operational` profile additionally requires:
+Returns `200 application/health+json`. The `operational` profile additionally
+requires:
 
 ```json
 {
-  "status": "ready",
+  "status": "pass",
+  "serviceId": "idp-bff",
+  "description": "IDP BFF Server",
   "checks": {
-    "bff": "<any value>",
-    "routing": "<any value>"
-  },
-  "timestamp": "<ISO-8601 string>"
+    "bff:responseTime": [
+      {
+        "componentType": "system",
+        "status": "pass",
+        "time": "<ISO-8601 string>"
+      }
+    ]
+  }
 }
 ```
 
-#### Web server `GET /`
+`status` must be one of `"pass"`, `"fail"`, or `"warn"`. `serviceId` must be
+exactly `"idp-bff"`. `description` must be exactly `"IDP BFF Server"`. Each key
+in `checks` must use `componentName:measurementName` format. Each check entry
+must include `status`, `componentType`, and `time` (ISO-8601).
 
-Must return a `200` response. If `ui-profile` is declared, the response must
-be `text/html` and the body must include `<html` and `<title`.
+HTTP status codes: `200` for `pass` or `warn`, `503` for `fail`.
+
+#### `GET /readiness`
+
+Returns `200 application/health+json`. The `operational` profile additionally
+requires:
+
+```json
+{
+  "status": "pass",
+  "checks": {
+    "bff:status": [
+      {
+        "componentType": "system",
+        "status": "pass",
+        "time": "<ISO-8601 string>"
+      }
+    ]
+  }
+}
+```
+
+`status` must be `"pass"` or `"fail"` (readiness is binary — no `"warn"`).
+`checks` must be a non-empty object.
 
 ### Step 4: Honor the port and host contract
 
@@ -700,3 +754,4 @@ ecosystem of partial or specialized implementations.
 - [ADR-0006](../architecture/decisions/cross-platform-local-runtime-ux-baseline) — Cross-platform runtime UX baseline
 - [ADR-0007](../architecture/decisions/moon-required-proto-enhanced-toolchain-policy) — Moon orchestration and toolchain policy
 - [ADR-0009](../architecture/decisions/intent-specification-format) — Gherkin as Layer 1 intent specification format
+- [ADR-0011](../architecture/decisions/ietf-health-endpoint-contract) — IETF health endpoint contract

@@ -108,7 +108,7 @@ jobs:
             stacks/go/net-http/rest
           CID=$(docker run -d -p 8300:8000 stemix-go-bff-smoke:test)
           sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/api/health || true)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/health || true)
           docker stop "${CID}" || true
           if [[ "${STATUS}" != "200" ]]; then
             echo "::error::Smoke test failed: HTTP ${STATUS}"
@@ -194,7 +194,7 @@ jobs:
             .
           CID=$(docker run -d -p 8400:8000 stemix-node-bff-smoke:test)
           sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/api/health || true)
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/health || true)
           docker stop "${CID}" || true
           if [[ "${STATUS}" != "200" ]]; then
             echo "::error::Smoke test failed: HTTP ${STATUS}"
