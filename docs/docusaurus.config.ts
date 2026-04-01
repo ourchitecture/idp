@@ -104,6 +104,10 @@ const config: Config = {
               to: "/docs/architecture/decisions/",
             },
             {
+              label: "Architecture Diagrams",
+              to: "/docs/architecture/diagrams/",
+            },
+            {
               label: "Testing",
               to: "/docs/testing/",
             },
@@ -132,6 +136,15 @@ const config: Config = {
             {
               label: "Issues",
               href: "https://github.com/ourchitecture/idp/issues",
+            },
+          ],
+        },
+        {
+          title: "Legal",
+          items: [
+            {
+              label: "Privacy Policy",
+              to: "/privacy",
             },
           ],
         },
