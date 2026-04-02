@@ -25,9 +25,43 @@ env:
   IMAGE_PREFIX: ghcr.io/ourchitecture/idp
 
 jobs:
+  detect-changes:
+    name: Detect Container Scope
+    runs-on: ubuntu-latest
+    outputs:
+      run_go_containers: ${{ steps.scope.outputs.run_go_containers }}
+      run_node_containers: ${{ steps.scope.outputs.run_node_containers }}
+      run_tests_container: ${{ steps.scope.outputs.run_tests_container }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed container scopes
+        id: scope
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+          fi
+
+          BASE_SHA="${BASE_SHA}" \
+            HEAD_SHA="${HEAD_SHA}" \
+            OUTPUT_FILE="${GITHUB_OUTPUT}" \
+            bash ./scripts/ci/detect-container-changes.sh
+
   build-go-web:
     name: Build go-net-http-rest-web
     runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_go_containers == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -73,6 +107,8 @@ jobs:
   build-go-bff:
     name: Build go-net-http-rest-bff
     runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_go_containers == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -118,6 +154,8 @@ jobs:
   build-nodejs-web:
     name: Build nodejs-react-fastify-rest-web
     runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_node_containers == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -161,6 +199,8 @@ jobs:
   build-nodejs-bff:
     name: Build nodejs-react-fastify-rest-bff
     runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_node_containers == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -204,6 +244,8 @@ jobs:
   build-contract-tests:
     name: Build contract-tests
     runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_tests_container == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -233,6 +275,7 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     needs:
+      - detect-changes
       - build-go-web
       - build-go-bff
       - build-nodejs-web
@@ -241,6 +284,7 @@ jobs:
     steps:
       - name: Verify all container builds passed
         run: |
+          result_detect="${{ needs.detect-changes.result }}"
           result_go_web="${{ needs.build-go-web.result }}"
           result_go_bff="${{ needs.build-go-bff.result }}"
           result_node_web="${{ needs.build-nodejs-web.result }}"
@@ -248,7 +292,7 @@ jobs:
           result_tests="${{ needs.build-contract-tests.result }}"
 
           failed="false"
-          for result in "${result_go_web}" "${result_go_bff}" "${result_node_web}" "${result_node_bff}" "${result_tests}"; do
+          for result in "${result_detect}" "${result_go_web}" "${result_go_bff}" "${result_node_web}" "${result_node_bff}" "${result_tests}"; do
             if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
               failed="true"
             fi

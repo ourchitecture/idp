@@ -16,6 +16,10 @@ if [[ -z "${HEAD_SHA}" ]]; then
   exit 1
 fi
 
+if [[ "${BASE_SHA}" == "0000000000000000000000000000000000000000" ]]; then
+  BASE_SHA="$(git hash-object -t tree /dev/null)"
+fi
+
 mapfile -t changed_files < <(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}")
 
 if [[ ${#changed_files[@]} -eq 0 ]]; then
@@ -35,6 +39,31 @@ run_go_containers="false"
 run_node_containers="false"
 run_tests_container="false"
 
+container_detection_output="$({
+  BASE_SHA="${BASE_SHA}" \
+    HEAD_SHA="${HEAD_SHA}" \
+    bash ./scripts/ci/detect-container-changes.sh
+})"
+
+if [[ -n "${container_detection_output}" ]]; then
+  while IFS='=' read -r key value; do
+    case "${key}" in
+      run_go_containers)
+        run_go_containers="${value}"
+        ;;
+      run_node_containers)
+        run_node_containers="${value}"
+        ;;
+      run_tests_container)
+        run_tests_container="${value}"
+        ;;
+      run_any_containers)
+        run_any_containers="${value}"
+        ;;
+    esac
+  done <<< "${container_detection_output}"
+fi
+
 for file in "${changed_files[@]}"; do
   if [[ "${file}" == *.md ]]; then
     has_markdown_change="true"
@@ -43,6 +72,8 @@ for file in "${changed_files[@]}"; do
   fi
 
   case "${file}" in
+    .release-please-manifest.json|release-please-config.json)
+      ;;
     .github/workflows/*)
       run_workflow_lint="true"
       ;;
@@ -51,11 +82,9 @@ for file in "${changed_files[@]}"; do
       ;;
     stacks/go/net-http/rest/*)
       run_go_stack="true"
-      run_go_containers="true"
       ;;
     stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
-      run_node_containers="true"
       ;;
     # docs/* includes architecture diagram sources under
     # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
@@ -64,7 +93,6 @@ for file in "${changed_files[@]}"; do
       ;;
     Makefile|package.json|package-lock.json|tests/*)
       run_reference_all="true"
-      run_tests_container="true"
       ;;
     *.md|.github/*|scripts/ci/*)
       ;;

@@ -27,6 +27,20 @@ Each component is versioned independently:
 4. The **Container Latest Tag** workflow runs after publish and re-tags the
    highest stable version as `latest` (skipped during pre-release phase).
 
+## Build Scope Optimization
+
+Container validation and edge builds are path-aware:
+
+- Release metadata updates (`.release-please-manifest.json` and
+  `release-please-config.json`) do not trigger full container rebuilds by
+  themselves.
+- PR container checks only build the changed container families:
+  - Go stack paths (`stacks/go/net-http/rest/**`) -> Go web + BFF images.
+  - Node.js stack paths (`stacks/nodejs/react-fastify/rest/**`) -> Node.js web + BFF images.
+  - Contract test paths (`tests/**`) -> contract-tests image.
+- If `.github/workflows/container-build.yml` changes, all container families are
+  rebuilt to validate workflow behavior.
+
 ## Pre-Release Phase
 
 The project starts in pre-release (`0.x.y-alpha.z`). During this phase:
