@@ -19,7 +19,7 @@ function parseProfiles(raw: string | undefined): string[] {
 }
 
 function isProfileName(value: string): value is ProfileName {
-  return value === "core" || value === "operational" || value === "ui-profile";
+  return value === "core" || value === "operational" || value === "ui-profile" || value === "mcp-profile";
 }
 
 export function resolveBaseUrl(envName: string, fallback: string): URL {
@@ -168,7 +168,7 @@ export function shouldRunProfile(
     return stackMetadata.contractProfiles.includes(profile);
   }
 
-  if (profile === "ui-profile") {
+  if (profile === "ui-profile" || profile === "mcp-profile") {
     return false;
   }
 

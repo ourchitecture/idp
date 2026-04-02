@@ -1,0 +1,13 @@
+{
+  "language": "typescript",
+  "framework": "mcp-sdk",
+  "interface": "mcp",
+  "contractProfiles": [
+    "mcp-profile"
+  ],
+  "capabilities": {
+    "mcp": {
+      "enabled": true
+    }
+  }
+}

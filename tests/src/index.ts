@@ -32,14 +32,16 @@ async function runTest(test: TestCase): Promise<void> {
 async function main(): Promise<void> {
   const webBaseUrl = resolveBaseUrl("IDP_WEB_URL", "http://localhost:3000");
   const bffBaseUrl = resolveBaseUrl("IDP_BFF_URL", "http://localhost:8000");
+  const mcpBaseUrl = resolveBaseUrl("IDP_MCP_URL", "http://localhost:8080");
 
   const stackMetadata = await loadStackMetadata();
   const requestedProfiles = resolveRequestedProfiles();
-  const orderedProfiles: ProfileName[] = ["core", "operational", "ui-profile"];
+  const orderedProfiles: ProfileName[] = ["core", "operational", "ui-profile", "mcp-profile"];
 
   const context: ContractContext = {
     webBaseUrl,
     bffBaseUrl,
+    mcpBaseUrl,
     stackMetadata,
   };
 

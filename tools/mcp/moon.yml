@@ -1,0 +1,47 @@
+language: "typescript"
+layer: "tool"
+stack: "backend"
+
+project:
+  title: "mcp-tools"
+  description: "MCP adapter server for the Stemix Intent-Driven Portal BFF."
+
+tasks:
+  all:
+    command: ["make", "all"]
+  install:
+    command: ["make", "install"]
+  build:
+    command: ["make", "build"]
+  clean:
+    command: ["make", "clean"]
+  check-lint:
+    command: ["make", "check-lint"]
+  check-test:
+    command: ["make", "check-test"]
+  check-contract:
+    command: ["make", "check-contract"]
+  check-ci:
+    command: ["make", "check-ci"]
+    options:
+      runInCI: true
+  check:
+    command: ["make", "check"]
+  test:
+    command: ["make", "test"]
+  test-contract:
+    command: ["make", "test-contract"]
+  run:
+    command: ["make", "run"]
+    options:
+      persistent: true
+      runInCI: false
+  run-http:
+    command: ["make", "run-http"]
+    options:
+      persistent: true
+      runInCI: false
+  build-container:
+    command: ["make", "build-container"]
+    options:
+      runInCI: false

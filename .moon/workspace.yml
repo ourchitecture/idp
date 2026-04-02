@@ -5,6 +5,7 @@ projects:
     nodejs-react-fastify-rest: "stacks/nodejs/react-fastify/rest"
     contract-tests: "tests"
     docs-site: "docs"
+    mcp-tools: "tools/mcp"
 
 defaultProject: "repo"
 versionConstraint: ">=2.1.3"
