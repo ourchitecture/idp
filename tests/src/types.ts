@@ -1,4 +1,4 @@
-export type ProfileName = "core" | "operational" | "ui-profile";
+export type ProfileName = "core" | "operational" | "ui-profile" | "mcp-profile";
 
 export type UiMode = "spa" | "ssr" | "server-rendered";
 
@@ -12,12 +12,16 @@ export type StackMetadata = {
       enabled?: boolean;
       mode?: UiMode;
     };
+    mcp?: {
+      enabled?: boolean;
+    };
   };
 };
 
 export type ContractContext = {
   webBaseUrl: URL;
   bffBaseUrl: URL;
+  mcpBaseUrl: URL;
   stackMetadata: StackMetadata | null;
 };
 

@@ -1,0 +1,26 @@
+{
+  "name": "stemix-idp-mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP adapter for the Stemix Intent-Driven Portal BFF.",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "start": "node dist/server.js",
+    "start:http": "MCP_HTTP_PORT=8080 node dist/server.js",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

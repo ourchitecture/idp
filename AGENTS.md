@@ -238,6 +238,7 @@ Moon project IDs currently used:
 - `nodejs-react-fastify-rest`
 - `contract-tests`
 - `docs-site`
+- `mcp-tools`
 
 Stack-level Makefile targets (from `stacks/<stack>/Makefile`).
 All are **optional convenience wrappers**; equivalent `moon` task invocations
