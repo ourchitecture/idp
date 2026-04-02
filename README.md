@@ -37,6 +37,7 @@ tools/      Developer tooling, scripts, and MCP server definitions
 - [docs/content/architecture/decisions/](docs/content/architecture/decisions/) -- Architecture Decision Records (ADR index)
 - [docs/content/architecture/diagrams/](docs/content/architecture/diagrams/) -- C4 architecture diagrams (context, container, and component views)
 - [docs/content/containers/](docs/content/containers/) -- Container images: building, running, and publishing
+- [SOCIAL.md](SOCIAL.md) -- Social media guidance and content flow
 
 ## Getting Started
 

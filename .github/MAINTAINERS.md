@@ -23,6 +23,17 @@ Maintainers responsible for code review, merging, and release management.
 - Monitor CI/CD pipelines and container image publishing.
 - Ensure documentation stays current with code changes.
 
+## Community and Social Guidance
+
+Maintain public communication with the same quality bar used for code and docs.
+
+- Use [`SOCIAL.md`](../SOCIAL.md) as the shared guide for channel roles,
+  content flow, and engagement rules.
+- Keep GitHub as the canonical destination for meaningful discussions,
+  decisions, and RFCs.
+- Prefer linking to existing discussions or docs over duplicating content across
+  platforms.
+
 ## Release Process
 
 Releases are automated via [release-please](https://github.com/googleapis/release-please).
