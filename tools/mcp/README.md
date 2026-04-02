@@ -85,10 +85,10 @@ docker run --rm -p 8080:8080 \
 
 ## Tools exposed
 
-| Tool                 | Description                                                                       |
-|----------------------|-----------------------------------------------------------------------------------|
+| Tool                 | Description                                                             |
+|----------------------|-------------------------------------------------------------------------|
 | `get_portal_summary` | Returns the shared IDP status summary contract for IDP-owned components |
-| `check_health`       | Returns BFF `/health` and `/readiness` responses                                  |
+| `check_health`       | Returns BFF `/health` and `/readiness` responses                        |
 
 ## Platform notes
 

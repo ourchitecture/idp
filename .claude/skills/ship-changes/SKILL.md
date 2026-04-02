@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.3.0
+version: 1.3.1
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -361,16 +361,35 @@ gh pr edit <pr_number> --add-assignee "@me" \
 ## Step 13: Wait for Status Checks and Merge
 
 Before merging, wait for all required PR status checks to pass.
+This is a hard gate: do not merge while any check is failing, cancelled,
+timed out, pending, queued, or in progress.
 
-Poll the check status using the GitHub MCP
-`pullRequestStatusChecks` tool or the `gh` CLI:
+Use the GitHub MCP `pull_request_read` tool with
+`method: "get_check_runs"` to inspect checks for the PR head commit.
+Re-check until all required checks are completed successfully.
+
+Treat these conclusions as merge blockers:
+
+- `failure`
+- `cancelled`
+- `timed_out`
+- `action_required`
+- `stale`
+- `startup_failure`
+- any `null`/missing conclusion for required checks while still pending
+
+Only continue when all required checks report `conclusion: "success"`
+(or are explicitly non-required and can be ignored).
+
+If checks are still running, poll with the `gh` CLI:
 
 ```bash
 gh pr checks <pr_number> --watch --interval 15
 ```
 
-This command blocks until all checks complete. If any check
-fails, stop and report the failure to the user — do not merge.
+This command blocks until all checks complete. If any required check
+fails, stop and report the failing check names and URLs to the user —
+do not merge.
 
 Once all checks pass, use the GitHub MCP `merge_pull_request`
 tool to merge:
@@ -385,6 +404,11 @@ tool to merge:
 ```bash
 gh pr merge <pr_number> --squash --delete-branch
 ```
+
+Immediately after merge, verify the merge did not happen with failed
+required checks by confirming the final check state again via
+`pull_request_read` (`get_check_runs`). If a failure is detected, report
+it as an incident in the issue/PR thread.
 
 ## Step 14: Sync Local Main and Clean Up
 
