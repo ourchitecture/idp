@@ -11,7 +11,7 @@ end-to-end increments.
 ## 1. Design Principles
 
 | Principle | Rationale |
-|---|---|
+| --- | --- |
 | **Stack-agnostic contracts, stack-native implementations** | The plug-in model defines contracts any technology can implement while letting each stack leverage its own strengths (e.g., IoC discovery in Java/.NET, middleware composition in Go/Node.js). |
 | **Secure by default** | Plug-ins run inside capability-constrained sandboxes. A plug-in receives only the permissions it declares and the host explicitly grants. |
 | **Simple for users, flexible for operators, powerful for developers** | Each persona interacts with plug-ins at the appropriate level of abstraction. Complexity is pushed down the stack, not up to the user. |
@@ -55,7 +55,7 @@ well-known pitfalls:
 The plug-in model spans three architectural tiers that mirror the existing
 layered architecture described in ADR `0001`:
 
-```
+```text
 +-----------------------------------------------------------------+
 |  Layer 1 -- Intent (what plug-in capabilities exist)            |
 |  Gherkin features, catalog metadata, capability declarations    |
@@ -101,7 +101,7 @@ Not all plug-ins carry the same risk or operational weight. The model defines
 tiers to match governance to impact:
 
 | Tier | Description | Examples |
-|---|---|---|
+| --- | --- | --- |
 | **Built-in** | Ships with the platform. Same release cycle and trust boundary as the host. | Core health, default navigation, built-in auth adapters |
 | **First-party** | Developed by the platform team but deployed independently. Follows the platform's own review process. | Additional auth providers, analytics dashboards |
 | **Verified** | Developed by a trusted third party. Passes a defined review and certification process. | Vendor-supplied integrations, partner plug-ins |
@@ -208,14 +208,14 @@ installed, and active. It stores:
 ### 8.2 Persona-Specific Interaction
 
 | Persona | Interaction |
-|---|---|
+| --- | --- |
 | **Developer** | Builds plug-ins against the SDK. Decides which plug-ins to include in a deployment artifact. |
 | **Operator** | Configures which catalog entries are available in a given environment. Enables, disables, or requires plug-ins per tenant or deployment. |
 | **User** | Browses available plug-ins. Activates plug-ins for their own workspace. Requests access to plug-ins that are cataloged but not yet enabled for them. |
 
 ### 8.3 Lifecycle Stages
 
-```
+```text
 Submitted --> Review --> Approved --> Published --> Installed --> Activated
                 |                                                    |
                 v                                                    v
