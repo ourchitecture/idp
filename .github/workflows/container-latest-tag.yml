@@ -40,6 +40,7 @@ jobs:
             "stemix-nodejs-react-fastify-rest-web"
             "stemix-nodejs-react-fastify-rest-bff"
             "stemix-contract-tests"
+            "stemix-mcp-server"
           )
 
           for IMAGE in "${IMAGES[@]}"; do

@@ -15,6 +15,7 @@ env:
   KEEP_VERSIONS_NODE_WEB: "5"
   KEEP_VERSIONS_NODE_BFF: "5"
   KEEP_VERSIONS_TESTS: "5"
+  KEEP_VERSIONS_MCP: "5"
 
 jobs:
   cleanup:
@@ -34,6 +35,8 @@ jobs:
             keep_env: KEEP_VERSIONS_NODE_BFF
           - package: stemix-contract-tests
             keep_env: KEEP_VERSIONS_TESTS
+          - package: stemix-mcp-server
+            keep_env: KEEP_VERSIONS_MCP
     steps:
       - name: Delete old container versions
         uses: actions/delete-package-versions@v5

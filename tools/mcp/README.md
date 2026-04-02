@@ -19,10 +19,10 @@ AI agents through a stable, discoverable protocol. This server is the MCP interf
 
 ## Environment variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `IDP_BFF_URL` | `http://localhost:8000` | Base URL of the IDP BFF to connect to |
-| `MCP_HTTP_PORT` | _(unset)_ | When set, starts Streamable HTTP server on this port; otherwise starts in stdio mode |
+| Variable        | Default                 | Description                                                                          |
+|-----------------|-------------------------|--------------------------------------------------------------------------------------|
+| `IDP_BFF_URL`   | `http://localhost:8000` | Base URL of the IDP BFF to connect to                                                |
+| `MCP_HTTP_PORT` | _(unset)_               | When set, starts Streamable HTTP server on this port; otherwise starts in stdio mode |
 
 ## Install dependencies
 
@@ -85,10 +85,10 @@ docker run --rm -p 8080:8080 \
 
 ## Tools exposed
 
-| Tool | Description |
-|------|-------------|
+| Tool                 | Description                                                                       |
+|----------------------|-----------------------------------------------------------------------------------|
 | `get_portal_summary` | Returns portal status, service health metrics, active plugins, and queued intents |
-| `check_health` | Returns BFF `/health` and `/readiness` responses |
+| `check_health`       | Returns BFF `/health` and `/readiness` responses                                  |
 
 ## Platform notes
 

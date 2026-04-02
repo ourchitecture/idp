@@ -96,9 +96,9 @@ Stacks that expose an MCP server must declare both the profile and the capabilit
 
 ## Environment variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `IDP_MCP_URL` | `http://localhost:8080` | Base URL for the MCP server |
+| Variable      | Default                 | Description                        |
+|---------------|-------------------------|------------------------------------|
+| `IDP_MCP_URL` | `http://localhost:8080` | Base URL for the MCP server        |
 | `IDP_BFF_URL` | `http://localhost:8000` | BFF URL the MCP server connects to |
 
 ## Running the profile
