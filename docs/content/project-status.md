@@ -23,7 +23,7 @@ that's the exciting work ahead.
 These capabilities are implemented and usable right now:
 
 | Capability | Details |
-|---|---|
+| --- | --- |
 | Intent-driven architecture | Gherkin Layer 1 intent specs → Layer 2 contract tests → Layer 3 implementations |
 | Two reference stacks | Go (`net/http`) and Node.js (React + Fastify) |
 | Container-first delivery | Multi-stage Dockerfiles, distroless base images, published to GHCR |
