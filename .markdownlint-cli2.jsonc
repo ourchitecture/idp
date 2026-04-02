@@ -6,7 +6,8 @@
     "docs/node_modules",
     "docs/build",
     "docs/.docusaurus",
-    "stacks/nodejs/react-fastify/rest/node_modules"
+    "stacks/nodejs/react-fastify/rest/node_modules",
+    "tools/mcp/node_modules"
   ],
   // Release Please generates CHANGELOG.md files with two consecutive blank
   // lines after each version header. Relax MD012 only for these files so
