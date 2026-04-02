@@ -2,28 +2,48 @@
 sidebar_position: 2
 ---
 
-# Level 1: System Context
+# Level 1: User System Context (Current)
 
-This view explains who uses IDP and which external platforms it depends on. It
-is the highest-level map and is intended for quick orientation.
+This view shows current IDP context from the user perspective. Delivery
+mechanics are present, but user outcomes and decision needs remain primary.
+
+## Audience
+
+- Primary: IDP users and decision stakeholders.
+- Secondary: implementers and maintainers who need user-outcome context.
+
+## State
+
+- Current: reflects behavior available in the repository today.
+- Target: see [Level 1: User System Context (Target)](./level-1-system-context-target).
 
 ```mermaid
 C4Context
-  title IDP System Context
+  title IDP User System Context (Current)
 
-  Person(developer, "Developer", "Builds and ships services through the IDP workflows")
-  Person(operator, "Platform Operator", "Runs and maintains platform infrastructure and policy")
+  Person(deliveryAndDesign, "Delivery and Design Roles", "Developer and Architect")
+  Person(productAndTechLeadership, "Product and Technology Leadership Roles", "Product Manager, Technology Manager, Technology Leader, and Business Leader")
+  Person(assuranceAndControl, "Assurance and Control Roles", "Process Expert, Governance and Compliance, and Security")
 
-  System(idp, "Intent-Driven Portal (IDP)", "Coordinates intent specs, contract checks, implementation stacks, and docs")
+  System(idp, "Intent-Driven Portal (IDP)", "Current user experience for intent, validation evidence, and implementation visibility")
 
-  System_Ext(github, "GitHub", "Issues, pull requests, actions, and repository collaboration")
-  System_Ext(ghcr, "Container Registry", "Stores published runtime and test container images")
+  System_Ext(github, "GitHub", "Issues, pull requests, actions, and source collaboration")
+  System_Ext(contractHarness, "Contract Test Harness", "Profile-based conformance checks derived from Layer 1 intent specs")
 
-  Rel(developer, idp, "Defines and validates intent-driven changes", "CLI + docs + tests")
-  Rel(operator, idp, "Operates CI/CD and release workflows", "moon + make + scripts")
-  Rel(idp, github, "Reads issues, validates PRs, and publishes docs", "GitHub APIs + Actions")
-  Rel(idp, ghcr, "Builds and publishes container images", "OCI pushes")
+  Rel(deliveryAndDesign, idp, "Defines, validates, and delivers intent changes", "Portal workflows + docs + tests")
+  Rel(productAndTechLeadership, idp, "Reviews value delivery and platform progress", "Portfolio and outcome views")
+  Rel(assuranceAndControl, idp, "Reviews control evidence and risk posture", "Operational and governance views")
+  Rel(idp, github, "Synchronizes workflow state", "GitHub APIs + Actions")
+  Rel(idp, contractHarness, "Runs profile-based checks", "core + operational + ui-profile + mcp-profile")
 ```
+
+## Role Mapping
+
+| Role cluster | Concrete roles | Primary user goal |
+| --- | --- | --- |
+| Delivery and design roles | Developer, Architect | Move intent from design to validated implementation with fast feedback |
+| Product and technology leadership roles | Product Manager, Technology Manager, Technology Leader, Business Leader | Track value delivery, priorities, and cross-team execution health |
+| Assurance and control roles | Process Expert, Governance and Compliance, Security | Confirm policy adherence, risk controls, and audit readiness |
 
 ## Notes
 

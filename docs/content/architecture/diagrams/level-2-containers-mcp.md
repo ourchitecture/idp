@@ -1,12 +1,22 @@
 ---
-sidebar_position: 5
+sidebar_position: 8
 ---
 
-# Level 2: Containers (MCP Server)
+# Level 2: Implementer Containers (MCP Server)
 
 This view shows the MCP server and how AI agents interact with the portal
 through it. The MCP server is a standalone adapter that works with any BFF
 stack — Go or Node.js.
+
+## Audience
+
+- Primary: IDP implementers and operators.
+- Secondary: maintainers defining AI-facing adapter boundaries.
+
+## State
+
+- Current: MCP adapter behavior available today.
+- Target: broader user-facing AI workflows backed by stable MCP contracts.
 
 ```mermaid
 C4Container
@@ -25,6 +35,7 @@ C4Container
 
 ## Notes
 
+- User-first Level 2 view lives at [Level 2: User Capability Containers](./level-2-user-capabilities).
 - The MCP server is located at `tools/mcp/` and is stack-independent.
 - It exposes `get_portal_summary` and `check_health` as MCP tools.
 - Default HTTP port is `8080`; stdio mode is also supported for local clients.

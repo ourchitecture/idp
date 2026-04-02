@@ -6,18 +6,28 @@ sidebar_position: 1
 
 These diagrams exist so anyone can understand how the IDP system fits together
 before reading implementation details. They provide a shared visual model for
-contributors, operators, and maintainers.
+users, implementers, operators, and maintainers.
 
 The repository uses the C4 model and Mermaid C4 syntax so the same source can be
 read in GitHub Markdown and in Docusaurus.
 
-## Diagram Set
+## User-First Path
 
-- [Level 1: System Context](./level-1-system-context)
-- [Level 2: Container View (Go stack)](./level-2-containers-go)
-- [Level 2: Container View (Node.js stack)](./level-2-containers-nodejs)
-- [Level 2: Container View (MCP Server)](./level-2-containers-mcp)
-- [Level 3: Component View (BFF)](./level-3-component-bff)
+- [Level 1: User System Context (Current)](./level-1-system-context)
+- [Level 1: User System Context (Target)](./level-1-system-context-target)
+- [Level 2: User Capability Containers (Current and Target)](./level-2-user-capabilities)
+- [Level 3: User Workflow Components (Current and Target)](./level-3-user-workflows)
+
+## Delivery and Implementation Path
+
+- [Level 1: Delivery Context (Current and Target)](./level-1-delivery-context)
+- [Level 2: Implementer Containers (Go net/http stack)](./level-2-containers-go)
+- [Level 2: Implementer Containers (Node.js React + Fastify stack)](./level-2-containers-nodejs)
+- [Level 2: Implementer Containers (MCP Server)](./level-2-containers-mcp)
+- [Level 3: Component View (Node.js BFF)](./level-3-component-bff)
+
+## Supporting References
+
 - [Architecture Decisions](../decisions/)
 
 ## Maintenance Workflow
