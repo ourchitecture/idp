@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.1.0-alpha.0...contract-tests-v1.2.0-alpha.0) (2026-04-02)
+
+
+### Features
+
+* **mcp-tools:** add MCP server adapter and mcp-profile contract tests ([#35](https://github.com/ourchitecture/idp/issues/35)) ([e6a056b](https://github.com/ourchitecture/idp/commit/e6a056b7f69c6e8ba21f2cb82eaf1db3cbf4481c))
+
 ## [1.1.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.0.0-alpha.0...contract-tests-v1.1.0-alpha.0) (2026-04-01)
 
 
