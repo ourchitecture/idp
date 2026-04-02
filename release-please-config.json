@@ -22,6 +22,12 @@
       "component": "contract-tests",
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md"
+    },
+    "tools/mcp": {
+      "release-type": "node",
+      "component": "mcp-tools",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }

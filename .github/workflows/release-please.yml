@@ -19,6 +19,8 @@ jobs:
       nodejs_react_fastify_rest_tag: ${{ steps.release.outputs['stacks/nodejs/react-fastify/rest--tag_name'] }}
       contract_tests_released: ${{ steps.release.outputs['tests--release_created'] }}
       contract_tests_tag: ${{ steps.release.outputs['tests--tag_name'] }}
+      mcp_tools_released: ${{ steps.release.outputs['tools/mcp--release_created'] }}
+      mcp_tools_tag: ${{ steps.release.outputs['tools/mcp--tag_name'] }}
     steps:
       - name: Run release-please
         id: release

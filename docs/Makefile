@@ -18,7 +18,7 @@ help:
 all: install build check
 
 install:
-	@npm ci
+	@PUPPETEER_SKIP_DOWNLOAD=true npm ci
 
 build:
 	@npm run build

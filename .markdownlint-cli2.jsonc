@@ -6,17 +6,11 @@
     "docs/node_modules",
     "docs/build",
     "docs/.docusaurus",
-    "stacks/nodejs/react-fastify/rest/node_modules"
-  ],
-  // Release Please generates CHANGELOG.md files with two consecutive blank
-  // lines after each version header. Relax MD012 only for these files so
-  // the release workflow never requires a manual lint fix.
-  "overrides": [
-    {
-      "globs": ["**/CHANGELOG.md"],
-      "config": {
-        "MD012": false
-      }
-    }
+    "stacks/nodejs/react-fastify/rest/node_modules",
+    "tools/mcp/node_modules",
+    // Release Please generates CHANGELOG.md files with two consecutive blank
+    // lines after each version header. Ignore them so the release workflow
+    // never requires a manual lint fix.
+    "**/CHANGELOG.md"
   ]
 }

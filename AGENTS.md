@@ -101,6 +101,28 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
 
+### When GitHub MCP Tools Are Unavailable
+
+If the GitHub MCP server is disconnected or tools are not listed in
+the available tool set, follow these rules:
+
+- Do NOT attempt `gh` CLI commands — it is not available in this
+  environment and will return "gh not available".
+- Do NOT attempt to call the git remote URL as a REST API — the remote
+  (`http://127.0.0.1:45835`) is only accessible via the git protocol,
+  not HTTP REST.
+- Do NOT spin trying alternatives. Surface the blocker immediately.
+- Continue any local work (edits, commits, pushes via `git`) that does
+  not require GitHub API access — those operations work regardless.
+- When blocked on a GitHub operation (PR creation, issue comment,
+  label assignment), output the full ready-to-use content the user
+  would need to perform the action manually:
+  - For a PR: the exact title and body text.
+  - For an issue comment: the exact comment text.
+- Resume the blocked operation as the first action once the MCP server
+  reconnects (indicated by `mcp__github__*` tools reappearing in the
+  system reminder).
+
 ## CI/CD and Make Reuse (Required)
 
 - `moon` is required for maintainer and CI orchestration flows.
@@ -230,6 +252,17 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Generate docs architecture diagrams (make shortcut): `make -C docs generate-diagrams`
 - Validate docs diagram generation (moon canonical): `moon run docs-site:check-diagrams`
 - Validate docs diagram generation (make shortcut): `make -C docs check-diagrams`
+- Run MCP server in HTTP mode (make shortcut): `make -C tools/mcp run-http`
+- Run MCP server CI checks (moon canonical): `moon run mcp-tools:check-ci`
+- Build MCP server container (make shortcut): `make -C tools/mcp build-container`
+- Run MCP server contract tests (make shortcut): `make -C tools/mcp check-contract`
+
+> **Docs install note**: The docs `npm ci` skips puppeteer's bundled Chrome
+> download (`PUPPETEER_SKIP_DOWNLOAD=true` is set in `docs/Makefile`). The
+> `check-diagrams` target auto-detects the system Chrome at runtime via
+> `PUPPETEER_EXECUTABLE_PATH` or standard binary names (`google-chrome-stable`,
+> `chromium`, etc.). If diagram generation fails locally, set
+> `PUPPETEER_EXECUTABLE_PATH=/path/to/chrome` before running the make target.
 
 Moon project IDs currently used:
 

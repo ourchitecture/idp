@@ -72,6 +72,7 @@ markdown_files=(
   "${DIAGRAMS_DIR}/level-1-system-context.md"
   "${DIAGRAMS_DIR}/level-2-containers-go.md"
   "${DIAGRAMS_DIR}/level-2-containers-nodejs.md"
+  "${DIAGRAMS_DIR}/level-2-containers-mcp.md"
   "${DIAGRAMS_DIR}/level-3-component-bff.md"
 )
 

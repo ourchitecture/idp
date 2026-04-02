@@ -16,6 +16,7 @@ read in GitHub Markdown and in Docusaurus.
 - [Level 1: System Context](./level-1-system-context)
 - [Level 2: Container View (Go stack)](./level-2-containers-go)
 - [Level 2: Container View (Node.js stack)](./level-2-containers-nodejs)
+- [Level 2: Container View (MCP Server)](./level-2-containers-mcp)
 - [Level 3: Component View (BFF)](./level-3-component-bff)
 - [Architecture Decisions](../decisions/)
 

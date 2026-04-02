@@ -4,7 +4,7 @@
   "private": true,
   "description": "Local lint tooling for the nodejs-react-fastify-rest stack.",
   "scripts": {
-    "lint:md": "markdownlint-cli2 \"*.md\""
+    "lint:md": "markdownlint-cli2 \"*.md\" \"!CHANGELOG.md\""
   },
   "devDependencies": {
     "markdownlint-cli2": "0.21.0"
