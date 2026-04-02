@@ -101,6 +101,28 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
 
+### When GitHub MCP Tools Are Unavailable
+
+If the GitHub MCP server is disconnected or tools are not listed in
+the available tool set, follow these rules:
+
+- Do NOT attempt `gh` CLI commands — it is not available in this
+  environment and will return "gh not available".
+- Do NOT attempt to call the git remote URL as a REST API — the remote
+  (`http://127.0.0.1:45835`) is only accessible via the git protocol,
+  not HTTP REST.
+- Do NOT spin trying alternatives. Surface the blocker immediately.
+- Continue any local work (edits, commits, pushes via `git`) that does
+  not require GitHub API access — those operations work regardless.
+- When blocked on a GitHub operation (PR creation, issue comment,
+  label assignment), output the full ready-to-use content the user
+  would need to perform the action manually:
+  - For a PR: the exact title and body text.
+  - For an issue comment: the exact comment text.
+- Resume the blocked operation as the first action once the MCP server
+  reconnects (indicated by `mcp__github__*` tools reappearing in the
+  system reminder).
+
 ## CI/CD and Make Reuse (Required)
 
 - `moon` is required for maintainer and CI orchestration flows.
