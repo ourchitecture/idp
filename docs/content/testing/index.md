@@ -33,6 +33,7 @@ area of expected behavior. A stack declares which profiles it must pass in its
 | [`core`](./profiles/core) | All stacks | 4 | Baseline HTTP surface: reachability, content-type, and field presence |
 | [`operational`](./profiles/operational) | Tier 1 stacks | 3 | Runtime conventions and exact semantic values |
 | [`ui-profile`](./profiles/ui-profile) | UI stacks (opt-in) | 3 | Observable HTML output and declared rendering mode |
+| [`mcp-profile`](./profiles/mcp-profile) | MCP servers (opt-in) | 4 | MCP initialize, tool discovery, and tool invocation |
 
 ## Guides
 

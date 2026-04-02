@@ -252,6 +252,17 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Generate docs architecture diagrams (make shortcut): `make -C docs generate-diagrams`
 - Validate docs diagram generation (moon canonical): `moon run docs-site:check-diagrams`
 - Validate docs diagram generation (make shortcut): `make -C docs check-diagrams`
+- Run MCP server in HTTP mode (make shortcut): `make -C tools/mcp run-http`
+- Run MCP server CI checks (moon canonical): `moon run mcp-tools:check-ci`
+- Build MCP server container (make shortcut): `make -C tools/mcp build-container`
+- Run MCP server contract tests (make shortcut): `make -C tools/mcp check-contract`
+
+> **Docs install note**: The docs `npm ci` skips puppeteer's bundled Chrome
+> download (`PUPPETEER_SKIP_DOWNLOAD=true` is set in `docs/Makefile`). The
+> `check-diagrams` target auto-detects the system Chrome at runtime via
+> `PUPPETEER_EXECUTABLE_PATH` or standard binary names (`google-chrome-stable`,
+> `chromium`, etc.). If diagram generation fails locally, set
+> `PUPPETEER_EXECUTABLE_PATH=/path/to/chrome` before running the make target.
 
 Moon project IDs currently used:
 
