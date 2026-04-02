@@ -28,11 +28,13 @@ has_markdown_change="false"
 has_non_markdown_change="false"
 run_go_stack="false"
 run_node_stack="false"
+run_mcp_tools="false"
 run_workflow_lint="false"
 run_reference_all="false"
 run_docs_validation="false"
 run_go_containers="false"
 run_node_containers="false"
+run_mcp_containers="false"
 run_tests_container="false"
 
 for file in "${changed_files[@]}"; do
@@ -56,6 +58,10 @@ for file in "${changed_files[@]}"; do
     stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
       run_node_containers="true"
+      ;;
+    tools/mcp/*)
+      run_mcp_tools="true"
+      run_mcp_containers="true"
       ;;
     # docs/* includes architecture diagram sources under
     # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
@@ -89,13 +95,15 @@ fi
 if [[ "${run_reference_all}" == "true" ]]; then
   run_go_stack="true"
   run_node_stack="true"
+  run_mcp_tools="true"
   run_go_containers="true"
   run_node_containers="true"
+  run_mcp_containers="true"
   run_tests_container="true"
 fi
 
 run_stack_validation="false"
-if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" ]]; then
+if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" || "${run_mcp_tools}" == "true" ]]; then
   run_stack_validation="true"
 fi
 
@@ -103,11 +111,13 @@ if [[ "${markdown_only}" == "true" ]]; then
   run_stack_validation="false"
   run_go_containers="false"
   run_node_containers="false"
+  run_mcp_containers="false"
   run_tests_container="false"
 fi
 
 run_any_containers="false"
-if [[ "${run_go_containers}" == "true" || "${run_node_containers}" == "true" || "${run_tests_container}" == "true" ]]; then
+if [[ "${run_go_containers}" == "true" || "${run_node_containers}" == "true" || \
+      "${run_tests_container}" == "true" || "${run_mcp_containers}" == "true" ]]; then
   run_any_containers="true"
 fi
 
@@ -121,6 +131,10 @@ if [[ "${run_stack_validation}" == "true" ]]; then
 
   if [[ "${run_node_stack}" == "true" ]]; then
     matrix_items+=("{\"project\":\"nodejs-react-fastify-rest\",\"stack\":\"stacks/nodejs/react-fastify/rest\",\"label\":\"nodejs-react-fastify-rest\"}")
+  fi
+
+  if [[ "${run_mcp_tools}" == "true" ]]; then
+    matrix_items+=("{\"project\":\"mcp-tools\",\"stack\":\"tools/mcp\",\"label\":\"mcp-tools\"}")
   fi
 
   if [[ ${#matrix_items[@]} -gt 0 ]]; then
@@ -137,6 +151,7 @@ echo "stack_matrix=${stack_matrix}"
 echo "run_docs_validation=${run_docs_validation}"
 echo "run_go_containers=${run_go_containers}"
 echo "run_node_containers=${run_node_containers}"
+echo "run_mcp_containers=${run_mcp_containers}"
 echo "run_tests_container=${run_tests_container}"
 echo "run_any_containers=${run_any_containers}"
 
@@ -151,6 +166,7 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_docs_validation=%s\n" "${run_docs_validation}"
     printf "run_go_containers=%s\n" "${run_go_containers}"
     printf "run_node_containers=%s\n" "${run_node_containers}"
+    printf "run_mcp_containers=%s\n" "${run_mcp_containers}"
     printf "run_tests_container=%s\n" "${run_tests_container}"
     printf "run_any_containers=%s\n" "${run_any_containers}"
   } >> "${OUTPUT_FILE}"

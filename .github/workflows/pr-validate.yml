@@ -23,6 +23,7 @@ jobs:
       run_stack_validation: ${{ steps.detect.outputs.run_stack_validation }}
       stack_matrix: ${{ steps.detect.outputs.stack_matrix }}
       run_docs_validation: ${{ steps.detect.outputs.run_docs_validation }}
+      run_mcp_containers: ${{ steps.detect.outputs.run_mcp_containers }}
       run_any_containers: ${{ steps.detect.outputs.run_any_containers }}
     steps:
       - name: Checkout
@@ -56,6 +57,7 @@ jobs:
           echo "run_stack_validation=${{ steps.detect.outputs.run_stack_validation }}"
           echo "stack_matrix=${{ steps.detect.outputs.stack_matrix }}"
           echo "run_docs_validation=${{ steps.detect.outputs.run_docs_validation }}"
+          echo "run_mcp_containers=${{ steps.detect.outputs.run_mcp_containers }}"
           echo "run_any_containers=${{ steps.detect.outputs.run_any_containers }}"
 
   check-lint-md:
@@ -227,6 +229,13 @@ jobs:
             -t stemix-contract-tests:pr-check \
             -f tests/Dockerfile \
             .
+
+      - name: Build MCP server container
+        run: |
+          docker build \
+            -t stemix-mcp-server:pr-check \
+            -f tools/mcp/Dockerfile \
+            tools/mcp
 
   pr-validation-result:
     name: PR Validation Result
