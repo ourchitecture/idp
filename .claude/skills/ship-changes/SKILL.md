@@ -405,11 +405,6 @@ tool to merge:
 gh pr merge <pr_number> --squash --delete-branch
 ```
 
-Immediately after merge, verify the merge did not happen with failed
-required checks by confirming the final check state again via
-`pull_request_read` (`get_check_runs`). If a failure is detected, report
-it as an incident in the issue/PR thread.
-
 ## Step 14: Sync Local Main and Clean Up
 
 After the merge completes:
