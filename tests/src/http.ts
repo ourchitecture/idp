@@ -47,7 +47,11 @@ export function request(url: URL): Promise<ResponsePayload> {
   });
 }
 
-export function post(url: URL, body: unknown): Promise<ResponsePayload> {
+export function post(
+  url: URL,
+  body: unknown,
+  extraHeaders?: Record<string, string>
+): Promise<ResponsePayload> {
   const client = url.protocol === "https:" ? https : http;
   const payload = JSON.stringify(body);
 
@@ -60,6 +64,7 @@ export function post(url: URL, body: unknown): Promise<ResponsePayload> {
           "Content-Type": "application/json",
           "Accept": "application/json, text/event-stream",
           "Content-Length": Buffer.byteLength(payload),
+          ...extraHeaders,
         },
       },
       (res) => {

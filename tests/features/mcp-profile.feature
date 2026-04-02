@@ -9,6 +9,8 @@ Feature: MCP profile — Model Context Protocol interface contract
 
   Background:
     Given the MCP server is running at the URL defined by IDP_MCP_URL
+    And the client follows the MCP initialize and initialized handshake
+    And the client reuses any "Mcp-Session-Id" header returned by the server
 
   Scenario: MCP server responds to initialize with server info and capabilities
     When the client sends an MCP initialize request to the MCP server
@@ -32,7 +34,7 @@ Feature: MCP profile — Model Context Protocol interface contract
     And the JSON-RPC response contains a result field
     And the result content is a non-empty array of content items
     And content item 0 has type "text" and a non-empty text field
-    And the text is valid JSON containing a "status" field
+    And the text is valid JSON matching the portal summary status contract
 
   Scenario: tools/call check_health returns BFF health and readiness
     When the client calls the MCP tool "check_health" with no arguments

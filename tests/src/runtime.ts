@@ -19,7 +19,13 @@ function parseProfiles(raw: string | undefined): string[] {
 }
 
 function isProfileName(value: string): value is ProfileName {
-  return value === "core" || value === "operational" || value === "ui-profile" || value === "mcp-profile";
+  return (
+    value === "core" ||
+    value === "operational" ||
+    value === "status-profile" ||
+    value === "ui-profile" ||
+    value === "mcp-profile"
+  );
 }
 
 export function resolveBaseUrl(envName: string, fallback: string): URL {
@@ -168,7 +174,11 @@ export function shouldRunProfile(
     return stackMetadata.contractProfiles.includes(profile);
   }
 
-  if (profile === "ui-profile" || profile === "mcp-profile") {
+  if (
+    (profile === "status-profile" && stackMetadata?.capabilities?.status?.enabled !== true) ||
+    (profile === "ui-profile" && stackMetadata?.capabilities?.ui?.enabled !== true) ||
+    (profile === "mcp-profile" && stackMetadata?.capabilities?.mcp?.enabled !== true)
+  ) {
     return false;
   }
 

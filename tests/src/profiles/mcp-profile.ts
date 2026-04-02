@@ -1,18 +1,30 @@
 import { assert, parseJsonOrThrow } from "../assertions";
 import { post } from "../http";
+import { parsePortalSummaryOrThrow } from "../status";
 import type { ContractContext, TestCase } from "../types";
 
 const MCP_PROTOCOL_VERSION = "2024-11-05";
 
 type JsonRpcRequest = {
   jsonrpc: "2.0";
-  id: number;
+  id?: number;
   method: string;
   params?: Record<string, unknown>;
 };
 
-function mcpRequest(mcpBaseUrl: URL, payload: JsonRpcRequest): ReturnType<typeof post> {
-  return post(new URL("/mcp", mcpBaseUrl), payload);
+function mcpRequest(
+  mcpBaseUrl: URL,
+  payload: JsonRpcRequest,
+  sessionId?: string
+): ReturnType<typeof post> {
+  const headers =
+    sessionId === undefined
+      ? undefined
+      : {
+          "Mcp-Session-Id": sessionId,
+        };
+
+  return post(new URL("/mcp", mcpBaseUrl), payload, headers);
 }
 
 /**
@@ -63,39 +75,68 @@ export function createMcpProfileTests(context: ContractContext): TestCase[] {
 
   const { mcpBaseUrl } = context;
   let requestId = 1;
+  let sessionId: string | undefined;
+  let initializeResult: Record<string, unknown> | null = null;
 
   function nextId(): number {
     return requestId++;
+  }
+
+  async function ensureInitialized(): Promise<Record<string, unknown>> {
+    if (initializeResult !== null) {
+      return initializeResult;
+    }
+
+    const initializeResponse = await mcpRequest(mcpBaseUrl, {
+      jsonrpc: "2.0",
+      id: nextId(),
+      method: "initialize",
+      params: {
+        protocolVersion: MCP_PROTOCOL_VERSION,
+        capabilities: {},
+        clientInfo: { name: "idp-contract-test", version: "0.1.0" },
+      },
+    });
+
+    assert(
+      initializeResponse.status >= 200 && initializeResponse.status < 300,
+      `Expected 2xx from MCP initialize, got ${initializeResponse.status}`
+    );
+
+    const envelope = parseJsonRpcResponse(initializeResponse.body);
+    assert("result" in envelope, "MCP initialize response must contain a result field");
+
+    const result = envelope.result as Record<string, unknown>;
+    assert(
+      typeof result === "object" && result !== null,
+      "MCP initialize result must be an object"
+    );
+
+    sessionId = initializeResponse.headers["mcp-session-id"];
+    initializeResult = result;
+
+    const initializedResponse = await mcpRequest(
+      mcpBaseUrl,
+      {
+        jsonrpc: "2.0",
+        method: "notifications/initialized",
+      },
+      sessionId
+    );
+
+    assert(
+      initializedResponse.status >= 200 && initializedResponse.status < 300,
+      `Expected 2xx from MCP notifications/initialized, got ${initializedResponse.status}`
+    );
+
+    return result;
   }
 
   return [
     {
       name: "mcp-profile:initialize returns server info and capabilities",
       run: async () => {
-        const response = await mcpRequest(mcpBaseUrl, {
-          jsonrpc: "2.0",
-          id: nextId(),
-          method: "initialize",
-          params: {
-            protocolVersion: MCP_PROTOCOL_VERSION,
-            capabilities: {},
-            clientInfo: { name: "idp-contract-test", version: "0.1.0" },
-          },
-        });
-
-        assert(
-          response.status >= 200 && response.status < 300,
-          `Expected 2xx from MCP initialize, got ${response.status}`
-        );
-
-        const envelope = parseJsonRpcResponse(response.body);
-        assert("result" in envelope, "MCP initialize response must contain a result field");
-
-        const result = envelope.result as Record<string, unknown>;
-        assert(
-          typeof result === "object" && result !== null,
-          "MCP initialize result must be an object"
-        );
+        const result = await ensureInitialized();
         assert(
           "serverInfo" in result,
           "MCP initialize result must contain serverInfo"
@@ -119,11 +160,13 @@ export function createMcpProfileTests(context: ContractContext): TestCase[] {
     {
       name: "mcp-profile:tools/list returns expected tools with required fields",
       run: async () => {
+        await ensureInitialized();
+
         const response = await mcpRequest(mcpBaseUrl, {
           jsonrpc: "2.0",
           id: nextId(),
           method: "tools/list",
-        });
+        }, sessionId);
 
         assert(
           response.status >= 200 && response.status < 300,
@@ -161,6 +204,8 @@ export function createMcpProfileTests(context: ContractContext): TestCase[] {
     {
       name: "mcp-profile:tools/call get_portal_summary returns portal status",
       run: async () => {
+        await ensureInitialized();
+
         const response = await mcpRequest(mcpBaseUrl, {
           jsonrpc: "2.0",
           id: nextId(),
@@ -169,7 +214,7 @@ export function createMcpProfileTests(context: ContractContext): TestCase[] {
             name: "get_portal_summary",
             arguments: {},
           },
-        });
+        }, sessionId);
 
         assert(
           response.status >= 200 && response.status < 300,
@@ -192,14 +237,14 @@ export function createMcpProfileTests(context: ContractContext): TestCase[] {
           "MCP tool result content[0].text must be a non-empty string"
         );
 
-        const summary = parseJsonOrThrow(firstItem.text as string) as Record<string, unknown>;
-        assert(typeof summary === "object" && summary !== null, "get_portal_summary text must be valid JSON");
-        assert("status" in summary, "get_portal_summary result must include a status field");
+        parsePortalSummaryOrThrow(parseJsonOrThrow(firstItem.text as string));
       },
     },
     {
       name: "mcp-profile:tools/call check_health returns BFF health envelope",
       run: async () => {
+        await ensureInitialized();
+
         const response = await mcpRequest(mcpBaseUrl, {
           jsonrpc: "2.0",
           id: nextId(),
@@ -208,7 +253,7 @@ export function createMcpProfileTests(context: ContractContext): TestCase[] {
             name: "check_health",
             arguments: {},
           },
-        });
+        }, sessionId);
 
         assert(
           response.status >= 200 && response.status < 300,

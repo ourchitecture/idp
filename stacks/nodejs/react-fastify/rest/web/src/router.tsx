@@ -8,10 +8,23 @@ const HomePage = lazy(async () => {
   return { default: module.HomePage };
 });
 
+const StatusPage = lazy(async () => {
+  const module = await import("./routes/status-page");
+  return { default: module.StatusPage };
+});
+
 function HomeRoute() {
   return (
     <Suspense fallback={<RouteLoading />}>
       <HomePage />
+    </Suspense>
+  );
+}
+
+function StatusRoute() {
+  return (
+    <Suspense fallback={<RouteLoading />}>
+      <StatusPage />
     </Suspense>
   );
 }
@@ -24,6 +37,11 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <HomeRoute />,
+    errorElement: <RootErrorBoundary />,
+  },
+  {
+    path: "/status",
+    element: <StatusRoute />,
     errorElement: <RootErrorBoundary />,
   },
 ]);

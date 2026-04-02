@@ -4,9 +4,13 @@
   "interface": "rest",
   "contractProfiles": [
     "core",
-    "operational"
+    "operational",
+    "status-profile"
   ],
   "capabilities": {
+    "status": {
+      "enabled": true
+    },
     "ui": {
       "enabled": false
     }

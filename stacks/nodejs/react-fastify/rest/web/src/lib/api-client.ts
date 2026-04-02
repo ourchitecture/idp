@@ -6,15 +6,20 @@ export type PortalSummary = {
   generatedAt: string;
   status: PortalStatus;
   metrics: {
-    servicesHealthy: number;
-    activePlugins: number;
-    queuedIntents: number;
+    totalComponents: number;
+    healthyComponents: number;
+    degradedComponents: number;
   };
-  services: Array<{
+  freshness: {
+    maxAgeSeconds: number;
+  };
+  components: Array<{
     id: string;
     label: string;
+    kind: "service";
     status: ServiceStatus;
     latencyMs: number;
+    observedAt: string;
   }>;
 };
 

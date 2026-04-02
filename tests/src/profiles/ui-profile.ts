@@ -1,4 +1,5 @@
 import { assert } from "../assertions";
+import { renderDomOrThrow } from "../browser";
 import { request } from "../http";
 import { ensureServiceAvailable } from "../runtime";
 import type { ContractContext, TestCase } from "../types";
@@ -21,7 +22,7 @@ export function createUiProfileTests(context: ContractContext): TestCase[] {
     return [];
   }
 
-  const { webBaseUrl } = context;
+  const { webBaseUrl, bffBaseUrl } = context;
 
   return [
     {
@@ -48,6 +49,54 @@ export function createUiProfileTests(context: ContractContext): TestCase[] {
 
         const bodyLower = response.body.toLowerCase();
         assert(bodyLower.includes("<title"), "Web response must include a <title> tag");
+      },
+    },
+    {
+      name: "ui-profile:web root renders live portal summary content",
+      run: async () => {
+        await ensureServiceAvailable("web server", webBaseUrl);
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+
+        const renderedDom = await renderDomOrThrow(new URL("/", webBaseUrl));
+
+        assert(
+          renderedDom.includes("System Status"),
+          "Rendered home page must include the live portal summary status card"
+        );
+        assert(
+          renderedDom.includes("Observed Components"),
+          "Rendered home page must include the observed components section"
+        );
+        assert(
+          renderedDom.includes("IDP BFF"),
+          "Rendered home page must include a component label from the live portal summary"
+        );
+      },
+    },
+    {
+      name: "ui-profile:status route renders detailed portal summary content",
+      run: async () => {
+        await ensureServiceAvailable("web server", webBaseUrl);
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+
+        const renderedDom = await renderDomOrThrow(new URL("/status", webBaseUrl));
+
+        assert(
+          renderedDom.includes("Detailed IDP status"),
+          "Rendered status route must include the detailed status heading"
+        );
+        assert(
+          renderedDom.includes("Observed Components"),
+          "Rendered status route must include the observed components section"
+        );
+        assert(
+          renderedDom.includes("Publication Path"),
+          "Rendered status route must include the static publication guidance section"
+        );
+        assert(
+          renderedDom.includes("IDP BFF"),
+          "Rendered status route must include a component label from the live portal summary"
+        );
       },
     },
     {

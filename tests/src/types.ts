@@ -1,4 +1,9 @@
-export type ProfileName = "core" | "operational" | "ui-profile" | "mcp-profile";
+export type ProfileName =
+  | "core"
+  | "operational"
+  | "status-profile"
+  | "ui-profile"
+  | "mcp-profile";
 
 export type UiMode = "spa" | "ssr" | "server-rendered";
 
@@ -8,6 +13,9 @@ export type StackMetadata = {
   interface?: string;
   contractProfiles?: ProfileName[];
   capabilities?: {
+    status?: {
+      enabled?: boolean;
+    };
     ui?: {
       enabled?: boolean;
       mode?: UiMode;

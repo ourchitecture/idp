@@ -4,6 +4,18 @@
 
 This file is the operating manual for coding agents working in this repo. Follow it first, then the codebase conventions.
 
+## Roadmap Alignment
+
+- Treat [ROADMAP.md](ROADMAP.md) as the target-state capability map, not as
+  proof that a capability already exists in the repo.
+- When work is described as "roadmap-driven", prefer the smallest end-to-end
+  slice that produces a real contract, runnable behavior, docs, and
+  verification in the current repository.
+- When updating docs or user-facing copy, explicitly separate implemented
+  behavior from planned capability direction so readers are not misled.
+- Defer plug-in, external-system, or governance expansion until the repo has a
+  concrete contract and runnable slice for that area.
+
 ## Important Long-Lived Decisions (ADR Guardrails)
 
 To avoid documentation bloat and context explosion, only record decisions in

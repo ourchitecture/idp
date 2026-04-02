@@ -23,9 +23,13 @@ BFF.
 
 - `core`
 - `operational`
+- `status-profile`
 - `ui-profile`
 
-This stack declares UI capability mode `spa`.
+This stack declares status capability and UI capability mode `spa`.
+Rendered `ui-profile` checks use a local Chromium-family browser; set
+`IDP_UI_BROWSER_PATH` if Chrome or Edge cannot be auto-detected on the current
+machine.
 
 ## Commands
 
@@ -101,6 +105,8 @@ The web container uses nginx and proxies `/api/*` requests to the BFF via the
 
 - `OUR_IDP_API_HOST` -- bind address (default `0.0.0.0`)
 - `OUR_IDP_API_PORT` -- BFF port (default `8400`)
+- `OUR_IDP_STATUS_WEB_URL` -- optional web base URL used by
+  `/api/portal/summary` to include live IDP web health
 
 ### Published Images
 

@@ -1,21 +1,21 @@
 import type { PortalSummary } from "../lib/api-client";
 
 type ServiceListProps = {
-  services: PortalSummary["services"];
+  components: PortalSummary["components"];
 };
 
 function toTone(status: "healthy" | "degraded"): "healthy" | "degraded" {
   return status;
 }
 
-export function ServiceList({ services }: ServiceListProps) {
+export function ServiceList({ components }: ServiceListProps) {
   return (
     <div className="service-list">
-      {services.map((service) => (
+      {components.map((service) => (
         <article key={service.id} className="service-item">
           <div>
             <h3>{service.label}</h3>
-            <p>{service.id}</p>
+            <p>{service.id} - observed {new Date(service.observedAt).toLocaleTimeString()}</p>
           </div>
           <div className={`service-state service-state--${toTone(service.status)}`}>
             <span>{service.status}</span>

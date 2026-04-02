@@ -5,9 +5,13 @@
   "contractProfiles": [
     "core",
     "operational",
+    "status-profile",
     "ui-profile"
   ],
   "capabilities": {
+    "status": {
+      "enabled": true
+    },
     "ui": {
       "enabled": true,
       "mode": "spa"

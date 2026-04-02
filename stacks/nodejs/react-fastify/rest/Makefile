@@ -57,10 +57,10 @@ check: check-lint check-test check-contract
 
 check-contract:
 	@OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify >/dev/null 2>&1 & WEB_PID=$$!; \
-	OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify >/dev/null 2>&1 & BFF_PID=$$!; \
+	OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify >/dev/null 2>&1 & BFF_PID=$$!; \
 	trap 'kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true' EXIT; \
 	sleep 3; \
-	IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" IDP_STACK_PATH="$(STACK_PATH)" IDP_CONTRACT_PROFILES="core,operational,ui-profile" npm --prefix "$(ROOT_DIR)" run test:contract; \
+	IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" IDP_STACK_PATH="$(STACK_PATH)" IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" npm --prefix "$(ROOT_DIR)" run test:contract; \
 	STATUS=$$?; \
 	kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true; \
 	wait $$WEB_PID $$BFF_PID 2>/dev/null || true; \
@@ -71,10 +71,10 @@ test-contract: check-contract
 e2e:
 	@STACK_PATH="$(STACK_PATH)" \
 	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
-	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
 	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-	CONTRACT_PROFILES="core,operational,ui-profile" \
+	CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
 	ROOT_DIR="$(ROOT_DIR)" \
 	bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"
 

@@ -79,18 +79,21 @@ tests/
 ├── features/          Layer 1 intent specifications (Gherkin .feature files)
 │   ├── core.feature
 │   ├── operational.feature
+│   ├── status-profile.feature
 │   └── ui-profile.feature
 └── src/
     ├── index.ts       Entry point and test runner
     ├── types.ts       Shared types (ProfileName, TestCase, StackMetadata, …)
     ├── http.ts        Zero-dependency Node.js HTTP client
     ├── assertions.ts  assert() and parseJsonOrThrow() helpers
+    ├── browser.ts     Headless Chromium helper for rendered UI checks
     ├── runtime.ts     URL resolution, stack.json loading, profile selection
     └── profiles/
         ├── index.ts          Routes a profile name to its test factory
         ├── core.ts           5 baseline tests
         ├── operational.ts    5 runtime/semantic tests
-        └── ui-profile.ts     3 UI capability tests
+        ├── status-profile.ts 3 API-first status tests
+        └── ui-profile.ts     5 UI capability tests
 ```
 
 **Key design choices:**
@@ -101,7 +104,8 @@ tests/
   parse in CI pipelines.
 - The harness never imports implementation code. Compliance is validated
   entirely through HTTP.
-- Node.js 18+ is the only runtime requirement (uses the built-in `http` module).
+- Node.js 18+ is required for the harness runtime. Rendered `ui-profile` checks
+  additionally require a local Chromium-family browser such as Chrome or Edge.
 
 ---
 
@@ -142,7 +146,7 @@ just the correct shape. All health-related assertions conform to
 | `operational:bff health checks sub-components use IETF format` | `checks` is an object; each key uses `componentName:measurementName` format; each entry has `status`, `componentType`, and `time` (ISO-8601) |
 | `operational:bff readiness contract semantics are stable` | `status` is `"pass"` or `"fail"`; `checks` is a non-empty object |
 
-### `ui-profile` — UI capability checks (3 tests)
+### `ui-profile` — UI capability checks (5 tests)
 
 Optional. Only runs when the stack declares `capabilities.ui.enabled: true` in
 `stack.json`. Validates externally observable UI behavior without asserting
@@ -152,7 +156,22 @@ framework internals (no React/Vue/Next-specific checks).
 | --- | --- |
 | `ui-profile:web root returns HTML document shell` | `GET /` returns `text/html` with `<html` in the body |
 | `ui-profile:web document shell includes a title` | `GET /` body contains a `<title` tag |
+| `ui-profile:web root renders live portal summary content` | rendered `GET /` includes the status summary cards and a live component label |
+| `ui-profile:status route renders detailed portal summary content` | rendered `GET /status` includes the detailed status view and publication guidance |
 | `ui-profile:web mode declaration is valid (<mode>)` | Declared `ui.mode` is one of `spa`, `ssr`, or `server-rendered` |
+
+### `status-profile` — API-first IDP status checks (3 tests)
+
+Optional. Only runs when the stack declares `capabilities.status.enabled: true`
+in `stack.json`. It validates the shared `GET /api/portal/summary` contract
+that feeds the portal home page, dedicated status route, MCP
+`get_portal_summary` tool, and static status publisher.
+
+| Test | What is checked |
+| --- | --- |
+| `status-profile:bff portal summary returns expected shape` | `GET /api/portal/summary` returns JSON with status, metrics, freshness, and component entries |
+| `status-profile:portal summary metrics are internally consistent` | aggregate counts and top-level status match the component list |
+| `status-profile:portal summary timestamps and freshness are valid` | timestamps are ISO-8601 and freshness metadata matches component observation ages |
 
 ---
 
@@ -174,6 +193,9 @@ harness generates zero tests for it unless `stack.json` declares
 `capabilities.ui.enabled: true`. This means the profile is safe to include in
 `contractProfiles` for a UI stack without breaking non-UI stacks.
 
+The `status-profile` profile behaves the same way: it generates zero tests
+unless `stack.json` declares `capabilities.status.enabled: true`.
+
 ---
 
 ## The `stack.json` capability declaration
@@ -190,6 +212,9 @@ Minimum required fields:
   "interface": "rest",
   "contractProfiles": ["core", "operational"],
   "capabilities": {
+    "status": {
+      "enabled": false
+    },
     "ui": {
       "enabled": false
     }
@@ -204,8 +229,11 @@ For a UI-capable stack:
   "language": "nodejs",
   "framework": "react-fastify",
   "interface": "rest",
-  "contractProfiles": ["core", "operational", "ui-profile"],
+  "contractProfiles": ["core", "operational", "status-profile", "ui-profile"],
   "capabilities": {
+    "status": {
+      "enabled": true
+    },
     "ui": {
       "enabled": true,
       "mode": "spa"
@@ -222,6 +250,7 @@ For a UI-capable stack:
 | `framework` | string | Server framework (e.g. `net-http`, `fastify`, `axum`) |
 | `interface` | string | Interface type (currently always `rest`) |
 | `contractProfiles` | `ProfileName[]` | Profiles this stack must pass |
+| `capabilities.status.enabled` | boolean | Whether this stack exposes the shared IDP status API |
 | `capabilities.ui.enabled` | boolean | Whether this stack serves a UI |
 | `capabilities.ui.mode` | `"spa" \| "ssr" \| "server-rendered"` | UI rendering mode when enabled |
 
@@ -238,6 +267,7 @@ For a UI-capable stack:
 | `IDP_STACK_PATH` | _(unset)_ | Relative path to the stack directory; loads `stack.json` |
 | `IDP_CONTRACT_PROFILES` | _(unset)_ | Comma-separated list of profiles to run |
 | `IDP_CONTRACT_PROFILE` | _(unset)_ | Single profile override |
+| `IDP_UI_BROWSER_PATH` | _(auto-detect)_ | Chrome or Edge executable path for rendered `ui-profile` checks |
 
 ### Controlling where a stack binds
 
@@ -280,7 +310,7 @@ IDP_WEB_URL="http://localhost:3001" \
 
 ```bash
 IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" \
-  IDP_CONTRACT_PROFILES="core,operational,ui-profile" \
+  IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
   npm run test:contract
 ```
 
@@ -344,7 +374,7 @@ declared profiles on every change.
 
 - **Language / framework**: Go 1.25, standard library `net/http` only
 - **Moon project ID**: `go-net-http-rest`
-- **Profiles**: `core`, `operational`
+- **Profiles**: `core`, `operational`, `status-profile`
 - **Components**: two compiled binaries in `.bin/`
   - `idp-go-web` — serves `GET /`, `GET /health`, binds `127.0.0.1:3000`
   - `idp-go-bff` — serves `GET /`, `GET /health`, `GET /readiness`,
@@ -366,7 +396,8 @@ make -C stacks/go/net-http/rest run-bff
 - **Language / framework**: TypeScript, Node.js 24, Fastify 5 (BFF), Vite +
   React 19 (web SPA)
 - **Moon project ID**: `nodejs-react-fastify-rest`
-- **Profiles**: `core`, `operational`, `ui-profile` (`ui.mode: spa`)
+- **Profiles**: `core`, `operational`, `status-profile`, `ui-profile`
+  (`ui.mode: spa`)
 - **Components**:
   - `web/server.ts` — Vite dev server serving the React SPA, binds
     `127.0.0.1:3000`

@@ -5,12 +5,6 @@ import { createServer } from "vite";
 const DEFAULT_PORT = 3000;
 const DEFAULT_HOST = "127.0.0.1";
 
-const HEALTH_RESPONSE = JSON.stringify({
-  status: "pass",
-  serviceId: "idp-web",
-  description: "IDP Web Server",
-});
-
 function parsePort(value: string | undefined): number | undefined {
   if (value === undefined || value === "") {
     return undefined;
@@ -62,14 +56,6 @@ async function start(): Promise<void> {
       port,
     },
   });
-
-  // Add /health middleware before Vite handles requests
-  server.middlewares.use("/health", (_req, res) => {
-    res.setHeader("Content-Type", "application/health+json; charset=utf-8");
-    res.writeHead(200);
-    res.end(HEALTH_RESPONSE);
-  });
-
   await server.listen();
 
   console.log(

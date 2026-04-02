@@ -23,8 +23,10 @@ web server and the BFF server.
 
 - `core`
 - `operational`
+- `status-profile`
 
-This stack does not declare UI capability and does not run `ui-profile` tests.
+This stack declares status capability, but it does not declare UI capability
+and does not run `ui-profile` tests.
 
 ## Platform Note
 
@@ -102,6 +104,8 @@ Containers default to `0.0.0.0` host binding (overriding the native-dev
 - `OUR_IDP_WEB_HOST` / `OUR_IDP_API_HOST` — bind address (default `0.0.0.0`)
 - `OUR_IDP_PORT` — web port (default `3300`)
 - `OUR_IDP_API_PORT` — BFF port (default `8300`)
+- `OUR_IDP_STATUS_WEB_URL` — optional web base URL used by the BFF status API
+  to include live IDP web health in `/api/portal/summary`
 
 ### Published Images
 

@@ -85,6 +85,39 @@ body {
   max-width: 66ch;
 }
 
+.portal-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.portal-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 100, 102, 0.18);
+  padding: 0.55rem 0.95rem;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.portal-action:hover {
+  background: #0d5657;
+}
+
+.portal-action--secondary {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.portal-action--secondary:hover {
+  background: #f7f0e6;
+}
+
 .status-grid {
   display: grid;
   gap: 0.9rem;
@@ -214,6 +247,12 @@ body {
   font-size: 0.78rem;
   color: var(--muted);
   font-weight: 500;
+}
+
+.service-list-caption {
+  margin-top: 0.85rem;
+  color: var(--muted);
+  font-size: 0.85rem;
 }
 
 .service-state--healthy {

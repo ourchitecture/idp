@@ -1,6 +1,7 @@
 import { createCoreTests } from "./core";
 import { createMcpProfileTests } from "./mcp-profile";
 import { createOperationalTests } from "./operational";
+import { createStatusProfileTests } from "./status-profile";
 import { createUiProfileTests } from "./ui-profile";
 import type { ContractContext, ProfileName, TestCase } from "../types";
 
@@ -11,6 +12,10 @@ export function buildTestsForProfile(profile: ProfileName, context: ContractCont
 
   if (profile === "operational") {
     return createOperationalTests(context);
+  }
+
+  if (profile === "status-profile") {
+    return createStatusProfileTests(context);
   }
 
   if (profile === "mcp-profile") {

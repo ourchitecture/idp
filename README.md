@@ -4,6 +4,24 @@ Stemix is an Intelligent Development System (IDS) with an Intent-Driven Portal (
 
 **Documentation site**: [stemix.dev](https://stemix.dev)
 
+## Roadmap and Current Capability Status
+
+[ROADMAP.md](ROADMAP.md) is the target-state capability map for the platform.
+It describes where Stemix IDP is headed, not a guarantee that every capability
+already exists in the current repository.
+
+Today, the repo primarily provides:
+
+- contract-first health, readiness, UI, and MCP validation
+- reference Go and Node.js stacks
+- an API-first IDP status MVP for IDP-owned components
+- an external status publisher that emits static JSON and HTML from the same
+  live status contract
+
+Planned capabilities such as plug-in-based external system status, identity,
+policy, analytics, and broader governance remain roadmap items until they are
+implemented and documented as current behavior.
+
 ## What is IDP?
 
 The Intent-Driven Portal is an evolution of the Internal Developer Portal concept. It shares the IDP acronym intentionally, but goes beyond traditional developer portals by deeply integrating AI and web technologies to improve the entire development experience.
@@ -54,7 +72,7 @@ deploy/     Container definitions, Kubernetes manifests, Helm charts (planned)
 plugins/    Plug-in SDK and example plug-ins (planned)
 docs/       Docusaurus documentation site (docs/content/ is the source of truth)
 tests/      Contract test harness (TypeScript) and Layer 1 Gherkin intent specs
-tools/      Developer tooling, scripts, and MCP server definitions
+tools/      Developer tooling, MCP adapters, and the static status publisher
 ```
 
 **Key documentation:**
@@ -62,6 +80,8 @@ tools/      Developer tooling, scripts, and MCP server definitions
 - [docs/content/testing/contract-harness.md](docs/content/testing/contract-harness.md) --
   Contract test harness guide (newcomers, implementers, and contributors)
 - [docs/content/security.md](docs/content/security.md) -- Security and privacy scanning guide
+- [ROADMAP.md](ROADMAP.md) -- Target-state capability roadmap and sequencing input
+- [tools/status/README.md](tools/status/README.md) -- Static JSON and HTML status publisher for external hosting
 - [docs/content/architecture/decisions/](docs/content/architecture/decisions/) -- Architecture Decision Records (ADR index)
 - [docs/content/architecture/diagrams/](docs/content/architecture/diagrams/) -- C4 architecture diagrams (context, container, and component views)
 - [docs/content/containers/](docs/content/containers/) -- Container images: building, running, and publishing
@@ -285,6 +305,12 @@ Run contract tests against a running stack:
 
 ```bash
 make test
+```
+
+Publish static status artifacts from the live BFF status API:
+
+```bash
+tsx tools/status/publish-status.ts
 ```
 
 See [docs/content/testing/contract-harness.md](docs/content/testing/contract-harness.md) for a

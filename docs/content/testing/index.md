@@ -30,9 +30,10 @@ area of expected behavior. A stack declares which profiles it must pass in its
 
 | Profile | Required by | Tests | Description |
 | --- | --- | --- | --- |
-| [`core`](./profiles/core) | All stacks | 4 | Baseline HTTP surface: reachability, content-type, and field presence |
-| [`operational`](./profiles/operational) | Tier 1 stacks | 3 | Runtime conventions and exact semantic values |
-| [`ui-profile`](./profiles/ui-profile) | UI stacks (opt-in) | 3 | Observable HTML output and declared rendering mode |
+| [`core`](./profiles/core) | All stacks | 5 | Baseline HTTP surface: reachability, content-type, and field presence |
+| [`operational`](./profiles/operational) | Tier 1 stacks | 5 | Runtime conventions and exact semantic values |
+| [`status-profile`](./profiles/status-profile) | Status-capable stacks (opt-in) | 3 | API-first IDP status checks for the shared portal summary contract |
+| [`ui-profile`](./profiles/ui-profile) | UI stacks (opt-in) | 5 | Observable HTML output plus rendered status UI behavior |
 | [`mcp-profile`](./profiles/mcp-profile) | MCP servers (opt-in) | 4 | MCP initialize, tool discovery, and tool invocation |
 
 ## Guides
@@ -42,4 +43,5 @@ area of expected behavior. A stack declares which profiles it must pass in its
 | [Contract Test Harness](./contract-harness) | Implementers, contributors | How the harness works, how to run it, and how to build a new compliant implementation |
 | [Core Profile](./profiles/core) | Implementers | Baseline scenarios every stack must pass |
 | [Operational Profile](./profiles/operational) | Implementers | Semantic correctness scenarios for Tier 1 stacks |
+| [Status Profile](./profiles/status-profile) | Implementers, operators | API-first status contract for IDP-owned components |
 | [UI Profile](./profiles/ui-profile) | Implementers | Opt-in UI behavior scenarios |

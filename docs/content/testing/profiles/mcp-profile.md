@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # MCP Profile
@@ -60,7 +60,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 - `tools/call get_portal_summary` returns HTTP 2xx
 - `result.content[0].type` is `"text"`
-- `result.content[0].text` is valid JSON containing a `status` field
+- `result.content[0].text` is valid JSON matching the shared portal summary status contract
 
 ### tools/call check_health returns BFF health and readiness
 
@@ -79,7 +79,8 @@ Source: [`tests/src/profiles/mcp-profile.ts`](https://github.com/ourchitecture/i
 
 The harness sends raw JSON-RPC 2.0 POST requests to `IDP_MCP_URL/mcp` using the existing
 zero-dependency HTTP client. It handles both `application/json` and `text/event-stream` (SSE)
-response formats to remain transport-agnostic.
+response formats, sends the required `notifications/initialized` follow-up request, and reuses
+any `Mcp-Session-Id` header returned by the server during initialization.
 
 ## Stack declarations
 

@@ -1,4 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { PortalSummaryOverview } from "../components/portal-summary-overview";
+import { fetchPortalSummary } from "../lib/api-client";
+
 export function HomePage() {
+  const portalSummaryQuery = useQuery({
+    queryKey: ["portal-summary"],
+    queryFn: fetchPortalSummary,
+  });
+
   return (
     <main className="portal-shell">
       <header className="portal-hero">
@@ -6,77 +16,57 @@ export function HomePage() {
           Stemix
           <span className="portal-badge">Early Alpha</span>
         </p>
-        <h1>The development experience<br />is being reimagined.</h1>
+        <h1>API-first status for the IDP itself.</h1>
         <p className="portal-subtitle">
-          Stemix is an AI-native Intelligent Development System — connecting product intent
-          to engineering reality through a secure, extensible, self-hosted platform. We're
-          still building. What you're looking at is a pre-release reference stack; much
-          more work lies ahead.
+          The first MVP capability is live status for IDP-owned components. The
+          same BFF contract drives this home page summary, the detailed portal
+          status view, the MCP status tool, and the static publisher for
+          externally hosted status artifacts.
         </p>
+        <div className="portal-actions">
+          <Link className="portal-action" to="/status">
+            View detailed status
+          </Link>
+        </div>
       </header>
 
-      <section className="status-grid" aria-label="Capabilities in development">
-        <article className="status-card">
-          <div className="feature-icon">🎯</div>
-          <h2 className="status-card__value">Intent-Driven Portal</h2>
-          <p className="status-card__subtitle">
-            Translate high-level product decisions into actionable engineering work.
-            Automatically surface gaps between intent and implementation.
-          </p>
-        </article>
-        <article className="status-card">
-          <div className="feature-icon">🤖</div>
-          <h2 className="status-card__value">AI &amp; MCP-First</h2>
-          <p className="status-card__subtitle">
-            Model Context Protocol as the standard AI integration layer. AI capabilities
-            built in from day one — not bolted on as an afterthought.
-          </p>
-        </article>
-        <article className="status-card">
-          <div className="feature-icon">🔒</div>
-          <h2 className="status-card__value">Secure by Default</h2>
-          <p className="status-card__subtitle">
-            Zero-trust architecture. Encrypted at rest and in transit. Least privilege
-            everywhere. Security is never optional.
-          </p>
-        </article>
-        <article className="status-card">
-          <div className="feature-icon">🏠</div>
-          <h2 className="status-card__value">Self-Service Hosting</h2>
-          <p className="status-card__subtitle">
-            Run the full platform privately, on your own infrastructure, with minimal
-            operational overhead and no vendor lock-in.
-          </p>
-        </article>
-        <article className="status-card">
-          <div className="feature-icon">🔌</div>
-          <h2 className="status-card__value">Extensible Plug-ins</h2>
-          <p className="status-card__subtitle">
-            Clear contracts, sandboxed execution, and a plug-in SDK to extend the platform
-            without touching core systems.
-          </p>
-        </article>
-        <article className="status-card">
-          <div className="feature-icon">🏢</div>
-          <h2 className="status-card__value">Multi-Tenant Ready</h2>
-          <p className="status-card__subtitle">
-            Strong tenant isolation with options for dedicated physical infrastructure and
-            flexible multi-tenant SaaS deployment modes.
-          </p>
-        </article>
-      </section>
+      {portalSummaryQuery.isLoading ? (
+        <section className="service-panel" aria-live="polite">
+          <p className="empty-state">Loading the current IDP status summary...</p>
+        </section>
+      ) : null}
 
-      <footer className="service-panel" role="note">
+      {portalSummaryQuery.isError ? (
+        <section className="service-panel" aria-live="assertive">
+          <p className="empty-state empty-state--error">
+            Unable to load the live status summary. The dedicated status route
+            and static publisher both depend on `/api/portal/summary`, so this
+            is a useful signal that the current runtime needs attention.
+          </p>
+        </section>
+      ) : null}
+
+      {portalSummaryQuery.data !== undefined ? (
+        <PortalSummaryOverview compact summary={portalSummaryQuery.data} />
+      ) : null}
+
+      <section className="service-panel" role="note">
+        <header>
+          <div>
+            <h2>Roadmap Context</h2>
+            <p>
+              This repo now has a concrete status slice. Plug-in and external
+              system status remain roadmap items until the plug-in architecture
+              and adapter contracts exist.
+            </p>
+          </div>
+        </header>
         <p className="empty-state">
-          This is a pre-release alpha reference stack. Contracts, APIs, and UI are actively
-          evolving — expect breaking changes between releases. Not production-ready. Follow
-          progress and explore the architecture at{" "}
-          <a href="https://stemix.dev" rel="noopener noreferrer" className="portal-link">
-            stemix.dev
-          </a>
-          .
+          See <a href="https://stemix.dev" rel="noopener noreferrer" className="portal-link">stemix.dev</a> for
+          architecture context and use <Link to="/status" className="portal-link">the detailed status view</Link> to
+          inspect the current portal runtime.
         </p>
-      </footer>
+      </section>
     </main>
   );
 }

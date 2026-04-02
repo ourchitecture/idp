@@ -36,7 +36,13 @@ async function main(): Promise<void> {
 
   const stackMetadata = await loadStackMetadata();
   const requestedProfiles = resolveRequestedProfiles();
-  const orderedProfiles: ProfileName[] = ["core", "operational", "ui-profile", "mcp-profile"];
+  const orderedProfiles: ProfileName[] = [
+    "core",
+    "operational",
+    "status-profile",
+    "ui-profile",
+    "mcp-profile",
+  ];
 
   const context: ContractContext = {
     webBaseUrl,

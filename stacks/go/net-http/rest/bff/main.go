@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -44,6 +45,37 @@ type readinessResponse struct {
 	Checks map[string][]checkEntry `json:"checks"`
 }
 
+type statusMetrics struct {
+	TotalComponents    int `json:"totalComponents"`
+	HealthyComponents  int `json:"healthyComponents"`
+	DegradedComponents int `json:"degradedComponents"`
+}
+
+type statusFreshness struct {
+	MaxAgeSeconds int `json:"maxAgeSeconds"`
+}
+
+type statusComponent struct {
+	ID         string `json:"id"`
+	Label      string `json:"label"`
+	Kind       string `json:"kind"`
+	Status     string `json:"status"`
+	LatencyMs  int64  `json:"latencyMs"`
+	ObservedAt string `json:"observedAt"`
+}
+
+type statusSummaryResponse struct {
+	GeneratedAt string            `json:"generatedAt"`
+	Status      string            `json:"status"`
+	Metrics     statusMetrics     `json:"metrics"`
+	Freshness   statusFreshness   `json:"freshness"`
+	Components  []statusComponent `json:"components"`
+}
+
+type healthEnvelope struct {
+	Status string `json:"status"`
+}
+
 func parsePort(value string) (int, bool) {
 	if value == "" {
 		return 0, false
@@ -72,6 +104,10 @@ func resolveHost() string {
 	}
 
 	return host
+}
+
+func resolveStatusWebURL() string {
+	return strings.TrimSpace(os.Getenv("OUR_IDP_STATUS_WEB_URL"))
 }
 
 func writeHealthJSON(w http.ResponseWriter, status int, payload any) {
@@ -141,6 +177,109 @@ func handleReadiness(w http.ResponseWriter, _ *http.Request) {
 	})
 }
 
+func createBFFStatusComponent(now time.Time) statusComponent {
+	return statusComponent{
+		ID:         "idp-bff",
+		Label:      "IDP BFF",
+		Kind:       "service",
+		Status:     "healthy",
+		LatencyMs:  0,
+		ObservedAt: now.UTC().Format(time.RFC3339),
+	}
+}
+
+func observeWebStatusComponent(base string) statusComponent {
+	startedAt := time.Now()
+	component := statusComponent{
+		ID:     "idp-web",
+		Label:  "IDP Web",
+		Kind:   "service",
+		Status: "degraded",
+	}
+
+	target, err := url.JoinPath(base, "/health")
+	if err != nil {
+		component.LatencyMs = time.Since(startedAt).Milliseconds()
+		component.ObservedAt = time.Now().UTC().Format(time.RFC3339)
+		return component
+	}
+
+	client := &http.Client{Timeout: 2 * time.Second}
+	resp, err := client.Get(target)
+	if err == nil {
+		defer resp.Body.Close()
+
+		var payload healthEnvelope
+		if decodeErr := json.NewDecoder(resp.Body).Decode(&payload); decodeErr == nil &&
+			resp.StatusCode >= 200 && resp.StatusCode < 300 &&
+			payload.Status == "pass" {
+			component.Status = "healthy"
+		}
+	}
+
+	component.LatencyMs = time.Since(startedAt).Milliseconds()
+	component.ObservedAt = time.Now().UTC().Format(time.RFC3339)
+
+	return component
+}
+
+func buildStatusSummary() statusSummaryResponse {
+	components := make([]statusComponent, 0, 2)
+
+	if webURL := resolveStatusWebURL(); webURL != "" {
+		components = append(components, observeWebStatusComponent(webURL))
+	}
+
+	components = append(components, createBFFStatusComponent(time.Now()))
+
+	healthyComponents := 0
+	degradedComponents := 0
+	generatedAt := time.Now().UTC()
+	maxAgeSeconds := 0
+
+	for _, component := range components {
+		if component.Status == "healthy" {
+			healthyComponents++
+		} else {
+			degradedComponents++
+		}
+
+		observedAt, err := time.Parse(time.RFC3339, component.ObservedAt)
+		if err == nil {
+			ageSeconds := int(generatedAt.Sub(observedAt).Seconds())
+			if ageSeconds < 0 {
+				ageSeconds = 0
+			}
+			if ageSeconds > maxAgeSeconds {
+				maxAgeSeconds = ageSeconds
+			}
+		}
+	}
+
+	status := "ok"
+	if degradedComponents > 0 {
+		status = "degraded"
+	}
+
+	return statusSummaryResponse{
+		GeneratedAt: generatedAt.Format(time.RFC3339),
+		Status:      status,
+		Metrics: statusMetrics{
+			TotalComponents:    len(components),
+			HealthyComponents:  healthyComponents,
+			DegradedComponents: degradedComponents,
+		},
+		Freshness: statusFreshness{
+			MaxAgeSeconds: maxAgeSeconds,
+		},
+		Components: components,
+	}
+}
+
+func handlePortalSummary(w http.ResponseWriter, _ *http.Request) {
+	writeJSON(w, buildStatusSummary())
+}
+
 func main() {
 	host := resolveHost()
 	port := resolvePort()
@@ -150,6 +289,7 @@ func main() {
 	mux.HandleFunc("/", handleRoot)
 	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/readiness", handleReadiness)
+	mux.HandleFunc("/api/portal/summary", handlePortalSummary)
 
 	payload, err := json.Marshal(startupLog{
 		Level: "info",

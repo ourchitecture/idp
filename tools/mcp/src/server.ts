@@ -2,12 +2,29 @@ import { randomUUID } from "node:crypto";
 import { createServer } from "node:http";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { registerCheckHealth } from "./tools/check-health.js";
-import { registerGetPortalSummary } from "./tools/get-portal-summary.js";
+import {
+  CHECK_HEALTH_TOOL_DESCRIPTION,
+  CHECK_HEALTH_TOOL_NAME,
+  registerCheckHealth,
+  runCheckHealthTool,
+} from "./tools/check-health.js";
+import {
+  GET_PORTAL_SUMMARY_TOOL_DESCRIPTION,
+  GET_PORTAL_SUMMARY_TOOL_NAME,
+  registerGetPortalSummary,
+  runGetPortalSummaryTool,
+} from "./tools/get-portal-summary.js";
 
 const SERVER_NAME = "stemix-idp";
 const SERVER_VERSION = "0.1.0";
+const MCP_PROTOCOL_VERSION = "2024-11-05";
+
+type JsonRpcRequest = {
+  jsonrpc?: string;
+  id?: number | string | null;
+  method?: string;
+  params?: Record<string, unknown>;
+};
 
 function buildMcpServer(): McpServer {
   const server = new McpServer({
@@ -21,7 +38,35 @@ function buildMcpServer(): McpServer {
   return server;
 }
 
+function writeJson(
+  res: import("node:http").ServerResponse,
+  statusCode: number,
+  payload: unknown,
+  headers?: Record<string, string>
+): void {
+  res.writeHead(statusCode, {
+    "Content-Type": "application/json",
+    ...headers,
+  });
+  res.end(JSON.stringify(payload));
+}
+
+function readRequestBody(req: import("node:http").IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on("data", (chunk) => {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    });
+    req.on("end", () => {
+      resolve(Buffer.concat(chunks).toString("utf-8"));
+    });
+    req.on("error", reject);
+  });
+}
+
 async function startHttpMode(port: number): Promise<void> {
+  const sessions = new Map<string, boolean>();
+
   const httpServer = createServer(async (req, res) => {
     if (req.url !== "/mcp") {
       res.writeHead(404, { "Content-Type": "application/json" });
@@ -29,33 +74,146 @@ async function startHttpMode(port: number): Promise<void> {
       return;
     }
 
-    // Each request gets its own stateless server + transport pair (no session state).
-    const server = buildMcpServer();
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => randomUUID(),
-      onsessioninitialized: (sessionId) => {
+    try {
+      if (req.method !== "POST") {
+        writeJson(res, 405, { error: "Only POST /mcp is supported." });
+        return;
+      }
+
+      const body = await readRequestBody(req);
+      const payload = JSON.parse(body) as JsonRpcRequest;
+      const method = payload.method;
+
+      if (payload.jsonrpc !== "2.0" || typeof method !== "string") {
+        writeJson(res, 400, {
+          jsonrpc: "2.0",
+          error: { code: -32600, message: "Invalid Request" },
+          id: payload.id ?? null,
+        });
+        return;
+      }
+
+      if (method === "initialize") {
+        const sessionId = randomUUID();
+        sessions.set(sessionId, false);
         process.stderr.write(
           JSON.stringify({ level: "info", msg: "MCP session initialized", sessionId }) + "\n"
         );
-      },
-    });
+        writeJson(
+          res,
+          200,
+          {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: {
+              protocolVersion: MCP_PROTOCOL_VERSION,
+              capabilities: {
+                tools: {
+                  listChanged: true,
+                },
+              },
+              serverInfo: {
+                name: SERVER_NAME,
+                version: SERVER_VERSION,
+              },
+            },
+          },
+          {
+            "Mcp-Session-Id": sessionId,
+          }
+        );
+        return;
+      }
 
-    transport.onclose = () => {
-      void server.close();
-    };
+      const rawSessionId = req.headers["mcp-session-id"];
+      const sessionId = Array.isArray(rawSessionId) ? rawSessionId[0] : rawSessionId;
+      if (sessionId === undefined || !sessions.has(sessionId)) {
+        writeJson(res, 400, {
+          jsonrpc: "2.0",
+          error: { code: -32000, message: "Bad Request: Mcp-Session-Id header is required" },
+          id: payload.id ?? null,
+        });
+        return;
+      }
 
-    await server.connect(transport);
+      if (method === "notifications/initialized") {
+        sessions.set(sessionId, true);
+        res.writeHead(202);
+        res.end();
+        return;
+      }
 
-    try {
-      await transport.handleRequest(req, res);
+      if (sessions.get(sessionId) !== true) {
+        writeJson(res, 400, {
+          jsonrpc: "2.0",
+          error: { code: -32000, message: "Bad Request: Server not initialized" },
+          id: payload.id ?? null,
+        });
+        return;
+      }
+
+      if (method === "tools/list") {
+        writeJson(res, 200, {
+          jsonrpc: "2.0",
+          id: payload.id ?? null,
+          result: {
+            tools: [
+              {
+                name: GET_PORTAL_SUMMARY_TOOL_NAME,
+                description: GET_PORTAL_SUMMARY_TOOL_DESCRIPTION,
+                inputSchema: { type: "object", properties: {}, additionalProperties: false },
+              },
+              {
+                name: CHECK_HEALTH_TOOL_NAME,
+                description: CHECK_HEALTH_TOOL_DESCRIPTION,
+                inputSchema: { type: "object", properties: {}, additionalProperties: false },
+              },
+            ],
+          },
+        });
+        return;
+      }
+
+      if (method === "tools/call") {
+        const toolName = payload.params?.name;
+        if (toolName === GET_PORTAL_SUMMARY_TOOL_NAME) {
+          writeJson(res, 200, {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: await runGetPortalSummaryTool(),
+          });
+          return;
+        }
+
+        if (toolName === CHECK_HEALTH_TOOL_NAME) {
+          writeJson(res, 200, {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: await runCheckHealthTool(),
+          });
+          return;
+        }
+
+        writeJson(res, 404, {
+          jsonrpc: "2.0",
+          error: { code: -32601, message: `Tool not found: ${String(toolName)}` },
+          id: payload.id ?? null,
+        });
+        return;
+      }
+
+      writeJson(res, 404, {
+        jsonrpc: "2.0",
+        error: { code: -32601, message: `Method not found: ${method}` },
+        id: payload.id ?? null,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       process.stderr.write(
         JSON.stringify({ level: "error", msg: "MCP request failed", error: message }) + "\n"
       );
       if (!res.headersSent) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Internal server error" }));
+        writeJson(res, 500, { error: "Internal server error" });
       }
     }
   });
