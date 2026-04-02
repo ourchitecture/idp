@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.1.0-alpha.0...nodejs-react-fastify-rest-v1.2.0-alpha.0) (2026-04-02)
+
+
+### Features
+
+* **mcp-tools:** add MCP server adapter and full CI integration ([#37](https://github.com/ourchitecture/idp/issues/37)) ([d7f59a4](https://github.com/ourchitecture/idp/commit/d7f59a4337851ead1923e0253af05e4022df8991))
+
 ## [1.1.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.0.0-alpha.0...nodejs-react-fastify-rest-v1.1.0-alpha.0) (2026-04-01)
 
 
