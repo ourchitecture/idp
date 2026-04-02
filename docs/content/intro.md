@@ -12,13 +12,37 @@ The Intent-Driven Portal is an evolution of the Internal Developer Portal concep
 
 ## Core Design Principles
 
-- **Secure by Default** — Zero-trust, encrypted at rest and in transit, least privilege everywhere.
+These principles guide every architectural decision in Stemix. They represent our
+target-state commitments — some are fully implemented today, others are actively
+being built. See the [Project Status](./project-status) page for current details.
+
+:::info Early Alpha
+Stemix is in early alpha. The container-first delivery, contract testing foundations,
+and MCP server infrastructure are solid. Security hardening, multi-tenancy, and the
+plug-in system are on the roadmap but not yet implemented.
+:::
+
+### Implemented Today
+
 - **Container-First** — All services designed for container deployment from day one.
-- **AI-First** — AI capabilities are core to the platform, not bolted on.
-- **AI over MCP-First** — Model Context Protocol as the standard AI integration layer.
-- **Extensible** — Plug-in/extension architecture with clear contracts and sandboxing.
-- **Self-Service Hosting** — Run the full stack privately with minimal operational burden.
-- **Multi-Tenant SaaS Ready** — Strong tenant isolation with options for dedicated physical infrastructure.
+  Dockerfiles, distroless images, and GHCR publishing are in place.
+- **AI over MCP-First** — MCP server infrastructure is in place with initial tools.
+  Model Context Protocol is the standard AI integration layer.
+- **Intent-Driven Architecture** — Layered Gherkin intent specs drive contract tests
+  and implementation across language stacks.
+- **Privacy and Secret Scanning** — Automated scanning runs in CI to protect the
+  supply chain from leaked credentials and sensitive data.
+
+### In Progress (Design Goals)
+
+- **Secure by Default** — Zero-trust, encrypted at rest and in transit, least
+  privilege everywhere. Current services are plain HTTP; TLS and RBAC are planned.
+- **Extensible** — Plug-in/extension architecture with clear contracts and
+  sandboxing. The plug-in system is not yet implemented.
+- **Self-Service Hosting** — Run the full stack privately with minimal operational
+  burden. Container builds work today; Kubernetes/Helm automation is on the roadmap.
+- **Multi-Tenant SaaS Ready** — Strong tenant isolation with options for dedicated
+  physical infrastructure. No tenant model or data isolation exists yet.
 
 ## Choose Your Path
 
@@ -59,8 +83,8 @@ make check
 
 ```text
 stacks/     Reference implementation stacks, organized by language/framework/interface
-deploy/     Container definitions, Kubernetes manifests, Helm charts
-plugins/    Plug-in SDK and example plug-ins
+deploy/     Container definitions, Kubernetes manifests, Helm charts (planned)
+plugins/    Plug-in SDK and example plug-ins (planned)
 docs/       Docusaurus documentation site (docs/content/ is the source of truth)
 tests/      Contract test harness (TypeScript) and Layer 1 Gherkin intent specs
 tools/      Developer tooling, scripts, and MCP server definitions

@@ -8,22 +8,50 @@ Stemix is an Intelligent Development System (IDS) with an Intent-Driven Portal (
 
 The Intent-Driven Portal is an evolution of the Internal Developer Portal concept. It shares the IDP acronym intentionally, but goes beyond traditional developer portals by deeply integrating AI and web technologies to improve the entire development experience.
 
-**Core design principles:**
+## Design Principles and Goals
 
-- **Secure by Default** -- Zero-trust, encrypted at rest and in transit, least privilege everywhere.
-- **Container-First** -- All services designed for container deployment from day one.
+These principles guide every architectural decision in Stemix. They represent
+target-state commitments being progressively implemented — not all are fully
+realized yet. See [stemix.dev](https://stemix.dev) for current implementation
+status.
+
+> **Status note:** This is early-stage open source software. Some principles
+> below describe working capabilities today; others are design goals actively
+> in progress. Community contributions are welcome at every level.
+
+**Working today:**
+
+- **Container-First** -- All services designed for container deployment from
+  day one. Dockerfiles, distroless images, and GHCR publishing are in place.
+- **Contract-First** -- Gherkin intent specs and a contract test harness enforce
+  behavioral contracts across reference stacks.
+- **Privacy and Secret Scanning** -- Automated scanning is wired into CI via
+  gitleaks and semgrep.
+- **AI over MCP-First** -- Model Context Protocol as the standard AI integration
+  layer. MCP server infrastructure is in place with initial stub tools.
+
+**Design goals (in progress):**
+
+- **Secure by Default** -- Zero-trust, encrypted at rest and in transit, least
+  privilege everywhere. _(Current reference stacks are HTTP-only with no
+  production auth layer yet.)_
 - **AI-First** -- AI capabilities are core to the platform, not bolted on.
-- **AI over MCP-First** -- Model Context Protocol as the standard AI integration layer.
-- **Extensible** -- Plug-in/extension architecture with clear contracts and sandboxing.
-- **Self-Service Hosting** -- Run the full stack privately with minimal operational burden.
-- **Multi-Tenant SaaS Ready** -- Strong tenant isolation with options for dedicated physical infrastructure.
+  _(MCP server infrastructure exists; broader AI integration is in progress.)_
+- **Extensible** -- Plug-in/extension architecture with clear contracts and
+  sandboxing. _(Plug-in SDK is not yet implemented.)_
+- **Self-Service Hosting** -- Run the full stack privately with minimal
+  operational burden. _(Containers build and run locally; Kubernetes/Helm
+  automation is not yet available.)_
+- **Multi-Tenant SaaS Ready** -- Strong tenant isolation with options for
+  dedicated physical infrastructure. _(Tenant model and data isolation are not
+  yet implemented.)_
 
 ## Project Structure
 
 ```text
 stacks/     Reference implementation stacks, organized by language/framework/interface
-deploy/     Container definitions, Kubernetes manifests, Helm charts
-plugins/    Plug-in SDK and example plug-ins
+deploy/     Container definitions, Kubernetes manifests, Helm charts (planned)
+plugins/    Plug-in SDK and example plug-ins (planned)
 docs/       Docusaurus documentation site (docs/content/ is the source of truth)
 tests/      Contract test harness (TypeScript) and Layer 1 Gherkin intent specs
 tools/      Developer tooling, scripts, and MCP server definitions
