@@ -1,11 +1,21 @@
 ---
-sidebar_position: 6
+sidebar_position: 10
 ---
 
 # Level 3: Component View (Node.js BFF)
 
 This view explains how the Node.js BFF is structured internally so implementers
 can quickly identify where behavior is configured and where routes are handled.
+
+## Audience
+
+- Primary: IDP implementers and operators.
+- Secondary: maintainers reviewing route and component boundaries.
+
+## State
+
+- Current: reflects the active Node.js BFF implementation structure.
+- Target: user-facing workflow structure is tracked in a stack-agnostic Level 3 view.
 
 ```mermaid
 C4Component
@@ -33,5 +43,6 @@ C4Component
 
 ## Notes
 
+- User-first Level 3 view lives at [Level 3: User Workflow Components](./level-3-user-workflows).
 - Route handlers currently expose root, health, readiness, and summary APIs.
 - Zod is used in route modules that return structured operational payloads.

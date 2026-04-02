@@ -20,6 +20,18 @@ The Intent-Driven Portal is an evolution of the Internal Developer Portal concep
 - **Self-Service Hosting** — Run the full stack privately with minimal operational burden.
 - **Multi-Tenant SaaS Ready** — Strong tenant isolation with options for dedicated physical infrastructure.
 
+## Choose Your Path
+
+- **IDP users and decision stakeholders (primary)**:
+  - Start with [Architecture Diagrams](./architecture/diagrams/) and follow the user-first path.
+  - Focus on Level 1 user context, Level 2 user capabilities, and Level 3 user workflows.
+- **IDP implementers and operators**:
+  - Start with [Architecture Diagrams](./architecture/diagrams/) delivery and implementation path.
+  - Continue with [Testing](./testing/) and [Container Images](./containers/).
+- **IDP project maintainers**:
+  - Start with [Architecture Decisions](./architecture/decisions/).
+  - Use implementation and delivery diagrams for governance and release context.
+
 ## Getting Started
 
 The fastest path to a running local stack:

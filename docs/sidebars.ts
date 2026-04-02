@@ -58,6 +58,10 @@ const sidebars: SidebarsConfig = {
           },
           items: [
             "architecture/diagrams/level-1-system-context",
+            "architecture/diagrams/level-1-system-context-target",
+            "architecture/diagrams/level-2-user-capabilities",
+            "architecture/diagrams/level-3-user-workflows",
+            "architecture/diagrams/level-1-delivery-context",
             "architecture/diagrams/level-2-containers-go",
             "architecture/diagrams/level-2-containers-nodejs",
             "architecture/diagrams/level-2-containers-mcp",

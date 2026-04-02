@@ -70,9 +70,13 @@ mkdir -p "${OUTPUT_DIR}"
 
 markdown_files=(
   "${DIAGRAMS_DIR}/level-1-system-context.md"
+  "${DIAGRAMS_DIR}/level-1-system-context-target.md"
+  "${DIAGRAMS_DIR}/level-1-delivery-context.md"
+  "${DIAGRAMS_DIR}/level-2-user-capabilities.md"
   "${DIAGRAMS_DIR}/level-2-containers-go.md"
   "${DIAGRAMS_DIR}/level-2-containers-nodejs.md"
   "${DIAGRAMS_DIR}/level-2-containers-mcp.md"
+  "${DIAGRAMS_DIR}/level-3-user-workflows.md"
   "${DIAGRAMS_DIR}/level-3-component-bff.md"
 )
 
