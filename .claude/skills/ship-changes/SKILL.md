@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.3.1
+version: 1.3.2
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -360,6 +360,12 @@ gh pr edit <pr_number> --add-assignee "@me" \
 
 ## Step 13: Wait for Status Checks and Merge
 
+The `main` branch is protected by GitHub rulesets that enforce required status
+checks, at least one approving CODEOWNERS review, resolved conversations, and
+squash-only merges. GitHub will reject any merge attempt that does not satisfy
+these constraints. The checks below serve as pre-flight verification to surface
+failures early.
+
 Before merging, wait for all required PR status checks to pass.
 This is a hard gate: do not merge while any check is failing, cancelled,
 timed out, pending, queued, or in progress.
@@ -389,7 +395,8 @@ gh pr checks <pr_number> --watch --interval 15
 
 This command blocks until all checks complete. If any required check
 fails, stop and report the failing check names and URLs to the user —
-do not merge.
+do not merge. Even if this skill attempted a non-squash merge or merge
+with failing checks, GitHub rulesets would block the operation.
 
 Once all checks pass, use the GitHub MCP `merge_pull_request`
 tool to merge:
@@ -397,7 +404,8 @@ tool to merge:
 - **owner**: repository owner
 - **repo**: repository name
 - **pullNumber**: the PR number from Step 12
-- **merge_method**: `squash`
+- **merge_method**: `squash` (the only permitted method; the repository
+  ruleset enforces linear history via squash merges)
 
 **Fallback**: If the MCP tool is unavailable, use the `gh` CLI:
 

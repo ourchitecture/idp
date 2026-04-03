@@ -199,7 +199,9 @@ Evaluate findings with deterministic rules.
      close/ref verbs.
 2. **Closed-context mismatch** (only when `include_closed=true`)
    - Condition: branch still exists after merged PR where branch deletion
-     policy appears inconsistent.
+     policy appears inconsistent. GitHub rulesets prevent deletion of
+     the `main` branch itself; feature branch auto-deletion after merge
+     is configured separately in repository settings.
 
 ## Step 5: Score and Status
 
