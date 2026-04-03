@@ -1,6 +1,6 @@
 {
   "name": "nodejs-react-fastify-rest-lint",
-  "version": "1.2.0-alpha.0",
+  "version": "1.3.0-alpha.0",
   "private": true,
   "description": "Local lint tooling for the nodejs-react-fastify-rest stack.",
   "scripts": {
