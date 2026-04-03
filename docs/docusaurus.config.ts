@@ -80,6 +80,59 @@ const config: Config = {
         },
       };
     },
+    [
+      "@docusaurus/plugin-pwa",
+      {
+        // Enable verbose service worker logging in non-production environments
+        // to aid debugging in local and preview/staging deployments.
+        debug: process.env.NODE_ENV !== "production",
+        offlineModeActivationStrategies: [
+          "appInstalled",
+          "standalone",
+          "queryString",
+        ],
+        pwaHead: [
+          { tagName: "link", rel: "icon", href: "/img/pwa-logo-192.png" },
+          { tagName: "link", rel: "manifest", href: "/manifest.json" },
+          {
+            tagName: "meta",
+            name: "theme-color",
+            content: "#1a56db",
+          },
+          {
+            tagName: "meta",
+            name: "apple-mobile-web-app-capable",
+            content: "yes",
+          },
+          {
+            tagName: "meta",
+            name: "apple-mobile-web-app-status-bar-style",
+            content: "#1a56db",
+          },
+          {
+            tagName: "link",
+            rel: "apple-touch-icon",
+            href: "/img/pwa-logo-192.png",
+          },
+          {
+            tagName: "link",
+            rel: "mask-icon",
+            href: "/img/logo.svg",
+            color: "#1a56db",
+          },
+          {
+            tagName: "meta",
+            name: "msapplication-TileImage",
+            content: "/img/pwa-logo-192.png",
+          },
+          {
+            tagName: "meta",
+            name: "msapplication-TileColor",
+            content: "#1a56db",
+          },
+        ],
+      },
+    ],
   ],
 
   themes: ["@docusaurus/theme-mermaid"],
