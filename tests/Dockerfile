@@ -21,7 +21,7 @@
 
 ARG NODE_VERSION=24
 
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-alpine AS base
 
 WORKDIR /app
 
@@ -39,4 +39,10 @@ ENV IDP_BFF_URL=""
 # Optional: comma-separated profile list. Defaults to core,operational when unset.
 ENV IDP_CONTRACT_PROFILES=""
 
+# Security Scan stage
+FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+COPY --from=base / /
+RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
+
+FROM base
 CMD ["npm", "run", "test:contract"]

@@ -191,6 +191,16 @@ thresholds. Floor thresholds are defined as environment variables inline in the
 - Untagged (orphaned layer) versions are pruned to the most recent N.
 - The `latest` and `edge` tags are never deleted.
 
+### 9. Vulnerability scanning
+
+All images are subject to automated vulnerability scanning:
+
+- **Local:** Developers are encouraged to use `trivy image <image-name>` to scan local builds.
+- **CI:** GitHub Actions use `aquasecurity/trivy-action` to scan images during the PR validation phase. High and Critical vulnerabilities in the application layer must be addressed before merging.
+- **Registry:** A scheduled workflow scans published images on `ghcr.io` daily. Results are uploaded to the GitHub Security Tab.
+
+The use of distroless and Alpine base images is a primary mitigation strategy to reduce the attack surface and minimize the number of detectable vulnerabilities in the OS layer.
+
 ## Consequences
 
 - All published container names contain the repository path

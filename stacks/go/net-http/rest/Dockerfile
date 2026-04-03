@@ -27,7 +27,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /app/service
 # ---------------------------------------------------------------------------
 # Stage 2: runtime (distroless static — no shell, minimal attack surface)
 # ---------------------------------------------------------------------------
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian12:nonroot AS runtime
 
 COPY --from=builder /app/service /app/service
 
@@ -41,4 +41,10 @@ EXPOSE 3000
 
 USER nonroot:nonroot
 
+# Security Scan stage
+FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+COPY --from=runtime / /
+RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
+
+FROM runtime
 ENTRYPOINT ["/app/service"]

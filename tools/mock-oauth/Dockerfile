@@ -36,4 +36,10 @@ ENV MOCK_OAUTH_PORT=9000
 
 EXPOSE 9000
 
+# Security Scan stage
+FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+COPY --from=runtime / /
+RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
+
+FROM runtime
 ENTRYPOINT ["java", "-jar", "mock-oauth.jar"]

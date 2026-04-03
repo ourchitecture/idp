@@ -45,4 +45,10 @@ ENV OUR_IDP_API_HOST=0.0.0.0
 
 EXPOSE 8000
 
+# Security Scan stage
+FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+COPY --from=runtime / /
+RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
+
+FROM runtime
 CMD ["node", "stacks/nodejs/react-fastify/rest/bff/dist/server.js"]

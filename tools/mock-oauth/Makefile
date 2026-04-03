@@ -24,6 +24,9 @@ help:
 	@printf "  MOCK_OAUTH_PORT  Port for the mock OAuth server (default: 9000)\n"
 
 all: install build check
+	@if command -v docker >/dev/null 2>&1; then \
+		"$(MAKE)" build-container; \
+	fi
 
 install:
 	@./mvnw dependency:resolve -q -B
@@ -43,6 +46,9 @@ check-test:
 test: check-test
 
 check-ci: install build check-test
+	@if command -v docker >/dev/null 2>&1; then \
+		"$(MAKE)" build-container; \
+	fi
 
 check: check-lint check-test
 

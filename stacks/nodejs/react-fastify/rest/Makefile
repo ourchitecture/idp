@@ -30,6 +30,9 @@ help:
 	@printf "  build-containers  Build all container images (requires docker)\n"
 
 all: install build check
+	@if command -v docker >/dev/null 2>&1; then \
+		"$(MAKE)" build-containers; \
+	fi
 
 install:
 	@npm --prefix "$(ROOT_DIR)" install
@@ -89,19 +92,25 @@ build-container-web:
 		echo "ERROR: docker is required but not found in PATH" >&2; \
 		exit 1; \
 	fi
+	@echo "==> Building container: $(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE)-web:latest"
 	@docker build \
+		--progress=plain \
 		-t "$(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE)-web:latest" \
 		-f web/Dockerfile \
 		"$(ROOT_DIR)"
+	@echo "==> Done: $(CONTAINER_IMAGE_BASE)-web"
 
 build-container-bff:
 	@if ! command -v docker >/dev/null 2>&1; then \
 		echo "ERROR: docker is required but not found in PATH" >&2; \
 		exit 1; \
 	fi
+	@echo "==> Building container: $(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE)-bff:latest"
 	@docker build \
+		--progress=plain \
 		-t "$(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE)-bff:latest" \
 		-f bff/Dockerfile \
 		"$(ROOT_DIR)"
+	@echo "==> Done: $(CONTAINER_IMAGE_BASE)-bff"
 
 build-containers: build-container-web build-container-bff

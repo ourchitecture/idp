@@ -52,16 +52,7 @@ all:
 		set -e; \
 		for stack in $(STACKS); do \
 			printf "Running full build/test validation for %s\n" "$$stack"; \
-			case "$$stack" in \
-			stacks/go/net-http/rest) project="go-net-http-rest" ;; \
-			stacks/nodejs/react-fastify/rest) project="nodejs-react-fastify-rest" ;; \
-				*) project="" ;; \
-			esac; \
-			if [ -n "$$project" ]; then \
-				"$(MOON_BIN)" run "$$project:all"; \
-			else \
-				"$(MAKE)" -C "$$stack" all; \
-			fi; \
+			"$(MAKE)" -C "$$stack" all; \
 		done; \
 		printf "Running full build/test validation for docs-site\n"; \
 		"$(MOON_BIN)" run docs-site:all; \
@@ -91,6 +82,12 @@ ci:
 			"$(MAKE)" -C "$$stack" check-ci; \
 		done; \
 		"$(MAKE)" -C docs check-ci; \
+	fi
+	@if command -v docker >/dev/null 2>&1; then \
+		printf "Docker detected — building container images\n"; \
+		"$(MAKE)" build-containers; \
+	else \
+		printf "Docker not found — skipping container builds (opt-in only)\n"; \
 	fi
 
 check-lint-md:
@@ -235,5 +232,9 @@ build-containers:
 			"$(MAKE)" -C "$$stack" build-containers; \
 		fi; \
 	done; \
+	printf "Building container image for tools/mock-oauth\n"; \
+	"$(MAKE)" -C tools/mock-oauth build-container; \
+	printf "Building container image for tools/mcp\n"; \
+	"$(MAKE)" -C tools/mcp build-container; \
 	printf "Building container image for tests\n"; \
 	"$(MAKE)" -C tests build-container

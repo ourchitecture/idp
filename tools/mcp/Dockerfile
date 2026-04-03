@@ -43,4 +43,10 @@ ENV IDP_BFF_URL=http://localhost:8000
 
 EXPOSE 8080
 
+# Security Scan stage
+FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+COPY --from=runtime / /
+RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
+
+FROM runtime
 CMD ["node", "dist/server.js"]
