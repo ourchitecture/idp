@@ -73,15 +73,13 @@ check-ci: build check-lint check-test
 check: check-lint check-test check-contract
 
 check-contract: build
-	@OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(WEB_BIN)" >/dev/null 2>&1 & WEB_PID=$$!; \
-	OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" env -- "$(BFF_BIN)" >/dev/null 2>&1 & BFF_PID=$$!; \
-	trap 'kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true' EXIT; \
-	sleep 2; \
-	IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" IDP_STACK_PATH="$(STACK_PATH)" npm --prefix "$(ROOT_DIR)" run test:contract; \
-	STATUS=$$?; \
-	kill $$WEB_PID $$BFF_PID >/dev/null 2>&1 || true; \
-	wait $$WEB_PID $$BFF_PID 2>/dev/null || true; \
-	exit $$STATUS
+	@STACK_PATH="$(STACK_PATH)" \
+	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
+	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" env -- "$(abspath $(BFF_BIN))"' \
+	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+	ROOT_DIR="$(ROOT_DIR)" \
+	python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"
 
 test-contract: check-contract
 
