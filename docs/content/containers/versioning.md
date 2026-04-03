@@ -15,17 +15,22 @@ Each component is versioned independently:
 | Go net/http REST | `go-net-http-rest-v` | `stacks/go/net-http/rest/version.txt` |
 | Node.js React + Fastify REST | `nodejs-react-fastify-rest-v` | `stacks/nodejs/react-fastify/rest/package.json` |
 | Contract Tests | `contract-tests-v` | `tests/version.txt` |
+| MCP Tools | `mcp-tools-v` | `tools/mcp/package.json` |
 
 ## Release Flow
 
-1. Merging to `main` triggers `release-please` to open (or update) a release
-   PR per component that has changes.
-2. Merging a release PR creates a Git tag (for example
-   `go-net-http-rest-v0.1.0-alpha.1`).
-3. The tag triggers the **Container Publish** workflow, which builds and pushes
+1. Merging to `main` triggers `release-please` to open (or update) a single
+   consolidated release PR that includes all components with changes.
+2. Merging the release PR creates Git tags for each component (for example
+   `go-net-http-rest-v0.1.0-alpha.1`, `nodejs-react-fastify-rest-v0.1.0-alpha.1`).
+3. Each tag triggers the **Container Publish** workflow, which builds and pushes
    versioned images to `ghcr.io/ourchitecture/idp/stemix-*`.
 4. The **Container Latest Tag** workflow runs after publish and re-tags the
    highest stable version as `latest` (skipped during pre-release phase).
+
+Using a consolidated release PR (instead of separate PRs per component) avoids
+merge conflicts in the shared `.release-please-manifest.json` file. Each
+component still receives its own independent version bump and Git tag.
 
 ## Build Scope Optimization
 

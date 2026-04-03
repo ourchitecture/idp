@@ -1,6 +1,5 @@
 {
   "bootstrap-sha": "e93ded164703a3ffb4ac379fc626681e83e65858",
-  "separate-pull-requests": true,
   "prerelease": true,
   "prerelease-type": "alpha",
   "bump-minor-pre-major": true,
