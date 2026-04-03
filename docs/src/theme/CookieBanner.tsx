@@ -9,7 +9,17 @@ const CONSENT_KEY = "stemix_cookie_consent";
 export default function CookieBanner(): ReactNode {
   const [visible, setVisible] = useState(false);
 
+  function isLocalhost(): boolean {
+    return window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+  }
+
   useEffect(() => {
+    if (isLocalhost()) {
+      disableGA();
+      return;
+    }
+
     const stored = localStorage.getItem(CONSENT_KEY);
     if (stored === "declined") {
       disableGA();
@@ -24,7 +34,9 @@ export default function CookieBanner(): ReactNode {
 
   function accept(): void {
     localStorage.setItem(CONSENT_KEY, "accepted");
-    initClarity();
+    if (!isLocalhost()) {
+      initClarity();
+    }
     setVisible(false);
   }
 

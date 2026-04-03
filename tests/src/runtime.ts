@@ -24,7 +24,8 @@ function isProfileName(value: string): value is ProfileName {
     value === "operational" ||
     value === "status-profile" ||
     value === "ui-profile" ||
-    value === "mcp-profile"
+    value === "mcp-profile" ||
+    value === "auth-profile"
   );
 }
 
@@ -177,7 +178,8 @@ export function shouldRunProfile(
   if (
     (profile === "status-profile" && stackMetadata?.capabilities?.status?.enabled !== true) ||
     (profile === "ui-profile" && stackMetadata?.capabilities?.ui?.enabled !== true) ||
-    (profile === "mcp-profile" && stackMetadata?.capabilities?.mcp?.enabled !== true)
+    (profile === "mcp-profile" && stackMetadata?.capabilities?.mcp?.enabled !== true) ||
+    (profile === "auth-profile" && stackMetadata?.capabilities?.auth?.enabled !== true)
   ) {
     return false;
   }

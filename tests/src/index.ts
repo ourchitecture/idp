@@ -42,6 +42,7 @@ async function main(): Promise<void> {
     "status-profile",
     "ui-profile",
     "mcp-profile",
+    "auth-profile",
   ];
 
   const context: ContractContext = {

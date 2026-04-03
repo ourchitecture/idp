@@ -78,6 +78,7 @@ tests/
 ├── tsconfig.json      TypeScript configuration
 ├── features/          Layer 1 intent specifications (Gherkin .feature files)
 │   ├── core.feature
+│   ├── auth-profile.feature
 │   ├── operational.feature
 │   ├── status-profile.feature
 │   └── ui-profile.feature
@@ -91,6 +92,7 @@ tests/
     └── profiles/
         ├── index.ts          Routes a profile name to its test factory
         ├── core.ts           5 baseline tests
+        ├── auth-profile.ts   3 OAuth auth tests
         ├── operational.ts    5 runtime/semantic tests
         ├── status-profile.ts 3 API-first status tests
         └── ui-profile.ts     5 UI capability tests
@@ -173,6 +175,19 @@ that feeds the portal home page, dedicated status route, MCP
 | `status-profile:portal summary metrics are internally consistent` | aggregate counts and top-level status match the component list |
 | `status-profile:portal summary timestamps and freshness are valid` | timestamps are ISO-8601 and freshness metadata matches component observation ages |
 
+### `auth-profile` — OAuth 2.0 authentication contract (3 tests)
+
+Optional. Only runs when the stack declares `capabilities.auth.enabled: true`
+in `stack.json`. It validates the observable contract of the BFF auth surface
+when an OAuth provider is active (`OUR_IDP_OAUTH_PROVIDER != "none"`).
+`provider=none` behavior is out of scope.
+
+| Test | What is checked |
+| --- | --- |
+| `auth-profile:login endpoint initiates the OAuth flow` | `GET /auth/login` returns a 3xx redirect whose `Location` header points at the configured provider authorization URL |
+| `auth-profile:me endpoint returns 401 when unauthenticated` | `GET /auth/me` without a session cookie returns HTTP 401 |
+| `auth-profile:logout endpoint returns 204 and clears session cookie` | `POST /auth/logout` returns HTTP 204; if `Set-Cookie` is present it expires `idp_session` |
+
 ---
 
 ## Profile selection logic
@@ -196,6 +211,9 @@ harness generates zero tests for it unless `stack.json` declares
 The `status-profile` profile behaves the same way: it generates zero tests
 unless `stack.json` declares `capabilities.status.enabled: true`.
 
+The `auth-profile` profile behaves the same way: it generates zero tests unless
+`stack.json` declares `capabilities.auth.enabled: true`.
+
 ---
 
 ## The `stack.json` capability declaration
@@ -215,6 +233,9 @@ Minimum required fields:
     "status": {
       "enabled": false
     },
+    "auth": {
+      "enabled": false
+    },
     "ui": {
       "enabled": false
     }
@@ -231,6 +252,9 @@ For a UI-capable stack:
   "interface": "rest",
   "contractProfiles": ["core", "operational", "status-profile", "ui-profile"],
   "capabilities": {
+    "auth": {
+      "enabled": false
+    },
     "status": {
       "enabled": true
     },
@@ -251,6 +275,7 @@ For a UI-capable stack:
 | `interface` | string | Interface type (currently always `rest`) |
 | `contractProfiles` | `ProfileName[]` | Profiles this stack must pass |
 | `capabilities.status.enabled` | boolean | Whether this stack exposes the shared IDP status API |
+| `capabilities.auth.enabled` | boolean | Whether this stack exposes the optional OAuth auth endpoints |
 | `capabilities.ui.enabled` | boolean | Whether this stack serves a UI |
 | `capabilities.ui.mode` | `"spa" \| "ssr" \| "server-rendered"` | UI rendering mode when enabled |
 
@@ -268,6 +293,9 @@ For a UI-capable stack:
 | `IDP_CONTRACT_PROFILES` | _(unset)_ | Comma-separated list of profiles to run |
 | `IDP_CONTRACT_PROFILE` | _(unset)_ | Single profile override |
 | `IDP_UI_BROWSER_PATH` | _(auto-detect)_ | Chrome or Edge executable path for rendered `ui-profile` checks |
+| `OUR_IDP_OAUTH_PROVIDER` | `none` | OAuth provider selection used by `auth-profile` redirect assertions |
+| `OUR_IDP_OAUTH_AUTH_URL` | _(unset)_ | Explicit authorization URL override for `auth-profile` redirect assertions |
+| `MOCK_OAUTH_PORT` | `9000` | Mock OAuth provider port used when `OUR_IDP_OAUTH_PROVIDER=mock` |
 
 ### Controlling where a stack binds
 

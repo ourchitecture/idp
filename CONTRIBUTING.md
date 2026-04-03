@@ -85,6 +85,12 @@ make check-lint-workflows
 4. Include issue references: `Refs #N` or `Closes #N`.
 5. Open a pull request against `main`.
 6. Ensure PR validation checks pass.
+7. At least one maintainer approval is required (CODEOWNERS-based).
+8. All PR conversations must be resolved before merge.
+9. Merges to `main` use squash merge only (enforced by repository rulesets).
+
+These requirements are enforced by GitHub repository rulesets. GitHub will
+prevent merging if any requirement is unmet.
 
 ### Stale Issue and PR Policy
 
