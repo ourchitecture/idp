@@ -110,3 +110,8 @@ docker run --rm \
 ### Published Image
 
 - `ghcr.io/ourchitecture/idp/stemix-contract-tests`
+
+Tags follow the standardized container strategy in
+[`docs/content/architecture/decisions/0010-container-build-strategy.md`](../docs/content/architecture/decisions/0010-container-build-strategy.md):
+use a version tag for reproducibility, `edge` for the latest build from `main`,
+and note that `latest` is only set for stable releases.

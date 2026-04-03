@@ -755,23 +755,26 @@ Exit codes: `0` if all tests pass, `1` if any test fails or the runner errors.
 
 ## Roadmap notes
 
-### Test harness container (planned)
+### Test harness container (available)
 
-A versioned container image of the contract test harness is planned. Once
-available, implementers will be able to validate any running implementation
-without cloning this repository or installing Node.js:
+A published container image of the contract test harness is available, so you
+can validate a running implementation without cloning this repository or
+installing Node.js.
 
 ```bash
-# Illustrative — not yet available
 docker run --rm \
   -e IDP_WEB_URL="http://host.docker.internal:3000" \
   -e IDP_BFF_URL="http://host.docker.internal:8000" \
   -e IDP_CONTRACT_PROFILES="core,operational" \
-  ghcr.io/ourchitecture/idp/contract-tests:<version>
+  ghcr.io/ourchitecture/idp/stemix-contract-tests:<version>
 ```
 
-This will make it straightforward to run a pinned, reproducible set of
-compliance checks against any implementation on any machine.
+Tags follow the standardized container strategy in
+[ADR-0010](../architecture/decisions/container-build-strategy):
+
+- Use a **version tag** (for example `0.1.0-alpha.1`) for reproducible runs.
+- Use `edge` to run the latest image built from `main`.
+- `latest` is only set for stable releases (never updated for pre-releases).
 
 ### Semantic versioning for the harness (planned)
 
