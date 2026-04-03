@@ -290,6 +290,7 @@ func main() {
 	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/readiness", handleReadiness)
 	mux.HandleFunc("/api/portal/summary", handlePortalSummary)
+	registerAuthRoutes(mux)
 
 	payload, err := json.Marshal(startupLog{
 		Level: "info",

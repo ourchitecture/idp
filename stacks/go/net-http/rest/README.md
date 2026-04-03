@@ -28,6 +28,64 @@ web server and the BFF server.
 This stack declares status capability, but it does not declare UI capability
 and does not run `ui-profile` tests.
 
+## Auth Capability (BFF)
+
+The BFF supports an optional OAuth plug-in selected by the
+`OUR_IDP_OAUTH_PROVIDER` environment variable. When the variable is unset or
+set to `none`, no auth routes are registered and the default server behavior is
+fully preserved.
+
+### Providers
+
+| Value | Description |
+| --- | --- |
+| `none` | Default. No auth routes are registered. |
+| `mock` | Connects to the local `tools/mock-oauth` service (port 9000 by default). Useful for local development and contract testing. |
+| `github` | GitHub OAuth 2.0. Requires `OUR_IDP_OAUTH_CLIENT_ID`, `OUR_IDP_OAUTH_CLIENT_SECRET`, and `OUR_IDP_OAUTH_REDIRECT_URL`. |
+
+### Routes (registered only when provider ≠ none)
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/auth/login` | Redirects to the provider authorization URL with a CSRF state value. |
+| `GET` | `/auth/callback` | Exchanges the authorization code, sets an `idp_session` cookie, and returns user JSON. |
+| `POST` | `/auth/logout` | Clears the session and expires the cookie. Returns 204. |
+| `GET` | `/auth/me` | Returns the user profile for the active session, or 401. |
+
+### Auth Environment Variables
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `OUR_IDP_OAUTH_PROVIDER` | `none` | Provider name: `none`, `mock`, or `github`. |
+| `OUR_IDP_OAUTH_CLIENT_ID` | _(empty)_ | OAuth client ID. |
+| `OUR_IDP_OAUTH_CLIENT_SECRET` | _(empty)_ | OAuth client secret. |
+| `OUR_IDP_OAUTH_REDIRECT_URL` | _(empty)_ | OAuth redirect/callback URL sent to the provider. |
+| `OUR_IDP_OAUTH_AUTH_URL` | _(mock default)_ | Override the provider authorization URL (mock provider only). |
+| `OUR_IDP_OAUTH_TOKEN_URL` | _(mock default)_ | Override the provider token URL (mock provider only). |
+| `OUR_IDP_OAUTH_USERINFO_URL` | _(mock default)_ | Override the provider userinfo URL (mock provider only). |
+| `MOCK_OAUTH_PORT` | `9000` | Port for the mock OAuth service (mock provider only). |
+| `OUR_IDP_OAUTH_SECURE_COOKIE` | `false` | Set to `true` in HTTPS production deployments to enable the `Secure` cookie attribute. Leave `false` for local HTTP development. |
+
+### Quick Start with Mock Provider
+
+```bash
+# Terminal 1 – start the mock OAuth service
+cd tools/mock-oauth && ./mvnw spring-boot:run -q
+
+# Terminal 2 – start the BFF with mock provider
+OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
+
+# Initiate login (follow the redirect to /oauth/authorize, then back to /auth/callback)
+# Use a cookie jar so the session cookie is saved automatically.
+curl -v -L -c /tmp/idp-cookies.txt http://127.0.0.1:8000/auth/login
+
+# Check session using the saved cookie
+curl -b /tmp/idp-cookies.txt http://127.0.0.1:8000/auth/me
+
+# Logout
+curl -X POST -b /tmp/idp-cookies.txt http://127.0.0.1:8000/auth/logout
+```
+
 ## Platform Note
 
 Default run targets build and execute stable binaries in `.bin/` to avoid
@@ -106,6 +164,9 @@ Containers default to `0.0.0.0` host binding (overriding the native-dev
 - `OUR_IDP_API_PORT` — BFF port (default `8300`)
 - `OUR_IDP_STATUS_WEB_URL` — optional web base URL used by the BFF status API
   to include live IDP web health in `/api/portal/summary`
+- `OUR_IDP_OAUTH_PROVIDER` — auth provider (`none`, `mock`, `github`; default `none`)
+- `OUR_IDP_OAUTH_SECURE_COOKIE` — set `true` to enable the `Secure` cookie
+  attribute when running behind HTTPS (default `false`)
 
 ### Published Images
 
