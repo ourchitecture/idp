@@ -53,6 +53,7 @@
   },
   "overrides": {
     "lodash": "4.17.21",
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "magic-string": "^0.30.0"
   }
 }
