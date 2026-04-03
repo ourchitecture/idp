@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0-alpha.0](https://github.com/ourchitecture/idp/compare/mcp-tools-v0.3.0-alpha.0...mcp-tools-v0.4.0-alpha.0) (2026-04-03)
+
+
+### Features
+
+* **docs:** PWA support for stemix.dev mobile app installation ([#69](https://github.com/ourchitecture/idp/issues/69)) ([04d4792](https://github.com/ourchitecture/idp/commit/04d479290be1c7fb056ffc5bd3ba6905f5bf9b21))
+
 ## [0.3.0-alpha.0](https://github.com/ourchitecture/idp/compare/mcp-tools-v0.2.0-alpha.0...mcp-tools-v0.3.0-alpha.0) (2026-04-03)
 
 
