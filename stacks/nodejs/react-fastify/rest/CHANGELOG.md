@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.5.0-alpha.0...nodejs-react-fastify-rest-v1.5.1-alpha.0) (2026-04-03)
+
+
+### Bug Fixes
+
+* **check-contract:** replace blind sleep+kill with cross-platform Python readiness script ([#79](https://github.com/ourchitecture/idp/issues/79)) ([c3a6a0a](https://github.com/ourchitecture/idp/commit/c3a6a0a32059269a374d82de447bb019a95f8857)), closes [#74](https://github.com/ourchitecture/idp/issues/74)
+
 ## [1.5.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.4.0-alpha.0...nodejs-react-fastify-rest-v1.5.0-alpha.0) (2026-04-03)
 
 
