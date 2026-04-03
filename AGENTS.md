@@ -137,6 +137,12 @@ the available tool set, follow these rules:
 
 ## CI/CD and Make Reuse (Required)
 
+- The authoritative call hierarchy is: `make target` -> `moon run project:task`
+  -> real tool command (`go`, `npm`, `mvnw`, `docker`, etc.). Moon tasks carry
+  the real commands; Makefile recipes are thin wrappers that delegate to moon
+  when available and fall back to direct commands for contributors without moon.
+- No `moon.yml` task should contain `command: ["make", "..."]`. Moon is the
+  canonical task runner; make wraps moon, not the other way around.
 - `moon` is required for maintainer and CI orchestration flows.
 - `proto` should be used to provide pinned, reproducible maintainer/CI toolchain
   installs, but contributors may use system-installed language toolchains.

@@ -8,6 +8,8 @@ WEB_TEST_PORT := 3400
 BFF_TEST_PORT := 8400
 CONTAINER_LOCAL_PREFIX := localhost
 CONTAINER_IMAGE_BASE := stemix-nodejs-react-fastify-rest
+PROTO_HOME ?= $(HOME)/.proto
+MOON_BIN := $(PROTO_HOME)/shims/moon
 
 help:
 	@printf "Targets:\n"
@@ -29,62 +31,113 @@ help:
 	@printf "  build-container-bff Build BFF container image (requires docker)\n"
 	@printf "  build-containers  Build all container images (requires docker)\n"
 
-all: install build check
+all:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:all; \
+	else \
+		"$(MAKE)" install build check; \
+	fi
 	@if command -v docker >/dev/null 2>&1; then \
 		"$(MAKE)" build-containers; \
 	fi
 
 install:
-	@npm --prefix "$(ROOT_DIR)" install
-	@npm ci
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:install; \
+	else \
+		npm --prefix "$(ROOT_DIR)" install; \
+		npm ci; \
+	fi
 
 build:
-	@npm --prefix "$(ROOT_DIR)" run build:web:react-fastify
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:build; \
+	else \
+		npm --prefix "$(ROOT_DIR)" run build:web:react-fastify; \
+	fi
 
 clean:
-	@rm -rf web/dist
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:clean; \
+	else \
+		rm -rf web/dist; \
+	fi
 
 lint: check-lint
 
 check-lint:
-	@npm run lint:md
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-lint; \
+	else \
+		npm run lint:md; \
+	fi
 
 check-test:
-	@npm --prefix "$(ROOT_DIR)" run typecheck:stack:react-fastify
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-test; \
+	else \
+		npm --prefix "$(ROOT_DIR)" run typecheck:stack:react-fastify; \
+	fi
 
 test: check-test
 
-check-ci: install build check-lint check-test
+check-ci:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-ci; \
+	else \
+		"$(MAKE)" install build check-lint check-test; \
+	fi
 
-check: check-lint check-test check-contract
+check:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:check; \
+	else \
+		"$(MAKE)" check-lint check-test check-contract; \
+	fi
 
 check-contract:
-	@STACK_PATH="$(STACK_PATH)" \
-	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
-	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
-	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-	CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
-	ROOT_DIR="$(ROOT_DIR)" \
-	python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-contract; \
+	else \
+		STACK_PATH="$(STACK_PATH)" \
+		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
+		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		ROOT_DIR="$(ROOT_DIR)" \
+		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+	fi
 
 test-contract: check-contract
 
 e2e:
-	@STACK_PATH="$(STACK_PATH)" \
-	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
-	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
-	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-	CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
-	ROOT_DIR="$(ROOT_DIR)" \
-	bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:e2e; \
+	else \
+		STACK_PATH="$(STACK_PATH)" \
+		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
+		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		ROOT_DIR="$(ROOT_DIR)" \
+		bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"; \
+	fi
 
 run-web:
-	@npm --prefix "$(ROOT_DIR)" run start:web:react-fastify
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:run-web; \
+	else \
+		npm --prefix "$(ROOT_DIR)" run start:web:react-fastify; \
+	fi
 
 run-bff:
-	@npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:run-bff; \
+	else \
+		npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify; \
+	fi
 
 build-container-web:
 	@if ! command -v docker >/dev/null 2>&1; then \

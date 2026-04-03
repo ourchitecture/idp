@@ -8,48 +8,75 @@ project:
 
 tasks:
   all:
-    command: ["make", "all"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check"]
   install:
-    command: ["make", "install"]
+    command: ["bash", "-c", "npm --prefix ../../../.. install && npm ci"]
   build:
-    command: ["make", "build"]
+    command: ["npm", "--prefix", "../../../..", "run", "build:web:react-fastify"]
+    deps: ["install"]
   clean:
-    command: ["make", "clean"]
+    command: ["bash", "-c", "rm -rf web/dist"]
   check-lint:
-    command: ["make", "check-lint"]
+    command: ["npm", "run", "lint:md"]
+    deps: ["install"]
   check-test:
-    command: ["make", "check-test"]
+    command: ["npm", "--prefix", "../../../..", "run", "typecheck:stack:react-fastify"]
+    deps: ["install"]
   check-contract:
-    command: ["make", "check-contract"]
+    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    env:
+      STACK_PATH: "stacks/nodejs/react-fastify/rest"
+      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
+      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
+      WEB_URL: "http://127.0.0.1:3400"
+      BFF_URL: "http://127.0.0.1:8400"
+      CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      ROOT_DIR: "../../../.."
   check-ci:
-    command: ["make", "check-ci"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check-lint", "check-test"]
     options:
       runInCI: true
   check:
-    command: ["make", "check"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-lint", "check-test", "check-contract"]
   test:
-    command: ["make", "test"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-test"]
   test-contract:
-    command: ["make", "test-contract"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-contract"]
+  e2e:
+    command: ["bash", "../../../../scripts/e2e/run-stack-e2e.sh"]
+    env:
+      STACK_PATH: "stacks/nodejs/react-fastify/rest"
+      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
+      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
+      WEB_URL: "http://127.0.0.1:3400"
+      BFF_URL: "http://127.0.0.1:8400"
+      CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      ROOT_DIR: "../../../.."
   run-web:
-    command: ["make", "run-web"]
+    command: ["npm", "--prefix", "../../../..", "run", "start:web:react-fastify"]
     options:
       persistent: true
       runInCI: false
   run-bff:
-    command: ["make", "run-bff"]
+    command: ["npm", "--prefix", "../../../..", "run", "start:bff:react-fastify"]
     options:
       persistent: true
       runInCI: false
   build-container-web:
-    command: ["make", "build-container-web"]
+    command: ["docker", "build", "--progress=plain", "-t", "localhost/stemix-nodejs-react-fastify-rest-web:latest", "-f", "web/Dockerfile", "../../../.."]
     options:
       runInCI: false
   build-container-bff:
-    command: ["make", "build-container-bff"]
+    command: ["docker", "build", "--progress=plain", "-t", "localhost/stemix-nodejs-react-fastify-rest-bff:latest", "-f", "bff/Dockerfile", "../../../.."]
     options:
       runInCI: false
   build-containers:
-    command: ["make", "build-containers"]
+    command: ["bash", "-c", "true"]
+    deps: ["build-container-web", "build-container-bff"]
     options:
       runInCI: false

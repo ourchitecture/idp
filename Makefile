@@ -45,26 +45,16 @@ help:
 	@for stack in $(STACKS); do printf "  - %s\n" "$$stack"; done
 
 all:
-	@if [ -x "$(MOON_BIN)" ]; then \
-		if [ -x "$(PROTO_HOME)/bin/proto" ]; then \
-			"$(PROTO_HOME)/bin/proto" install; \
-		fi; \
-		set -e; \
-		for stack in $(STACKS); do \
-			printf "Running full build/test validation for %s\n" "$$stack"; \
-			"$(MAKE)" -C "$$stack" all; \
-		done; \
-		printf "Running full build/test validation for docs-site\n"; \
-		"$(MOON_BIN)" run docs-site:all; \
-	else \
-		set -e; \
-		for stack in $(STACKS); do \
-			printf "Running full build/test validation for %s\n" "$$stack"; \
-			"$(MAKE)" -C "$$stack" all; \
-		done; \
-		printf "Running full build/test validation for docs-site\n"; \
-		"$(MAKE)" -C docs all; \
+	@if [ -x "$(PROTO_HOME)/bin/proto" ]; then \
+		"$(PROTO_HOME)/bin/proto" install; \
 	fi
+	@set -e; \
+	for stack in $(STACKS); do \
+		printf "Running full build/test validation for %s\n" "$$stack"; \
+		"$(MAKE)" -C "$$stack" all; \
+	done; \
+	printf "Running full build/test validation for docs-site\n"; \
+	"$(MAKE)" -C docs all
 	@if command -v docker >/dev/null 2>&1; then \
 		printf "Docker detected — building container images\n"; \
 		"$(MAKE)" build-containers; \

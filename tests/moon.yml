@@ -16,6 +16,6 @@ tasks:
     options:
       runFromWorkspaceRoot: true
   build-container:
-    command: ["make", "build-container"]
+    command: ["docker", "build", "-t", "localhost/stemix-contract-tests:latest", "-f", "Dockerfile", ".."]
     options:
       runInCI: false

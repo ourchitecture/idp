@@ -1,5 +1,8 @@
 .PHONY: help all install build clean generate-diagrams check-diagrams check-lint check-test check-ci check run-dev run-serve
 
+PROTO_HOME ?= $(HOME)/.proto
+MOON_BIN := $(PROTO_HOME)/shims/moon
+
 help:
 	@printf "Targets:\n"
 	@printf "  all           Run full docs verification flow\n"
@@ -15,35 +18,86 @@ help:
 	@printf "  run-dev       Start Docusaurus dev server\n"
 	@printf "  run-serve     Serve the built site locally\n"
 
-all: install build check
+all:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:all; \
+	else \
+		"$(MAKE)" install build check; \
+	fi
 
 install:
-	@PUPPETEER_SKIP_DOWNLOAD=true npm ci
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:install; \
+	else \
+		PUPPETEER_SKIP_DOWNLOAD=true npm ci; \
+	fi
 
 build:
-	@npm run build
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:build; \
+	else \
+		npm run build; \
+	fi
 
 clean:
-	@rm -rf build .docusaurus
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:clean; \
+	else \
+		rm -rf build .docusaurus; \
+	fi
 
 generate-diagrams:
-	@npm run generate:diagrams
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:generate-diagrams; \
+	else \
+		npm run generate:diagrams; \
+	fi
 
 check-diagrams:
-	@npm run check:diagrams
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:check-diagrams; \
+	else \
+		npm run check:diagrams; \
+	fi
 
 check-lint:
-	@npm run lint:md
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:check-lint; \
+	else \
+		npm run lint:md; \
+	fi
 
 check-test:
-	@npm run typecheck
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:check-test; \
+	else \
+		npm run typecheck; \
+	fi
 
-check-ci: install build check-diagrams check-lint check-test
+check-ci:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:check-ci; \
+	else \
+		"$(MAKE)" install build check-diagrams check-lint check-test; \
+	fi
 
-check: check-diagrams check-lint check-test
+check:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:check; \
+	else \
+		"$(MAKE)" check-diagrams check-lint check-test; \
+	fi
 
 run-dev:
-	@npm run start
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:run-dev; \
+	else \
+		npm run start; \
+	fi
 
 run-serve:
-	@npm run serve
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run docs-site:run-serve; \
+	else \
+		npm run serve; \
+	fi

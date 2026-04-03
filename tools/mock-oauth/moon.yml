@@ -8,31 +8,35 @@ project:
 
 tasks:
   all:
-    command: ["make", "all"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check"]
   install:
-    command: ["make", "install"]
+    command: ["./mvnw", "dependency:resolve", "-q", "-B"]
   build:
-    command: ["make", "build"]
+    command: ["./mvnw", "package", "-q", "-DskipTests"]
   clean:
-    command: ["make", "clean"]
+    command: ["./mvnw", "clean", "-q"]
   check-lint:
-    command: ["make", "check-lint"]
+    command: ["bash", "-c", "echo 'No additional lint configured for mock-oauth'"]
   check-test:
-    command: ["make", "check-test"]
+    command: ["./mvnw", "verify", "-q"]
   check-ci:
-    command: ["make", "check-ci"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check-test"]
     options:
       runInCI: true
   check:
-    command: ["make", "check"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-lint", "check-test"]
   test:
-    command: ["make", "test"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-test"]
   run:
-    command: ["make", "run"]
+    command: ["bash", "-c", "MOCK_OAUTH_PORT=9000 ./mvnw spring-boot:run -q"]
     options:
       persistent: true
       runInCI: false
   build-container:
-    command: ["make", "build-container"]
+    command: ["docker", "build", "-t", "localhost/stemix-mock-oauth:latest", "."]
     options:
       runInCI: false
