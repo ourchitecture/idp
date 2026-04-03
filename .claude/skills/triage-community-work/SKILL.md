@@ -154,7 +154,8 @@ item can match multiple rules; record every applicable reason.
 4. **Community PR with failing status checks**
    - Condition: PR has one or more failed required status checks.
    - Why: the contributor may not know how to fix CI failures or may
-     not have access to reproduce them.
+     not have access to reproduce them. GitHub rulesets block merge
+     until all required checks pass.
    - Next step: review the failures, comment with guidance on how to
      fix, or push fixes directly if the contributor has granted
      maintainer push access to their fork.
@@ -170,7 +171,8 @@ item can match multiple rules; record every applicable reason.
 6. **Community PR targets wrong base branch**
    - Condition: PR targets a branch other than `main`.
    - Why: community contributors may not know the correct base
-     branch.
+     branch. The `main` branch ruleset only applies to PRs targeting
+     `main`; PRs targeting other branches may bypass protections.
    - Next step: comment explaining the correct base branch and help
      retarget the PR.
 

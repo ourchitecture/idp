@@ -209,7 +209,8 @@ can match multiple rules; record every applicable reason.
 3. **PR has failing status checks**
    - Condition: PR has one or more failed required status checks.
    - Why: failing checks block merge and may indicate broken code or
-     configuration issues.
+     configuration issues. GitHub rulesets enforce this — the merge
+     button is blocked until all required checks pass.
    - Next step: investigate the failing checks, push fixes, or
      re-run if the failure is transient.
 
@@ -231,7 +232,8 @@ can match multiple rules; record every applicable reason.
 6. **PR has merge conflicts**
    - Condition: PR is not mergeable due to conflicts with the base
      branch.
-   - Why: conflicts block merge and grow worse over time.
+   - Why: conflicts block merge and grow worse over time. The repository
+     ruleset requires linear history, so conflicted PRs cannot be merged.
    - Next step: rebase or merge `base_branch` into the feature branch
      to resolve conflicts.
 
