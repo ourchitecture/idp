@@ -16,6 +16,9 @@
 # Node.js
 node_modules/
 
+# Java/Maven build artifacts
+target/
+
 # Local stack artifacts
 stacks/go/net-http/rest/.bin/
 stacks/nodejs/react-fastify/rest/web/dist/

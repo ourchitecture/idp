@@ -1,0 +1,111 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.2.0
+#
+# Optional ENV vars
+# -----------------
+#   JAVA_HOME - location of a JDK home directory
+#   MAVEN_OPTS - parameters passed to the Java VM when running Maven
+#     e.g. MAVEN_OPTS="-Xms256m -Xmx512m"
+#   MAVEN_BATCH_ECHO - set to 'on' to enable the echo of the commands
+#   MAVEN_BATCH_PAUSE - set to 'on' to wait for a keystroke before ending
+#   MAVEN_OPTS - passed to Java when running mvn
+# ----------------------------------------------------------------------------
+
+if [ -z "$JAVA_HOME" ] ; then
+  if [ -r /etc/gentoo-release ] ; then
+    JAVA_HOME=$(java-config --jre-home)
+  fi
+fi
+
+# OS specific support.  $var _must_ be set to either true or false.
+cygwin=false;
+darwin=false;
+mingw=false
+case "$(uname)" in
+  CYGWIN*) cygwin=true ;;
+  DARWIN*) darwin=true ;;
+  MINGW*) mingw=true;;
+esac
+
+## resolve links - $0 may be a link to maven's home
+PRG="$0"
+
+# need this for relative symlinks
+while [ -h "$PRG" ] ; do
+  ls=$(ls -ld "$PRG")
+  link=$(expr "$ls" : '.*-> \(.*\)$')
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG="$(dirname "$PRG")/$link"
+  fi
+done
+
+saveddir=$(pwd)
+
+MAVEN_PROJECTBASEDIR=${MAVEN_BASEDIR:-"$(pwd)"}
+
+if [ "$MAVEN_PROJECTBASEDIR" = "" ] ; then
+  MAVEN_PROJECTBASEDIR="$(pwd)"
+fi
+export MAVEN_PROJECTBASEDIR
+
+PROPERTIES_FILE="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.properties"
+
+DISTRIBUTION_URL=$(grep "^distributionUrl=" "$PROPERTIES_FILE" | sed 's/distributionUrl=//')
+WRAPPER_VERSION=$(grep "^wrapperVersion=" "$PROPERTIES_FILE" | sed 's/wrapperVersion=//')
+
+# Find the home of the wrapper.
+MAVEN_WRAPPER_HOME=${MAVEN_USER_HOME:-"$HOME/.m2/wrapper"}
+MAVEN_WRAPPER_JAR="$MAVEN_WRAPPER_HOME/dists/${DISTRIBUTION_URL##*/}"
+MAVEN_WRAPPER_JAR="${MAVEN_WRAPPER_JAR%.zip}"
+
+if [ -r "$MAVEN_WRAPPER_JAR/bin/mvn" ] ; then
+  exec "$MAVEN_WRAPPER_JAR/bin/mvn" "$@"
+fi
+
+# Download and unpack Maven
+MAVEN_DIST_DIR=$(dirname "$MAVEN_WRAPPER_JAR")
+mkdir -p "$MAVEN_DIST_DIR"
+DIST_FILE="$MAVEN_DIST_DIR/$(basename "$DISTRIBUTION_URL")"
+
+if [ ! -f "$DIST_FILE" ] ; then
+  echo "Downloading Maven from $DISTRIBUTION_URL"
+  if command -v wget > /dev/null 2>&1 ; then
+    wget -q "$DISTRIBUTION_URL" -O "$DIST_FILE"
+  elif command -v curl > /dev/null 2>&1 ; then
+    curl -fsSL "$DISTRIBUTION_URL" -o "$DIST_FILE"
+  else
+    echo "ERROR: Neither wget nor curl is available. Cannot download Maven." >&2
+    exit 1
+  fi
+fi
+
+if [ ! -d "$MAVEN_WRAPPER_JAR" ] ; then
+  echo "Unpacking Maven"
+  unzip -q "$DIST_FILE" -d "$MAVEN_DIST_DIR"
+  UNPACKED=$(find "$MAVEN_DIST_DIR" -maxdepth 1 -type d -name "apache-maven-*")
+  mv "$UNPACKED" "$MAVEN_WRAPPER_JAR"
+fi
+
+exec "$MAVEN_WRAPPER_JAR/bin/mvn" "$@"
