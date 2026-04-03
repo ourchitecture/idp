@@ -57,4 +57,11 @@ EXPOSE 3000
 
 # nginx official image processes /etc/nginx/templates/*.template via envsubst
 # automatically on startup, writing results to /etc/nginx/conf.d/.
+
+# Security Scan stage
+FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+COPY --from=runtime / /
+RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
+
+FROM runtime
 CMD ["nginx", "-g", "daemon off;"]

@@ -47,6 +47,7 @@ help:
 	@printf "  build-containers  Build all container images (requires docker)\n"
 
 all: install build check
+	@if command -v docker >/dev/null 2>&1; then "$(MAKE)" build-containers; fi
 
 install:
 	@go mod download
@@ -127,7 +128,7 @@ build-container-web:
 		--build-arg SERVICE=web \
 		-t "$(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE)-web:latest" \
 		-f Dockerfile \
-		"$(ROOT_DIR)"
+		.
 
 build-container-bff:
 	@if ! command -v docker >/dev/null 2>&1; then \
@@ -138,6 +139,6 @@ build-container-bff:
 		--build-arg SERVICE=bff \
 		-t "$(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE)-bff:latest" \
 		-f Dockerfile \
-		"$(ROOT_DIR)"
+		.
 
 build-containers: build-container-web build-container-bff

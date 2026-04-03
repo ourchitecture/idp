@@ -27,6 +27,9 @@ help:
 	@printf "  build-container Build container image (requires docker)\n"
 
 all: install build check
+	@if command -v docker >/dev/null 2>&1; then \
+		"$(MAKE)" build-container; \
+	fi
 
 install:
 	@npm install
@@ -46,6 +49,9 @@ check-test:
 test: check-test
 
 check-ci: install build check-test
+	@if command -v docker >/dev/null 2>&1; then \
+		"$(MAKE)" build-container; \
+	fi
 
 check: check-lint check-test check-contract
 

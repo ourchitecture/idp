@@ -408,8 +408,9 @@ Agents must validate that requested changes actually took effect and report evid
 - Never commit secrets, credentials, or environment-specific configs.
 - Do not bypass auth/permission checks for convenience.
 - Prefer secure defaults; document any exceptions.
-- Run dependency vulnerability scans when changes affect dependency graphs or executable behavior (for example manifests/lockfiles, runtime source, build scripts, CI scripts, Makefiles, moon task definitions, or container definitions).
+- Run dependency and container vulnerability scans when changes affect dependency graphs, executable behavior, or Dockerfiles (for example manifests/lockfiles, runtime source, build scripts, CI scripts, Makefiles, moon task definitions, or container definitions).
 - For documentation-only or Markdown-only changes, skip dependency audits and run markdown lint (`moon run repo:check-lint-md`) as the required validation.
+- For container changes, ensure the integrated Dockerfile vulnerability scan passes during `make build-containers`.
 - Never leave known high or critical vulnerabilities unaddressed: fix them in the same change, then re-run the audit and confirm a clean result.
 - If a vulnerability has no safe fix available, document the mitigation and risk in the issue/PR and create a follow-up issue before closing work.
 
