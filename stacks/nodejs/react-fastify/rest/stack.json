@@ -15,6 +15,9 @@
     "ui": {
       "enabled": true,
       "mode": "spa"
+    },
+    "auth": {
+      "enabled": false
     }
   }
 }

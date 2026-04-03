@@ -13,6 +13,10 @@
     },
     "ui": {
       "enabled": false
+    },
+    "auth": {
+      "enabled": true,
+      "providers": ["none", "mock", "github"]
     }
   }
 }
