@@ -1,0 +1,38 @@
+language: "java"
+layer: "tool"
+stack: "backend"
+
+project:
+  title: "mock-oauth"
+  description: "Mock OAuth 2.0 service for automated contract testing of the Go BFF auth flow. Test-only; never deployed to production."
+
+tasks:
+  all:
+    command: ["make", "all"]
+  install:
+    command: ["make", "install"]
+  build:
+    command: ["make", "build"]
+  clean:
+    command: ["make", "clean"]
+  check-lint:
+    command: ["make", "check-lint"]
+  check-test:
+    command: ["make", "check-test"]
+  check-ci:
+    command: ["make", "check-ci"]
+    options:
+      runInCI: true
+  check:
+    command: ["make", "check"]
+  test:
+    command: ["make", "test"]
+  run:
+    command: ["make", "run"]
+    options:
+      persistent: true
+      runInCI: false
+  build-container:
+    command: ["make", "build-container"]
+    options:
+      runInCI: false

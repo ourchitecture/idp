@@ -6,6 +6,7 @@ projects:
     contract-tests: "tests"
     docs-site: "docs"
     mcp-tools: "tools/mcp"
+    mock-oauth: "tools/mock-oauth"
 
 defaultProject: "repo"
 versionConstraint: ">=2.1.3"
