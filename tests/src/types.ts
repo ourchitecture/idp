@@ -3,7 +3,8 @@ export type ProfileName =
   | "operational"
   | "status-profile"
   | "ui-profile"
-  | "mcp-profile";
+  | "mcp-profile"
+  | "auth-profile";
 
 export type UiMode = "spa" | "ssr" | "server-rendered";
 
@@ -21,6 +22,9 @@ export type StackMetadata = {
       mode?: UiMode;
     };
     mcp?: {
+      enabled?: boolean;
+    };
+    auth?: {
       enabled?: boolean;
     };
   };

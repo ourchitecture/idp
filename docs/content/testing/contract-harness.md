@@ -173,6 +173,19 @@ that feeds the portal home page, dedicated status route, MCP
 | `status-profile:portal summary metrics are internally consistent` | aggregate counts and top-level status match the component list |
 | `status-profile:portal summary timestamps and freshness are valid` | timestamps are ISO-8601 and freshness metadata matches component observation ages |
 
+### `auth-profile` — OAuth 2.0 authentication contract (3 tests)
+
+Optional. Only runs when the stack declares `capabilities.auth.enabled: true`
+in `stack.json`. It validates the observable contract of the BFF auth surface
+when an OAuth provider is active (`OUR_IDP_OAUTH_PROVIDER != "none"`).
+`provider=none` behavior is out of scope.
+
+| Test | What is checked |
+| --- | --- |
+| `auth-profile:login endpoint initiates the OAuth flow` | `GET /auth/login` returns a 3xx redirect with a non-empty `Location` header |
+| `auth-profile:me endpoint returns 401 when unauthenticated` | `GET /auth/me` without a session cookie returns HTTP 401 |
+| `auth-profile:logout endpoint returns 204 and clears session cookie` | `POST /auth/logout` returns HTTP 204; if `Set-Cookie` is present it expires `idp_session` |
+
 ---
 
 ## Profile selection logic
@@ -195,6 +208,9 @@ harness generates zero tests for it unless `stack.json` declares
 
 The `status-profile` profile behaves the same way: it generates zero tests
 unless `stack.json` declares `capabilities.status.enabled: true`.
+
+The `auth-profile` profile behaves the same way: it generates zero tests unless
+`stack.json` declares `capabilities.auth.enabled: true`.
 
 ---
 

@@ -1,3 +1,4 @@
+import { createAuthProfileTests } from "./auth-profile";
 import { createCoreTests } from "./core";
 import { createMcpProfileTests } from "./mcp-profile";
 import { createOperationalTests } from "./operational";
@@ -20,6 +21,10 @@ export function buildTestsForProfile(profile: ProfileName, context: ContractCont
 
   if (profile === "mcp-profile") {
     return createMcpProfileTests(context);
+  }
+
+  if (profile === "auth-profile") {
+    return createAuthProfileTests(context);
   }
 
   return createUiProfileTests(context);
