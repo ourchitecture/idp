@@ -19,6 +19,12 @@ the required HTTP endpoints.
 - `IDP_CONTRACT_PROFILES` (optional comma-separated profile list override)
 - `IDP_UI_BROWSER_PATH` (optional; path to Chrome or Edge for browser-backed
   `ui-profile` rendering checks)
+- `OUR_IDP_OAUTH_PROVIDER` (optional; required when running `auth-profile`
+  without an explicit `OUR_IDP_OAUTH_AUTH_URL`)
+- `OUR_IDP_OAUTH_AUTH_URL` (optional; explicit provider authorization URL used
+  by `auth-profile` login redirect checks)
+- `MOCK_OAUTH_PORT` (optional; mock provider port used by `auth-profile` when
+  `OUR_IDP_OAUTH_PROVIDER=mock`)
 
 ## Conformance Profiles
 
@@ -27,9 +33,11 @@ the required HTTP endpoints.
 - `status-profile`: API-first IDP status checks for stacks that declare status support
 - `ui-profile`: UI-capability contract checks for stacks that declare UI support
   and can be rendered in a local Chromium-family browser
+- `auth-profile`: OAuth 2.0 auth endpoint checks for stacks that declare auth
+  capability and run with a configured provider
 
 By default, the harness runs `core` + `operational`, and only runs opt-in
-profiles such as `status-profile` and `ui-profile` when both:
+profiles such as `status-profile`, `ui-profile`, and `auth-profile` when both:
 
 - requested by environment profile selection, and
 - declared in stack metadata (`stack.json`)
@@ -65,6 +73,12 @@ Example for a specific stack and explicit profile set:
 
 ```bash
 IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" npm run test:contract
+```
+
+Example for the auth profile against the Go stack with the mock provider:
+
+```bash
+OUR_IDP_OAUTH_PROVIDER=mock IDP_STACK_PATH="stacks/go/net-http/rest" IDP_CONTRACT_PROFILE="auth-profile" npm run test:contract
 ```
 
 ## Container Image

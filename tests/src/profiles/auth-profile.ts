@@ -6,12 +6,34 @@ function isAuthEnabled(context: ContractContext): boolean {
   return context.stackMetadata?.capabilities?.auth?.enabled === true;
 }
 
+function resolveExpectedAuthorizationUrl(): URL {
+  const overrideUrl = process.env.OUR_IDP_OAUTH_AUTH_URL?.trim();
+  if (overrideUrl !== undefined && overrideUrl.length > 0) {
+    return new URL(overrideUrl);
+  }
+
+  const provider = process.env.OUR_IDP_OAUTH_PROVIDER?.trim().toLowerCase();
+  if (provider === "mock") {
+    const port = process.env.MOCK_OAUTH_PORT?.trim() || "9000";
+    return new URL(`http://127.0.0.1:${port}/oauth/authorize`);
+  }
+
+  if (provider === "github") {
+    return new URL("https://github.com/login/oauth/authorize");
+  }
+
+  throw new Error(
+    "auth-profile requires OUR_IDP_OAUTH_PROVIDER to be set to 'mock' or 'github', or OUR_IDP_OAUTH_AUTH_URL to be provided"
+  );
+}
+
 export function createAuthProfileTests(context: ContractContext): TestCase[] {
   if (!isAuthEnabled(context)) {
     return [];
   }
 
   const { bffBaseUrl } = context;
+  const expectedAuthorizationUrl = resolveExpectedAuthorizationUrl();
 
   return [
     {
@@ -32,6 +54,24 @@ export function createAuthProfileTests(context: ContractContext): TestCase[] {
         if (location.length === 0) {
           throw new Error(
             "Expected a non-empty Location header from /auth/login redirect"
+          );
+        }
+
+        let redirectUrl: URL;
+        try {
+          redirectUrl = new URL(location);
+        } catch {
+          throw new Error(
+            `Expected /auth/login to redirect to an absolute OAuth provider URL, got ${location}`
+          );
+        }
+
+        if (
+          redirectUrl.origin !== expectedAuthorizationUrl.origin ||
+          redirectUrl.pathname !== expectedAuthorizationUrl.pathname
+        ) {
+          throw new Error(
+            `Expected /auth/login redirect to point to ${expectedAuthorizationUrl.toString()}, got ${redirectUrl.toString()}`
           );
         }
       },
@@ -66,11 +106,11 @@ export function createAuthProfileTests(context: ContractContext): TestCase[] {
           const lowerCookie = setCookie.toLowerCase();
           if (
             lowerCookie.includes("idp_session") &&
-            !lowerCookie.includes("max-age=-1") &&
+            !lowerCookie.includes("max-age=0") &&
             !lowerCookie.includes("expires=thu, 01 jan 1970")
           ) {
             throw new Error(
-              "POST /auth/logout must expire the idp_session cookie (MaxAge=-1 or past Expires)"
+              "POST /auth/logout must expire the idp_session cookie (Max-Age=0 or past Expires)"
             );
           }
         }

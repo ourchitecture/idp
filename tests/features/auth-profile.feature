@@ -25,4 +25,4 @@ Feature: Auth profile — OAuth 2.0 authentication contract
   Scenario: Logout endpoint accepts requests and clears the session cookie
     When the client sends POST /auth/logout to the BFF server
     Then the response status code is 204
-    And the response sets the session cookie with MaxAge = -1 or an expired date
+    And the response sets the session cookie with Max-Age = 0 or an expired date

@@ -15,7 +15,10 @@ Maintainers responsible for code review, merging, and release management.
 
 ## Responsibilities
 
-- Review and merge pull requests.
+- Review and merge pull requests. At least one CODEOWNERS approval is
+  required; stale approvals are dismissed on new pushes. Merges use
+  squash-only and are gated by the `pr-validation-result` status check
+  (enforced by GitHub rulesets).
 - Triage incoming issues and apply appropriate labels.
 - Review weekly `stale` labels as inbox hygiene and apply `keep-open` when work
   should remain active.
@@ -40,6 +43,10 @@ Releases are automated via [release-please](https://github.com/googleapis/releas
 
 - Each component (Go stack, Node.js stack, contract tests) is independently
   versioned using SemVer.
+- The `main` branch is protected by GitHub rulesets: all merges require
+  passing status checks, an approving review, resolved conversations, and
+  squash merge. Force pushes and direct commits are blocked. `idp-admin`
+  members can bypass in emergencies.
 - Merging to `main` triggers release-please to open or update release PRs.
 - Merging a release PR creates a Git tag and publishes container images to
   GitHub Container Registry (`ghcr.io/ourchitecture/idp/stemix-*`).

@@ -58,7 +58,7 @@ Source: [`tests/features/auth-profile.feature`](https://github.com/ourchitecture
 
 - `POST /auth/logout` returns HTTP 204
 - If a `Set-Cookie` header is present, the `idp_session` cookie is expired
-  (`Max-Age=-1` or a past `Expires` date)
+  (`Max-Age=0` or a past `Expires` date)
 
 ## Layer 2 harness
 
@@ -70,7 +70,8 @@ disagree, the `.feature` file is authoritative.
 The harness uses the zero-dependency HTTP client already present in the contract
 test runner. Because Node.js `http.request` does not follow redirects
 automatically, the 3xx response from `/auth/login` is received and asserted
-directly.
+directly, including validation that the redirect target matches the configured
+provider authorization URL.
 
 ## Stack declarations
 
@@ -90,10 +91,12 @@ capability flag in `stack.json`:
 
 ## Environment variables
 
-| Variable                 | Default                 | Description                          |
-| ------------------------ | ----------------------- | ------------------------------------ |
-| `IDP_BFF_URL`            | `http://localhost:8000` | Base URL for the BFF server          |
-| `OUR_IDP_OAUTH_PROVIDER` | `none`                  | OAuth provider (`mock` or `github`)  |
+| Variable | Default | Description |
+| --- | --- | --- |
+| `IDP_BFF_URL` | `http://localhost:8000` | Base URL for the BFF server |
+| `OUR_IDP_OAUTH_PROVIDER` | `none` | OAuth provider (`mock` or `github`) |
+| `OUR_IDP_OAUTH_AUTH_URL` | provider-specific | Optional explicit authorization URL override used by the login redirect assertion |
+| `MOCK_OAUTH_PORT` | `9000` | Mock OAuth provider port when `OUR_IDP_OAUTH_PROVIDER=mock` |
 
 ## Running the profile
 

@@ -168,6 +168,8 @@ the available tool set, follow these rules:
   `npx markdownlint-cli2`). Direct `npx` calls bypass the pinned toolchain,
   ignore project configuration resolution, and may produce different results
   than CI.
+- The `pr-validation-result` aggregating job is a required status check
+  enforced by GitHub rulesets on the `main` branch.
 
 ## Documentation Requirements (Required)
 
@@ -417,6 +419,25 @@ Agents must validate that requested changes actually took effect and report evid
 - Include issue references: `Refs #N` or `Closes #N`.
 - Keep commits atomic and scoped to one logical change.
 - Branch naming: `<type>/<short-description>`.
+
+### Branch Protection (GitHub Rulesets)
+
+The `main` branch is protected by a GitHub ruleset. The following are enforced:
+
+- All changes require a pull request; direct pushes are blocked.
+- At least one approving review from a CODEOWNERS-designated reviewer.
+- Stale approvals are dismissed when new commits are pushed.
+- All PR conversations must be resolved before merge.
+- The `pr-validation-result` status check must pass.
+- Only squash merges are permitted (linear history required).
+- Force pushes to `main` are blocked.
+- Deletion of `main` is blocked.
+
+`idp-admin` members can bypass rulesets in emergencies; this should be used
+sparingly and documented in the issue or PR.
+
+Agents must not attempt merges that violate these constraints — GitHub will
+reject the operation.
 
 ## Versioning
 
