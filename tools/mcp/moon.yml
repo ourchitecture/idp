@@ -8,40 +8,45 @@ project:
 
 tasks:
   all:
-    command: ["make", "all"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check"]
   install:
-    command: ["make", "install"]
+    command: ["npm", "install"]
   build:
-    command: ["make", "build"]
+    command: ["npm", "run", "build"]
   clean:
-    command: ["make", "clean"]
+    command: ["bash", "-c", "rm -rf dist"]
   check-lint:
-    command: ["make", "check-lint"]
+    command: ["bash", "-c", "echo 'No additional lint configured for mcp-tools'"]
   check-test:
-    command: ["make", "check-test"]
+    command: ["npm", "run", "typecheck"]
   check-contract:
-    command: ["make", "check-contract"]
+    command: ["bash", "-c", "npm --prefix ../.. install && MCP_HTTP_PORT=8580 IDP_BFF_URL=http://127.0.0.1:8300 node dist/server.js >/dev/null 2>&1 & MCP_PID=$!; trap 'kill $MCP_PID >/dev/null 2>&1 || true' EXIT; sleep 2; IDP_MCP_URL=http://127.0.0.1:8580 IDP_STACK_PATH=tools/mcp IDP_CONTRACT_PROFILES=mcp-profile npm --prefix ../.. run test:contract; STATUS=$?; kill $MCP_PID >/dev/null 2>&1 || true; wait $MCP_PID 2>/dev/null || true; exit $STATUS"]
   check-ci:
-    command: ["make", "check-ci"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check-test"]
     options:
       runInCI: true
   check:
-    command: ["make", "check"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-lint", "check-test", "check-contract"]
   test:
-    command: ["make", "test"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-test"]
   test-contract:
-    command: ["make", "test-contract"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-contract"]
   run:
-    command: ["make", "run"]
+    command: ["node", "dist/server.js"]
     options:
       persistent: true
       runInCI: false
   run-http:
-    command: ["make", "run-http"]
+    command: ["bash", "-c", "MCP_HTTP_PORT=8080 node dist/server.js"]
     options:
       persistent: true
       runInCI: false
   build-container:
-    command: ["make", "build-container"]
+    command: ["docker", "build", "-t", "localhost/stemix-mcp-server:latest", "."]
     options:
       runInCI: false

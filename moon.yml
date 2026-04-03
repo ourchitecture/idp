@@ -52,15 +52,16 @@ tasks:
     options:
       runFromWorkspaceRoot: true
   check:
-    command: ["make", "check"]
+    command: ["bash", "-c", "true"]
+    deps: ["~:check-lint-md"]
     options:
       runFromWorkspaceRoot: true
   ci:
-    command: ["make", "ci"]
+    command: ["bash", "-c", "moon ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci"]
     options:
       runFromWorkspaceRoot: true
   dev:
-    command: ["make", "dev"]
+    command: ["bash", "-c", "moon run go-net-http-rest:run-web go-net-http-rest:run-bff"]
     options:
       runFromWorkspaceRoot: true
       persistent: true

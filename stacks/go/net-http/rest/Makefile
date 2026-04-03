@@ -11,6 +11,7 @@ CONTAINER_LOCAL_PREFIX := localhost
 CONTAINER_IMAGE_BASE := stemix-go-net-http-rest
 PROTO_HOME ?= $(HOME)/.proto
 PROTO_BIN := $(PROTO_HOME)/bin/proto
+MOON_BIN := $(PROTO_HOME)/shims/moon
 DLV_VERSION ?= v1.25.2
 
 ifeq ($(OS),Windows_NT)
@@ -46,40 +47,80 @@ help:
 	@printf "  build-container-bff Build BFF container image (requires docker)\n"
 	@printf "  build-containers  Build all container images (requires docker)\n"
 
-all: install build check
+all:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:all; \
+	else \
+		"$(MAKE)" install build check; \
+	fi
 	@if command -v docker >/dev/null 2>&1; then "$(MAKE)" build-containers; fi
 
 install:
-	@go mod download
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:install; \
+	else \
+		go mod download; \
+	fi
 
-
-build: build-web build-bff
+build:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:build; \
+	else \
+		"$(MAKE)" build-web build-bff; \
+	fi
 
 clean:
-	@rm -rf "$(BIN_DIR)"
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:clean; \
+	else \
+		rm -rf "$(BIN_DIR)"; \
+	fi
 
 lint: check-lint
 
 check-lint:
-	@go vet ./...
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:check-lint; \
+	else \
+		go vet ./...; \
+	fi
 
 check-test:
-	@go test ./...
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:check-test; \
+	else \
+		go test ./...; \
+	fi
 
 test: check-test
 
-check-ci: build check-lint check-test
+check-ci:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:check-ci; \
+	else \
+		"$(MAKE)" build check-lint check-test; \
+	fi
 
-check: check-lint check-test check-contract
+check:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:check; \
+	else \
+		"$(MAKE)" check-lint check-test check-contract; \
+	fi
 
-check-contract: build
-	@STACK_PATH="$(STACK_PATH)" \
-	WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
-	BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" env -- "$(abspath $(BFF_BIN))"' \
-	WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-	BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-	ROOT_DIR="$(ROOT_DIR)" \
-	python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"
+check-contract:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:check-contract; \
+	else \
+		"$(MAKE)" build-web build-bff; \
+		STACK_PATH="$(STACK_PATH)" \
+		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
+		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" env -- "$(abspath $(BFF_BIN))"' \
+		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		ROOT_DIR="$(ROOT_DIR)" \
+		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+	fi
 
 test-contract: check-contract
 
@@ -92,30 +133,54 @@ build-bff:
 	@go build -o "$(BFF_BIN)" ./bff
 
 setup-debug-tools:
-	@mkdir -p "$(BIN_DIR)"
-	@if [ -x "$(PROTO_BIN)" ]; then \
-		GOBIN="$(abspath $(BIN_DIR))" "$(PROTO_BIN)" run go -- install -v github.com/go-delve/delve/cmd/dlv@$(DLV_VERSION); \
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:setup-debug-tools; \
 	else \
-		GOBIN="$(abspath $(BIN_DIR))" go install -v github.com/go-delve/delve/cmd/dlv@$(DLV_VERSION); \
+		mkdir -p "$(BIN_DIR)"; \
+		if [ -x "$(PROTO_BIN)" ]; then \
+			GOBIN="$(abspath $(BIN_DIR))" "$(PROTO_BIN)" run go -- install -v github.com/go-delve/delve/cmd/dlv@$(DLV_VERSION); \
+		else \
+			GOBIN="$(abspath $(BIN_DIR))" go install -v github.com/go-delve/delve/cmd/dlv@$(DLV_VERSION); \
+		fi; \
+		if [ ! -x "$(DLV_BIN)" ]; then \
+			echo "ERROR: delve install failed; expected $(DLV_BIN)" >&2; \
+			exit 1; \
+		fi; \
 	fi
-	@if [ ! -x "$(DLV_BIN)" ]; then \
-		echo "ERROR: delve install failed; expected $(DLV_BIN)" >&2; \
-		exit 1; \
+
+build-debug-web:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:build-debug-web; \
+	else \
+		"$(MAKE)" setup-debug-tools; \
+		mkdir -p "$(BIN_DIR)"; \
+		go build -gcflags="all=-N -l" -o "$(WEB_BIN)" ./web; \
 	fi
 
-build-debug-web: setup-debug-tools
-	@mkdir -p "$(BIN_DIR)"
-	@go build -gcflags="all=-N -l" -o "$(WEB_BIN)" ./web
+build-debug-bff:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:build-debug-bff; \
+	else \
+		"$(MAKE)" setup-debug-tools; \
+		mkdir -p "$(BIN_DIR)"; \
+		go build -gcflags="all=-N -l" -o "$(BFF_BIN)" ./bff; \
+	fi
 
-build-debug-bff: setup-debug-tools
-	@mkdir -p "$(BIN_DIR)"
-	@go build -gcflags="all=-N -l" -o "$(BFF_BIN)" ./bff
+run-web:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:run-web; \
+	else \
+		"$(MAKE)" build-web; \
+		env -- "$(WEB_BIN)"; \
+	fi
 
-run-web: build-web
-	@env -- "$(WEB_BIN)"
-
-run-bff: build-bff
-	@env -- "$(BFF_BIN)"
+run-bff:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:run-bff; \
+	else \
+		"$(MAKE)" build-bff; \
+		env -- "$(BFF_BIN)"; \
+	fi
 
 build-container-web:
 	@if ! command -v docker >/dev/null 2>&1; then \

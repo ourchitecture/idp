@@ -8,34 +8,37 @@ project:
 
 tasks:
   all:
-    command: ["make", "all"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check"]
   install:
-    command: ["make", "install"]
+    command: ["bash", "-c", "PUPPETEER_SKIP_DOWNLOAD=true npm ci"]
   build:
-    command: ["make", "build"]
+    command: ["npm", "run", "build"]
   clean:
-    command: ["make", "clean"]
+    command: ["bash", "-c", "rm -rf build .docusaurus"]
   generate-diagrams:
-    command: ["make", "generate-diagrams"]
+    command: ["npm", "run", "generate:diagrams"]
   check-diagrams:
-    command: ["make", "check-diagrams"]
+    command: ["npm", "run", "check:diagrams"]
   check-lint:
-    command: ["make", "check-lint"]
+    command: ["npm", "run", "lint:md"]
   check-test:
-    command: ["make", "check-test"]
+    command: ["npm", "run", "typecheck"]
   check-ci:
-    command: ["make", "check-ci"]
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check-diagrams", "check-lint", "check-test"]
     options:
       runInCI: true
   check:
-    command: ["make", "check"]
+    command: ["bash", "-c", "true"]
+    deps: ["check-diagrams", "check-lint", "check-test"]
   run-dev:
-    command: ["make", "run-dev"]
+    command: ["npm", "run", "start"]
     options:
       persistent: true
       runInCI: false
   run-serve:
-    command: ["make", "run-serve"]
+    command: ["npm", "run", "serve"]
     options:
       persistent: true
       runInCI: false

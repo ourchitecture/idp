@@ -5,6 +5,8 @@ TOOL_PATH := tools/mock-oauth
 MOCK_OAUTH_PORT ?= 9000
 CONTAINER_LOCAL_PREFIX := localhost
 CONTAINER_IMAGE_BASE := stemix-mock-oauth
+PROTO_HOME ?= $(HOME)/.proto
+MOON_BIN := $(PROTO_HOME)/shims/moon
 
 help:
 	@printf "Targets:\n"
@@ -23,37 +25,76 @@ help:
 	@printf "Variables:\n"
 	@printf "  MOCK_OAUTH_PORT  Port for the mock OAuth server (default: 9000)\n"
 
-all: install build check
+all:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:all; \
+	else \
+		"$(MAKE)" install build check; \
+	fi
 	@if command -v docker >/dev/null 2>&1; then \
 		"$(MAKE)" build-container; \
 	fi
 
 install:
-	@./mvnw dependency:resolve -q -B
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:install; \
+	else \
+		./mvnw dependency:resolve -q -B; \
+	fi
 
 build:
-	@./mvnw package -q -DskipTests
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:build; \
+	else \
+		./mvnw package -q -DskipTests; \
+	fi
 
 clean:
-	@./mvnw clean -q
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:clean; \
+	else \
+		./mvnw clean -q; \
+	fi
 
 check-lint:
-	@echo "No additional lint configured for mock-oauth"
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:check-lint; \
+	else \
+		echo "No additional lint configured for mock-oauth"; \
+	fi
 
 check-test:
-	@./mvnw verify -q
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:check-test; \
+	else \
+		./mvnw verify -q; \
+	fi
 
 test: check-test
 
-check-ci: install build check-test
+check-ci:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:check-ci; \
+	else \
+		"$(MAKE)" install build check-test; \
+	fi
 	@if command -v docker >/dev/null 2>&1; then \
 		"$(MAKE)" build-container; \
 	fi
 
-check: check-lint check-test
+check:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:check; \
+	else \
+		"$(MAKE)" check-lint check-test; \
+	fi
 
 run:
-	@MOCK_OAUTH_PORT="$(MOCK_OAUTH_PORT)" ./mvnw spring-boot:run -q
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run mock-oauth:run; \
+	else \
+		MOCK_OAUTH_PORT="$(MOCK_OAUTH_PORT)" ./mvnw spring-boot:run -q; \
+	fi
 
 build-container:
 	@if ! command -v docker >/dev/null 2>&1; then \
