@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@docusaurus/core": "3.9.2",
+    "@docusaurus/plugin-pwa": "3.9.2",
     "@docusaurus/preset-classic": "3.9.2",
     "@docusaurus/theme-mermaid": "3.9.2",
     "@mdx-js/react": "^3.0.0",
@@ -52,6 +53,7 @@
   },
   "overrides": {
     "lodash": "4.17.21",
-    "serialize-javascript": "7.0.5"
+    "serialize-javascript": "7.0.5",
+    "magic-string": "^0.30.0"
   }
 }
