@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.3.0-alpha.0...nodejs-react-fastify-rest-v1.4.0-alpha.0) (2026-04-03)
+
+
+### Features
+
+* **bff:** add optional OAuth plug-in to Go BFF for GitHub and mock providers ([#63](https://github.com/ourchitecture/idp/issues/63)) ([ac1676f](https://github.com/ourchitecture/idp/commit/ac1676f1e235142dabec910ddca82c8ba7180b40))
+
 ## [1.3.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.2.0-alpha.0...nodejs-react-fastify-rest-v1.3.0-alpha.0) (2026-04-03)
 
 
