@@ -14,12 +14,15 @@ tasks:
     command: ["bash", "-c", "npm --prefix ../../../.. install && npm ci"]
   build:
     command: ["npm", "--prefix", "../../../..", "run", "build:web:react-fastify"]
+    deps: ["install"]
   clean:
     command: ["bash", "-c", "rm -rf web/dist"]
   check-lint:
     command: ["npm", "run", "lint:md"]
+    deps: ["install"]
   check-test:
     command: ["npm", "--prefix", "../../../..", "run", "typecheck:stack:react-fastify"]
+    deps: ["install"]
   check-contract:
     command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
     env:

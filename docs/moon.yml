@@ -14,16 +14,20 @@ tasks:
     command: ["bash", "-c", "PUPPETEER_SKIP_DOWNLOAD=true npm ci"]
   build:
     command: ["npm", "run", "build"]
+    deps: ["install"]
   clean:
     command: ["bash", "-c", "rm -rf build .docusaurus"]
   generate-diagrams:
     command: ["npm", "run", "generate:diagrams"]
   check-diagrams:
     command: ["npm", "run", "check:diagrams"]
+    deps: ["install"]
   check-lint:
     command: ["npm", "run", "lint:md"]
+    deps: ["install"]
   check-test:
     command: ["npm", "run", "typecheck"]
+    deps: ["install"]
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check-diagrams", "check-lint", "check-test"]
