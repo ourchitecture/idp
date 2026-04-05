@@ -24,7 +24,10 @@ tasks:
     deps: ["install"]
   check-diagrams:
     command: ["npm", "run", "check:diagrams"]
-    deps: ["install", "install-ci-browsers"]
+    deps: ["install"]
+  check-diagrams-ci:
+    command: ["npm", "run", "check:diagrams"]
+    deps: ["install-ci-browsers"]
   check-lint:
     command: ["npm", "run", "lint:md"]
     deps: ["install"]
@@ -33,7 +36,7 @@ tasks:
     deps: ["install"]
   check-ci:
     command: ["bash", "-c", "true"]
-    deps: ["install", "install-ci-browsers", "build", "check-diagrams", "check-lint", "check-test"]
+    deps: ["install", "build", "check-diagrams-ci", "check-lint", "check-test"]
     options:
       runInCI: true
   check:
