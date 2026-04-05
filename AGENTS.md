@@ -116,6 +116,28 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
 
+### Triage Model
+
+The Issue Triage workflow (`.github/workflows/issue-triage.yml` plus
+`scripts/ci/issue-triage.sh`) applies labels automatically, but its behavior
+is deliberately narrow so maintainer overrides are not reverted.
+
+- The workflow fires only on `opened`, `reopened`, and `edited` — never on
+  `labeled`. This is intentional: it means manual label changes by maintainers
+  are authoritative and will not be stomped by a re-run of the triage script.
+- On `opened` and `reopened`, the workflow checks whether the issue author is
+  a member of `@ourchitecture/idp-admin` or `@ourchitecture/idp-maintain` and
+  applies either `ready` (team member) or `needs-triage` (external contributor)
+  accordingly. Team membership is read via the `IDP_TRIAGE_TOKEN` secret, which
+  must carry `read:org` scope for the `ourchitecture` organization; the default
+  `GITHUB_TOKEN` cannot read team membership and will incorrectly treat every
+  author as external.
+- On `edited`, the workflow refreshes only form-field labels (priority, domain,
+  task type, agent eligibility) from the issue body. It never touches
+  `ready` or `needs-triage`, so maintainers can safely override them.
+- Maintainers can move an issue from `needs-triage` to `ready` at any time by
+  editing the label directly. No workflow will undo that change.
+
 ### When GitHub MCP Tools Are Unavailable
 
 If the GitHub MCP server is disconnected or tools are not listed in

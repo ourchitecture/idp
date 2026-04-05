@@ -28,13 +28,26 @@ for team in "${teams[@]}"; do
     continue
   fi
 
+  api_stderr="$(mktemp)"
   if gh api \
     -H "Accept: application/vnd.github+json" \
     "orgs/${ORG}/teams/${team}/members/${USERNAME}" \
-    --silent >/dev/null 2>&1; then
+    --silent >/dev/null 2>"${api_stderr}"; then
     is_team_member="true"
     matched_team="${team}"
+    rm -f "${api_stderr}"
     break
+  else
+    # A 404 is expected when the user is not a member. Any other error
+    # (401/403 from missing scopes, 5xx, network) almost always means the
+    # token cannot read organization membership — surface it loudly so the
+    # failure mode is visible in workflow logs instead of silently falling
+    # through to "not a member".
+    if [[ -s "${api_stderr}" ]] && ! grep -q "HTTP 404" "${api_stderr}"; then
+      echo "WARNING: team membership API error for '${team}' (token may lack 'read:org' scope):" >&2
+      sed 's/^/  /' "${api_stderr}" >&2
+    fi
+    rm -f "${api_stderr}"
   fi
 done
 

@@ -2,7 +2,7 @@ name: Issue Triage
 
 on:
   issues:
-    types: [opened, edited, labeled]
+    types: [opened, reopened, edited]
 
 permissions:
   issues: write
@@ -29,7 +29,7 @@ jobs:
 
       - name: Parse issue form fields and apply labels
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.IDP_TRIAGE_TOKEN || secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_BODY: ${{ github.event.issue.body }}
