@@ -60,10 +60,9 @@ if [[ -z "${CHROME_PATH}" ]]; then
 fi
 
 if [[ -z "${CHROME_PATH}" ]]; then
-  echo "No Chromium-based browser detected for mmdc." >&2
-  echo "Set PUPPETEER_EXECUTABLE_PATH to a local browser binary and re-run." >&2
+  echo "No system Chromium-based browser detected; relying on Puppeteer's cached browser." >&2
+  echo "If diagram generation fails, set PUPPETEER_EXECUTABLE_PATH to a local browser binary." >&2
   echo "Example (PowerShell): \$env:PUPPETEER_EXECUTABLE_PATH=\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"" >&2
-  exit 1
 fi
 
 mkdir -p "${OUTPUT_DIR}"
@@ -116,7 +115,11 @@ for source in "${markdown_files[@]}"; do
     rm -f "${output}" "${OUTPUT_DIR}/${base_name}-"*.svg
   fi
 
-  PUPPETEER_EXECUTABLE_PATH="${CHROME_PATH}" "${MMDC_BIN}" \
+  mmdc_env=()
+  if [[ -n "${CHROME_PATH}" ]]; then
+    mmdc_env=(env "PUPPETEER_EXECUTABLE_PATH=${CHROME_PATH}")
+  fi
+  "${mmdc_env[@]}" "${MMDC_BIN}" \
     --input "${input_file}" \
     --output "${output}" \
     --outputFormat svg \
