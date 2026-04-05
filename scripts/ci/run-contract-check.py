@@ -25,12 +25,14 @@ Required environment variables:
 
 Optional environment variables:
     CONTRACT_PROFILES Comma-separated contract profile names
-    READY_TIMEOUT     Seconds to wait for readiness (default: 30)
+    READY_TIMEOUT     Seconds to wait for readiness (default: 120)
     READY_INTERVAL    Polling interval in seconds (default: 1)
 """
 
 import atexit
 import os
+import re
+import shlex
 import signal
 import subprocess
 import sys
@@ -49,7 +51,7 @@ WEB_URL = os.environ.get("WEB_URL")
 BFF_URL = os.environ.get("BFF_URL")
 ROOT_DIR = os.environ.get("ROOT_DIR")
 CONTRACT_PROFILES = os.environ.get("CONTRACT_PROFILES", "")
-READY_TIMEOUT = int(os.environ.get("READY_TIMEOUT", "30"))
+READY_TIMEOUT = int(os.environ.get("READY_TIMEOUT", "120"))
 READY_INTERVAL = int(os.environ.get("READY_INTERVAL", "1"))
 
 for var in ("STACK_PATH", "WEB_START_CMD", "BFF_START_CMD",
@@ -66,7 +68,9 @@ BFF_READY_URL = BFF_URL.rstrip("/") + READINESS_PATH
 # Process management
 # ---------------------------------------------------------------------------
 
-_processes: list[subprocess.Popen] = []
+_processes: list[tuple[subprocess.Popen, str]] = []
+
+INLINE_ENV_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=.*$")
 
 
 def _terminate(proc: subprocess.Popen, label: str) -> None:
@@ -75,15 +79,14 @@ def _terminate(proc: subprocess.Popen, label: str) -> None:
         return
     try:
         if sys.platform == "win32":
-            # On Windows, Popen.terminate() only kills the shell wrapper
-            # when shell=True. Use taskkill /T to kill the entire tree.
+            # Kill the full process tree so npm/go child processes do not leak.
             subprocess.call(
                 ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
         else:
-            proc.terminate()
+            os.killpg(proc.pid, signal.SIGTERM)
         proc.wait(timeout=5)
         log(f"{label} stopped (pid {proc.pid})")
     except Exception:
@@ -124,13 +127,56 @@ def log_section(msg: str) -> None:
     print(f"\n[contract:{STACK_PATH}] --- {msg} ---", flush=True)
 
 
+def parse_start_command(cmd: str) -> tuple[list[str], dict[str, str]]:
+    """Parse a start command with optional POSIX-style inline env prefixes."""
+    try:
+        tokens = shlex.split(cmd, posix=True)
+    except ValueError as exc:
+        raise ValueError(f"invalid start command {cmd!r}: {exc}") from exc
+
+    if not tokens:
+        raise ValueError("start command must not be empty")
+
+    inline_env: dict[str, str] = {}
+    index = 0
+
+    while index < len(tokens) and INLINE_ENV_RE.match(tokens[index]):
+        name, value = tokens[index].split("=", 1)
+        inline_env[name] = value
+        index += 1
+
+    if index < len(tokens) and tokens[index] == "env":
+        index += 1
+        if index < len(tokens) and tokens[index] == "--":
+            index += 1
+        while index < len(tokens) and INLINE_ENV_RE.match(tokens[index]):
+            name, value = tokens[index].split("=", 1)
+            inline_env[name] = value
+            index += 1
+
+    argv = tokens[index:]
+    if not argv:
+        raise ValueError(f"start command {cmd!r} did not include an executable")
+
+    return argv, inline_env
+
+
 def start_server(cmd: str, label: str) -> subprocess.Popen:
     """Start a server process in the background."""
+    argv, inline_env = parse_start_command(cmd)
+    popen_kwargs = {
+        "env": {**os.environ, **inline_env},
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+    }
+    if sys.platform == "win32":
+        popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    else:
+        popen_kwargs["start_new_session"] = True
+
     proc = subprocess.Popen(
-        cmd,
-        shell=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        argv,
+        **popen_kwargs,
     )
     _processes.append((proc, label))
     log(f"{label} started (pid {proc.pid})")
@@ -138,12 +184,23 @@ def start_server(cmd: str, label: str) -> subprocess.Popen:
 
 
 def wait_for_ready(label: str, url: str, timeout: int,
-                   interval: int) -> bool:
+                   interval: int,
+                   proc: subprocess.Popen | None = None) -> bool:
     """Poll a URL until it returns HTTP 2xx or the timeout is reached."""
     log(f"Waiting for {label} at {url} (timeout: {timeout}s)")
     elapsed = 0
 
     while True:
+        if proc is not None:
+            exit_code = proc.poll()
+            if exit_code is not None:
+                print(
+                    f"[contract:{STACK_PATH}] ERROR: {label} process exited "
+                    f"before readiness completed (exit {exit_code})",
+                    file=sys.stderr,
+                )
+                return False
+
         try:
             req = urllib.request.Request(url, method="GET")
             with urllib.request.urlopen(req, timeout=2) as resp:
@@ -183,7 +240,7 @@ def main() -> int:
     # --- Start servers -------------------------------------------------------
 
     log_section("Starting servers")
-    start_server(BFF_START_CMD, "BFF server")
+    bff_proc = start_server(BFF_START_CMD, "BFF server")
     start_server(WEB_START_CMD, "Web server")
 
     # --- Wait for readiness --------------------------------------------------
@@ -191,7 +248,7 @@ def main() -> int:
     log_section("Waiting for readiness")
 
     if not wait_for_ready("BFF readiness", BFF_READY_URL,
-                          READY_TIMEOUT, READY_INTERVAL):
+                          READY_TIMEOUT, READY_INTERVAL, bff_proc):
         print(
             f"[contract:{STACK_PATH}] FAIL: BFF did not become ready "
             f"-- aborting test run",
