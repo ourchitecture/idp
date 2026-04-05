@@ -366,6 +366,13 @@ moon run go-net-http-rest:check-contract
 moon run nodejs-react-fastify-rest:check-contract
 ```
 
+The Python runner accepts start commands in direct executable form with
+optional inline environment prefixes, for example
+`OUR_IDP_API_PORT=8300 go run ./bff` or
+`OUR_IDP_API_PORT=8300 env -- ./bin/idp-bff`. This keeps the command contract
+portable across Windows, macOS, and Linux without requiring stack-specific
+launcher scripts.
+
 ### Root convenience shortcut
 
 ```bash
