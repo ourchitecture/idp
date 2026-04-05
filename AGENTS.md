@@ -102,6 +102,9 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Compiled-language stacks should avoid ephemeral executable paths for default
   local run targets on Windows (for example repeated `go run` temp executables);
   prefer stable repo-local binary paths.
+- On Windows PowerShell, when an interactive Bash shell is needed, first try
+  `& "C:\Program Files\Git\bin\bash.exe" --login -i` before relying on a plain
+  `bash` resolution that may point at an unintended environment.
 - Platform caveats and first-run behavior must be documented alongside run
   commands for each stack.
 
