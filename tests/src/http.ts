@@ -34,13 +34,23 @@ function collectResponse(res: http.IncomingMessage): Promise<ResponsePayload> {
   });
 }
 
-export function request(url: URL): Promise<ResponsePayload> {
+export function request(
+  url: URL,
+  extraHeaders?: Record<string, string>
+): Promise<ResponsePayload> {
   const client = url.protocol === "https:" ? https : http;
 
   return new Promise((resolve, reject) => {
-    const req = client.request(url, { method: "GET" }, (res) => {
-      collectResponse(res).then(resolve).catch(reject);
-    });
+    const req = client.request(
+      url,
+      {
+        method: "GET",
+        headers: { ...extraHeaders },
+      },
+      (res) => {
+        collectResponse(res).then(resolve).catch(reject);
+      }
+    );
 
     req.on("error", reject);
     req.end();

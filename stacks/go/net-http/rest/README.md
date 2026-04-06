@@ -24,9 +24,10 @@ web server and the BFF server.
 - `core`
 - `operational`
 - `status-profile`
+- `auth-profile`
 
-This stack declares status capability, but it does not declare UI capability
-and does not run `ui-profile` tests.
+This stack declares status and auth capabilities, but it does not declare UI
+capability and does not run `ui-profile` tests.
 
 ## Auth Capability (BFF)
 
@@ -48,7 +49,7 @@ fully preserved.
 | Method | Path | Description |
 | --- | --- | --- |
 | `GET` | `/auth/login` | Redirects to the provider authorization URL with a CSRF state value. |
-| `GET` | `/auth/callback` | Exchanges the authorization code, sets an `idp_session` cookie, and returns user JSON. |
+| `GET` | `/auth/callback` | Exchanges the authorization code, sets an `idp_session` cookie, and redirects to `/`. |
 | `POST` | `/auth/logout` | Clears the session and expires the cookie. Returns 204. |
 | `GET` | `/auth/me` | Returns the user profile for the active session, or 401. |
 
@@ -75,7 +76,7 @@ cd tools/mock-oauth && ./mvnw spring-boot:run -q
 # Terminal 2 – start the BFF with mock provider
 OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
 
-# Initiate login (follow the redirect to /oauth/authorize, then back to /auth/callback)
+# Initiate login (follow redirects: /auth/login → mock /oauth/authorize → /auth/callback → /)
 # Use a cookie jar so the session cookie is saved automatically.
 curl -v -L -c /tmp/idp-cookies.txt http://127.0.0.1:8000/auth/login
 

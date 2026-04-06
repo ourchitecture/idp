@@ -5,7 +5,8 @@
   "contractProfiles": [
     "core",
     "operational",
-    "status-profile"
+    "status-profile",
+    "auth-profile"
   ],
   "capabilities": {
     "status": {

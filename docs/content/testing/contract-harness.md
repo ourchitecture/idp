@@ -92,7 +92,7 @@ tests/
     └── profiles/
         ├── index.ts          Routes a profile name to its test factory
         ├── core.ts           5 baseline tests
-        ├── auth-profile.ts   3 OAuth auth tests
+        ├── auth-profile.ts   5 OAuth auth tests
         ├── operational.ts    5 runtime/semantic tests
         ├── status-profile.ts 3 API-first status tests
         └── ui-profile.ts     5 UI capability tests
@@ -175,7 +175,7 @@ that feeds the portal home page, dedicated status route, MCP
 | `status-profile:portal summary metrics are internally consistent` | aggregate counts and top-level status match the component list |
 | `status-profile:portal summary timestamps and freshness are valid` | timestamps are ISO-8601 and freshness metadata matches component observation ages |
 
-### `auth-profile` — OAuth 2.0 authentication contract (3 tests)
+### `auth-profile` — OAuth 2.0 authentication contract (5 tests)
 
 Optional. Only runs when the stack declares `capabilities.auth.enabled: true`
 in `stack.json`. It validates the observable contract of the BFF auth surface
@@ -184,8 +184,10 @@ when an OAuth provider is active (`OUR_IDP_OAUTH_PROVIDER != "none"`).
 
 | Test | What is checked |
 | --- | --- |
-| `auth-profile:login endpoint initiates the OAuth flow` | `GET /auth/login` returns a 3xx redirect whose `Location` header points at the configured provider authorization URL |
 | `auth-profile:me endpoint returns 401 when unauthenticated` | `GET /auth/me` without a session cookie returns HTTP 401 |
+| `auth-profile:login endpoint initiates the OAuth flow` | `GET /auth/login` returns a 3xx redirect whose `Location` header points at the configured provider authorization URL and includes a `state` parameter |
+| `auth-profile:callback endpoint completes the OAuth flow` | `GET /auth/callback?code=<code>&state=<captured-state>` returns a 3xx redirect and sets the `idp_session` cookie |
+| `auth-profile:me endpoint returns 200 with user JSON when authenticated` | `GET /auth/me` with the `idp_session` cookie returns HTTP 200 with JSON containing a `login` field |
 | `auth-profile:logout endpoint returns 204 and clears session cookie` | `POST /auth/logout` returns HTTP 204; if `Set-Cookie` is present it expires `idp_session` |
 
 ---
@@ -409,7 +411,7 @@ declared profiles on every change.
 
 - **Language / framework**: Go 1.25, standard library `net/http` only
 - **Moon project ID**: `go-net-http-rest`
-- **Profiles**: `core`, `operational`, `status-profile`
+- **Profiles**: `core`, `operational`, `status-profile`, `auth-profile`
 - **Components**: two compiled binaries in `.bin/`
   - `idp-go-web` — serves `GET /`, `GET /health`, binds `127.0.0.1:3000`
   - `idp-go-bff` — serves `GET /`, `GET /health`, `GET /readiness`,

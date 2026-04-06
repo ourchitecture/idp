@@ -286,8 +286,14 @@ func TestCallbackHandlerValidFlow(t *testing.T) {
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
 
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d: %s", w.Code, w.Body.String())
+	if w.Code != http.StatusFound {
+		t.Errorf("expected 302, got %d: %s", w.Code, w.Body.String())
+	}
+
+	// Verify the callback redirects to /.
+	loc := w.Header().Get("Location")
+	if loc != "/" {
+		t.Errorf("expected redirect to /, got %s", loc)
 	}
 
 	// Verify idp_session cookie is set.
@@ -342,8 +348,8 @@ func TestCallbackHandlerStateIsOneTimeUse(t *testing.T) {
 	req1 := httptest.NewRequest(http.MethodGet, "/auth/callback?code=c1&state="+state, nil)
 	w1 := httptest.NewRecorder()
 	handler.ServeHTTP(w1, req1)
-	if w1.Code != http.StatusOK {
-		t.Fatalf("first callback should succeed, got %d", w1.Code)
+	if w1.Code != http.StatusFound {
+		t.Fatalf("first callback should succeed with 302, got %d", w1.Code)
 	}
 
 	// Replay with the same state must be rejected.
