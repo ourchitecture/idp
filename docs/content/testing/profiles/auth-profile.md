@@ -13,7 +13,8 @@ provider-dependent and not always enabled in every deployment.
 Auth is a first-class IDP capability, but it requires an active OAuth provider
 (`OUR_IDP_OAUTH_PROVIDER != "none"`) to be meaningful. This profile enforces the
 observable contract of the BFF auth surface — redirect behavior, unauthenticated
-responses, and session cookie cleanup — without requiring a live OAuth round-trip.
+responses, session cookie creation, authenticated responses, and session cookie
+cleanup — using the stateful mock OAuth round-trip.
 
 ## Who must pass it
 
@@ -30,17 +31,7 @@ configured OAuth provider.
 
 Source: [`tests/features/auth-profile.feature`](https://github.com/ourchitecture/idp/blob/main/tests/features/auth-profile.feature)
 
-## Scenarios (3 total)
-
-### Login endpoint initiates the OAuth flow
-
-**Precondition:** The BFF server is running with an OAuth provider configured.
-
-**Assertions:**
-
-- `GET /auth/login` returns an HTTP status code in the 3xx range
-- The `Location` header is present and non-empty
-- The `Location` header points to the configured OAuth provider authorization URL
+## Scenarios (5 total)
 
 ### Me endpoint returns 401 when unauthenticated
 
@@ -49,6 +40,35 @@ Source: [`tests/features/auth-profile.feature`](https://github.com/ourchitecture
 **Assertions:**
 
 - `GET /auth/me` without a session cookie returns HTTP 401
+
+### Login endpoint initiates the OAuth flow
+
+**Precondition:** The BFF server is running with an OAuth provider configured.
+
+**Assertions:**
+
+- `GET /auth/login` returns HTTP 302
+- The `Location` header is present and non-empty
+- The `Location` header points to the configured OAuth provider authorization URL
+- The `Location` URL includes a `state` parameter (captured for the callback test)
+
+### Callback endpoint completes the OAuth flow
+
+**Precondition:** State was captured from the login redirect.
+
+**Assertions:**
+
+- `GET /auth/callback?code=<code>&state=<captured-state>` returns a status code in the 3xx range
+- The response sets the `idp_session` cookie
+
+### Me endpoint returns 200 with user JSON when authenticated
+
+**Precondition:** Session cookie was captured from the callback response.
+
+**Assertions:**
+
+- `GET /auth/me` with the `idp_session` cookie returns HTTP 200
+- The response body is JSON containing a `login` field
 
 ### Logout endpoint accepts requests and clears the session cookie
 
@@ -67,11 +87,20 @@ Source: [`tests/src/profiles/auth-profile.ts`](https://github.com/ourchitecture/
 The TypeScript harness is derived from the `.feature` file above. When they
 disagree, the `.feature` file is authoritative.
 
-The harness uses the zero-dependency HTTP client already present in the contract
-test runner. Because Node.js `http.request` does not follow redirects
-automatically, the 3xx response from `/auth/login` is received and asserted
-directly, including validation that the redirect target matches the configured
-provider authorization URL.
+The harness runs the full mock OAuth round-trip in order:
+
+1. `GET /auth/me` without a cookie — asserts 401.
+2. `GET /auth/login` — asserts a 3xx redirect to the provider, captures the
+   `state` parameter from the `Location` header.
+3. `GET /auth/callback?code=mock-code&state=<captured>` — asserts a 3xx
+   redirect, captures the `idp_session` cookie from `Set-Cookie`.
+4. `GET /auth/me` with the session cookie — asserts 200 and JSON with a `login`
+   field.
+5. `POST /auth/logout` — asserts 204 and that the `idp_session` cookie is
+   expired.
+
+Because Node.js `http.request` does not follow redirects automatically, all 3xx
+responses are received and asserted directly.
 
 ## Stack declarations
 
@@ -101,10 +130,17 @@ capability flag in `stack.json`:
 ## Running the profile
 
 ```sh
-# Start the BFF with a mock OAuth provider, then run contract tests:
+# Terminal 1 – start the mock OAuth service
+cd tools/mock-oauth && ./mvnw spring-boot:run -q
+
+# Terminal 2 – start the BFF with mock provider
+OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
+
+# Terminal 3 – run only the auth-profile contract tests
 OUR_IDP_OAUTH_PROVIDER=mock \
 IDP_BFF_URL=http://localhost:8000 \
 IDP_STACK_PATH=stacks/go/net-http/rest \
+IDP_CONTRACT_PROFILE=auth-profile \
 npm run test:contract
 ```
 

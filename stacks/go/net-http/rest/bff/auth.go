@@ -357,7 +357,7 @@ func makeCallbackHandler(cfg *oauthConfig) http.HandlerFunc {
 			Secure:   resolveSecureCookie(),
 		})
 
-		writeJSON(w, user)
+		http.Redirect(w, r, "/", http.StatusFound)
 	}
 }
 

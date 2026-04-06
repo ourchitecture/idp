@@ -35,7 +35,24 @@ export function createAuthProfileTests(context: ContractContext): TestCase[] {
   const { bffBaseUrl } = context;
   const expectedAuthorizationUrl = resolveExpectedAuthorizationUrl();
 
+  // Shared state captured across sequential tests.
+  let capturedState = "";
+  let capturedSessionCookie = "";
+
   return [
+    {
+      name: "auth-profile:me endpoint returns 401 when unauthenticated",
+      run: async () => {
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+        const response = await request(new URL("/auth/me", bffBaseUrl));
+
+        if (response.status !== 401) {
+          throw new Error(
+            `Expected 401 from /auth/me without a session cookie, got ${response.status}`
+          );
+        }
+      },
+    },
     {
       name: "auth-profile:login endpoint initiates the OAuth flow",
       run: async () => {
@@ -74,17 +91,81 @@ export function createAuthProfileTests(context: ContractContext): TestCase[] {
             `Expected /auth/login redirect to point to ${expectedAuthorizationUrl.toString()}, got ${redirectUrl.toString()}`
           );
         }
+
+        const state = redirectUrl.searchParams.get("state");
+        if (!state) {
+          throw new Error(
+            "Expected a state parameter in the /auth/login redirect URL"
+          );
+        }
+        capturedState = state;
       },
     },
     {
-      name: "auth-profile:me endpoint returns 401 when unauthenticated",
+      name: "auth-profile:callback endpoint completes the OAuth flow",
       run: async () => {
-        await ensureServiceAvailable("BFF server", bffBaseUrl);
-        const response = await request(new URL("/auth/me", bffBaseUrl));
-
-        if (response.status !== 401) {
+        if (!capturedState) {
           throw new Error(
-            `Expected 401 from /auth/me without a session cookie, got ${response.status}`
+            "auth-profile:callback requires state captured from the login test"
+          );
+        }
+
+        const callbackUrl = new URL("/auth/callback", bffBaseUrl);
+        callbackUrl.searchParams.set("code", "mock-code");
+        callbackUrl.searchParams.set("state", capturedState);
+
+        const response = await request(callbackUrl);
+
+        if (response.status < 300 || response.status >= 400) {
+          throw new Error(
+            `Expected 3xx redirect from /auth/callback, got ${response.status}`
+          );
+        }
+
+        const setCookie = response.headers["set-cookie"] ?? "";
+        const match = /idp_session=([^;,\s]+)/i.exec(setCookie);
+        if (!match) {
+          throw new Error(
+            "Expected idp_session cookie to be set by /auth/callback"
+          );
+        }
+        capturedSessionCookie = `idp_session=${match[1]}`;
+      },
+    },
+    {
+      name: "auth-profile:me endpoint returns 200 with user JSON when authenticated",
+      run: async () => {
+        if (!capturedSessionCookie) {
+          throw new Error(
+            "auth-profile:me authenticated requires session cookie captured from the callback test"
+          );
+        }
+
+        const response = await request(new URL("/auth/me", bffBaseUrl), {
+          Cookie: capturedSessionCookie,
+        });
+
+        if (response.status !== 200) {
+          throw new Error(
+            `Expected 200 from /auth/me with a session cookie, got ${response.status}`
+          );
+        }
+
+        let body: unknown;
+        try {
+          body = JSON.parse(response.body);
+        } catch {
+          throw new Error("Expected JSON body from /auth/me with session");
+        }
+
+        if (
+          typeof body !== "object" ||
+          body === null ||
+          !("login" in body) ||
+          typeof (body as Record<string, unknown>).login !== "string"
+        ) {
+          throw new Error(
+            "Expected /auth/me response body to be JSON containing a login field"
           );
         }
       },

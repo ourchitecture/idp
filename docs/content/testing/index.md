@@ -35,7 +35,7 @@ area of expected behavior. A stack declares which profiles it must pass in its
 | [`status-profile`](./profiles/status-profile) | Status-capable stacks (opt-in) | 3 | API-first IDP status checks for the shared portal summary contract |
 | [`ui-profile`](./profiles/ui-profile) | UI stacks (opt-in) | 5 | Observable HTML output plus rendered status UI behavior |
 | [`mcp-profile`](./profiles/mcp-profile) | MCP servers (opt-in) | 4 | MCP initialize, tool discovery, and tool invocation |
-| [`auth-profile`](./profiles/auth-profile) | Auth-capable stacks (opt-in) | 3 | OAuth 2.0 auth endpoint contract: login redirect, 401 unauthenticated, logout |
+| [`auth-profile`](./profiles/auth-profile) | Auth-capable stacks (opt-in) | 5 | OAuth 2.0 auth endpoint contract: 401 unauthenticated, login redirect, callback round-trip, 200 authenticated, logout |
 
 ## Guides
 
