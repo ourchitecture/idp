@@ -1,10 +1,10 @@
 {
   "files.associations": {
-    "**/.claude/skills/**/SKILL.md": "markdown"
+    "**/.agents/skills/**/SKILL.md": "markdown"
   },
   "yaml.schemas": {
-    "./.claude/skills/skill-frontmatter.schema.json": [
-      "**/.claude/skills/**/SKILL.md"
+    "./.agents/skills/skill-frontmatter.schema.json": [
+      "**/.agents/skills/**/SKILL.md"
     ]
   },
   "yaml.validate": true,
