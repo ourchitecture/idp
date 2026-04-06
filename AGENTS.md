@@ -489,7 +489,7 @@ reject the operation.
 - `/tests/features/` Layer 1 Gherkin `.feature` files — ground truth for all contract intent
 - `/tests/src/profiles/` Layer 2 TypeScript test implementations derived from `.feature` files
 - `/tools/` tooling and MCP definitions
-- `/.claude/skills/` agent skills
+- `/.agents/skills/` agent skills
 
 ### Test Harness Sync Rule
 
