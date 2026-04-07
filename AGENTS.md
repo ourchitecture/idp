@@ -138,6 +138,43 @@ is deliberately narrow so maintainer overrides are not reverted.
 - Maintainers can move an issue from `needs-triage` to `ready` at any time by
   editing the label directly. No workflow will undo that change.
 
+### Two Independent Transport Channels
+
+Git operations (`commit`, `push`, `pull`) use the local git proxy and
+the git protocol. GitHub API operations (PR creation, issue comments,
+label updates) use the MCP server and the GitHub REST API. These are
+separate channels — one can be available when the other is not. It is
+therefore valid and expected to commit and push while MCP is unavailable;
+this is not a logical inconsistency. It does, however, leave a partial
+state that must be completed as soon as MCP reconnects.
+
+### Operation Sequencing
+
+GitHub API operations that follow a git push must always be completed
+in the same uninterrupted sequence when possible:
+
+1. `git push` — always works via the git protocol.
+2. Validate that the branch is visible on GitHub before creating a PR:
+   use `mcp__github__list_branches` and retry with exponential backoff
+   (2 s, 4 s, 8 s, up to 4 attempts) if the branch is not yet visible.
+   The local proxy may have a small propagation lag.
+3. Create the PR (`mcp__github__create_pull_request`).
+4. Update the issue (`mcp__github__issue_write` — remove `in-progress`,
+   add `needs-review`, or close if the PR body contains `Closes #N`).
+5. Post an issue comment summarising the work done.
+
+If any step in the sequence fails, record exactly which steps completed
+and which did not. Do not leave the issue in a stale label state (e.g.,
+`in-progress` without a PR, or `needs-review` without a comment).
+
+### Commit Closure Language
+
+Always use `Closes #N` in the commit footer — not `Refs #N` — when all
+acceptance criteria for an issue are met. Never downgrade to `Refs`
+because of MCP unavailability at commit time; the commit message must
+reflect the intent of the change, not the transient availability of a
+tool.
+
 ### When GitHub MCP Tools Are Unavailable
 
 If the GitHub MCP server is disconnected or tools are not listed in
@@ -156,9 +193,43 @@ the available tool set, follow these rules:
   would need to perform the action manually:
   - For a PR: the exact title and body text.
   - For an issue comment: the exact comment text.
-- Resume the blocked operation as the first action once the MCP server
-  reconnects (indicated by `mcp__github__*` tools reappearing in the
-  system reminder).
+- Maintain an explicit pending-operations list in the response so the
+  user can track what is still outstanding.
+- Resume ALL pending GitHub operations as the very first action once
+  the MCP server reconnects (indicated by `mcp__github__*` tools
+  reappearing in the system reminder). Do not answer other questions
+  or take other actions first.
+
+### MCP Transient Failure Retry
+
+For transient MCP errors (HTTP 5xx, network timeout, rate limit) that
+are distinct from full server disconnection:
+
+- Retry up to 4 times with exponential backoff: 2 s, 4 s, 8 s, 16 s.
+- Log each attempt: `MCP operation <name> failed (attempt N/4): <error>`.
+- After 4 failures, surface the error to the user with the full
+  ready-to-use payload (PR body, comment text, etc.) and stop retrying.
+- Do NOT retry on 4xx client errors (invalid input, not found,
+  permission denied) — those require human intervention.
+
+### GitHub API Validation Before PR Creation
+
+A successful `git push` to the local proxy does not mean the branch is
+immediately visible via the GitHub REST API. The proxy syncs to GitHub
+asynchronously, so `mcp__github__list_branches` may not show the branch
+for several seconds after the push returns. Always confirm the branch is
+present before attempting PR creation — do not assume the push and the
+API view are in sync.
+
+Before calling `mcp__github__create_pull_request`:
+
+1. Call `mcp__github__list_branches` and look for the head branch.
+2. If absent, wait and retry with exponential backoff (2 s, 4 s, 8 s,
+   16 s, up to 4 polls). The expected cause is normal propagation lag
+   from the local proxy to GitHub — not a push failure.
+3. Only proceed once the branch is confirmed present. If absent after
+   4 polls, surface the blocker and stop — do not attempt to create the
+   PR against a branch GitHub cannot see.
 
 ## CI/CD and Make Reuse (Required)
 
