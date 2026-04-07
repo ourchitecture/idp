@@ -41,6 +41,7 @@ jobs:
             "stemix-nodejs-react-fastify-rest-bff"
             "stemix-contract-tests"
             "stemix-mcp-server"
+            "stemix-mock-oauth"
           )
 
           for IMAGE in "${IMAGES[@]}"; do

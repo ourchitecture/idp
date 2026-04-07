@@ -10,6 +10,7 @@ permissions:
 
 env:
   PROTO_VERSION: "0.55.4"
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
 
 jobs:
   privacy-scan:
@@ -21,6 +22,34 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore Python cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.cache/uv
+            ~/.cache/pip
+          key: python-${{ runner.os }}-${{ hashFiles('.prototools', 'scripts/ci/check-privacy.sh') }}
+
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@v0.6.4
         with:
@@ -29,3 +58,34 @@ jobs:
 
       - name: Run privacy scan
         run: moon run repo:check-privacy
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Save Python cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.cache/uv
+            ~/.cache/pip
+          key: python-${{ runner.os }}-${{ hashFiles('.prototools', 'scripts/ci/check-privacy.sh') }}

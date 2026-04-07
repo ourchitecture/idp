@@ -3,55 +3,69 @@ name: Cache Cleanup
 on:
   workflow_dispatch:
     inputs:
-      cache_key:
-        description: "Cache key to delete (leave empty to delete all caches)"
+      cache_id:
+        description: "Cache ID to delete"
         required: false
         default: ""
+      cache_key:
+        description: "Cache key to delete"
+        required: false
+        default: ""
+      delete_all:
+        description: "Delete all caches (requires confirm_all)"
+        type: boolean
+        default: false
+      confirm_all:
+        description: "Confirm deletion when delete_all is true"
+        type: boolean
+        default: false
+      ref:
+        description: "Optional ref to scope cache operations"
+        required: false
+        default: ""
+      succeed_on_no_caches:
+        description: "Exit success when delete_all finds no caches"
+        type: boolean
+        default: false
 
 permissions:
   actions: write
+  contents: read
 
 jobs:
   cleanup:
     name: Clean up Actions cache
     runs-on: ubuntu-latest
     steps:
-      - name: Delete cache by key
-        if: inputs.cache_key != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cache_key="${{ inputs.cache_key }}"
-          if ! gh cache list --repo "${{ github.repository }}" --json key \
-              --jq '.[].key' | grep -qxF "${cache_key}"; then
-            echo "::error::Cache key '${cache_key}' not found. No caches were deleted."
-            exit 1
-          fi
-          gh cache delete "${cache_key}" --repo "${{ github.repository }}"
-          echo "Cache deleted: ${cache_key}"
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
 
-      - name: Delete all caches
-        if: inputs.cache_key == ''
+      - name: Run cache cleanup
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
-          keys="$(gh cache list --repo "${{ github.repository }}" --json key --jq '.[].key')"
-          if [[ -z "${keys}" ]]; then
-            echo "No caches found. Nothing to delete."
-            exit 0
+          set -euo pipefail
+
+          args=()
+          if [[ "${{ inputs.cache_id }}" != "" ]]; then
+            args+=(--id "${{ inputs.cache_id }}")
           fi
-          failed=0
-          deleted=0
-          while IFS= read -r key; do
-            if gh cache delete "${key}" --repo "${{ github.repository }}"; then
-              echo "Deleted: ${key}"
-              deleted=$((deleted + 1))
-            else
-              echo "::warning::Failed to delete cache: ${key}"
-              failed=$((failed + 1))
-            fi
-          done <<< "${keys}"
-          echo "Summary: ${deleted} deleted, ${failed} failed."
-          if [[ "${failed}" -gt 0 ]]; then
-            exit 1
+          if [[ "${{ inputs.cache_key }}" != "" ]]; then
+            args+=(--key "${{ inputs.cache_key }}")
           fi
+          if [[ "${{ inputs.delete_all }}" == 'true' ]]; then
+            args+=(--all)
+          fi
+          if [[ "${{ inputs.confirm_all }}" == 'true' ]]; then
+            args+=(--confirm-all)
+          fi
+          if [[ "${{ inputs.ref }}" != "" ]]; then
+            args+=(--ref "${{ inputs.ref }}")
+          fi
+          if [[ "${{ inputs.succeed_on_no_caches }}" == 'true' ]]; then
+            args+=(--succeed-on-no-caches)
+          fi
+
+          echo "Invoking cache cleanup with args: ${args[*]}"
+          scripts/ci/gh-cache-delete.sh "${args[@]}"

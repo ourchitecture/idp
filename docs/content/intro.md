@@ -103,4 +103,5 @@ tools/      Developer tooling, scripts, and MCP server definitions
 - [Architecture Diagrams](./architecture/diagrams/) -- C4 context, container, and component visuals
 - [Container Images](./containers/) -- Building, running, and publishing containers
 - [Contract Test Harness](./testing/contract-harness) -- How the implementation-agnostic test suite works
+- [Operations](./operations/) -- Maintenance runbooks including cache cleanup
 - [GitHub Repository](https://github.com/ourchitecture/idp)
