@@ -5,7 +5,35 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/tools/mcp"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/tools/vscode-extension"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/stacks/nodejs/react-fastify/rest"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "gomod"
+    directory: "/stacks/go/net-http/rest"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "maven"
+    directory: "/tools/mock-oauth"
     schedule:
       interval: "weekly"
