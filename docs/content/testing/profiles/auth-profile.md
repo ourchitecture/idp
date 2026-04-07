@@ -16,6 +16,23 @@ observable contract of the BFF auth surface — redirect behavior, unauthenticat
 responses, session cookie creation, authenticated responses, and session cookie
 cleanup — using the stateful mock OAuth round-trip.
 
+## MVP scope
+
+This MVP covers **GitHub OAuth login only**. General OIDC federation (Okta,
+Azure AD, Google, etc.) is out of scope for this iteration.
+
+The BFF `OUR_IDP_OAUTH_PROVIDER` environment variable currently accepts two
+values:
+
+| Value | Meaning |
+| --- | --- |
+| `mock` | Automated testing against the local mock OAuth service (test-only, never deployed) |
+| `github` | Real GitHub OAuth App flow (requires a live GitHub App and a browser) |
+
+Future providers would each require a separate provider implementation in the
+BFF. No provider auto-discovery or general OIDC federation is included in this
+release.
+
 ## Who must pass it
 
 Only stacks that declare both `"auth-profile"` in `contractProfiles` **and**
@@ -127,10 +144,55 @@ capability flag in `stack.json`:
 | `OUR_IDP_OAUTH_AUTH_URL` | provider-specific | Optional explicit authorization URL override used by the login redirect assertion |
 | `MOCK_OAUTH_PORT` | `9000` | Mock OAuth provider port when `OUR_IDP_OAUTH_PROVIDER=mock` |
 
-## Running the profile
+## Prerequisites
+
+The following tools must be installed before running the auth profile locally.
+Only the items marked **not managed by proto** require separate installation.
+
+| Tool | Version | Managed by proto? | Notes |
+| --- | --- | --- | --- |
+| Java (JDK) | 21 | **No** | Required to build and run the mock OAuth service. Install via [SDKMAN](https://sdkman.io/), a system package manager, or a direct [Temurin JDK download](https://adoptium.net/). |
+| Go | Current (see `.prototools`) | Yes | Required to run the BFF server. |
+| Node.js | Current (see `.prototools`) | Yes | Required to run the contract test harness. |
+
+> **Java 21 is not managed by `proto` for this MVP.** The `.prototools` file
+> pins `go`, `node`, `python`, `uv`, and `moon`, but not a JDK. You must
+> install Java 21 independently before starting the mock OAuth service.
+
+## CI usage
+
+`auth-profile` is **not part of the default CI pipeline**. No workflow
+currently invokes it automatically. This is intentional: the profile requires a
+live OAuth provider (mock or real GitHub), which is not provisioned in standard
+CI runners.
+
+The profile is opt-in. Stacks must explicitly list `"auth-profile"` in
+`contractProfiles` and set `capabilities.auth.enabled: true` in `stack.json`
+before any auth scenarios run.
+
+Teams that want to exercise auth-profile in CI can do so by pre-starting the
+mock OAuth service in a CI step and then running:
 
 ```sh
-# Terminal 1 – start the mock OAuth service
+OUR_IDP_OAUTH_PROVIDER=mock \
+IDP_BFF_URL=http://localhost:8000 \
+IDP_STACK_PATH=stacks/go/net-http/rest \
+IDP_CONTRACT_PROFILE=auth-profile \
+npm run test:contract
+```
+
+## Running the profile
+
+### Mock provider (automated — no GitHub account required)
+
+The mock OAuth service is a **test-only** Spring Boot application. It is never
+deployed to staging or production environments. Use it for local development and
+automated testing only.
+
+Requires Java 21 (see [Prerequisites](#prerequisites) above).
+
+```sh
+# Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
 # Terminal 2 – start the BFF with mock provider
@@ -143,6 +205,44 @@ IDP_STACK_PATH=stacks/go/net-http/rest \
 IDP_CONTRACT_PROFILE=auth-profile \
 npm run test:contract
 ```
+
+The contract test harness performs the full OAuth round-trip programmatically —
+no browser interaction is required.
+
+### Real GitHub OAuth (manual — GitHub App required)
+
+This path exercises the live GitHub OAuth flow. It cannot be completed with the
+contract test harness alone because the callback code exchange requires a real
+GitHub authorization page and a browser redirect.
+
+**Additional prerequisites:**
+
+- A GitHub OAuth App registered under your account or organization.
+- The App's callback URL set to `http://localhost:8000/auth/callback`.
+
+**Additional environment variables:**
+
+| Variable | Description |
+| --- | --- |
+| `OUR_IDP_OAUTH_CLIENT_ID` | Client ID from your GitHub OAuth App settings |
+| `OUR_IDP_OAUTH_CLIENT_SECRET` | Client secret from your GitHub OAuth App settings |
+
+```sh
+# Start the BFF with the real GitHub provider
+OUR_IDP_OAUTH_PROVIDER=github \
+OUR_IDP_OAUTH_CLIENT_ID=<your-client-id> \
+OUR_IDP_OAUTH_CLIENT_SECRET=<your-client-secret> \
+make -C stacks/go/net-http/rest run-bff
+```
+
+Open `http://localhost:8000/auth/login` in a browser to initiate the GitHub
+OAuth flow. After granting access, GitHub redirects to
+`http://localhost:8000/auth/callback` and the BFF completes the code exchange.
+
+> **Note:** The contract test harness (`npm run test:contract`) cannot exercise
+> the real GitHub OAuth path end-to-end because the authorization code is
+> issued by GitHub's servers in response to a human login action. Use a browser
+> or a manual `curl` sequence for exploratory testing of this path.
 
 ## Related
 
