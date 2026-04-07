@@ -69,8 +69,8 @@ current_top_level="$(normalize_path "${current_top_level}")"
 
 while IFS= read -r line; do
   case "${line}" in
-    path\ *)
-      pending_path="$(normalize_path "${line#path }")"
+    worktree\ *|path\ *)
+      pending_path="$(normalize_path "${line#* }")"
       pending_branch=""
       pending_prunable="false"
       ;;

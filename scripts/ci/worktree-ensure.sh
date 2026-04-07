@@ -93,8 +93,8 @@ pending_branch=""
 
 while IFS= read -r line; do
   case "${line}" in
-    path\ *)
-      pending_path="$(normalize_path "${line#path }")"
+    worktree\ *|path\ *)
+      pending_path="$(normalize_path "${line#* }")"
       ;;
     branch\ refs/heads/*)
       pending_branch="${line#branch refs/heads/}"
