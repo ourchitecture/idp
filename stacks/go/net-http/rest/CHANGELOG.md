@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.3.1-alpha.0...go-net-http-rest-v1.4.0-alpha.0) (2026-04-07)
+
+
+### Features
+
+* **auth-profile:** implement mock OAuth round-trip contract tests ([#87](https://github.com/ourchitecture/idp/issues/87)) ([12268c4](https://github.com/ourchitecture/idp/commit/12268c4b098051750611982ebbb16cd6f4d01ffc)), closes [#57](https://github.com/ourchitecture/idp/issues/57)
+* **go-net-http-rest:** add local auth contract validation targets ([#90](https://github.com/ourchitecture/idp/issues/90)) ([2cae800](https://github.com/ourchitecture/idp/commit/2cae8002a773898f8f7198d4e03ab42a9a3471d4)), closes [#58](https://github.com/ourchitecture/idp/issues/58)
+* **go-net-http-rest:** add local auth contract validation targets ([#91](https://github.com/ourchitecture/idp/issues/91)) ([a3b8a87](https://github.com/ourchitecture/idp/commit/a3b8a8769ded98002bedc531d7534a2832d107d7))
+
 ## [1.3.1-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.3.0-alpha.0...go-net-http-rest-v1.3.1-alpha.0) (2026-04-03)
 
 

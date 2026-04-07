@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.3.0-alpha.0...contract-tests-v1.4.0-alpha.0) (2026-04-07)
+
+
+### Features
+
+* **auth-profile:** implement mock OAuth round-trip contract tests ([#87](https://github.com/ourchitecture/idp/issues/87)) ([12268c4](https://github.com/ourchitecture/idp/commit/12268c4b098051750611982ebbb16cd6f4d01ffc)), closes [#57](https://github.com/ourchitecture/idp/issues/57)
+
 ## [1.3.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.2.0-alpha.0...contract-tests-v1.3.0-alpha.0) (2026-04-02)
 
 
