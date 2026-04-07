@@ -28,6 +28,8 @@ jobs:
       run_mcp_containers: ${{ steps.detect.outputs.run_mcp_containers }}
       run_tests_container: ${{ steps.detect.outputs.run_tests_container }}
       run_any_containers: ${{ steps.detect.outputs.run_any_containers }}
+      run_mock_oauth_build: ${{ steps.detect.outputs.run_mock_oauth_build }}
+      run_auth_integration: ${{ steps.detect.outputs.run_auth_integration }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -65,6 +67,8 @@ jobs:
           echo "run_mcp_containers=${{ steps.detect.outputs.run_mcp_containers }}"
           echo "run_tests_container=${{ steps.detect.outputs.run_tests_container }}"
           echo "run_any_containers=${{ steps.detect.outputs.run_any_containers }}"
+          echo "run_mock_oauth_build=${{ steps.detect.outputs.run_mock_oauth_build }}"
+          echo "run_auth_integration=${{ steps.detect.outputs.run_auth_integration }}"
 
   check-lint-md:
     name: Check Lint Markdown
@@ -249,6 +253,61 @@ jobs:
             -f tools/mcp/Dockerfile \
             tools/mcp
 
+  check-mock-oauth-build:
+    name: Check Mock OAuth Build
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_mock_oauth_build == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Build and test mock OAuth
+        run: moon run mock-oauth:check-ci
+
+  check-auth-integration:
+    name: Check Auth Integration
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_auth_integration == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Run auth integration contract tests
+        run: make -C stacks/go/net-http/rest check-contract-auth
+
   pr-validation-result:
     name: PR Validation Result
     runs-on: ubuntu-latest
@@ -261,6 +320,8 @@ jobs:
       - check-docs-site
       - validate-commit-message
       - check-container-build
+      - check-mock-oauth-build
+      - check-auth-integration
     steps:
       - name: Verify required checks
         run: |
@@ -271,6 +332,8 @@ jobs:
           result_docs="${{ needs.check-docs-site.result }}"
           result_commit="${{ needs.validate-commit-message.result }}"
           result_containers="${{ needs.check-container-build.result }}"
+          result_mock_oauth="${{ needs.check-mock-oauth-build.result }}"
+          result_auth_integration="${{ needs.check-auth-integration.result }}"
 
           if [[ "${result_detect}" != "success" ]]; then
             echo "::error::detect-changes failed (${result_detect})"
@@ -304,6 +367,16 @@ jobs:
 
           if [[ "${result_containers}" != "success" && "${result_containers}" != "skipped" ]]; then
             echo "::error::check-container-build failed (${result_containers})"
+            exit 1
+          fi
+
+          if [[ "${result_mock_oauth}" != "success" && "${result_mock_oauth}" != "skipped" ]]; then
+            echo "::error::check-mock-oauth-build failed (${result_mock_oauth})"
+            exit 1
+          fi
+
+          if [[ "${result_auth_integration}" != "success" && "${result_auth_integration}" != "skipped" ]]; then
+            echo "::error::check-auth-integration failed (${result_auth_integration})"
             exit 1
           fi
 
