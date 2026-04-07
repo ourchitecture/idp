@@ -1,14 +1,11 @@
 language: "typescript"
 layer: "tool"
 stack: "backend"
+type: "library"
 
 project:
   title: "backstage-tools"
   description: "Backstage test harness for Stemix IDP plug-in integration."
-
-workspace:
-  inheritedTasks:
-    exclude: ["install"]
 
 tasks:
   all:
