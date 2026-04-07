@@ -80,3 +80,38 @@ tasks:
     deps: ["build-container-web", "build-container-bff"]
     options:
       runInCI: false
+  check-java:
+    command:
+      - "bash"
+      - "-c"
+      - >-
+        command -v java >/dev/null 2>&1 ||
+        { echo 'ERROR: java is required but not found in PATH.
+        Install Java 21+: https://adoptium.net/' >&2; exit 1; }
+  build-mock-oauth:
+    command: ["bash", "-c", "true"]
+    deps:
+      - "check-java"
+      - "mock-oauth:build"
+  check-contract-auth:
+    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    deps: ["build", "build-mock-oauth"]
+    env:
+      STACK_PATH: "stacks/go/net-http/rest"
+      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3300 env -- .bin/idp-go-web"
+      BFF_START_CMD: >-
+        OUR_IDP_API_HOST=127.0.0.1
+        OUR_IDP_API_PORT=8300
+        OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3300
+        OUR_IDP_OAUTH_PROVIDER=mock
+        MOCK_OAUTH_PORT=9000
+        OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8300/auth/callback
+        env -- .bin/idp-go-bff
+      MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
+      MOCK_OAUTH_URL: "http://127.0.0.1:9000"
+      WEB_URL: "http://127.0.0.1:3300"
+      BFF_URL: "http://127.0.0.1:8300"
+      CONTRACT_PROFILES: "auth-profile"
+      ROOT_DIR: "../../../.."
+    options:
+      runInCI: false
