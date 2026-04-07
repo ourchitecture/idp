@@ -21,3 +21,4 @@ operators.
 - [ADR-0009](./intent-specification-format) — Gherkin Layer 1 intent format
 - [ADR-0010](./container-build-strategy) — container build and publish contract
 - [ADR-0011](./ietf-health-endpoint-contract) — `/health` and `/readiness` IETF contract
+- [ADR-0013](./oauth-plugin-architecture) — optional OAuth plug-in architecture

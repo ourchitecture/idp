@@ -63,3 +63,4 @@ Routing rule: Create an ADR when at least 3 gates are true and one is Gate 2 or 
 | [0010](./container-build-strategy) | Container Build Strategy | proposed | 2026-03-31 |
 | [0011](./ietf-health-endpoint-contract) | IETF Health Endpoint Contract | proposed | 2026-04-01 |
 | [0012](./moon-python-uv-toolchain-integration-constraint) | Moon Python/uv Toolchain Integration Constraint | accepted | 2026-04-01 |
+| [0013](./oauth-plugin-architecture) | Optional OAuth Plug-In Architecture | proposed | 2026-04-07 |
