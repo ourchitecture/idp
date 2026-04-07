@@ -68,6 +68,22 @@ func TestStateStoreUnknown(t *testing.T) {
 	}
 }
 
+func TestStateStoreExpired(t *testing.T) {
+	resetStores()
+
+	state, err := states.create()
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	states.mu.Lock()
+	states.data[state] = time.Now().Add(-oauthStateMaxAge - time.Minute)
+	states.mu.Unlock()
+
+	if states.consume(state) {
+		t.Error("consuming expired state should return false")
+	}
+}
+
 // --- sessionStore ---
 
 func TestSessionStoreCreateGetDelete(t *testing.T) {
@@ -182,7 +198,7 @@ func TestLoginHandlerRedirects(t *testing.T) {
 		clientID: "test-client",
 	}
 
-	handler := makeLoginHandler(cfg)
+	handler := makeLoginHandler(oauth2ConfigFrom(cfg))
 	req := httptest.NewRequest(http.MethodGet, "/auth/login", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
@@ -207,7 +223,7 @@ func TestLoginHandlerStoresPendingState(t *testing.T) {
 	resetStores()
 
 	cfg := &oauthConfig{authURL: "https://example.com/authorize"}
-	handler := makeLoginHandler(cfg)
+	handler := makeLoginHandler(oauth2ConfigFrom(cfg))
 	req := httptest.NewRequest(http.MethodGet, "/auth/login", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
@@ -227,7 +243,8 @@ func TestCallbackHandlerMissingState(t *testing.T) {
 	resetStores()
 
 	cfg := &oauthConfig{}
-	handler := makeCallbackHandler(cfg)
+	oauth2Cfg := oauth2ConfigFrom(cfg)
+	handler := makeCallbackHandler(cfg, oauth2Cfg)
 	req := httptest.NewRequest(http.MethodGet, "/auth/callback?code=abc", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
@@ -241,7 +258,8 @@ func TestCallbackHandlerInvalidState(t *testing.T) {
 	resetStores()
 
 	cfg := &oauthConfig{}
-	handler := makeCallbackHandler(cfg)
+	oauth2Cfg := oauth2ConfigFrom(cfg)
+	handler := makeCallbackHandler(cfg, oauth2Cfg)
 	req := httptest.NewRequest(http.MethodGet, "/auth/callback?code=abc&state=bad-state", nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
@@ -281,7 +299,7 @@ func TestCallbackHandlerValidFlow(t *testing.T) {
 		t.Fatalf("create state: %v", err)
 	}
 
-	handler := makeCallbackHandler(cfg)
+	handler := makeCallbackHandler(cfg, oauth2ConfigFrom(cfg))
 	req := httptest.NewRequest(http.MethodGet, "/auth/callback?code=test-code&state="+state, nil)
 	w := httptest.NewRecorder()
 	handler.ServeHTTP(w, req)
@@ -344,7 +362,7 @@ func TestCallbackHandlerStateIsOneTimeUse(t *testing.T) {
 	state, _ := states.create()
 
 	// First call succeeds.
-	handler := makeCallbackHandler(cfg)
+	handler := makeCallbackHandler(cfg, oauth2ConfigFrom(cfg))
 	req1 := httptest.NewRequest(http.MethodGet, "/auth/callback?code=c1&state="+state, nil)
 	w1 := httptest.NewRecorder()
 	handler.ServeHTTP(w1, req1)
@@ -358,6 +376,75 @@ func TestCallbackHandlerStateIsOneTimeUse(t *testing.T) {
 	handler.ServeHTTP(w2, req2)
 	if w2.Code != http.StatusBadRequest {
 		t.Errorf("expected 400 on state replay, got %d", w2.Code)
+	}
+}
+
+func TestCallbackHandlerTokenExchangeRejected(t *testing.T) {
+	resetStores()
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/oauth/token" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte(`{"error":"invalid_grant","error_description":"bad code"}`))
+			return
+		}
+		http.NotFound(w, r)
+	}))
+	defer backend.Close()
+
+	cfg := &oauthConfig{
+		tokenURL:    backend.URL + "/oauth/token",
+		userinfoURL: backend.URL + "/userinfo",
+	}
+	state, err := states.create()
+	if err != nil {
+		t.Fatalf("create state: %v", err)
+	}
+
+	handler := makeCallbackHandler(cfg, oauth2ConfigFrom(cfg))
+	req := httptest.NewRequest(http.MethodGet, "/auth/callback?code=bad-code&state="+state, nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadGateway {
+		t.Errorf("expected 502 for token error, got %d: %s", w.Code, w.Body.String())
+	}
+}
+
+func TestCallbackHandlerUserinfoError(t *testing.T) {
+	resetStores()
+
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/oauth/token":
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"access_token":"tok","token_type":"bearer"}`))
+		case "/userinfo":
+			w.WriteHeader(http.StatusInternalServerError)
+			_, _ = w.Write([]byte(`upstream failure`))
+		default:
+			http.NotFound(w, r)
+		}
+	}))
+	defer backend.Close()
+
+	cfg := &oauthConfig{
+		tokenURL:    backend.URL + "/oauth/token",
+		userinfoURL: backend.URL + "/userinfo",
+	}
+	state, err := states.create()
+	if err != nil {
+		t.Fatalf("create state: %v", err)
+	}
+
+	handler := makeCallbackHandler(cfg, oauth2ConfigFrom(cfg))
+	req := httptest.NewRequest(http.MethodGet, "/auth/callback?code=ok&state="+state, nil)
+	w := httptest.NewRecorder()
+	handler.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadGateway {
+		t.Errorf("expected 502 for userinfo error, got %d: %s", w.Code, w.Body.String())
 	}
 }
 

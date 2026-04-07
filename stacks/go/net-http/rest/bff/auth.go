@@ -1,20 +1,27 @@
 package main
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/oauth2"
 )
 
 const sessionCookieName = "idp_session"
+
+// oauthStateMaxAge is the maximum time a CSRF state value remains valid after
+// /auth/login. Older values are rejected to limit replay windows.
+const oauthStateMaxAge = 15 * time.Minute
 
 // oauthConfig holds the OAuth 2.0 provider endpoints and credentials.
 type oauthConfig struct {
@@ -74,15 +81,20 @@ func (s *stateStore) create() (string, error) {
 	return state, nil
 }
 
-// consume validates the state and removes it from the store (one-time use).
-// Returns false when the state is empty or not found.
+// consume validates the state, enforces a maximum age, removes it from the
+// store (one-time use), and returns false when empty, unknown, or expired.
 func (s *stateStore) consume(state string) bool {
 	if state == "" {
 		return false
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if _, ok := s.data[state]; !ok {
+	created, ok := s.data[state]
+	if !ok {
+		return false
+	}
+	if time.Since(created) > oauthStateMaxAge {
+		delete(s.data, state)
 		return false
 	}
 	delete(s.data, state)
@@ -135,6 +147,19 @@ func resolveOAuthProviderName() string {
 // that use HTTPS.
 func resolveSecureCookie() bool {
 	return strings.EqualFold(strings.TrimSpace(os.Getenv("OUR_IDP_OAUTH_SECURE_COOKIE")), "true")
+}
+
+// oauth2ConfigFrom builds a golang.org/x/oauth2.Config from oauthConfig.
+func oauth2ConfigFrom(cfg *oauthConfig) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     cfg.clientID,
+		ClientSecret: cfg.clientSecret,
+		RedirectURL:  cfg.redirectURL,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  cfg.authURL,
+			TokenURL: cfg.tokenURL,
+		},
+	}
 }
 
 // buildMockOAuthConfig constructs an oauthConfig for the local mock provider.
@@ -204,15 +229,16 @@ func registerAuthRoutes(mux *http.ServeMux) {
 		return
 	}
 
-	mux.HandleFunc("GET /auth/login", makeLoginHandler(cfg))
-	mux.HandleFunc("GET /auth/callback", makeCallbackHandler(cfg))
+	oauth2Cfg := oauth2ConfigFrom(cfg)
+	mux.HandleFunc("GET /auth/login", makeLoginHandler(oauth2Cfg))
+	mux.HandleFunc("GET /auth/callback", makeCallbackHandler(cfg, oauth2Cfg))
 	mux.HandleFunc("POST /auth/logout", handleLogout)
 	mux.HandleFunc("GET /auth/me", handleMe)
 }
 
 // makeLoginHandler returns an http.HandlerFunc that initiates the OAuth flow by
 // generating a CSRF state value and redirecting to the provider authorization URL.
-func makeLoginHandler(cfg *oauthConfig) http.HandlerFunc {
+func makeLoginHandler(oauth2Cfg *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		state, err := states.create()
 		if err != nil {
@@ -220,67 +246,21 @@ func makeLoginHandler(cfg *oauthConfig) http.HandlerFunc {
 			return
 		}
 
-		params := url.Values{}
-		params.Set("response_type", "code")
-		params.Set("state", state)
-		if cfg.clientID != "" {
-			params.Set("client_id", cfg.clientID)
-		}
-		if cfg.redirectURL != "" {
-			params.Set("redirect_uri", cfg.redirectURL)
-		}
-
-		http.Redirect(w, r, cfg.authURL+"?"+params.Encode(), http.StatusFound)
+		authURL := oauth2Cfg.AuthCodeURL(state)
+		http.Redirect(w, r, authURL, http.StatusFound)
 	}
 }
 
-// tokenResponse is used to decode the token endpoint response.
-type tokenResponse struct {
-	AccessToken string `json:"access_token"`
-}
-
-// exchangeCode exchanges an authorization code for an access token.
-func exchangeCode(cfg *oauthConfig, code string) (string, error) {
-	params := url.Values{}
-	params.Set("grant_type", "authorization_code")
-	params.Set("code", code)
-	if cfg.clientID != "" {
-		params.Set("client_id", cfg.clientID)
-	}
-	if cfg.clientSecret != "" {
-		params.Set("client_secret", cfg.clientSecret)
-	}
-	if cfg.redirectURL != "" {
-		params.Set("redirect_uri", cfg.redirectURL)
-	}
-
-	req, err := http.NewRequest(http.MethodPost, cfg.tokenURL, strings.NewReader(params.Encode()))
+// exchangeCode exchanges an authorization code for an access token using
+// golang.org/x/oauth2.
+func exchangeCode(ctx context.Context, oauth2Cfg *oauth2.Config, code string) (string, error) {
+	tok, err := oauth2Cfg.Exchange(ctx, code)
 	if err != nil {
 		return "", err
-	}
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Accept", "application/json")
-
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-
-	var tok tokenResponse
-	if err := json.Unmarshal(body, &tok); err != nil {
-		return "", fmt.Errorf("decode token response: %w", err)
 	}
 	if tok.AccessToken == "" {
 		return "", fmt.Errorf("empty access token in provider response")
 	}
-
 	return tok.AccessToken, nil
 }
 
@@ -300,12 +280,18 @@ func fetchUserInfo(cfg *oauthConfig, accessToken string) (*userInfo, error) {
 	}
 	defer resp.Body.Close()
 
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("userinfo endpoint returned %d", resp.StatusCode)
+		return nil, fmt.Errorf("userinfo endpoint returned %d: %s",
+			resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
 	var u userInfo
-	if err := json.NewDecoder(resp.Body).Decode(&u); err != nil {
+	if err := json.Unmarshal(body, &u); err != nil {
 		return nil, err
 	}
 
@@ -315,8 +301,9 @@ func fetchUserInfo(cfg *oauthConfig, accessToken string) (*userInfo, error) {
 // makeCallbackHandler returns an http.HandlerFunc that completes the OAuth flow:
 // it validates the CSRF state, exchanges the code for a token, fetches the user
 // profile, and sets an HttpOnly session cookie.
-func makeCallbackHandler(cfg *oauthConfig) http.HandlerFunc {
+func makeCallbackHandler(cfg *oauthConfig, oauth2Cfg *oauth2.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 		state := r.URL.Query().Get("state")
 		code := r.URL.Query().Get("code")
 
@@ -330,8 +317,14 @@ func makeCallbackHandler(cfg *oauthConfig) http.HandlerFunc {
 			return
 		}
 
-		accessToken, err := exchangeCode(cfg, code)
+		accessToken, err := exchangeCode(ctx, oauth2Cfg, code)
 		if err != nil {
+			var re *oauth2.RetrieveError
+			if errors.As(err, &re) {
+				http.Error(w, "token exchange rejected by authorization server",
+					http.StatusBadGateway)
+				return
+			}
 			http.Error(w, "token exchange failed", http.StatusBadGateway)
 			return
 		}
