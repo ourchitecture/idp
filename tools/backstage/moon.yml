@@ -1,7 +1,11 @@
 language: "typescript"
 layer: "tool"
 stack: "backend"
-type: "library"
+
+workspace:
+  inheritedTasks:
+    exclude:
+      - "node-install-deps"
 
 project:
   title: "backstage-tools"
