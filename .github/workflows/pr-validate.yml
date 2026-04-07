@@ -669,11 +669,21 @@ jobs:
         if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
         run: |
           CID=$(docker run -d -p 9900:9000 stemix-mock-oauth:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9900/health || true)
-          docker stop "${CID}" || true
+          trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
+
+          attempt=0
+          STATUS="000"
+          until [[ "${attempt}" -ge 10 ]]; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9900/health || true)
+            if [[ "${STATUS}" == "200" ]]; then
+              break
+            fi
+            sleep 1
+            attempt=$((attempt + 1))
+          done
+
           if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS}"
             exit 1
           fi
 
