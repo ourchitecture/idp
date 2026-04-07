@@ -1,5 +1,7 @@
 .PHONY: help all install build clean check-lint check-test check-ci check test dev run
 
+# Backstage workspace root - ensure yarn commands execute in the workspace context
+BACKSTAGE_ROOT := $(shell pwd)
 ROOT_DIR := ../..
 TOOL_PATH := tools/backstage
 PROTO_HOME ?= $(HOME)/.proto
@@ -23,28 +25,28 @@ all:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:all; \
 	else \
-		"$(MAKE)" install build check; \
+		cd "$(BACKSTAGE_ROOT)" && "$(MAKE)" install build check; \
 	fi
 
 install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:install; \
 	else \
-		yarn install; \
+		cd "$(BACKSTAGE_ROOT)" && yarn install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:build; \
 	else \
-		yarn build:all; \
+		cd "$(BACKSTAGE_ROOT)" && yarn build:all; \
 	fi
 
 clean:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:clean; \
 	else \
-		rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules; \
+		cd "$(BACKSTAGE_ROOT)" && rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules; \
 	fi
 
 check-lint:
@@ -58,7 +60,7 @@ check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-test; \
 	else \
-		yarn typecheck; \
+		cd "$(BACKSTAGE_ROOT)" && yarn typecheck; \
 	fi
 
 test: check-test
@@ -67,21 +69,21 @@ check-ci:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-ci; \
 	else \
-		"$(MAKE)" install build check-test; \
+		cd "$(BACKSTAGE_ROOT)" && "$(MAKE)" install build check-test; \
 	fi
 
 check:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check; \
 	else \
-		"$(MAKE)" check-lint check-test; \
+		cd "$(BACKSTAGE_ROOT)" && "$(MAKE)" check-lint check-test; \
 	fi
 
 dev:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:dev; \
 	else \
-		yarn dev; \
+		cd "$(BACKSTAGE_ROOT)" && yarn dev; \
 	fi
 
 run: dev
