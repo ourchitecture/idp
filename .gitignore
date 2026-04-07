@@ -1,7 +1,9 @@
 # Local AI assistant settings
 .claude/settings.json
 .claude/settings.local.json
-.claude/worktrees/
+
+# Repo-local agent worktrees
+.agents/worktrees/
 
 # Moon workspace cache/artifacts
 .moon/cache/

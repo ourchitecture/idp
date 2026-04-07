@@ -51,6 +51,22 @@ tasks:
     command: ["bash", "./scripts/ci/setup-labels.sh"]
     options:
       runFromWorkspaceRoot: true
+  worktree-path:
+    command: ["bash", "./scripts/ci/worktree-path.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  worktree-ensure:
+    command: ["bash", "./scripts/ci/worktree-ensure.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  worktree-cleanup:
+    command: ["bash", "./scripts/ci/worktree-cleanup.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  audit-worktrees:
+    command: ["bash", "./scripts/ci/audit-worktrees.sh"]
+    options:
+      runFromWorkspaceRoot: true
   check:
     command: ["bash", "-c", "true"]
     deps: ["~:check-lint-md"]

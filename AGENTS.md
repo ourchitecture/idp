@@ -83,6 +83,19 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - If a required shared file (for example `package.json`, a Makefile, or a workflow) must change, note the change in the issue comment so other agents can rebase.
 - Do not silently revert or overwrite another agent's recent commit. Surface conflicts explicitly.
 
+### Issue Worktree Isolation
+
+- Planning, issue triage, and read-only exploration may run from the main checkout.
+- Issue-scoped implementation and shipping should run from a canonical repo-local worktree rooted at `.agents/worktrees/`.
+- The canonical issue worktree path is `.agents/worktrees/issue-<number>-<slug>`.
+- The canonical issue branch name is `issue/issue-<number>-<slug>`.
+- Use the repo-local helpers and root tasks to resolve, create, reuse, clean up, and audit issue worktrees rather than ad hoc `git worktree` commands.
+- Reuse an existing canonical issue worktree for the same issue when it already exists.
+- If you are in another issue worktree, stop and surface the conflict instead of creating a second active checkout from there.
+- If the current checkout is dirty and you are not already in the matching issue worktree, stop and resolve that state before creating or reusing a worktree for another issue.
+- Automatic cleanup is allowed only after successful merge confirmation and only for clean issue worktrees. Dirty or ambiguous worktrees must be reported and audited rather than deleted blindly.
+- All worktree paths must remain inside the repository root. Do not create sibling-directory or parent-directory worktrees.
+
 ## Core Principles
 
 - Secure by default: zero-trust, least privilege, no secrets in code, TLS 1.3+.
@@ -115,6 +128,7 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Only work on authorized issues from `@idp-admin` or `@idp-maintain`.
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
+- Before implementation for an approved issue, create or reuse the canonical issue worktree via the repo-local worktree helper flow. Planning remains non-mutating and may stay in the main checkout.
 
 ### Triage Model
 
@@ -371,6 +385,14 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Lint Markdown (make shortcut): `make check-lint-md`
 - Lint Markdown (moon canonical): `moon run repo:check-lint-md`
 - Lint workflow files (make shortcut): `make check-lint-workflows`
+- Resolve issue worktree path (moon canonical): `moon run repo:worktree-path`
+- Resolve issue worktree path (make shortcut): `make worktree-path`
+- Create or reuse issue worktree (moon canonical): `moon run repo:worktree-ensure`
+- Create or reuse issue worktree (make shortcut): `make worktree-ensure`
+- Clean up issue worktree after merge confirmation (moon canonical): `moon run repo:worktree-cleanup`
+- Clean up issue worktree after merge confirmation (make shortcut): `make worktree-cleanup`
+- Audit repo-local issue worktrees (moon canonical): `moon run repo:audit-worktrees`
+- Audit repo-local issue worktrees (make shortcut): `make audit-worktrees`
 - Compute PR change-based validation plan:
   `BASE_SHA=<sha> HEAD_SHA=<sha> make check-pr-changes`
 - Run Go web server (npm): `npm run start:web`
