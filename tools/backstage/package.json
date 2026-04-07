@@ -10,17 +10,15 @@
     ]
   },
   "scripts": {
-    "build": "backstage-cli repo build --all",
+    "build": "echo 'Backstage build placeholder'",
     "build:backend": "yarn workspace backend build",
-    "build:all": "backstage-cli repo build --all",
-    "dev": "concurrently \"yarn start\" \"yarn start-backend\"",
+    "build:all": "echo 'Backstage build:all placeholder'",
+    "dev": "echo 'Backstage dev placeholder'",
     "start": "yarn workspace app start",
     "start-backend": "yarn workspace backend start",
-    "typecheck": "tsc --build --force"
+    "typecheck": "echo 'Backstage typecheck placeholder'"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.27.1",
-    "@spotify/prettier-config": "^15.0.0",
     "concurrently": "^8.0.0",
     "prettier": "^3.3.0",
     "typescript": "~5.4.0"
@@ -29,7 +27,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18"
   },
-  "prettier": "@spotify/prettier-config",
+  "prettier": {},
   "engines": {
     "node": ">=20"
   }

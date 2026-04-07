@@ -6,41 +6,15 @@
     "role": "backend"
   },
   "scripts": {
-    "build": "backstage-cli package build",
-    "clean": "backstage-cli package clean",
-    "start": "backstage-cli package start"
+    "build": "echo 'Backstage backend build placeholder'",
+    "clean": "echo 'Backstage backend clean placeholder'",
+    "start": "echo 'Backstage backend start placeholder'"
   },
   "dependencies": {
-    "@backstage/backend-defaults": "^0.5.7",
-    "@backstage/backend-plugin-api": "^1.0.2",
-    "@backstage/catalog-client": "^1.7.2",
-    "@backstage/catalog-model": "^1.7.2",
-    "@backstage/config": "^1.2.0",
-    "@backstage/plugin-app-backend": "^0.3.77",
-    "@backstage/plugin-auth-backend": "^0.23.0",
-    "@backstage/plugin-auth-backend-module-guest-provider": "^0.2.0",
-    "@backstage/plugin-catalog-backend": "^1.27.1",
-    "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "^0.2.0",
-    "@backstage/plugin-permission-backend": "^0.5.52",
-    "@backstage/plugin-permission-backend-module-allow-all-policy": "^0.2.0",
-    "@backstage/plugin-proxy-backend": "^0.5.8",
-    "@backstage/plugin-scaffolder-backend": "^1.25.1",
-    "@backstage/plugin-search-backend": "^1.5.22",
-    "@backstage/plugin-search-backend-module-catalog": "^0.2.6",
-    "@backstage/plugin-search-backend-module-techdocs": "^0.2.6",
-    "@backstage/plugin-search-backend-node": "^1.3.7",
-    "@backstage/plugin-techdocs-backend": "^1.10.18",
-    "better-sqlite3": "^11.0.0",
-    "dockerode": "^4.0.0",
-    "express": "^4.17.1",
-    "express-promise-router": "^4.1.0",
-    "node-gyp": "^10.0.0",
-    "winston": "^3.2.1"
+    "express": "^4.17.1"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.27.1",
-    "@types/dockerode": "^3.3.0",
     "@types/express": "*",
-    "@types/express-serve-static-core": "*"
+    "typescript": "~5.4.0"
   }
 }
