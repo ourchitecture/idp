@@ -31,7 +31,7 @@
     "@types/node": "^25.5.2",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitejs/plugin-react": "^5.0.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "markdownlint-cli2": "^0.21.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
