@@ -214,14 +214,22 @@ are distinct from full server disconnection:
 
 ### GitHub API Validation Before PR Creation
 
+A successful `git push` to the local proxy does not mean the branch is
+immediately visible via the GitHub REST API. The proxy syncs to GitHub
+asynchronously, so `mcp__github__list_branches` may not show the branch
+for several seconds after the push returns. Always confirm the branch is
+present before attempting PR creation — do not assume the push and the
+API view are in sync.
+
 Before calling `mcp__github__create_pull_request`:
 
-1. Confirm the head branch exists on GitHub via `mcp__github__list_branches`.
-2. If absent, wait with exponential backoff (2 s, 4 s, 8 s, 16 s,
-   up to 4 polls). The branch may still be propagating from the local
-   proxy.
+1. Call `mcp__github__list_branches` and look for the head branch.
+2. If absent, wait and retry with exponential backoff (2 s, 4 s, 8 s,
+   16 s, up to 4 polls). The expected cause is normal propagation lag
+   from the local proxy to GitHub — not a push failure.
 3. Only proceed once the branch is confirmed present. If absent after
-   4 polls, surface the blocker and stop.
+   4 polls, surface the blocker and stop — do not attempt to create the
+   PR against a branch GitHub cannot see.
 
 ## CI/CD and Make Reuse (Required)
 
