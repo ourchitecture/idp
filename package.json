@@ -18,7 +18,7 @@
     "test:contract:watch": "tsx watch tests/src/index.ts"
   },
   "dependencies": {
-    "@fastify/cors": "^10.1.0",
+    "@fastify/cors": "^11.2.0",
     "@tanstack/react-query": "^5.90.10",
     "fastify": "^5.6.1",
     "nodejs-react-fastify-rest-lint": "file:stacks/nodejs/react-fastify/rest",
