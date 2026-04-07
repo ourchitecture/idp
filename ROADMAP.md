@@ -126,6 +126,7 @@ Expose platform capabilities consistently across interaction modes.
 - CLIs for developer workflows
 - Web interfaces for visualization and control
 - AI/MCP interfaces for conversational and agent-driven interaction
+- IDE integrations (VS Code extension) for in-editor workflows
 - Consistent capability model across all channels
 
 ---

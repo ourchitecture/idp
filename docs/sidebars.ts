@@ -108,6 +108,17 @@ const sidebars: SidebarsConfig = {
         },
       ],
     },
+    {
+      type: "category",
+      label: "Tools",
+      link: {
+        type: "doc",
+        id: "tools/index",
+      },
+      items: [
+        "tools/vscode-extension",
+      ],
+    },
     "security",
   ],
 };
