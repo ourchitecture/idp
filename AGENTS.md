@@ -191,11 +191,15 @@ channel in priority order:
    active tool set. Different agent environments may surface these under
    different prefixes; probe for them before concluding they are absent.
 2. **`gh` CLI** — if `gh` is installed and authenticated (`gh auth
-   status`), use it as a fully capable fallback for all GitHub API
-   operations.
+   status`), use it as a capable fallback for the most common GitHub API
+   operations (issues, PRs, labels, comments). Prefer `gh` commands over
+   raw REST calls for better token handling and ergonomics.
 3. **Direct GitHub REST API** — if a `GITHUB_TOKEN` or equivalent
    credential is available in the environment, call the GitHub REST API
-   directly (e.g., `curl -H "Authorization: token $GITHUB_TOKEN" ...`).
+   directly using a secure token-passing method (e.g., store the token
+   in a file and pass it via `--header @token-file`, or use an
+   environment variable only within a trusted script context — never
+   expose raw tokens in shell history or command arguments).
 4. **Surface and continue** — if no channel is available, output the
    full ready-to-use content the user would need to perform the action
    manually and maintain a pending-operations list. Do not stop all
