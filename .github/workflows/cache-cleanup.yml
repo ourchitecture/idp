@@ -1,0 +1,57 @@
+name: Cache Cleanup
+
+on:
+  workflow_dispatch:
+    inputs:
+      cache_key:
+        description: "Cache key to delete (leave empty to delete all caches)"
+        required: false
+        default: ""
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    name: Clean up Actions cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete cache by key
+        if: inputs.cache_key != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cache_key="${{ inputs.cache_key }}"
+          if ! gh cache list --repo "${{ github.repository }}" --json key \
+              --jq '.[].key' | grep -qxF "${cache_key}"; then
+            echo "::error::Cache key '${cache_key}' not found. No caches were deleted."
+            exit 1
+          fi
+          gh cache delete "${cache_key}" --repo "${{ github.repository }}"
+          echo "Cache deleted: ${cache_key}"
+
+      - name: Delete all caches
+        if: inputs.cache_key == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          keys="$(gh cache list --repo "${{ github.repository }}" --json key --jq '.[].key')"
+          if [[ -z "${keys}" ]]; then
+            echo "No caches found. Nothing to delete."
+            exit 0
+          fi
+          failed=0
+          deleted=0
+          while IFS= read -r key; do
+            if gh cache delete "${key}" --repo "${{ github.repository }}"; then
+              echo "Deleted: ${key}"
+              deleted=$((deleted + 1))
+            else
+              echo "::warning::Failed to delete cache: ${key}"
+              failed=$((failed + 1))
+            fi
+          done <<< "${keys}"
+          echo "Summary: ${deleted} deleted, ${failed} failed."
+          if [[ "${failed}" -gt 0 ]]; then
+            exit 1
+          fi
