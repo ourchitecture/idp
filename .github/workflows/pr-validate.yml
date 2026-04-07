@@ -429,6 +429,8 @@ jobs:
 
       - name: Run docs site CI-safe checks
         run: moon run docs-site:check-ci
+        env:
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome-stable
 
       - name: Save proto and moon cache
         if: always()
