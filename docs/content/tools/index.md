@@ -10,7 +10,7 @@ The MCP adapter server exposes IDP capabilities to AI assistants and agents foll
 
 **Location**: `tools/mcp/`
 
-**Documentation**: [MCP Server](./mcp-server.md)
+**Documentation**: [MCP Server](/docs/containers/mcp-server)
 
 ### VS Code Extension
 
