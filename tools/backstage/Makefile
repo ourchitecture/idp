@@ -30,7 +30,7 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:install; \
 	else \
-		yarn install --frozen-lockfile; \
+		yarn install; \
 	fi
 
 build:

@@ -6,12 +6,16 @@ project:
   title: "backstage-tools"
   description: "Backstage test harness for Stemix IDP plug-in integration."
 
+workspace:
+  inheritedTasks:
+    exclude: ["install"]
+
 tasks:
   all:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check"]
   install:
-    command: ["bash", "-c", "yarn install --frozen-lockfile"]
+    command: ["bash", "-c", "yarn install"]
   build:
     command: ["bash", "-c", "yarn build:all"]
     deps: ["install"]
