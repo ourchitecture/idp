@@ -1,0 +1,24 @@
+name: Actionlint Docker Windows Repro
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-actionlint:
+    name: Docker actionlint on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show docker info
+        run: docker info
+
+      - name: Pull actionlint image
+        run: docker pull rhysd/actionlint:latest
+
+      - name: Run actionlint version
+        run: docker run --rm rhysd/actionlint:latest -version
