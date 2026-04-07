@@ -10,6 +10,7 @@ permissions:
 
 env:
   PROTO_VERSION: "0.55.4"
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
 
 jobs:
   detect-changes:
@@ -29,12 +30,192 @@ jobs:
       run_tests_container: ${{ steps.detect.outputs.run_tests_container }}
       run_any_containers: ${{ steps.detect.outputs.run_any_containers }}
       run_mock_oauth_build: ${{ steps.detect.outputs.run_mock_oauth_build }}
+      run_mock_oauth_containers: ${{ steps.detect.outputs.run_mock_oauth_containers }}
       run_auth_integration: ${{ steps.detect.outputs.run_auth_integration }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore Maven cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.m2/wrapper
+          key: maven-${{ runner.os }}-${{ hashFiles('tools/mock-oauth/pom.xml', 'tools/mock-oauth/.mvn/wrapper/maven-wrapper.properties', 'tools/mock-oauth/.mvn/wrapper/maven-wrapper.jar') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@v0.6.4
@@ -68,7 +249,29 @@ jobs:
           echo "run_tests_container=${{ steps.detect.outputs.run_tests_container }}"
           echo "run_any_containers=${{ steps.detect.outputs.run_any_containers }}"
           echo "run_mock_oauth_build=${{ steps.detect.outputs.run_mock_oauth_build }}"
+          echo "run_mock_oauth_containers=${{ steps.detect.outputs.run_mock_oauth_containers }}"
           echo "run_auth_integration=${{ steps.detect.outputs.run_auth_integration }}"
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
   check-lint-md:
     name: Check Lint Markdown
@@ -90,6 +293,27 @@ jobs:
       - name: Run markdown lint checks
         run: moon run repo:check-lint-md
 
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
   check-workflow-files:
     name: Check Workflow Files
     runs-on: ubuntu-latest
@@ -109,6 +333,27 @@ jobs:
 
       - name: Run workflow lint checks
         run: moon run repo:check-lint-workflows
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
   check-stack-matrix:
     name: Check Stack (${{ matrix.label }})
@@ -134,6 +379,37 @@ jobs:
       - name: Run stack CI-safe checks
         run: moon run "${{ matrix.project }}:check-ci"
 
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
+
   check-docs-site:
     name: Check Docs Site
     runs-on: ubuntu-latest
@@ -153,6 +429,27 @@ jobs:
 
       - name: Run docs site CI-safe checks
         run: moon run docs-site:check-ci
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
   validate-commit-message:
     runs-on: ubuntu-latest
@@ -191,6 +488,27 @@ jobs:
           export IS_TEAM_MEMBER="${IS_TEAM_MEMBER}"
           moon run repo:check-pr-title
 
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
   check-container-build:
     name: Check Container Build
     runs-on: ubuntu-latest
@@ -205,53 +523,169 @@ jobs:
 
       - name: Build Go web container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: stacks/go/net-http/rest
+          file: stacks/go/net-http/rest/Dockerfile
+          build-args: SERVICE=web
+          load: true
+          tags: stemix-go-net-http-rest-web:pr-check
+          cache-from: type=gha,scope=go-net-http-rest-web,timeout=10m
+          cache-to: type=gha,scope=go-net-http-rest-web,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke Go web container
+        if: needs.detect-changes.outputs.run_go_containers == 'true'
         run: |
-          docker build \
-            --build-arg SERVICE=web \
-            -t stemix-go-web:pr-check \
-            -f stacks/go/net-http/rest/Dockerfile \
-            stacks/go/net-http/rest
+          CID=$(docker run -d -p 3300:3000 stemix-go-net-http-rest-web:pr-check)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
 
       - name: Build Go BFF container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: stacks/go/net-http/rest
+          file: stacks/go/net-http/rest/Dockerfile
+          build-args: SERVICE=bff
+          load: true
+          tags: stemix-go-net-http-rest-bff:pr-check
+          cache-from: type=gha,scope=go-net-http-rest-bff,timeout=10m
+          cache-to: type=gha,scope=go-net-http-rest-bff,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke Go BFF container
+        if: needs.detect-changes.outputs.run_go_containers == 'true'
         run: |
-          docker build \
-            --build-arg SERVICE=bff \
-            -t stemix-go-bff:pr-check \
-            -f stacks/go/net-http/rest/Dockerfile \
-            stacks/go/net-http/rest
+          CID=$(docker run -d -p 8300:8000 stemix-go-net-http-rest-bff:pr-check)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/health || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
 
       - name: Build Node.js web container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: stacks/nodejs/react-fastify/rest/web/Dockerfile
+          load: true
+          tags: stemix-nodejs-react-fastify-rest-web:pr-check
+          cache-from: type=gha,scope=nodejs-react-fastify-rest-web,timeout=10m
+          cache-to: type=gha,scope=nodejs-react-fastify-rest-web,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke Node.js web container
+        if: needs.detect-changes.outputs.run_node_containers == 'true'
         run: |
-          docker build \
-            -t stemix-node-web:pr-check \
-            -f stacks/nodejs/react-fastify/rest/web/Dockerfile \
-            .
+          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-nodejs-react-fastify-rest-web:pr-check)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
 
       - name: Build Node.js BFF container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
+          load: true
+          tags: stemix-nodejs-react-fastify-rest-bff:pr-check
+          cache-from: type=gha,scope=nodejs-react-fastify-rest-bff,timeout=10m
+          cache-to: type=gha,scope=nodejs-react-fastify-rest-bff,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke Node.js BFF container
+        if: needs.detect-changes.outputs.run_node_containers == 'true'
         run: |
-          docker build \
-            -t stemix-node-bff:pr-check \
-            -f stacks/nodejs/react-fastify/rest/bff/Dockerfile \
-            .
+          CID=$(docker run -d -p 8400:8000 stemix-nodejs-react-fastify-rest-bff:pr-check)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/health || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
 
       - name: Build contract tests container
         if: needs.detect-changes.outputs.run_tests_container == 'true'
-        run: |
-          docker build \
-            -t stemix-contract-tests:pr-check \
-            -f tests/Dockerfile \
-            .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: tests/Dockerfile
+          load: true
+          tags: stemix-contract-tests:pr-check
+          cache-from: type=gha,scope=contract-tests,timeout=10m
+          cache-to: type=gha,scope=contract-tests,mode=max,ignore-error=true,timeout=10m
 
       - name: Build MCP server container
         if: needs.detect-changes.outputs.run_mcp_containers == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: tools/mcp
+          file: tools/mcp/Dockerfile
+          load: true
+          tags: stemix-mcp-server:pr-check
+          cache-from: type=gha,scope=mcp-tools,timeout=10m
+          cache-to: type=gha,scope=mcp-tools,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke MCP server container
+        if: needs.detect-changes.outputs.run_mcp_containers == 'true'
         run: |
-          docker build \
-            -t stemix-mcp-server:pr-check \
-            -f tools/mcp/Dockerfile \
-            tools/mcp
+          CID=$(docker run -d -p 8580:8080 stemix-mcp-server:pr-check)
+          sleep 2
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST http://localhost:8580/mcp \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json, text/event-stream" \
+            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke-test","version":"0.0.1"}}}' \
+            || true)
+          docker stop "${CID}" || true
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
+
+      - name: Build mock-oauth container
+        if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: tools/mock-oauth
+          file: tools/mock-oauth/Dockerfile
+          load: true
+          tags: stemix-mock-oauth:pr-check
+          cache-from: type=gha,scope=mock-oauth,timeout=10m
+          cache-to: type=gha,scope=mock-oauth,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke mock-oauth container
+        if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
+        run: |
+          CID=$(docker run -d -p 9900:9000 stemix-mock-oauth:pr-check)
+          trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
+
+          attempt=0
+          STATUS="000"
+          until [[ "${attempt}" -ge 10 ]]; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9900/health || true)
+            if [[ "${STATUS}" == "200" ]]; then
+              break
+            fi
+            sleep 1
+            attempt=$((attempt + 1))
+          done
+
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS}"
+            exit 1
+          fi
 
   check-mock-oauth-build:
     name: Check Mock OAuth Build
@@ -278,6 +712,37 @@ jobs:
 
       - name: Build and test mock OAuth
         run: moon run mock-oauth:check-ci
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Save Maven cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.m2/wrapper
+          key: maven-${{ runner.os }}-${{ hashFiles('tools/mock-oauth/pom.xml', 'tools/mock-oauth/.mvn/wrapper/maven-wrapper.properties', 'tools/mock-oauth/.mvn/wrapper/maven-wrapper.jar') }}
 
   check-auth-integration:
     name: Check Auth Integration
@@ -307,6 +772,37 @@ jobs:
 
       - name: Run auth integration contract tests
         run: make -C stacks/go/net-http/rest check-contract-auth
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@v4
+        continue-on-error: true
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
   pr-validation-result:
     name: PR Validation Result

@@ -8,6 +8,7 @@ on:
       - "stacks/nodejs/react-fastify/rest/**"
       - "tests/**"
       - "tools/mcp/**"
+      - "tools/mock-oauth/**"
       - ".github/workflows/container-build.yml"
   push:
     branches: [main]
@@ -16,6 +17,7 @@ on:
       - "stacks/nodejs/react-fastify/rest/**"
       - "tests/**"
       - "tools/mcp/**"
+      - "tools/mock-oauth/**"
       - ".github/workflows/container-build.yml"
 
 permissions:
@@ -34,6 +36,9 @@ jobs:
       run_go_containers: ${{ steps.scope.outputs.run_go_containers }}
       run_node_containers: ${{ steps.scope.outputs.run_node_containers }}
       run_tests_container: ${{ steps.scope.outputs.run_tests_container }}
+      run_mcp_containers: ${{ steps.scope.outputs.run_mcp_containers }}
+      run_mock_oauth_containers: ${{ steps.scope.outputs.run_mock_oauth_containers }}
+      run_any_containers: ${{ steps.scope.outputs.run_any_containers }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -85,19 +90,17 @@ jobs:
           file: stacks/go/net-http/rest/Dockerfile
           build-args: SERVICE=web
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-          tags: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:edge
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            stemix-go-net-http-rest-web:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:edge
+          cache-from: type=gha,scope=go-net-http-rest-web,timeout=10m
+          cache-to: type=gha,scope=go-net-http-rest-web,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          docker build \
-            --build-arg SERVICE=web \
-            -t stemix-go-web-smoke:test \
-            -f stacks/go/net-http/rest/Dockerfile \
-            stacks/go/net-http/rest
-          CID=$(docker run -d -p 3300:3000 stemix-go-web-smoke:test)
+          CID=$(docker run -d -p 3300:3000 stemix-go-net-http-rest-web:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
           docker stop "${CID}" || true
@@ -132,19 +135,17 @@ jobs:
           file: stacks/go/net-http/rest/Dockerfile
           build-args: SERVICE=bff
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-          tags: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:edge
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            stemix-go-net-http-rest-bff:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:edge
+          cache-from: type=gha,scope=go-net-http-rest-bff,timeout=10m
+          cache-to: type=gha,scope=go-net-http-rest-bff,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          docker build \
-            --build-arg SERVICE=bff \
-            -t stemix-go-bff-smoke:test \
-            -f stacks/go/net-http/rest/Dockerfile \
-            stacks/go/net-http/rest
-          CID=$(docker run -d -p 8300:8000 stemix-go-bff-smoke:test)
+          CID=$(docker run -d -p 8300:8000 stemix-go-net-http-rest-bff:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/health || true)
           docker stop "${CID}" || true
@@ -178,18 +179,17 @@ jobs:
           context: .
           file: stacks/nodejs/react-fastify/rest/web/Dockerfile
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-          tags: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:edge
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            stemix-nodejs-react-fastify-rest-web:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:edge
+          cache-from: type=gha,scope=nodejs-react-fastify-rest-web,timeout=10m
+          cache-to: type=gha,scope=nodejs-react-fastify-rest-web,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          docker build \
-            -t stemix-node-web-smoke:test \
-            -f stacks/nodejs/react-fastify/rest/web/Dockerfile \
-            .
-          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-node-web-smoke:test)
+          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-nodejs-react-fastify-rest-web:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
           docker stop "${CID}" || true
@@ -223,18 +223,17 @@ jobs:
           context: .
           file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-          tags: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:edge
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            stemix-nodejs-react-fastify-rest-bff:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:edge
+          cache-from: type=gha,scope=nodejs-react-fastify-rest-bff,timeout=10m
+          cache-to: type=gha,scope=nodejs-react-fastify-rest-bff,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          docker build \
-            -t stemix-node-bff-smoke:test \
-            -f stacks/nodejs/react-fastify/rest/bff/Dockerfile \
-            .
-          CID=$(docker run -d -p 8400:8000 stemix-node-bff-smoke:test)
+          CID=$(docker run -d -p 8400:8000 stemix-nodejs-react-fastify-rest-bff:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/health || true)
           docker stop "${CID}" || true
@@ -269,12 +268,14 @@ jobs:
           file: tests/Dockerfile
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests:edge
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=contract-tests,timeout=10m
+          cache-to: type=gha,scope=contract-tests,mode=max,ignore-error=true,timeout=10m
 
   build-mcp-server:
     name: Build mcp-tools
     runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_mcp_containers == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -295,18 +296,17 @@ jobs:
           context: tools/mcp
           file: tools/mcp/Dockerfile
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-          tags: ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:edge
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            stemix-mcp-server:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:edge
+          cache-from: type=gha,scope=mcp-tools,timeout=10m
+          cache-to: type=gha,scope=mcp-tools,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          docker build \
-            -t stemix-mcp-smoke:test \
-            -f tools/mcp/Dockerfile \
-            tools/mcp
-          CID=$(docker run -d -p 8580:8080 stemix-mcp-smoke:test)
+          CID=$(docker run -d -p 8580:8080 stemix-mcp-server:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST http://localhost:8580/mcp \
@@ -317,6 +317,60 @@ jobs:
           docker stop "${CID}" || true
           if [[ "${STATUS}" != "200" ]]; then
             echo "::error::Smoke test failed: HTTP ${STATUS}"
+            exit 1
+          fi
+
+  build-mock-oauth:
+    name: Build mock-oauth
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: tools/mock-oauth
+          file: tools/mock-oauth/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          load: ${{ github.event_name == 'pull_request' }}
+          tags: |
+            stemix-mock-oauth:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:edge
+          cache-from: type=gha,scope=mock-oauth,timeout=10m
+          cache-to: type=gha,scope=mock-oauth,mode=max,ignore-error=true,timeout=10m
+
+      - name: Smoke test image (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          CID=$(docker run -d -p 9900:9000 stemix-mock-oauth:pr-check)
+          trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
+
+          attempt=0
+          STATUS="000"
+          until [[ "${attempt}" -ge 10 ]]; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9900/health || true)
+            if [[ "${STATUS}" == "200" ]]; then
+              break
+            fi
+            sleep 1
+            attempt=$((attempt + 1))
+          done
+
+          if [[ "${STATUS}" != "200" ]]; then
+            echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS}"
             exit 1
           fi
 
@@ -332,6 +386,7 @@ jobs:
       - build-nodejs-bff
       - build-contract-tests
       - build-mcp-server
+      - build-mock-oauth
     steps:
       - name: Verify all container builds passed
         run: |
@@ -342,9 +397,10 @@ jobs:
           result_node_bff="${{ needs.build-nodejs-bff.result }}"
           result_tests="${{ needs.build-contract-tests.result }}"
           result_mcp="${{ needs.build-mcp-server.result }}"
+          result_mock_oauth="${{ needs.build-mock-oauth.result }}"
 
           failed="false"
-          for result in "${result_detect}" "${result_go_web}" "${result_go_bff}" "${result_node_web}" "${result_node_bff}" "${result_tests}" "${result_mcp}"; do
+          for result in "${result_detect}" "${result_go_web}" "${result_go_bff}" "${result_node_web}" "${result_node_bff}" "${result_tests}" "${result_mcp}" "${result_mock_oauth}"; do
             if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
               failed="true"
             fi

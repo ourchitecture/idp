@@ -26,6 +26,7 @@ toolchains or build tools on your machine.
 | `stemix-nodejs-react-fastify-rest-bff` | Fastify BFF API server |
 | `stemix-contract-tests` | Implementation-agnostic contract test runner |
 | `stemix-mcp-server` | MCP adapter that exposes portal capabilities to AI agents |
+| `stemix-mock-oauth` | Mock OAuth server used for contract and auth tests |
 
 ## Registry
 
@@ -68,6 +69,9 @@ make -C tests build-container
 
 # Build the MCP server image
 make -C tools/mcp build-container
+
+# Build the mock OAuth image
+make -C tools/mock-oauth build-container
 ```
 
 Local images use the `localhost/stemix-*` prefix.
