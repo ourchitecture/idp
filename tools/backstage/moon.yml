@@ -2,15 +2,13 @@ language: "typescript"
 layer: "tool"
 stack: "backend"
 
-toolchains:
-  node:
-    packageManager: "yarn"
-
 project:
   title: "backstage-tools"
   description: "Backstage test harness for Stemix IDP plug-in integration."
 
 tasks:
+  node-install-deps:
+    command: ["bash", "-c", "true"]
   all:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check"]
