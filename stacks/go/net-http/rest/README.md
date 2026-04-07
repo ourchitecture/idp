@@ -36,6 +36,10 @@ The BFF supports an optional OAuth plug-in selected by the
 set to `none`, no auth routes are registered and the default server behavior is
 fully preserved.
 
+This auth surface follows the shared contract described by ADR-0013 and
+`auth-profile`; other auth-capable stacks may implement the same behavior with
+different stack-native libraries.
+
 ### Providers
 
 | Value | Description |

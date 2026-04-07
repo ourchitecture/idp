@@ -31,6 +31,16 @@ Rendered `ui-profile` checks use a local Chromium-family browser; set
 `IDP_UI_BROWSER_PATH` if Chrome or Edge cannot be auto-detected on the current
 machine.
 
+## Auth Capability Status
+
+This stack does not yet implement the optional OAuth auth surface and does not
+currently declare `auth-profile`.
+
+When auth support lands, it should follow the shared ADR-0013 / `auth-profile`
+contract used by auth-capable stacks: `OUR_IDP_OAUTH_PROVIDER`,
+`/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/me`, and the
+`idp_session` cookie contract.
+
 ## Commands
 
 Moon (maintainer/CI canonical):

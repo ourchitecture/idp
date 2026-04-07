@@ -182,6 +182,9 @@ in `stack.json`. It validates the observable contract of the BFF auth surface
 when an OAuth provider is active (`OUR_IDP_OAUTH_PROVIDER != "none"`).
 `provider=none` behavior is out of scope.
 
+The profile is stack-agnostic. Today the Go reference stack declares it, and
+future stacks may declare it once they expose the same auth contract.
+
 | Test | What is checked |
 | --- | --- |
 | `auth-profile:me endpoint returns 401 when unauthenticated` | `GET /auth/me` without a session cookie returns HTTP 401 |
@@ -435,6 +438,8 @@ make -C stacks/go/net-http/rest run-bff
 - **Moon project ID**: `nodejs-react-fastify-rest`
 - **Profiles**: `core`, `operational`, `status-profile`, `ui-profile`
   (`ui.mode: spa`)
+- **Auth status**: does not yet declare `auth-profile`; when auth is added it
+  must follow the same shared contract used by the Go reference stack
 - **Components**:
   - `web/server.ts` — Vite dev server serving the React SPA, binds
     `127.0.0.1:3000`
