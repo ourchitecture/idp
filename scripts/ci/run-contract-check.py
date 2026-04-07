@@ -343,6 +343,14 @@ def main() -> int:
     }
     if CONTRACT_PROFILES:
         test_env["IDP_CONTRACT_PROFILES"] = CONTRACT_PROFILES
+    # auth-profile tests resolve the expected authorization URL from these
+    # (must match the BFF mock configuration; BFF_START_CMD does not inherit).
+    if MOCK_OAUTH_URL:
+        test_env.setdefault("OUR_IDP_OAUTH_PROVIDER", "mock")
+        if "MOCK_OAUTH_PORT" not in test_env:
+            parsed = urllib.parse.urlparse(MOCK_OAUTH_URL)
+            if parsed.port:
+                test_env["MOCK_OAUTH_PORT"] = str(parsed.port)
 
     result = subprocess.run(
         ["npm", "--prefix", ROOT_DIR, "run", "test:contract"],
