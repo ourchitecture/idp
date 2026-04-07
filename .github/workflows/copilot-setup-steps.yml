@@ -1,0 +1,38 @@
+name: "Copilot Setup Steps"
+
+# Run automatically when this file changes (validates the setup works),
+# and allow manual testing from the Actions tab.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # Job name MUST be `copilot-setup-steps` — Copilot will not pick it up otherwise.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    # Lowest permissions needed for the setup steps, PLUS the permissions the
+    # Copilot agent itself requires for its own GitHub API operations
+    # (commenting on issues, adding labels, creating/updating pull requests).
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.3.1
+
+      - name: Setup toolchain (proto + moon)
+        uses: moonrepo/setup-toolchain@v0.6.4
+        with:
+          proto-version: "0.55.4"
+          auto-install: true
+
+      - name: Install Node.js dependencies
+        run: npm ci
