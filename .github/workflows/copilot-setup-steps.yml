@@ -28,11 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.3.1
 
-      - name: Setup toolchain (proto + moon)
-        uses: moonrepo/setup-toolchain@v0.6.4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          proto-version: "0.55.4"
-          auto-install: true
+          node-version: "24"
+          cache: "npm"
 
       - name: Install Node.js dependencies
         run: npm ci
