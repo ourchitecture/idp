@@ -16,10 +16,15 @@ observable contract of the BFF auth surface — redirect behavior, unauthenticat
 responses, session cookie creation, authenticated responses, and session cookie
 cleanup — using the stateful mock OAuth round-trip.
 
-## MVP scope
+## Current provider scope
 
-This MVP covers **GitHub OAuth login only**. General OIDC federation (Okta,
-Azure AD, Google, etc.) is out of scope for this iteration.
+The current contract covers two provider modes:
+
+- `mock` for automated testing against the local mock OAuth service
+- `github` for real GitHub OAuth App flows
+
+General OIDC federation (Okta, Azure AD, Google, etc.) remains out of scope
+for this iteration.
 
 The BFF `OUR_IDP_OAUTH_PROVIDER` environment variable currently accepts two
 values:
@@ -30,8 +35,8 @@ values:
 | `github` | Real GitHub OAuth App flow (requires a live GitHub App and a browser) |
 
 Future providers would each require a separate provider implementation in the
-BFF. No provider auto-discovery or general OIDC federation is included in this
-release.
+BFF or an approved follow-on architecture change. No provider auto-discovery or
+general OIDC federation is included in the current contract.
 
 ## Who must pass it
 
@@ -148,11 +153,13 @@ capability flag in `stack.json`:
 
 The following tools must be installed before running the auth profile locally.
 Only the items marked **not managed by proto** require separate installation.
+The current runnable example commands below use the Go reference stack, which
+is the auth-capable stack implemented today.
 
 | Tool | Version | Managed by proto? | Notes |
 | --- | --- | --- | --- |
 | Java (JDK) | 21 | **No** | Required to build and run the mock OAuth service. Install via [SDKMAN](https://sdkman.io/), a system package manager, or a direct [Temurin JDK download](https://adoptium.net/). |
-| Go | Current (see `.prototools`) | Yes | Required to run the BFF server. |
+| Go | Current (see `.prototools`) | Yes | Required for the current auth-capable reference-stack examples in this guide. |
 | Node.js | Current (see `.prototools`) | Yes | Required to run the contract test harness. |
 
 > **Java 21 is not managed by `proto` for this MVP.** The `.prototools` file
@@ -195,7 +202,7 @@ Requires Java 21 (see [Prerequisites](#prerequisites) above).
 # Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the BFF with mock provider
+# Terminal 2 – start the current Go BFF example with mock provider
 OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
 
 # Terminal 3 – run only the auth-profile contract tests
@@ -208,6 +215,10 @@ npm run test:contract
 
 The contract test harness performs the full OAuth round-trip programmatically —
 no browser interaction is required.
+
+The contract itself is stack-agnostic. Any future stack that declares
+`"auth-profile"` in `contractProfiles` and `capabilities.auth.enabled = true`
+must satisfy the same observable behavior.
 
 ### Real GitHub OAuth (manual — GitHub App required)
 

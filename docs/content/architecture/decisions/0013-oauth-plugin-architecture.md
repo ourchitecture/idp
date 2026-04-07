@@ -64,18 +64,20 @@ surface). The intake threshold is met.
 ## Considered Options
 
 - Bundle a single fixed OAuth provider in the BFF (no plug-in model)
-- Use an external OAuth library (e.g., `golang.org/x/oauth2`) for the
-  reference implementation
 - Implement auth as an optional plug-in selected by environment variable,
-  using only Go standard library HTTP primitives
+  with each stack free to choose its own OAuth client implementation
+- Implement auth as an optional plug-in selected by environment variable,
+  using only Go standard library HTTP primitives in every reference stack
 
 ## Decision Outcome
 
 Chosen option: "Implement auth as an optional plug-in selected by environment
-variable, using only Go standard library HTTP primitives", because it keeps the
-default BFF free of auth dependencies, avoids external library version drift,
-and enables automated contract testing through a dedicated mock OAuth service
-without requiring a browser.
+variable, with each stack free to choose its own OAuth client implementation",
+because the durable decision is the shared auth contract, not a single library
+choice. This keeps the default BFF free of mandatory auth configuration,
+preserves a single provider-selection model across stacks, and still enables
+automated contract testing through the dedicated mock OAuth service without
+requiring a browser.
 
 ### Provider Selection
 
@@ -111,12 +113,19 @@ behavior is preserved exactly when `OUR_IDP_OAUTH_PROVIDER` is absent.
 | Secure | Controlled by `OUR_IDP_OAUTH_SECURE_COOKIE=true`; defaults to `false` for local HTTP |
 | Path | `/` |
 
-### Go Reference Implementation
+### Reference Stack Implementations
 
-The Go reference stack (`stacks/go/net-http/rest`) resolves provider
-endpoints from environment variables rather than importing an external OAuth
-library. This keeps the dependency graph minimal and makes endpoint URLs
-fully overridable for testing.
+The auth contract is shared across reference stacks, but the OAuth client
+implementation remains a stack-level detail. A stack may use standard-library
+HTTP primitives, a maintained ecosystem OAuth client, or a framework-native
+integration as long as it preserves the published contract defined in this ADR
+and passes `auth-profile`.
+
+The current Go reference stack (`stacks/go/net-http/rest`) resolves provider
+endpoints from environment variables and presently implements the flow with
+repo-local logic. A follow-on refactor may adopt `golang.org/x/oauth2`
+without requiring another contract change, because the library choice is not
+itself part of the durable architecture.
 
 Provider endpoint variables used by the `mock` provider:
 
@@ -131,9 +140,10 @@ The `github` provider uses fixed GitHub API URLs and requires
 `OUR_IDP_OAUTH_CLIENT_ID`, `OUR_IDP_OAUTH_CLIENT_SECRET`, and
 `OUR_IDP_OAUTH_REDIRECT_URL`.
 
-This is an implementation detail of the Go reference stack. Other stack
-implementations are free to use their ecosystem's OAuth libraries as long as
-they satisfy the auth-profile contract.
+Other stacks are expected to follow the same contract while selecting the
+implementation approach that best matches their ecosystem. The Node.js React +
+Fastify reference stack, for example, may use maintained Fastify-compatible
+OAuth and session libraries when its auth capability is implemented.
 
 ### Mock OAuth Service for Automated Testing
 
@@ -191,8 +201,9 @@ in CI.
   variables, making the test harness portable across CI and local environments
 - Good, because the opt-in `auth-profile` model means non-auth stacks never
   fail auth contract checks
-- Good, because the Go reference stack avoids external OAuth library
-  dependency drift by using only standard library HTTP primitives
+- Good, because the architecture stays focused on stable behavior while
+  allowing each stack to adopt the OAuth client approach that best fits its
+  ecosystem
 - Bad, because each new provider requires an explicit implementation in the BFF
   — there is no generic OIDC auto-discovery in this MVP
 - Bad, because the mock OAuth service requires Java 21, which is not managed
@@ -223,16 +234,7 @@ in CI.
 - Bad, because switching providers requires code changes
 - Bad, because contract tests cannot run without a specific provider
 
-### Use an external OAuth library
-
-- Good, because reduces boilerplate for token exchange and PKCE
-- Good, because library handles edge cases (token refresh, error formats)
-- Bad, because adds an external dependency that must be versioned and audited
-- Bad, because library abstractions may not expose all endpoint URLs needed
-  for test overrides
-- Bad, because PKCE and advanced flows are out of scope for this MVP
-
-### Optional plug-in selected by environment variable (chosen)
+### Optional plug-in selected by environment variable with stack-specific implementation choice (chosen)
 
 - Good, because default deployment is auth-free with no code or env changes
 - Good, because a single `OUR_IDP_OAUTH_PROVIDER` variable controls the
@@ -242,14 +244,32 @@ in CI.
   browser or live external service
 - Good, because endpoint URL overrides allow the same BFF binary to target
   different environments without recompilation
+- Good, because the durable contract stays stable even if one stack later
+  migrates from repo-local HTTP handling to a maintained OAuth library
+- Good, because stack implementations can adopt ecosystem libraries for
+  protocol handling, session integration, or framework ergonomics
 - Bad, because each new provider must be explicitly implemented in BFF code
+- Bad, because ecosystem-library choices still add dependency review and
+  version-maintenance overhead inside each stack that adopts them
+
+### Optional plug-in selected by environment variable using only Go standard library HTTP primitives in every stack
+
+- Good, because avoids external OAuth dependency drift entirely
+- Good, because makes the implementation model uniform across stacks
+- Bad, because pushes protocol and error-handling edge cases into each stack's
+  custom code
+- Bad, because it constrains non-Go stacks to implementation rules that do not
+  naturally match their ecosystem
+- Bad, because the library choice is reversible implementation detail, not the
+  durable decision this ADR needs to record
 
 ## More Information
 
 ### Future Extension Path
 
-This ADR covers the current MVP scope: `mock` and `github` providers, with
-session-cookie-based state. Future work may include:
+This ADR covers the current auth contract scope: `mock` and `github`
+providers, with session-cookie-based state and opt-in `auth-profile`
+conformance. Future work may include:
 
 - General OIDC federation (Okta, Azure AD, Google) — requires provider
   auto-discovery from the OIDC well-known configuration endpoint

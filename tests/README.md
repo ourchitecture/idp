@@ -36,6 +36,9 @@ the required HTTP endpoints.
 - `auth-profile`: OAuth 2.0 auth endpoint checks for stacks that declare auth
   capability and run with a configured provider
 
+`auth-profile` is a shared cross-stack contract even though the current
+automated example path uses the Go reference stack.
+
 By default, the harness runs `core` + `operational`, and only runs opt-in
 profiles such as `status-profile`, `ui-profile`, and `auth-profile` when both:
 
@@ -75,7 +78,8 @@ Example for a specific stack and explicit profile set:
 IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" npm run test:contract
 ```
 
-Example for the auth profile against the Go stack with the mock provider:
+Example for the auth profile against the current Go auth-capable stack with the
+mock provider:
 
 ```bash
 OUR_IDP_OAUTH_PROVIDER=mock IDP_STACK_PATH="stacks/go/net-http/rest" IDP_CONTRACT_PROFILE="auth-profile" npm run test:contract
