@@ -1,0 +1,40 @@
+language: "typescript"
+layer: "tool"
+stack: "frontend"
+
+project:
+  title: "vscode-extension"
+  description: "VS Code extension for the Stemix Intent-Driven Portal."
+
+tasks:
+  all:
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check"]
+  install:
+    command: ["npm", "install"]
+  build:
+    command: ["npm", "run", "build"]
+    deps: ["install"]
+  clean:
+    command: ["bash", "-c", "rm -rf dist node_modules *.vsix"]
+  check-lint:
+    command: ["bash", "-c", "echo 'No additional lint configured for vscode-extension'"]
+  check-test:
+    command: ["npm", "run", "typecheck"]
+    deps: ["install"]
+  check-contract:
+    command: ["bash", "-c", "echo 'No contract tests configured for vscode-extension'"]
+  check-ci:
+    command: ["bash", "-c", "true"]
+    deps: ["install", "build", "check-test"]
+    options:
+      runInCI: true
+  check:
+    command: ["bash", "-c", "true"]
+    deps: ["check-lint", "check-test"]
+  test:
+    command: ["bash", "-c", "true"]
+    deps: ["check-test"]
+  package:
+    command: ["npm", "run", "package"]
+    deps: ["build"]

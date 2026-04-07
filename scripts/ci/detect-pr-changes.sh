@@ -33,6 +33,7 @@ has_non_markdown_change="false"
 run_go_stack="false"
 run_node_stack="false"
 run_mcp_tools="false"
+run_vscode_extension="false"
 run_workflow_lint="false"
 run_reference_all="false"
 run_docs_validation="false"
@@ -110,6 +111,9 @@ for file in "${changed_files[@]}"; do
       run_mcp_tools="true"
       run_mcp_containers="true"
       ;;
+    tools/vscode-extension/*)
+      run_vscode_extension="true"
+      ;;
     # docs/* includes architecture diagram sources under
     # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
     docs/*)
@@ -146,6 +150,7 @@ if [[ "${run_reference_all}" == "true" ]]; then
   run_go_stack="true"
   run_node_stack="true"
   run_mcp_tools="true"
+  run_vscode_extension="true"
   run_go_containers="true"
   run_node_containers="true"
   run_mcp_containers="true"
@@ -156,7 +161,7 @@ if [[ "${run_reference_all}" == "true" ]]; then
 fi
 
 run_stack_validation="false"
-if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" || "${run_mcp_tools}" == "true" ]]; then
+if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" || "${run_mcp_tools}" == "true" || "${run_vscode_extension}" == "true" ]]; then
   run_stack_validation="true"
 fi
 
@@ -194,6 +199,10 @@ if [[ "${run_stack_validation}" == "true" ]]; then
     matrix_items+=("{\"project\":\"mcp-tools\",\"stack\":\"tools/mcp\",\"label\":\"mcp-tools\"}")
   fi
 
+  if [[ "${run_vscode_extension}" == "true" ]]; then
+    matrix_items+=("{\"project\":\"vscode-extension\",\"stack\":\"tools/vscode-extension\",\"label\":\"vscode-extension\"}")
+  fi
+
   if [[ ${#matrix_items[@]} -gt 0 ]]; then
     stack_matrix="[$(IFS=,; echo "${matrix_items[*]}")]"
   fi
@@ -214,6 +223,7 @@ echo "run_any_containers=${run_any_containers}"
 echo "run_mock_oauth_build=${run_mock_oauth_build}"
 echo "run_mock_oauth_containers=${run_mock_oauth_containers}"
 echo "run_auth_integration=${run_auth_integration}"
+echo "run_vscode_extension=${run_vscode_extension}"
 
 if [[ -n "${OUTPUT_FILE}" ]]; then
   {
@@ -232,5 +242,6 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_mock_oauth_build=%s\n" "${run_mock_oauth_build}"
     printf "run_mock_oauth_containers=%s\n" "${run_mock_oauth_containers}"
     printf "run_auth_integration=%s\n" "${run_auth_integration}"
+    printf "run_vscode_extension=%s\n" "${run_vscode_extension}"
   } >> "${OUTPUT_FILE}"
 fi

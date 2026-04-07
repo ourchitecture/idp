@@ -1,0 +1,41 @@
+{
+  "name": "stemix-idp-vscode",
+  "displayName": "Stemix IDP",
+  "description": "VS Code integration for the Stemix Intent-Driven Portal",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "publisher": "stemix",
+  "engines": {
+    "vscode": "^1.80.0",
+    "node": ">=20"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:stemix-idp.helloIdp"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "stemix-idp.helloIdp",
+        "title": "Hello IDP"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "watch": "tsc --project tsconfig.json --watch",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.2.1",
+    "typescript": "^5.4.5"
+  }
+}
