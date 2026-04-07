@@ -1,4 +1,4 @@
-.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract run-web run-bff setup-debug-tools build-web build-bff build-debug-web build-debug-bff build-container-web build-container-bff build-containers
+.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract run-web run-bff setup-debug-tools build-web build-bff build-debug-web build-debug-bff build-container-web build-container-bff build-containers check-java build-mock-oauth check-contract-auth
 
 ROOT_DIR := ../../../..
 BIN_DIR := .bin
@@ -7,6 +7,9 @@ WEB_TEST_HOST := 127.0.0.1
 BFF_TEST_HOST := 127.0.0.1
 WEB_TEST_PORT := 3300
 BFF_TEST_PORT := 8300
+MOCK_OAUTH_DIR := $(ROOT_DIR)/tools/mock-oauth
+MOCK_OAUTH_JAR := $(MOCK_OAUTH_DIR)/target/mock-oauth.jar
+MOCK_OAUTH_PORT ?= 9000
 CONTAINER_LOCAL_PREFIX := localhost
 CONTAINER_IMAGE_BASE := stemix-go-net-http-rest
 PROTO_HOME ?= $(HOME)/.proto
@@ -46,6 +49,9 @@ help:
 	@printf "  build-container-web Build web container image (requires docker)\n"
 	@printf "  build-container-bff Build BFF container image (requires docker)\n"
 	@printf "  build-containers  Build all container images (requires docker)\n"
+	@printf "  check-java        Verify java is in PATH (fail fast with install hint)\n"
+	@printf "  build-mock-oauth  Build the mock OAuth JAR (requires java)\n"
+	@printf "  check-contract-auth Run auth-profile end-to-end contract validation\n"
 
 all:
 	@if [ -x "$(MOON_BIN)" ]; then \
@@ -205,3 +211,30 @@ build-container-bff:
 		.
 
 build-containers: build-container-web build-container-bff
+
+check-java:
+	@if ! command -v java >/dev/null 2>&1; then \
+		echo "ERROR: java is required but not found in PATH." >&2; \
+		echo "  Install Java 21 or later: https://adoptium.net/" >&2; \
+		exit 1; \
+	fi
+
+build-mock-oauth: check-java
+	@"$(MAKE)" -C "$(MOCK_OAUTH_DIR)" build
+
+check-contract-auth:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run go-net-http-rest:check-contract-auth; \
+	else \
+		"$(MAKE)" build-web build-bff build-mock-oauth; \
+		STACK_PATH="$(STACK_PATH)" \
+		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
+		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock MOCK_OAUTH_PORT="$(MOCK_OAUTH_PORT)" OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" env -- "$(abspath $(BFF_BIN))"' \
+		MOCK_OAUTH_START_CMD='java -jar "$(abspath $(MOCK_OAUTH_JAR))"' \
+		MOCK_OAUTH_URL="http://127.0.0.1:$(MOCK_OAUTH_PORT)" \
+		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		CONTRACT_PROFILES=auth-profile \
+		ROOT_DIR="$(ROOT_DIR)" \
+		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+	fi

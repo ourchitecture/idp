@@ -24,9 +24,16 @@ Required environment variables:
     ROOT_DIR          Repo root directory (used for npm --prefix)
 
 Optional environment variables:
-    CONTRACT_PROFILES Comma-separated contract profile names
-    READY_TIMEOUT     Seconds to wait for readiness (default: 120)
-    READY_INTERVAL    Polling interval in seconds (default: 1)
+    MOCK_OAUTH_START_CMD  Shell command to start a mock OAuth server.
+                          When set, MOCK_OAUTH_URL is also required.
+                          The mock OAuth server is started before the
+                          BFF and torn down with the other servers.
+    MOCK_OAUTH_URL        Base URL for the mock OAuth server
+                          (e.g. http://127.0.0.1:9000). Used for the
+                          readiness check at MOCK_OAUTH_URL/health.
+    CONTRACT_PROFILES     Comma-separated contract profile names
+    READY_TIMEOUT         Seconds to wait for readiness (default: 120)
+    READY_INTERVAL        Polling interval in seconds (default: 1)
 """
 
 import atexit
@@ -34,9 +41,11 @@ import os
 import re
 import shlex
 import signal
+import socket
 import subprocess
 import sys
 import time
+import urllib.parse
 import urllib.request
 import urllib.error
 
@@ -50,6 +59,8 @@ BFF_START_CMD = os.environ.get("BFF_START_CMD")
 WEB_URL = os.environ.get("WEB_URL")
 BFF_URL = os.environ.get("BFF_URL")
 ROOT_DIR = os.environ.get("ROOT_DIR")
+MOCK_OAUTH_START_CMD = os.environ.get("MOCK_OAUTH_START_CMD", "")
+MOCK_OAUTH_URL = os.environ.get("MOCK_OAUTH_URL", "")
 CONTRACT_PROFILES = os.environ.get("CONTRACT_PROFILES", "")
 READY_TIMEOUT = int(os.environ.get("READY_TIMEOUT", "120"))
 READY_INTERVAL = int(os.environ.get("READY_INTERVAL", "1"))
@@ -60,6 +71,14 @@ for var in ("STACK_PATH", "WEB_START_CMD", "BFF_START_CMD",
         print(f"[contract:{STACK_PATH or '?'}] ERROR: {var} is required",
               file=sys.stderr)
         sys.exit(1)
+
+if MOCK_OAUTH_START_CMD and not MOCK_OAUTH_URL:
+    print(
+        f"[contract:{STACK_PATH}] ERROR: MOCK_OAUTH_URL is required when "
+        "MOCK_OAUTH_START_CMD is set",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 READINESS_PATH = "/readiness"
 BFF_READY_URL = BFF_URL.rstrip("/") + READINESS_PATH
@@ -117,6 +136,34 @@ signal.signal(signal.SIGINT, _signal_handler)
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+def _url_hostport(url: str) -> tuple[str, int]:
+    """Return (host, port) parsed from a URL string."""
+    parsed = urllib.parse.urlparse(url)
+    host = parsed.hostname or "127.0.0.1"
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    return host, port
+
+
+def check_port_free(host: str, port: int, label: str) -> bool:
+    """Return True when the TCP port is free; print an error and return False if in use."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1)
+        result = s.connect_ex((host, port))
+    if result == 0:
+        print(
+            f"[contract:{STACK_PATH}] ERROR: {label} port {port} is already "
+            f"in use on {host}.",
+            file=sys.stderr,
+        )
+        print(
+            f"[contract:{STACK_PATH}]   Stop the process using port {port} "
+            "before running this target.",
+            file=sys.stderr,
+        )
+        return False
+    return True
 
 
 def log(msg: str) -> None:
@@ -234,12 +281,40 @@ def main() -> int:
     log_section(f"Starting contract check: {STACK_PATH}")
     log(f"Web URL:  {WEB_URL}")
     log(f"BFF URL:  {BFF_URL}")
+    if MOCK_OAUTH_URL:
+        log(f"Mock OAuth URL: {MOCK_OAUTH_URL}")
     if CONTRACT_PROFILES:
         log(f"Profiles: {CONTRACT_PROFILES}")
+
+    # --- Pre-flight port checks -----------------------------------------------
+
+    log_section("Pre-flight port check")
+    port_checks = [
+        ("Web server",  *_url_hostport(WEB_URL)),
+        ("BFF server",  *_url_hostport(BFF_URL)),
+    ]
+    if MOCK_OAUTH_URL:
+        port_checks.append(("Mock OAuth server", *_url_hostport(MOCK_OAUTH_URL)))
+    for label, host, port in port_checks:
+        if not check_port_free(host, port, label):
+            return 1
+    log("All required ports are free")
 
     # --- Start servers -------------------------------------------------------
 
     log_section("Starting servers")
+    if MOCK_OAUTH_START_CMD:
+        mock_proc = start_server(MOCK_OAUTH_START_CMD, "Mock OAuth server")
+        mock_ready_url = MOCK_OAUTH_URL.rstrip("/") + "/health"
+        log_section("Waiting for Mock OAuth readiness")
+        if not wait_for_ready("Mock OAuth readiness", mock_ready_url,
+                              READY_TIMEOUT, READY_INTERVAL, mock_proc):
+            print(
+                f"[contract:{STACK_PATH}] FAIL: Mock OAuth did not become ready"
+                " -- aborting test run",
+                file=sys.stderr,
+            )
+            return 1
     bff_proc = start_server(BFF_START_CMD, "BFF server")
     start_server(WEB_START_CMD, "Web server")
 
