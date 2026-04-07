@@ -115,9 +115,15 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Compiled-language stacks should avoid ephemeral executable paths for default
   local run targets on Windows (for example repeated `go run` temp executables);
   prefer stable repo-local binary paths.
+- On Windows, prefer PowerShell-native commands for Windows-first workflows and
+  an explicit Git Bash path for Bash-based repo helpers; do not rely on a bare
+  `bash` resolution because it may point to WSL or another unintended runtime.
 - On Windows PowerShell, when an interactive Bash shell is needed, first try
   `& "C:\Program Files\Git\bin\bash.exe" --login -i` before relying on a plain
   `bash` resolution that may point at an unintended environment.
+- When a reusable helper would otherwise require separate Bash and PowerShell
+  implementations, prefer one portable Python or Node.js script with thin task
+  wrappers instead of maintaining duplicate shell logic.
 - Platform caveats and first-run behavior must be documented alongside run
   commands for each stack.
 
