@@ -89,11 +89,18 @@ criteria):
 
 1. **Fetch the issue** (GitHub MCP `issue_read` or `gh issue view`) and
    read acceptance criteria and validation commands.
-2. **Implement** the required code and documentation in-repo following
+2. **Create or reuse the canonical issue worktree** before making code
+   changes when the repo defines a worktree helper flow. Prefer the
+   repo-local commands (`moon run repo:worktree-ensure` or
+   `make worktree-ensure` with `ISSUE_NUMBER` set) over ad hoc
+   `git worktree` commands. If already inside the matching issue
+   worktree, continue there. If the current checkout is dirty and does
+   not belong to the same issue worktree, stop and surface the conflict.
+3. **Implement** the required code and documentation in-repo following
    `AGENTS.md` and existing patterns. Run the issue’s validation
    commands (or stack-equivalent checks) and fix failures before
    staging.
-3. If requirements are ambiguous, the issue is blocked, or scope is too
+4. If requirements are ambiguous, the issue is blocked, or scope is too
    large for a single pass, **stop** and ask the user instead of
    guessing.
 
@@ -280,7 +287,10 @@ and description (e.g., `feat/add-ship-changes-skill`).
 git checkout -b <type>/<short-description>
 ```
 
-If already on a non-default branch, continue on it.
+If already on a non-default branch, continue on it. When issue worktree
+automation is in use, the canonical issue worktree branch may already
+exist; prefer reusing that branch rather than replacing it with an ad
+hoc second branch unless the repo policy explicitly requires otherwise.
 
 ## Step 10: Create the Git Commit
 
@@ -458,11 +468,16 @@ After the merge completes:
    git branch -d <branch>
    ```
 
-4. Verify by running `git log -1 --format="%H %s"` on main.
+4. If the repo defines canonical issue worktree cleanup helpers and
+   `issue_number` was provided, run the cleanup helper with explicit
+   post-merge confirmation so only the clean merged issue worktree is
+   removed. Do not force-remove dirty or ambiguous worktrees.
+5. Verify by running `git log -1 --format="%H %s"` on main.
 
 ## Step 15: Report to GitHub Issue (conditional)
 
 If `issue_number` was provided, use the GitHub MCP
 `add_issue_comment` tool to post a comment on the issue with the
-merge SHA, PR number, and summary. Skip this step if no issue number
+merge SHA, PR number, summary, and any leftover worktree cleanup action
+that still requires manual follow-up. Skip this step if no issue number
 was given.

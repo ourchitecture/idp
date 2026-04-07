@@ -91,6 +91,8 @@ This skill is strict by default:
 - Any non-exempt branch without an open PR is flagged immediately.
 - Open PRs must link to at least one issue.
 - Open issues labeled `in-progress` must have an active linked PR.
+- Canonical repo-local issue worktrees should not accumulate stale,
+  orphaned, or duplicate state without being reported.
 
 ## Step 1: Resolve Repository Context
 
@@ -109,7 +111,8 @@ applied.
 
 ## Step 2: Gather Data (MCP-first)
 
-Collect branches, open PRs, and open issues.
+Collect branches, open PRs, open issues, and repo-local issue worktree
+state.
 
 Use GitHub MCP tools first:
 
@@ -122,6 +125,8 @@ Filter to active work:
 - PR state: `open`
 - Issue state: `open`
 - Prefer PRs that target `base_branch`
+- If the repo defines a canonical worktree audit helper, run it and
+  incorporate its findings into the normalized audit context
 
 If `include_closed` is true, also fetch recently closed PRs/issues for
 context notes in the final report.
@@ -191,6 +196,12 @@ Evaluate findings with deterministic rules.
 3. **Branch hints issue but no PR**
    - Condition: branch name implies an issue number but branch has no open
      PR.
+4. **Duplicate issue worktrees**
+   - Condition: more than one canonical worktree appears tied to the same
+     issue.
+5. **Wrong checkout for active issue**
+   - Condition: a canonical issue worktree exists, but active work is
+     still happening from another checkout.
 
 ### Low severity
 
@@ -202,6 +213,10 @@ Evaluate findings with deterministic rules.
      policy appears inconsistent. GitHub rulesets prevent deletion of
      the `main` branch itself; feature branch auto-deletion after merge
      is configured separately in repository settings.
+3. **Local worktree cleanup drift**
+   - Condition: a clean canonical issue worktree still exists after its
+     remote branch disappeared, or a worktree path exists on disk but is
+     no longer registered with `git worktree`.
 
 ## Step 5: Score and Status
 
@@ -224,7 +239,7 @@ Set `overall_status`:
 Return a structured report that includes:
 
 1. **Summary**
-   - Branch count, PR count, issue count
+   - Branch count, PR count, issue count, worktree count
    - Findings by severity
    - Final score and status
 2. **Findings**
@@ -234,6 +249,8 @@ Return a structured report that includes:
    - Add explicit issue links to PRs using `Closes #N` or `Refs #N`
    - Reconcile duplicate PRs per issue
    - Move stale/unowned work out of `in-progress`
+   - Reuse or remove canonical issue worktrees using the repo-local
+     worktree helpers instead of ad hoc deletion
 
 Example remediation commands:
 
@@ -266,4 +283,5 @@ Return:
 - `findings` array
 
 If no findings are present, explicitly state that repository workflow
-integrity is currently clean under strict branch-to-PR policy.
+integrity is currently clean under strict branch-to-PR policy and the
+canonical issue worktree audit.

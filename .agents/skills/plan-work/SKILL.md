@@ -114,6 +114,10 @@ Based on the requirements and domain:
 4. Look for reusable utilities, components, or patterns to follow.
 5. Review AGENTS.md for architectural guidelines relevant to the
    domain.
+6. If the repo defines canonical issue worktree helpers, detect
+   whether an issue worktree already exists for this issue and note
+   the expected handoff path, but do not create or mutate worktrees
+   during planning.
 
 ## Step 6: Create the Implementation Plan
 
@@ -130,6 +134,8 @@ Produce a structured plan covering:
 6. **Verification**: How to test that the implementation is correct.
 7. **Estimated Complexity**: Low / Medium / High based on the
    number of files, conceptual complexity, and risk.
+8. **Implementation Handoff**: Include the canonical issue worktree
+   location and whether implementation should create or reuse it.
 
 ## Step 7: Post the Plan to the Issue
 
@@ -182,7 +188,9 @@ set `ready_to_implement` to `true` only after:
 Remind the user that implementation should not begin until a
 maintainer approves the plan by commenting on the issue. After
 approval, use the `/ship-changes` skill with the `issue_number`
-input to complete the cycle.
+input to complete the cycle. If the repo has canonical worktree
+helpers, include the issue worktree handoff in the report so
+implementation starts from the correct checkout.
 
 ## Handling Issue Changes After Planning
 

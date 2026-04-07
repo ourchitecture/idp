@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels check-lint check-test check-contract check test test-contract dev docs-site build-containers
+.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -28,6 +28,10 @@ help:
 	@printf "  issue-triage  Apply issue triage labels and comments\n"
 	@printf "  issue-signal-ready Post agent-ready issue signal\n"
 	@printf "  issue-setup-labels Bootstrap repository labels\n"
+	@printf "  worktree-path Resolve the canonical issue worktree path and branch\n"
+	@printf "  worktree-ensure Create or reuse the canonical issue worktree\n"
+	@printf "  worktree-cleanup Remove a clean issue worktree after merge confirmation\n"
+	@printf "  audit-worktrees Report stale or orphaned issue worktrees\n"
 	@printf "  check-lint    Run selected stack lint checks\n"
 	@printf "  check-test    Run selected stack tests\n"
 	@printf "  check-contract Run selected stack contract checks\n"
@@ -151,6 +155,34 @@ issue-setup-labels:
 		"$(MOON_BIN)" run repo:issue-setup-labels; \
 	else \
 		"bash" "./$(CI_SCRIPTS_DIR)/setup-labels.sh"; \
+	fi
+
+worktree-path:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:worktree-path; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/worktree-path.sh"; \
+	fi
+
+worktree-ensure:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:worktree-ensure; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/worktree-ensure.sh"; \
+	fi
+
+worktree-cleanup:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:worktree-cleanup; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/worktree-cleanup.sh"; \
+	fi
+
+audit-worktrees:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:audit-worktrees; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/audit-worktrees.sh"; \
 	fi
 
 install:

@@ -99,6 +99,10 @@ showing:
 - Whether it is `agent-eligible`
 - Current assignee (if any)
 - Age (days since creation)
+- The canonical local worktree root (`.agents/worktrees/`) and the
+  recommended next step to create or reuse the issue worktree via the
+  repo-local helper flow (`moon run repo:worktree-ensure` or
+  `make worktree-ensure` with `ISSUE_NUMBER` set)
 
 Set `recommended` to the issue number of the top-ranked result.
 
