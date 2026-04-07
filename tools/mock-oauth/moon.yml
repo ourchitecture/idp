@@ -9,7 +9,7 @@ project:
 tasks:
   all:
     command: ["bash", "-c", "true"]
-    deps: ["install", "build", "check"]
+    deps: ["check"]
   install:
     command: ["./mvnw", "dependency:resolve", "-q", "-B"]
   build:
@@ -22,7 +22,7 @@ tasks:
     command: ["./mvnw", "verify", "-q"]
   check-ci:
     command: ["bash", "-c", "true"]
-    deps: ["install", "build", "check-test"]
+    deps: ["check-test"]
     options:
       runInCI: true
   check:
