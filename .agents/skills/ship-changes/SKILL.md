@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.3.2
+version: 1.4.0
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -9,8 +9,10 @@ description: >
   automatically deletes the feature branch and the local branch is
   cleaned up. Prefer local git commands and the GitHub MCP server;
   fall back to the gh CLI when MCP tools are unavailable.
-  Use this skill when you want to ship pending changes from
-  working tree to merged-on-main in a single invocation.
+  When an issue_number is given and the tree has no implementation
+  yet, implements the linked issue first, then ships. Use this skill
+  when you want to ship pending changes from working tree to
+  merged-on-main in a single invocation.
 author: "@idp-maintain"
 domain: devops
 tags:
@@ -77,6 +79,27 @@ outputs:
 
 End-to-end workflow: review working tree, create a feature branch,
 commit, push, open a PR, merge to main, and clean up.
+
+## Step 0: Implement linked issue when required (optional)
+
+When **`issue_number` is provided** and the repository has **no**
+ready-to-ship implementation for that issue (working tree clean, only
+unrelated edits, or the change does not satisfy the issue acceptance
+criteria):
+
+1. **Fetch the issue** (GitHub MCP `issue_read` or `gh issue view`) and
+   read acceptance criteria and validation commands.
+2. **Implement** the required code and documentation in-repo following
+   `AGENTS.md` and existing patterns. Run the issue’s validation
+   commands (or stack-equivalent checks) and fix failures before
+   staging.
+3. If requirements are ambiguous, the issue is blocked, or scope is too
+   large for a single pass, **stop** and ask the user instead of
+   guessing.
+
+When Step 0 runs, the rest of the workflow operates on the new changes.
+If the working tree already contains a complete implementation for the
+issue, **skip Step 0** and start at Step 1.
 
 ## Step 1: Review All Unstaged and Untracked Files
 

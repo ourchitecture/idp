@@ -40,6 +40,10 @@ This auth surface follows the shared contract described by ADR-0013 and
 `auth-profile`; other auth-capable stacks may implement the same behavior with
 different stack-native libraries.
 
+The reference BFF builds authorization redirects and performs the
+authorization-code exchange using `golang.org/x/oauth2`; the user profile is
+still loaded from the configured userinfo endpoint.
+
 ### Providers
 
 | Value | Description |

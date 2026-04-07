@@ -113,5 +113,3 @@ tasks:
       BFF_URL: "http://127.0.0.1:8300"
       CONTRACT_PROFILES: "auth-profile"
       ROOT_DIR: "../../../.."
-    options:
-      runInCI: false
