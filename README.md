@@ -89,6 +89,10 @@ tools/      Developer tooling, MCP adapters, and the static status publisher
 
 ## Getting Started
 
+### Weekly onboarding validation
+
+Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS, and Windows. They exercise the documented quickstart (npm install, optional proto install, stack builds, and contributor linting). On GitHub-hosted Windows runners, Docker runs in Windows-container mode and cannot pull Linux-only images like `rhysd/actionlint`; the workflow uses the Go-based fallback instead. Local Windows users with WSL + Rancher/Podman Desktop can run Linux containers, but that setup cannot be reproduced on GitHub-hosted Windows runners today.
+
 > This project is in early development. Setup instructions will be added as the platform takes shape.
 
 ### Prerequisites

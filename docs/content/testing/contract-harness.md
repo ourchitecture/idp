@@ -50,6 +50,8 @@ make dev
 make test
 ```
 
+> Note: Weekly onboarding checks exercise these commands on GitHub-hosted runners for Linux, macOS, and Windows. Windows runners cannot run Linux containers (for example `rhysd/actionlint`) because Docker is locked to Windows-container mode there; local Windows setups with WSL + Rancher/Podman Desktop can run the Linux container path, but that environment cannot be reproduced in hosted runners.
+
 If everything is working you will see structured JSON log lines for each test,
 followed by a summary. Passing tests emit `"msg": "contract test passed"`;
 failing tests emit `"msg": "contract test failed"` with an `error` field.
