@@ -442,6 +442,7 @@ Moon project IDs currently used:
 - `docs-site`
 - `mcp-tools`
 - `vscode-extension`
+- `backstage-tools`
 
 Stack-level Makefile targets (from `stacks/<stack>/Makefile`).
 All are **optional convenience wrappers**; equivalent `moon` task invocations
@@ -616,6 +617,7 @@ reject the operation.
 - `/tools/` tooling and MCP definitions
 - `/tools/mcp/` Model Context Protocol adapter server
 - `/tools/vscode-extension/` VS Code extension skeleton (early integration target)
+- `/tools/backstage/` Backstage test harness for IDP plug-in integration (skeleton phase)
 - `/.agents/skills/` agent skills
 
 ### Test Harness Sync Rule

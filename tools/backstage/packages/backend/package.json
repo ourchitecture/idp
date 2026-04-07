@@ -1,0 +1,20 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "backstage": {
+    "role": "backend"
+  },
+  "scripts": {
+    "build": "echo 'Backstage backend build placeholder'",
+    "clean": "echo 'Backstage backend clean placeholder'",
+    "start": "echo 'Backstage backend start placeholder'"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/express": "*",
+    "typescript": "~5.4.0"
+  }
+}

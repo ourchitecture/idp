@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.yarn/
+.pnp.*
+
+# Build outputs
+dist/
+dist-types/
+packages/*/dist/
+packages/*/dist-types/
+
+# Backstage
+.backstage/
+*.local.yaml
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temp
+.tmp/
+temp/

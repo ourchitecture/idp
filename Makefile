@@ -58,7 +58,11 @@ all:
 		"$(MAKE)" -C "$$stack" all; \
 	done; \
 	printf "Running full build/test validation for docs-site\n"; \
-	"$(MAKE)" -C docs all
+	"$(MAKE)" -C docs all; \
+	printf "Running full build/test validation for tools/vscode-extension\n"; \
+	"$(MAKE)" -C tools/vscode-extension all; \
+	printf "Running full build/test validation for tools/backstage\n"; \
+	"$(MAKE)" -C tools/backstage all
 	@if command -v docker >/dev/null 2>&1; then \
 		printf "Docker detected — building container images\n"; \
 		"$(MAKE)" build-containers; \
@@ -68,7 +72,7 @@ all:
 
 ci:
 	@if [ -x "$(MOON_BIN)" ]; then \
-		"$(MOON_BIN)" ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci vscode-extension:check-ci; \
+		"$(MOON_BIN)" ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci vscode-extension:check-ci backstage-tools:check-ci; \
 	else \
 		set -e; \
 		for stack in $(STACKS); do \
@@ -77,6 +81,7 @@ ci:
 		done; \
 		"$(MAKE)" -C docs check-ci; \
 		"$(MAKE)" -C tools/vscode-extension check-ci; \
+		"$(MAKE)" -C tools/backstage check-ci; \
 	fi
 	@if command -v docker >/dev/null 2>&1; then \
 		printf "Docker detected — building container images\n"; \

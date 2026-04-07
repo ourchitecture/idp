@@ -127,6 +127,7 @@ Expose platform capabilities consistently across interaction modes.
 - Web interfaces for visualization and control
 - AI/MCP interfaces for conversational and agent-driven interaction
 - IDE integrations (VS Code extension) for in-editor workflows
+- **Backstage integration** for developer portal and service catalog workflows
 - Consistent capability model across all channels
 
 ---
@@ -152,6 +153,7 @@ plug-in model.
 - Capability-based sandboxing (WebAssembly components, process isolation)
 - Web-tier composition via Module Federation (Host + Remote topology)
 - BFF-tier extension through ports and adapters (route, data, auth, health)
+- **Backstage plug-ins** for extending developer portal capabilities
 - Plug-in catalog with lifecycle governance (submit, review, approve, publish,
   install, activate)
 - Persona-appropriate controls for developers, operators, and users
