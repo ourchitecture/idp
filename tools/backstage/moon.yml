@@ -2,10 +2,9 @@ language: "typescript"
 layer: "tool"
 stack: "backend"
 
-workspace:
-  inheritedTasks:
-    exclude:
-      - "node-install-deps"
+toolchains:
+  node:
+    packageManager: "yarn"
 
 project:
   title: "backstage-tools"
