@@ -111,7 +111,7 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 ## Issue-Driven Workflow (Required)
 
 - Start from a GitHub Issue; no untracked work.
-- Use GitHub MCP tools for issue/PR operations when available.
+- Use any available GitHub API channel for issue/PR operations (GitHub MCP tools, `gh` CLI, or direct REST API — see **GitHub API Access Priority** below).
 - Only work on authorized issues from `@idp-admin` or `@idp-maintain`.
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
@@ -142,11 +142,15 @@ is deliberately narrow so maintainer overrides are not reverted.
 
 Git operations (`commit`, `push`, `pull`) use the local git proxy and
 the git protocol. GitHub API operations (PR creation, issue comments,
-label updates) use the MCP server and the GitHub REST API. These are
-separate channels — one can be available when the other is not. It is
-therefore valid and expected to commit and push while MCP is unavailable;
-this is not a logical inconsistency. It does, however, leave a partial
-state that must be completed as soon as MCP reconnects.
+label updates) can be performed via any available channel: GitHub MCP
+tools (if present in the tool set under any prefix such as
+`mcp__github__*` or `github-mcp-server-*`), the `gh` CLI (if installed
+and authenticated), or direct GitHub REST API calls. These channels are
+independent from git — any one can be available while others are not. It
+is therefore valid and expected to commit and push while GitHub API
+access is unavailable; this is not a logical inconsistency. It does,
+however, leave a partial state that must be completed as soon as any
+GitHub API channel becomes available.
 
 ### Operation Sequencing
 
@@ -155,12 +159,13 @@ in the same uninterrupted sequence when possible:
 
 1. `git push` — always works via the git protocol.
 2. Validate that the branch is visible on GitHub before creating a PR:
-   use `mcp__github__list_branches` and retry with exponential backoff
-   (2 s, 4 s, 8 s, up to 4 attempts) if the branch is not yet visible.
-   The local proxy may have a small propagation lag.
-3. Create the PR (`mcp__github__create_pull_request`).
-4. Update the issue (`mcp__github__issue_write` — remove `in-progress`,
-   add `needs-review`, or close if the PR body contains `Closes #N`).
+   list branches via any available GitHub API channel and retry with
+   exponential backoff (2 s, 4 s, 8 s, up to 4 attempts) if the branch
+   is not yet visible. The local proxy may have a small propagation lag.
+3. Create the PR via any available GitHub API channel.
+4. Update the issue via any available GitHub API channel — remove
+   `in-progress`, add `needs-review`, or close if the PR body contains
+   `Closes #N`.
 5. Post an issue comment summarising the work done.
 
 If any step in the sequence fails, record exactly which steps completed
@@ -171,21 +176,36 @@ and which did not. Do not leave the issue in a stale label state (e.g.,
 
 Always use `Closes #N` in the commit footer — not `Refs #N` — when all
 acceptance criteria for an issue are met. Never downgrade to `Refs`
-because of MCP unavailability at commit time; the commit message must
-reflect the intent of the change, not the transient availability of a
-tool.
+because of GitHub API unavailability at commit time; the commit message
+must reflect the intent of the change, not the transient availability of
+a tool.
 
-### When GitHub MCP Tools Are Unavailable
+### GitHub API Access Priority
 
-If the GitHub MCP server is disconnected or tools are not listed in
-the available tool set, follow these rules:
+When performing any GitHub API operation (adding labels, posting
+comments, creating PRs, reading issue data), use the first available
+channel in priority order:
 
-- Do NOT attempt `gh` CLI commands — it is not available in this
-  environment and will return "gh not available".
-- Do NOT attempt to call the git remote URL as a REST API — the remote
-  (`http://127.0.0.1:45835`) is only accessible via the git protocol,
-  not HTTP REST.
-- Do NOT spin trying alternatives. Surface the blocker immediately.
+1. **GitHub MCP tools** — check whether any `mcp__github__*`,
+   `github-mcp-server-*`, or similarly prefixed tools are present in the
+   active tool set. Different agent environments may surface these under
+   different prefixes; probe for them before concluding they are absent.
+2. **`gh` CLI** — if `gh` is installed and authenticated (`gh auth
+   status`), use it as a fully capable fallback for all GitHub API
+   operations.
+3. **Direct GitHub REST API** — if a `GITHUB_TOKEN` or equivalent
+   credential is available in the environment, call the GitHub REST API
+   directly (e.g., `curl -H "Authorization: token $GITHUB_TOKEN" ...`).
+4. **Surface and continue** — if no channel is available, output the
+   full ready-to-use content the user would need to perform the action
+   manually and maintain a pending-operations list. Do not stop all
+   work; continue any local operations that do not require GitHub API
+   access.
+
+### When No GitHub API Channel Is Available
+
+If all channels above have been tried and none work:
+
 - Continue any local work (edits, commits, pushes via `git`) that does
   not require GitHub API access — those operations work regardless.
 - When blocked on a GitHub operation (PR creation, issue comment,
@@ -196,9 +216,8 @@ the available tool set, follow these rules:
 - Maintain an explicit pending-operations list in the response so the
   user can track what is still outstanding.
 - Resume ALL pending GitHub operations as the very first action once
-  the MCP server reconnects (indicated by `mcp__github__*` tools
-  reappearing in the system reminder). Do not answer other questions
-  or take other actions first.
+  any GitHub API channel becomes available. Do not answer other
+  questions or take other actions first.
 
 ### MCP Transient Failure Retry
 
@@ -207,8 +226,9 @@ are distinct from full server disconnection:
 
 - Retry up to 4 times with exponential backoff: 2 s, 4 s, 8 s, 16 s.
 - Log each attempt: `MCP operation <name> failed (attempt N/4): <error>`.
-- After 4 failures, surface the error to the user with the full
-  ready-to-use payload (PR body, comment text, etc.) and stop retrying.
+- After 4 failures, fall back to the next available GitHub API channel
+  (see **GitHub API Access Priority** above) before surfacing the error
+  to the user.
 - Do NOT retry on 4xx client errors (invalid input, not found,
   permission denied) — those require human intervention.
 
@@ -216,14 +236,15 @@ are distinct from full server disconnection:
 
 A successful `git push` to the local proxy does not mean the branch is
 immediately visible via the GitHub REST API. The proxy syncs to GitHub
-asynchronously, so `mcp__github__list_branches` may not show the branch
-for several seconds after the push returns. Always confirm the branch is
-present before attempting PR creation — do not assume the push and the
-API view are in sync.
+asynchronously, so the GitHub API may not show the branch for several
+seconds after the push returns. Always confirm the branch is present
+before attempting PR creation — do not assume the push and the API view
+are in sync.
 
-Before calling `mcp__github__create_pull_request`:
+Before creating a pull request via any GitHub API channel:
 
-1. Call `mcp__github__list_branches` and look for the head branch.
+1. List branches via your available GitHub API channel and look for the
+   head branch.
 2. If absent, wait and retry with exponential backoff (2 s, 4 s, 8 s,
    16 s, up to 4 polls). The expected cause is normal propagation lag
    from the local proxy to GitHub — not a push failure.
