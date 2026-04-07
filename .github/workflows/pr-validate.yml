@@ -39,7 +39,7 @@ jobs:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         continue-on-error: true
         with:
           path: |
@@ -51,7 +51,7 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -94,7 +94,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -107,7 +107,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -135,7 +135,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -148,7 +148,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -176,7 +176,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -189,7 +189,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -221,7 +221,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -234,7 +234,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -242,7 +242,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -274,7 +274,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -287,7 +287,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -332,7 +332,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -345,7 +345,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -557,7 +557,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -570,7 +570,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -578,7 +578,7 @@ jobs:
 
       - name: Save Maven cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -617,7 +617,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -630,7 +630,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -638,7 +638,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
