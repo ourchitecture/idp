@@ -356,8 +356,8 @@ docker run --rm -p 3300:3300 localhost/stemix-go-net-http-rest-web:latest
 
 # Contract tests against a running stack
 docker run --rm \
-  -e IDP_WEB_URL=http://host.docker.internal:3300 \
-  -e IDP_BFF_URL=http://host.docker.internal:8300 \
+  -e OUR_IDP_WEB_URL=http://host.docker.internal:3300 \
+  -e OUR_IDP_BFF_URL=http://host.docker.internal:8300 \
   localhost/stemix-contract-tests:latest
 ```
 

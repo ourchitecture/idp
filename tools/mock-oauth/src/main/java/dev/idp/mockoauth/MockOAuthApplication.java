@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * contract testing of the Go BFF auth flow. It is <strong>never</strong> deployed to
  * production and must not be used with real credentials or sensitive data.
  *
- * <p>Default port: {@code 9000} (override with {@code MOCK_OAUTH_PORT} env var).
+ * <p>Default port: {@code 9000} (override with {@code OUR_IDP_OAUTH_MOCK_PORT} env var).
  */
 @SpringBootApplication
 public class MockOAuthApplication {

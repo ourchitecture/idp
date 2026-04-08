@@ -166,8 +166,8 @@ function renderHtml(summary: PortalSummary): string {
 }
 
 async function main(): Promise<void> {
-  const baseUrl = process.env.IDP_BFF_URL ?? "http://127.0.0.1:8000";
-  const outputDir = path.resolve(process.cwd(), process.env.STATUS_PUBLISH_DIR ?? ".tmp/status-site");
+  const baseUrl = process.env.OUR_IDP_BFF_URL ?? "http://127.0.0.1:8000";
+  const outputDir = path.resolve(process.cwd(), process.env.OUR_IDP_STATUS_PUBLISH_DIR ?? ".tmp/status-site");
 
   const response = await fetch(new URL("/api/portal/summary", baseUrl), {
     headers: {

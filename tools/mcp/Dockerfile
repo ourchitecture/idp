@@ -35,11 +35,11 @@ RUN npm ci --omit=dev --ignore-scripts
 COPY --from=builder /app/dist/ ./dist/
 
 # Default to Streamable HTTP mode when running in a container.
-# Override with MCP_HTTP_PORT="" to use stdio (not useful in containers).
-ENV MCP_HTTP_PORT=8080
+# Override with OUR_IDP_MCP_PORT="" to use stdio (not useful in containers).
+ENV OUR_IDP_MCP_PORT=8080
 
-# Connect to the BFF. Override at runtime via -e IDP_BFF_URL=...
-ENV IDP_BFF_URL=http://localhost:8000
+# Connect to the BFF. Override at runtime via -e OUR_IDP_BFF_URL=...
+ENV OUR_IDP_BFF_URL=http://localhost:8000
 
 EXPOSE 8080
 

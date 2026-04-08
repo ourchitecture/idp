@@ -72,7 +72,7 @@ still loaded from the configured userinfo endpoint.
 | `OUR_IDP_OAUTH_AUTH_URL` | _(mock default)_ | Override the provider authorization URL (mock provider only). |
 | `OUR_IDP_OAUTH_TOKEN_URL` | _(mock default)_ | Override the provider token URL (mock provider only). |
 | `OUR_IDP_OAUTH_USERINFO_URL` | _(mock default)_ | Override the provider userinfo URL (mock provider only). |
-| `MOCK_OAUTH_PORT` | `9000` | Port for the mock OAuth service (mock provider only). |
+| `OUR_IDP_OAUTH_MOCK_PORT` | `9000` | Port for the mock OAuth service (mock provider only). |
 | `OUR_IDP_OAUTH_SECURE_COOKIE` | `false` | Set to `true` in HTTPS production deployments to enable the `Secure` cookie attribute. Leave `false` for local HTTP development. |
 
 ### Quick Start with Mock Provider

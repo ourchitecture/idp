@@ -247,7 +247,7 @@ async function startStdioMode(): Promise<void> {
   );
 }
 
-const rawPort = process.env.MCP_HTTP_PORT;
+const rawPort = process.env.OUR_IDP_MCP_PORT;
 const httpPort = rawPort !== undefined ? parseInt(rawPort, 10) : null;
 
 if (httpPort !== null && !Number.isNaN(httpPort)) {
