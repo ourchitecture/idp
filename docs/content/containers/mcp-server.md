@@ -32,7 +32,7 @@ docker run --rm -p 8080:8080 \
 | Variable | Default | Description |
 | --- | --- | --- |
 | `IDP_BFF_URL` | `http://localhost:8000` | Base URL of the BFF to connect to |
-| `MCP_HTTP_PORT` | `8080` | HTTP port the MCP server listens on |
+| `OUR_IDP_MCP_PORT` | `8080` | HTTP port the MCP server listens on |
 | `MCP_HTTP_HOST` | `0.0.0.0` | Bind address (use `127.0.0.1` for local-only) |
 
 ## Tools Exposed

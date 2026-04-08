@@ -19,10 +19,10 @@ AI agents through a stable, discoverable protocol. This server is the MCP interf
 
 ## Environment variables
 
-| Variable        | Default                 | Description                                                                          |
-|-----------------|-------------------------|--------------------------------------------------------------------------------------|
-| `IDP_BFF_URL`   | `http://localhost:8000` | Base URL of the IDP BFF to connect to                                                |
-| `MCP_HTTP_PORT` | _(unset)_               | When set, starts Streamable HTTP server on this port; otherwise starts in stdio mode |
+| Variable           | Default                 | Description                                                                          |
+|--------------------|-------------------------|--------------------------------------------------------------------------------------|
+| `IDP_BFF_URL`      | `http://localhost:8000` | Base URL of the IDP BFF to connect to                                                |
+| `OUR_IDP_MCP_PORT` | _(unset)_               | When set, starts Streamable HTTP server on this port; otherwise starts in stdio mode |
 
 ## Install dependencies
 
@@ -51,7 +51,7 @@ make run
 ### HTTP mode (for container and remote use)
 
 ```sh
-MCP_HTTP_PORT=8080 node dist/server.js
+OUR_IDP_MCP_PORT=8080 node dist/server.js
 # or
 make run-http
 ```
@@ -67,7 +67,7 @@ Start the BFF (e.g., `make -C stacks/go/net-http/rest run-bff`), then:
 make check-contract
 
 # Or manually from repo root:
-MCP_HTTP_PORT=8580 IDP_BFF_URL=http://localhost:8000 node tools/mcp/dist/server.js &
+OUR_IDP_MCP_PORT=8580 IDP_BFF_URL=http://localhost:8000 node tools/mcp/dist/server.js &
 IDP_MCP_URL=http://localhost:8580 IDP_STACK_PATH=tools/mcp npm run test:contract
 ```
 
