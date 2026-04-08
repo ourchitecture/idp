@@ -104,7 +104,7 @@ tasks:
         OUR_IDP_API_PORT=8300
         OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3300
         OUR_IDP_OAUTH_PROVIDER=mock
-        MOCK_OAUTH_PORT=9000
+        OUR_IDP_OAUTH_MOCK_PORT=9000
         OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8300/auth/callback
         env -- .bin/idp-go-bff
       MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"

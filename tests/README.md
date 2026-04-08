@@ -23,7 +23,7 @@ the required HTTP endpoints.
   without an explicit `OUR_IDP_OAUTH_AUTH_URL`)
 - `OUR_IDP_OAUTH_AUTH_URL` (optional; explicit provider authorization URL used
   by `auth-profile` login redirect checks)
-- `MOCK_OAUTH_PORT` (optional; mock provider port used by `auth-profile` when
+- `OUR_IDP_OAUTH_MOCK_PORT` (optional; mock provider port used by `auth-profile` when
   `OUR_IDP_OAUTH_PROVIDER=mock`)
 
 ## Conformance Profiles

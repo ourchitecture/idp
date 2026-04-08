@@ -31,8 +31,8 @@ WORKDIR /app
 
 COPY --from=builder /app/target/mock-oauth.jar ./mock-oauth.jar
 
-# Port is configurable at runtime via -e MOCK_OAUTH_PORT=<port>
-ENV MOCK_OAUTH_PORT=9000
+# Port is configurable at runtime via -e OUR_IDP_OAUTH_MOCK_PORT=<port>
+ENV OUR_IDP_OAUTH_MOCK_PORT=9000
 
 EXPOSE 9000
 

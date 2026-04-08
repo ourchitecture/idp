@@ -32,7 +32,7 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["check-test"]
   run:
-    command: ["bash", "-c", "MOCK_OAUTH_PORT=9000 ./mvnw spring-boot:run -q"]
+    command: ["bash", "-c", "OUR_IDP_OAUTH_MOCK_PORT=9000 ./mvnw spring-boot:run -q"]
     options:
       persistent: true
       runInCI: false
