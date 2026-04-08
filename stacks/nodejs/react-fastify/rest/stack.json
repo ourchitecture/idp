@@ -6,7 +6,8 @@
     "core",
     "operational",
     "status-profile",
-    "ui-profile"
+    "ui-profile",
+    "auth-profile"
   ],
   "capabilities": {
     "status": {
@@ -17,7 +18,12 @@
       "mode": "spa"
     },
     "auth": {
-      "enabled": false
+      "enabled": true,
+      "providers": [
+        "none",
+        "mock",
+        "github"
+      ]
     }
   }
 }
