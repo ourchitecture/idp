@@ -1,6 +1,6 @@
 {
   "name": "stemix-idp-mcp-server",
-  "version": "0.4.0-alpha.0",
+  "version": "0.4.1-alpha.0",
   "private": true,
   "description": "MCP adapter for the Stemix Intent-Driven Portal BFF.",
   "license": "MIT",
@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.5.2",
-    "typescript": "^5.4.5"
+    "typescript": "^6.0.2"
   },
   "engines": {
     "node": ">=20"
