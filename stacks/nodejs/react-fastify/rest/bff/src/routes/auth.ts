@@ -1,6 +1,6 @@
 import cookie from "@fastify/cookie";
 import type { FastifyPluginAsync } from "fastify";
-import { AuthorizationCode } from "simple-oauth2";
+import { Issuer, type Client, type UserinfoResponse } from "openid-client";
 import {
   buildProviderConfig,
   resolveOAuthProviderName,
@@ -10,7 +10,6 @@ import {
 import { SessionStore, StateStore, type UserInfo } from "../auth/store";
 
 const SESSION_COOKIE_NAME = "idp_session";
-const USERINFO_TIMEOUT_MS = 10_000;
 
 const states = new StateStore();
 const sessions = new SessionStore();
@@ -19,58 +18,39 @@ function isConfigComplete(config: OAuthProviderConfig): boolean {
   return config.clientID !== "" && config.clientSecret !== "" && config.redirectURL !== "";
 }
 
-function createOAuthClient(config: OAuthProviderConfig): AuthorizationCode | null {
+function buildOAuthClient(config: OAuthProviderConfig): Client | null {
   try {
-    const authURL = new URL(config.authURL);
-    const tokenURL = new URL(config.tokenURL);
-
-    return new AuthorizationCode({
-      client: {
-        id: config.clientID,
-        secret: config.clientSecret,
-      },
-      auth: {
-        authorizeHost: authURL.origin,
-        authorizePath: authURL.pathname,
-        tokenHost: tokenURL.origin,
-        tokenPath: tokenURL.pathname,
-      },
-      http: {
-        headers: {
-          accept: "application/json",
-        },
-      },
+    const authUrl = new URL(config.authURL);
+    const issuer = new Issuer({
+      issuer: authUrl.origin,
+      authorization_endpoint: config.authURL,
+      token_endpoint: config.tokenURL,
+      userinfo_endpoint: config.userinfoURL,
     });
-  } catch (error) {
+
+    return new issuer.Client({
+      client_id: config.clientID,
+      client_secret: config.clientSecret,
+      redirect_uris: [config.redirectURL],
+      response_types: ["code"],
+    });
+  } catch {
     return null;
   }
 }
 
-async function fetchUserInfo(userinfoURL: string, accessToken: string): Promise<UserInfo> {
-  const response = await fetch(userinfoURL, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
-    },
-    signal: AbortSignal.timeout(USERINFO_TIMEOUT_MS),
-  });
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`userinfo returned ${response.status}: ${body}`);
-  }
-
-  const payload = (await response.json()) as Partial<UserInfo>;
-  if (payload.login === undefined) {
+function normalizeUserInfo(payload: UserinfoResponse): UserInfo {
+  const login = (payload as Record<string, string | undefined>).login;
+  if (login === undefined || login === "") {
     throw new Error("userinfo payload missing login");
   }
 
   return {
-    login: payload.login,
-    id: payload.id,
-    name: payload.name,
-    email: payload.email,
-    avatar_url: payload.avatar_url,
+    login,
+    id: (payload as Record<string, number | undefined>).id,
+    name: (payload as Record<string, string | undefined>).name,
+    email: (payload as Record<string, string | undefined>).email,
+    avatar_url: (payload as Record<string, string | undefined>).avatar_url,
   };
 }
 
@@ -91,24 +71,22 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     return;
   }
 
-  const oauthClient = createOAuthClient(config);
-  if (oauthClient === null) {
+  const client = buildOAuthClient(config);
+  if (client === null) {
     app.log.error({ provider: providerName }, "Failed to construct OAuth client; skipping auth routes.");
     return;
   }
-
   const secureCookie = resolveSecureCookie();
 
   await app.register(cookie);
 
-  app.get("/auth/login", async (_request, reply) => {
+  app.get("/auth/login", async (request, reply) => {
     const state = states.create();
-    const authorizeURL = oauthClient.authorizeURL({
+    const uri = client.authorizationUrl({
       state,
       redirect_uri: config.redirectURL,
     });
-
-    reply.redirect(authorizeURL);
+    reply.redirect(uri);
   });
 
   app.get("/auth/callback", async (request, reply) => {
@@ -117,20 +95,14 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
     if (!states.consume(query.state)) {
       return reply.status(400).send({ error: "invalid or missing state" });
     }
-
-    if (query.code === undefined || query.code === "") {
+    if (!query.code) {
       return reply.status(400).send({ error: "missing code" });
     }
 
     let accessToken: string | undefined;
     try {
-      const tokenResponse = await oauthClient.getToken({
-        code: query.code,
-        redirect_uri: config.redirectURL,
-      });
-
-      const rawToken = tokenResponse?.token as { access_token?: string } | undefined;
-      accessToken = rawToken?.access_token;
+      const tokenSet = await client.oauthCallback(config.redirectURL, query, { state: query.state });
+      accessToken = tokenSet.access_token ?? undefined;
     } catch (error) {
       request.log.error({ err: error }, "Token exchange failed");
       return reply.status(502).send({ error: "token exchange failed" });
@@ -142,7 +114,8 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
 
     let user: UserInfo;
     try {
-      user = await fetchUserInfo(config.userinfoURL, accessToken);
+      const userInfo = await client.userinfo(accessToken);
+      user = normalizeUserInfo(userInfo);
     } catch (error) {
       request.log.error({ err: error }, "Failed to fetch user info");
       return reply.status(502).send({ error: "failed to fetch user info" });
