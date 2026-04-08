@@ -134,6 +134,8 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Only work on authorized issues from `@idp-admin` or `@idp-maintain`.
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
+- Link related PRs, issues, or references as comments on the original issue as work progresses so stakeholders can follow the trail.
+- When beginning implementation on an approved issue, add the `in-progress` label to signal active work.
 - Before implementation for an approved issue, create or reuse the canonical issue worktree via the repo-local worktree helper flow. Planning remains non-mutating and may stay in the main checkout.
 
 ### Triage Model
