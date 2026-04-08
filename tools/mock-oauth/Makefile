@@ -3,7 +3,7 @@
 ROOT_DIR := ../..
 TOOL_PATH := tools/mock-oauth
 MOCK_OAUTH_PORT ?= 9000
-CONTAINER_LOCAL_PREFIX := localhost
+CONTAINER_LOCAL_PREFIX := localhost/ourchitecture/idp
 CONTAINER_IMAGE_BASE := stemix-mock-oauth
 PROTO_HOME ?= $(HOME)/.proto
 MOON_BIN := $(PROTO_HOME)/shims/moon
