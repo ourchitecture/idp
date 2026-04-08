@@ -7,7 +7,7 @@ export const CHECK_HEALTH_TOOL_DESCRIPTION =
   "Check the health and readiness status of the IDP BFF service. Returns both the IETF health check response and the readiness check response.";
 
 function resolveBffUrl(): URL {
-  const raw = process.env.IDP_BFF_URL ?? "http://localhost:8000";
+  const raw = process.env.OUR_IDP_BFF_URL ?? "http://localhost:8000";
   return new URL(raw);
 }
 

@@ -38,8 +38,8 @@ COPY --from=builder /app/dist/ ./dist/
 # Override with OUR_IDP_MCP_PORT="" to use stdio (not useful in containers).
 ENV OUR_IDP_MCP_PORT=8080
 
-# Connect to the BFF. Override at runtime via -e IDP_BFF_URL=...
-ENV IDP_BFF_URL=http://localhost:8000
+# Connect to the BFF. Override at runtime via -e OUR_IDP_BFF_URL=...
+ENV OUR_IDP_BFF_URL=http://localhost:8000
 
 EXPOSE 8080
 

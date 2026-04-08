@@ -119,12 +119,12 @@ check-contract:
 		"$(MOON_BIN)" run go-net-http-rest:check-contract; \
 	else \
 		"$(MAKE)" build-web build-bff; \
-		STACK_PATH="$(STACK_PATH)" \
-		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
-		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" env -- "$(abspath $(BFF_BIN))"' \
-		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		ROOT_DIR="$(ROOT_DIR)" \
+		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" env -- "$(abspath $(BFF_BIN))"' \
+		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi
 
@@ -227,14 +227,14 @@ check-contract-auth:
 		"$(MOON_BIN)" run go-net-http-rest:check-contract-auth; \
 	else \
 		"$(MAKE)" build-web build-bff build-mock-oauth; \
-		STACK_PATH="$(STACK_PATH)" \
-		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
-		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" env -- "$(abspath $(BFF_BIN))"' \
-		MOCK_OAUTH_START_CMD='java -jar "$(abspath $(MOCK_OAUTH_JAR))"' \
-		MOCK_OAUTH_URL="http://127.0.0.1:$(OUR_IDP_OAUTH_MOCK_PORT)" \
-		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		CONTRACT_PROFILES=auth-profile \
-		ROOT_DIR="$(ROOT_DIR)" \
+		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" env -- "$(abspath $(WEB_BIN))"' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" env -- "$(abspath $(BFF_BIN))"' \
+		OUR_IDP_MOCK_OAUTH_START_CMD='java -jar "$(abspath $(MOCK_OAUTH_JAR))"' \
+		OUR_IDP_MOCK_OAUTH_URL="http://127.0.0.1:$(OUR_IDP_OAUTH_MOCK_PORT)" \
+		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		OUR_IDP_CONTRACT_PROFILES=auth-profile \
+		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi

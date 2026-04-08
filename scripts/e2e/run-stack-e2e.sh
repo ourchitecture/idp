@@ -6,27 +6,27 @@
 #
 # Usage (called from a stack Makefile via `make e2e`):
 #
-#   STACK_PATH=stacks/go/net-http/rest \
-#   WEB_START_CMD="..." \
-#   BFF_START_CMD="..." \
-#   WEB_URL=http://127.0.0.1:3300 \
-#   BFF_URL=http://127.0.0.1:8300 \
-#   CONTRACT_PROFILES=core,operational \
-#   ROOT_DIR=. \
+#   OUR_IDP_STACK_PATH=stacks/go/net-http/rest \
+#   OUR_IDP_WEB_START_CMD="..." \
+#   OUR_IDP_BFF_START_CMD="..." \
+#   OUR_IDP_WEB_URL=http://127.0.0.1:3300 \
+#   OUR_IDP_BFF_URL=http://127.0.0.1:8300 \
+#   OUR_IDP_CONTRACT_PROFILES=core,operational \
+#   OUR_IDP_ROOT_DIR=. \
 #     bash scripts/e2e/run-stack-e2e.sh
 #
 # Required environment variables:
-#   STACK_PATH        Relative path to the stack (e.g. stacks/go/net-http/rest)
-#   WEB_START_CMD     Shell command to start the web server (runs in background)
-#   BFF_START_CMD     Shell command to start the BFF server (runs in background)
-#   WEB_URL           Full base URL for the web server readiness check
-#   BFF_URL           Full base URL for the BFF server readiness check
-#   ROOT_DIR          Repo root directory (used for npm --prefix)
+#   OUR_IDP_STACK_PATH        Relative path to the stack (e.g. stacks/go/net-http/rest)
+#   OUR_IDP_WEB_START_CMD     Shell command to start the web server (runs in background)
+#   OUR_IDP_BFF_START_CMD     Shell command to start the BFF server (runs in background)
+#   OUR_IDP_WEB_URL           Full base URL for the web server readiness check
+#   OUR_IDP_BFF_URL           Full base URL for the BFF server readiness check
+#   OUR_IDP_ROOT_DIR          Repo root directory (used for npm --prefix)
 #
 # Optional environment variables:
-#   CONTRACT_PROFILES Comma-separated contract profile names (overrides stack.json default)
-#   READY_TIMEOUT     Seconds to wait for each server to become ready (default: 30)
-#   READY_INTERVAL    Polling interval in seconds (default: 1)
+#   OUR_IDP_CONTRACT_PROFILES Comma-separated contract profile names (overrides stack.json default)
+#   OUR_IDP_READY_TIMEOUT     Seconds to wait for each server to become ready (default: 30)
+#   OUR_IDP_READY_INTERVAL    Polling interval in seconds (default: 1)
 
 set -euo pipefail
 
@@ -34,15 +34,15 @@ set -euo pipefail
 # Configuration
 # ---------------------------------------------------------------------------
 
-STACK_PATH="${STACK_PATH:?STACK_PATH is required}"
-WEB_START_CMD="${WEB_START_CMD:?WEB_START_CMD is required}"
-BFF_START_CMD="${BFF_START_CMD:?BFF_START_CMD is required}"
-WEB_URL="${WEB_URL:?WEB_URL is required}"
-BFF_URL="${BFF_URL:?BFF_URL is required}"
-ROOT_DIR="${ROOT_DIR:?ROOT_DIR is required}"
-CONTRACT_PROFILES="${CONTRACT_PROFILES:-}"
-READY_TIMEOUT="${READY_TIMEOUT:-30}"
-READY_INTERVAL="${READY_INTERVAL:-1}"
+STACK_PATH="${OUR_IDP_STACK_PATH:?OUR_IDP_STACK_PATH is required}"
+WEB_START_CMD="${OUR_IDP_WEB_START_CMD:?OUR_IDP_WEB_START_CMD is required}"
+BFF_START_CMD="${OUR_IDP_BFF_START_CMD:?OUR_IDP_BFF_START_CMD is required}"
+WEB_URL="${OUR_IDP_WEB_URL:?OUR_IDP_WEB_URL is required}"
+BFF_URL="${OUR_IDP_BFF_URL:?OUR_IDP_BFF_URL is required}"
+ROOT_DIR="${OUR_IDP_ROOT_DIR:?OUR_IDP_ROOT_DIR is required}"
+CONTRACT_PROFILES="${OUR_IDP_CONTRACT_PROFILES:-}"
+READY_TIMEOUT="${OUR_IDP_READY_TIMEOUT:-30}"
+READY_INTERVAL="${OUR_IDP_READY_INTERVAL:-1}"
 
 READINESS_PATH="/readiness"
 BFF_READY_URL="${BFF_URL%/}${READINESS_PATH}"
@@ -162,12 +162,12 @@ fi
 log_section "Running contract tests"
 
 contract_env=(
-  "IDP_WEB_URL=${WEB_URL}"
-  "IDP_BFF_URL=${BFF_URL}"
-  "IDP_STACK_PATH=${STACK_PATH}"
+  "OUR_IDP_WEB_URL=${WEB_URL}"
+  "OUR_IDP_BFF_URL=${BFF_URL}"
+  "OUR_IDP_STACK_PATH=${STACK_PATH}"
 )
 if [[ -n "${CONTRACT_PROFILES}" ]]; then
-  contract_env+=("IDP_CONTRACT_PROFILES=${CONTRACT_PROFILES}")
+  contract_env+=("OUR_IDP_CONTRACT_PROFILES=${CONTRACT_PROFILES}")
 fi
 
 env "${contract_env[@]}" npm --prefix "${ROOT_DIR}" run test:contract

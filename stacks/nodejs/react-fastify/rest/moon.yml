@@ -26,13 +26,13 @@ tasks:
   check-contract:
     command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
     env:
-      STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
-      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
-      WEB_URL: "http://127.0.0.1:3400"
-      BFF_URL: "http://127.0.0.1:8400"
-      CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
-      ROOT_DIR: "../../../.."
+      OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
+      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
+      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      OUR_IDP_ROOT_DIR: "../../../.."
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check-lint", "check-test"]
@@ -50,13 +50,13 @@ tasks:
   e2e:
     command: ["bash", "../../../../scripts/e2e/run-stack-e2e.sh"]
     env:
-      STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
-      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
-      WEB_URL: "http://127.0.0.1:3400"
-      BFF_URL: "http://127.0.0.1:8400"
-      CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
-      ROOT_DIR: "../../../.."
+      OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
+      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
+      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      OUR_IDP_ROOT_DIR: "../../../.."
   run-web:
     command: ["npm", "--prefix", "../../../..", "run", "start:web:react-fastify"]
     options:

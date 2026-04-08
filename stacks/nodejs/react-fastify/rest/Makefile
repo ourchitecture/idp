@@ -99,13 +99,13 @@ check-contract:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-contract; \
 	else \
-		STACK_PATH="$(STACK_PATH)" \
-		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
-		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
-		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
-		ROOT_DIR="$(ROOT_DIR)" \
+		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi
 
@@ -115,13 +115,13 @@ e2e:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:e2e; \
 	else \
-		STACK_PATH="$(STACK_PATH)" \
-		WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
-		BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
-		WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
-		BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
-		ROOT_DIR="$(ROOT_DIR)" \
+		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:web:react-fastify' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm --prefix "$(ROOT_DIR)" run start:bff:react-fastify' \
+		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"; \
 	fi
 

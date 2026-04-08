@@ -19,10 +19,10 @@ AI agents through a stable, discoverable protocol. This server is the MCP interf
 
 ## Environment variables
 
-| Variable           | Default                 | Description                                                                          |
-|--------------------|-------------------------|--------------------------------------------------------------------------------------|
-| `IDP_BFF_URL`      | `http://localhost:8000` | Base URL of the IDP BFF to connect to                                                |
-| `OUR_IDP_MCP_PORT` | _(unset)_               | When set, starts Streamable HTTP server on this port; otherwise starts in stdio mode |
+| Variable               | Default                 | Description                                                                          |
+|------------------------|-------------------------|--------------------------------------------------------------------------------------|
+| `OUR_IDP_BFF_URL`      | `http://localhost:8000` | Base URL of the IDP BFF to connect to                                                |
+| `OUR_IDP_MCP_PORT`     | _(unset)_               | When set, starts Streamable HTTP server on this port; otherwise starts in stdio mode |
 
 ## Install dependencies
 
@@ -67,8 +67,8 @@ Start the BFF (e.g., `make -C stacks/go/net-http/rest run-bff`), then:
 make check-contract
 
 # Or manually from repo root:
-OUR_IDP_MCP_PORT=8580 IDP_BFF_URL=http://localhost:8000 node tools/mcp/dist/server.js &
-IDP_MCP_URL=http://localhost:8580 IDP_STACK_PATH=tools/mcp npm run test:contract
+OUR_IDP_MCP_PORT=8580 OUR_IDP_BFF_URL=http://localhost:8000 node tools/mcp/dist/server.js &
+OUR_IDP_MCP_URL=http://localhost:8580 OUR_IDP_STACK_PATH=tools/mcp npm run test:contract
 ```
 
 ## Container
@@ -79,7 +79,7 @@ make build-container
 
 # Run (connect to a BFF on the host):
 docker run --rm -p 8080:8080 \
-  -e IDP_BFF_URL=http://host.docker.internal:8000 \
+  -e OUR_IDP_BFF_URL=http://host.docker.internal:8000 \
   localhost/stemix-mcp-server:latest
 ```
 
