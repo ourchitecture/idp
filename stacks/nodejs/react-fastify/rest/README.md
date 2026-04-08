@@ -25,11 +25,16 @@ BFF.
 - `operational`
 - `status-profile`
 - `ui-profile`
+- `auth-profile` (opt-in, requires OAuth provider configuration)
 
 This stack declares status capability and UI capability mode `spa`.
 Rendered `ui-profile` checks use a local Chromium-family browser; set
 `IDP_UI_BROWSER_PATH` if Chrome or Edge cannot be auto-detected on the current
 machine.
+
+The `auth-profile` contract is opt-in and requires a configured OAuth provider
+(see [Auth Capability](#auth-capability) below). Use the dedicated
+`check-contract-auth` target to validate auth behavior locally.
 
 ## Auth Capability
 
@@ -71,6 +76,30 @@ The default (`none`) keeps auth disabled and preserves existing behaviour.
 - `POST /auth/logout` — clears the session and expires `idp_session`.
 - `GET /auth/me` — returns session-backed user info or `401` when unauthenticated.
 
+### Local auth validation
+
+The stack provides a dedicated target to run the full auth-profile contract
+validation, including the mock OAuth service:
+
+```sh
+# Run auth-profile validation (requires Java 21 for mock OAuth)
+make -C stacks/nodejs/react-fastify/rest check-contract-auth
+
+# Or with moon directly
+moon run nodejs-react-fastify-rest:check-contract-auth
+```
+
+This target:
+
+- Builds the mock OAuth JAR (requires Java 21)
+- Starts the mock OAuth service on port 9000
+- Starts the web and BFF servers with `OUR_IDP_OAUTH_PROVIDER=mock`
+- Runs the auth-profile contract tests
+- Cleans up all processes
+
+See the [auth-profile documentation](../../../../docs/content/testing/profiles/auth-profile.md)
+for more details on prerequisites, environment variables, and GitHub OAuth setup.
+
 ## Commands
 
 Moon (maintainer/CI canonical):
@@ -78,6 +107,7 @@ Moon (maintainer/CI canonical):
 - `moon run nodejs-react-fastify-rest:all`
 - `moon run nodejs-react-fastify-rest:check-ci`
 - `moon run nodejs-react-fastify-rest:check-contract`
+- `moon run nodejs-react-fastify-rest:check-contract-auth` (opt-in auth validation)
 - `moon run nodejs-react-fastify-rest:run-web`
 - `moon run nodejs-react-fastify-rest:run-bff`
 
@@ -90,12 +120,15 @@ GNU Make (compatibility):
 - `make -C stacks/nodejs/react-fastify/rest check-lint`
 - `make -C stacks/nodejs/react-fastify/rest check-test`
 - `make -C stacks/nodejs/react-fastify/rest check-contract`
+- `make -C stacks/nodejs/react-fastify/rest check-contract-auth` (opt-in auth validation)
 - `make -C stacks/nodejs/react-fastify/rest check-ci`
 - `make -C stacks/nodejs/react-fastify/rest check`
 - `make -C stacks/nodejs/react-fastify/rest test` (alias for `check-test`)
 - `make -C stacks/nodejs/react-fastify/rest run-web`
 - `make -C stacks/nodejs/react-fastify/rest run-bff`
 - `make -C stacks/nodejs/react-fastify/rest test-contract` (alias for `check-contract`)
+- `make -C stacks/nodejs/react-fastify/rest check-java` (verify Java 21+ in PATH)
+- `make -C stacks/nodejs/react-fastify/rest build-mock-oauth` (build mock OAuth JAR)
 
 ### Native Tooling Shortcuts
 

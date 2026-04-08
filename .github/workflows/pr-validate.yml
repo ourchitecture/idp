@@ -614,8 +614,11 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Run auth integration contract tests
+      - name: Run Go auth integration contract tests
         run: make -C stacks/go/net-http/rest check-contract-auth
+
+      - name: Run Node.js auth integration contract tests
+        run: make -C stacks/nodejs/react-fastify/rest check-contract-auth
 
       - name: Save proto and moon cache
         if: always()

@@ -100,6 +100,14 @@ for file in "${changed_files[@]}"; do
     stacks/go/net-http/rest/*)
       run_go_stack="true"
       ;;
+    stacks/nodejs/react-fastify/rest/bff/src/routes/auth*)
+      run_node_stack="true"
+      run_auth_integration="true"
+      ;;
+    stacks/nodejs/react-fastify/rest/bff/src/auth/*)
+      run_node_stack="true"
+      run_auth_integration="true"
+      ;;
     stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
       ;;
