@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.4.0-alpha.0...go-net-http-rest-v1.4.1-alpha.0) (2026-04-08)
+
+
+### Bug Fixes
+
+* **containers:** correct registry collection targets for CI and local builds ([#157](https://github.com/ourchitecture/idp/issues/157)) ([9bd80b3](https://github.com/ourchitecture/idp/commit/9bd80b39f0f5a707a725ec2a0bcdc44e57e72cfa)), closes [#153](https://github.com/ourchitecture/idp/issues/153)
+
 ## [1.4.0-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.3.1-alpha.0...go-net-http-rest-v1.4.0-alpha.0) (2026-04-07)
 
 
