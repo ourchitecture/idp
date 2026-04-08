@@ -101,8 +101,6 @@ tasks:
       OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
       OUR_IDP_CONTRACT_PROFILES: "auth-profile"
       OUR_IDP_ROOT_DIR: "../../../.."
-    options:
-      runInCI: false
   build-container-web:
     command: ["docker", "build", "--progress=plain", "-t", "localhost/stemix-nodejs-react-fastify-rest-web:latest", "-f", "web/Dockerfile", "../../../.."]
     options:
