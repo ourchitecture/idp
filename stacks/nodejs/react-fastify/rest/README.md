@@ -25,21 +25,40 @@ BFF.
 - `operational`
 - `status-profile`
 - `ui-profile`
+- `auth-profile`
 
 This stack declares status capability and UI capability mode `spa`.
 Rendered `ui-profile` checks use a local Chromium-family browser; set
 `IDP_UI_BROWSER_PATH` if Chrome or Edge cannot be auto-detected on the current
 machine.
 
-## Auth Capability Status
+## Auth Capability
 
-This stack does not yet implement the optional OAuth auth surface and does not
-currently declare `auth-profile`.
+Auth enables optional OAuth sign-in that matches the shared ADR-0013 /
+`auth-profile` contract. Routes are registered only when
+`OUR_IDP_OAUTH_PROVIDER` is set to `mock` or `github`; the default `none`
+preserves existing behavior (no `/auth/*` endpoints). Sessions are kept
+in-memory and issued via the `idp_session` HttpOnly cookie (SameSite=Lax,
+Secure when `OUR_IDP_OAUTH_SECURE_COOKIE=true`).
 
-When auth support lands, it should follow the shared ADR-0013 / `auth-profile`
-contract used by auth-capable stacks: `OUR_IDP_OAUTH_PROVIDER`,
-`/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/me`, and the
-`idp_session` cookie contract.
+Supported providers and environment:
+
+- `OUR_IDP_OAUTH_PROVIDER` — `none` (default), `mock`, or `github`
+- `OUR_IDP_OAUTH_CLIENT_ID` / `OUR_IDP_OAUTH_CLIENT_SECRET` — required when
+  provider is `mock` or `github`
+- `OUR_IDP_OAUTH_REDIRECT_URL` — required redirect URI for the OAuth app
+- `OUR_IDP_OAUTH_AUTH_URL` / `OUR_IDP_OAUTH_TOKEN_URL` /
+  `OUR_IDP_OAUTH_USERINFO_URL` — optional overrides; mock defaults to
+  `http://127.0.0.1:${MOCK_OAUTH_PORT|9000}/oauth/{authorize,token}` and
+  `/userinfo`
+- `MOCK_OAUTH_PORT` — mock provider port (default `9000`)
+- `OUR_IDP_OAUTH_SECURE_COOKIE` — set to `true` to add the Secure cookie flag
+
+Local mock flow: start the mock OAuth server from `tools/mock-oauth` (or point
+to another provider), then run the BFF with
+`OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_CLIENT_ID=<id> OUR_IDP_OAUTH_CLIENT_SECRET=<secret> OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8400/auth/callback`.
+The default contract checks skip `auth-profile`; include it by setting
+`IDP_CONTRACT_PROFILES=auth-profile` and providing a running OAuth server.
 
 ## Commands
 
@@ -70,6 +89,7 @@ GNU Make (compatibility):
 ### Native Tooling Shortcuts
 
 - `npm run typecheck:stack:react-fastify`
+- `npm run test:stack:react-fastify`
 - `npm run build:web:react-fastify`
 - `npm run start:web:react-fastify`
 - `npm run start:bff:react-fastify`

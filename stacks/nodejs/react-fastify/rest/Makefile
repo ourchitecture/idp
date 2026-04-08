@@ -76,7 +76,7 @@ check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-test; \
 	else \
-		npm --prefix "$(ROOT_DIR)" run typecheck:stack:react-fastify; \
+		npm --prefix "$(ROOT_DIR)" run test:stack:react-fastify; \
 	fi
 
 test: check-test
