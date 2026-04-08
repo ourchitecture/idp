@@ -7,33 +7,33 @@ result.
 
 Usage (called from a stack Makefile via `make check-contract`):
 
-    WEB_START_CMD="..." \
-    BFF_START_CMD="..." \
-    WEB_URL=http://127.0.0.1:3300 \
-    BFF_URL=http://127.0.0.1:8300 \
-    STACK_PATH=stacks/go/net-http/rest \
-    ROOT_DIR=../../../.. \
+    OUR_IDP_WEB_START_CMD="..." \
+    OUR_IDP_BFF_START_CMD="..." \
+    OUR_IDP_WEB_URL=http://127.0.0.1:3300 \
+    OUR_IDP_BFF_URL=http://127.0.0.1:8300 \
+    OUR_IDP_STACK_PATH=stacks/go/net-http/rest \
+    OUR_IDP_ROOT_DIR=../../../.. \
       python3 scripts/ci/run-contract-check.py
 
 Required environment variables:
-    STACK_PATH        Relative path to the stack
-    WEB_START_CMD     Shell command to start the web server
-    BFF_START_CMD     Shell command to start the BFF server
-    WEB_URL           Full base URL for the web server
-    BFF_URL           Full base URL for the BFF server
-    ROOT_DIR          Repo root directory (used for npm --prefix)
+    OUR_IDP_STACK_PATH        Relative path to the stack
+    OUR_IDP_WEB_START_CMD     Shell command to start the web server
+    OUR_IDP_BFF_START_CMD     Shell command to start the BFF server
+    OUR_IDP_WEB_URL           Full base URL for the web server
+    OUR_IDP_BFF_URL           Full base URL for the BFF server
+    OUR_IDP_ROOT_DIR          Repo root directory (used for npm --prefix)
 
 Optional environment variables:
-    MOCK_OAUTH_START_CMD  Shell command to start a mock OAuth server.
-                          When set, MOCK_OAUTH_URL is also required.
-                          The mock OAuth server is started before the
-                          BFF and torn down with the other servers.
-    MOCK_OAUTH_URL        Base URL for the mock OAuth server
-                          (e.g. http://127.0.0.1:9000). Used for the
-                          readiness check at MOCK_OAUTH_URL/health.
-    CONTRACT_PROFILES     Comma-separated contract profile names
-    READY_TIMEOUT         Seconds to wait for readiness (default: 120)
-    READY_INTERVAL        Polling interval in seconds (default: 1)
+    OUR_IDP_MOCK_OAUTH_START_CMD  Shell command to start a mock OAuth server.
+                                  When set, OUR_IDP_MOCK_OAUTH_URL is also required.
+                                  The mock OAuth server is started before the
+                                  BFF and torn down with the other servers.
+    OUR_IDP_MOCK_OAUTH_URL        Base URL for the mock OAuth server
+                                  (e.g. http://127.0.0.1:9000). Used for the
+                                  readiness check at OUR_IDP_MOCK_OAUTH_URL/health.
+    OUR_IDP_CONTRACT_PROFILES     Comma-separated contract profile names
+    OUR_IDP_READY_TIMEOUT         Seconds to wait for readiness (default: 120)
+    OUR_IDP_READY_INTERVAL        Polling interval in seconds (default: 1)
 """
 
 import atexit
@@ -53,20 +53,20 @@ import urllib.error
 # Configuration
 # ---------------------------------------------------------------------------
 
-STACK_PATH = os.environ.get("STACK_PATH")
-WEB_START_CMD = os.environ.get("WEB_START_CMD")
-BFF_START_CMD = os.environ.get("BFF_START_CMD")
-WEB_URL = os.environ.get("WEB_URL")
-BFF_URL = os.environ.get("BFF_URL")
-ROOT_DIR = os.environ.get("ROOT_DIR")
-MOCK_OAUTH_START_CMD = os.environ.get("MOCK_OAUTH_START_CMD", "")
-MOCK_OAUTH_URL = os.environ.get("MOCK_OAUTH_URL", "")
-CONTRACT_PROFILES = os.environ.get("CONTRACT_PROFILES", "")
-READY_TIMEOUT = int(os.environ.get("READY_TIMEOUT", "120"))
-READY_INTERVAL = int(os.environ.get("READY_INTERVAL", "1"))
+STACK_PATH = os.environ.get("OUR_IDP_STACK_PATH")
+WEB_START_CMD = os.environ.get("OUR_IDP_WEB_START_CMD")
+BFF_START_CMD = os.environ.get("OUR_IDP_BFF_START_CMD")
+WEB_URL = os.environ.get("OUR_IDP_WEB_URL")
+BFF_URL = os.environ.get("OUR_IDP_BFF_URL")
+ROOT_DIR = os.environ.get("OUR_IDP_ROOT_DIR")
+MOCK_OAUTH_START_CMD = os.environ.get("OUR_IDP_MOCK_OAUTH_START_CMD", "")
+MOCK_OAUTH_URL = os.environ.get("OUR_IDP_MOCK_OAUTH_URL", "")
+CONTRACT_PROFILES = os.environ.get("OUR_IDP_CONTRACT_PROFILES", "")
+READY_TIMEOUT = int(os.environ.get("OUR_IDP_READY_TIMEOUT", "120"))
+READY_INTERVAL = int(os.environ.get("OUR_IDP_READY_INTERVAL", "1"))
 
-for var in ("STACK_PATH", "WEB_START_CMD", "BFF_START_CMD",
-            "WEB_URL", "BFF_URL", "ROOT_DIR"):
+for var in ("OUR_IDP_STACK_PATH", "OUR_IDP_WEB_START_CMD", "OUR_IDP_BFF_START_CMD",
+            "OUR_IDP_WEB_URL", "OUR_IDP_BFF_URL", "OUR_IDP_ROOT_DIR"):
     if not os.environ.get(var):
         print(f"[contract:{STACK_PATH or '?'}] ERROR: {var} is required",
               file=sys.stderr)
@@ -74,8 +74,8 @@ for var in ("STACK_PATH", "WEB_START_CMD", "BFF_START_CMD",
 
 if MOCK_OAUTH_START_CMD and not MOCK_OAUTH_URL:
     print(
-        f"[contract:{STACK_PATH}] ERROR: MOCK_OAUTH_URL is required when "
-        "MOCK_OAUTH_START_CMD is set",
+        f"[contract:{STACK_PATH}] ERROR: OUR_IDP_MOCK_OAUTH_URL is required when "
+        "OUR_IDP_MOCK_OAUTH_START_CMD is set",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -337,20 +337,20 @@ def main() -> int:
 
     test_env = {
         **os.environ,
-        "IDP_WEB_URL": WEB_URL,
-        "IDP_BFF_URL": BFF_URL,
-        "IDP_STACK_PATH": STACK_PATH,
+        "OUR_IDP_WEB_URL": WEB_URL,
+        "OUR_IDP_BFF_URL": BFF_URL,
+        "OUR_IDP_STACK_PATH": STACK_PATH,
     }
     if CONTRACT_PROFILES:
-        test_env["IDP_CONTRACT_PROFILES"] = CONTRACT_PROFILES
+        test_env["OUR_IDP_CONTRACT_PROFILES"] = CONTRACT_PROFILES
     # auth-profile tests resolve the expected authorization URL from these
     # (must match the BFF mock configuration; BFF_START_CMD does not inherit).
     if MOCK_OAUTH_URL:
         test_env.setdefault("OUR_IDP_OAUTH_PROVIDER", "mock")
-        if "MOCK_OAUTH_PORT" not in test_env:
+        if "OUR_IDP_OAUTH_MOCK_PORT" not in test_env:
             parsed = urllib.parse.urlparse(MOCK_OAUTH_URL)
             if parsed.port:
-                test_env["MOCK_OAUTH_PORT"] = str(parsed.port)
+                test_env["OUR_IDP_OAUTH_MOCK_PORT"] = str(parsed.port)
 
     result = subprocess.run(
         ["npm", "--prefix", ROOT_DIR, "run", "test:contract"],

@@ -21,18 +21,28 @@ tasks:
     command: ["npm", "run", "lint:md"]
     deps: ["install"]
   check-test:
-    command: ["npm", "--prefix", "../../../..", "run", "typecheck:stack:react-fastify"]
+    command: ["npm", "--prefix", "../../../..", "run", "test:stack:react-fastify"]
     deps: ["install"]
   check-contract:
     command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    deps: ["build-mock-oauth"]
     env:
-      STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
-      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
-      WEB_URL: "http://127.0.0.1:3400"
-      BFF_URL: "http://127.0.0.1:8400"
-      CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
-      ROOT_DIR: "../../../.."
+      OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
+      OUR_IDP_BFF_START_CMD: >-
+        OUR_IDP_API_HOST=127.0.0.1
+        OUR_IDP_API_PORT=8400
+        OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400
+        OUR_IDP_OAUTH_PROVIDER=mock
+        OUR_IDP_OAUTH_MOCK_PORT=9000
+        OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8400/auth/callback
+        npm --prefix ../../../.. run start:bff:react-fastify
+      OUR_IDP_MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
+      OUR_IDP_MOCK_OAUTH_URL: "http://127.0.0.1:9000"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
+      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile,auth-profile"
+      OUR_IDP_ROOT_DIR: "../../../.."
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check-lint", "check-test"]
@@ -50,13 +60,13 @@ tasks:
   e2e:
     command: ["bash", "../../../../scripts/e2e/run-stack-e2e.sh"]
     env:
-      STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
-      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
-      WEB_URL: "http://127.0.0.1:3400"
-      BFF_URL: "http://127.0.0.1:8400"
-      CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
-      ROOT_DIR: "../../../.."
+      OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm --prefix ../../../.. run start:web:react-fastify"
+      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm --prefix ../../../.. run start:bff:react-fastify"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
+      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      OUR_IDP_ROOT_DIR: "../../../.."
   run-web:
     command: ["npm", "--prefix", "../../../..", "run", "start:web:react-fastify"]
     options:
@@ -67,6 +77,10 @@ tasks:
     options:
       persistent: true
       runInCI: false
+  build-mock-oauth:
+    command: ["bash", "-c", "true"]
+    deps:
+      - "mock-oauth:build"
   build-container-web:
     command: ["docker", "build", "--progress=plain", "-t", "localhost/stemix-nodejs-react-fastify-rest-web:latest", "-f", "web/Dockerfile", "../../../.."]
     options:

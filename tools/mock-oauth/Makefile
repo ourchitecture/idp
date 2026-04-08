@@ -2,8 +2,8 @@
 
 ROOT_DIR := ../..
 TOOL_PATH := tools/mock-oauth
-MOCK_OAUTH_PORT ?= 9000
-CONTAINER_LOCAL_PREFIX := localhost
+OUR_IDP_OAUTH_MOCK_PORT ?= 9000
+CONTAINER_LOCAL_PREFIX := localhost/ourchitecture/idp
 CONTAINER_IMAGE_BASE := stemix-mock-oauth
 PROTO_HOME ?= $(HOME)/.proto
 MOON_BIN := $(PROTO_HOME)/shims/moon
@@ -19,11 +19,11 @@ help:
 	@printf "  check-ci        Run CI-safe validation checks\n"
 	@printf "  check           Run lint and tests\n"
 	@printf "  test            Alias for check-test\n"
-	@printf "  run             Start the mock OAuth server on MOCK_OAUTH_PORT\n"
+	@printf "  run             Start the mock OAuth server on OUR_IDP_OAUTH_MOCK_PORT\n"
 	@printf "  build-container Build container image (requires docker)\n"
 	@printf "\n"
 	@printf "Variables:\n"
-	@printf "  MOCK_OAUTH_PORT  Port for the mock OAuth server (default: 9000)\n"
+	@printf "  OUR_IDP_OAUTH_MOCK_PORT  Port for the mock OAuth server (default: 9000)\n"
 
 all:
 	@if [ -x "$(MOON_BIN)" ]; then \
@@ -93,7 +93,7 @@ run:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mock-oauth:run; \
 	else \
-		MOCK_OAUTH_PORT="$(MOCK_OAUTH_PORT)" ./mvnw spring-boot:run -q; \
+		OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" ./mvnw spring-boot:run -q; \
 	fi
 
 build-container:

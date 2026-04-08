@@ -97,7 +97,7 @@ function requirePathExists(filePath: string): boolean {
 }
 
 export async function loadStackMetadata(
-  stackPathEnv = process.env.IDP_STACK_PATH
+  stackPathEnv = process.env.OUR_IDP_STACK_PATH
 ): Promise<StackMetadata | null> {
   if (stackPathEnv === undefined || stackPathEnv.trim().length === 0) {
     return null;
@@ -127,7 +127,7 @@ export async function loadStackMetadata(
 export function resolveRequestedProfiles(
   defaultProfiles: ProfileName[] = ["core", "operational"]
 ): ProfileName[] {
-  const requested = parseProfiles(process.env.IDP_CONTRACT_PROFILES);
+  const requested = parseProfiles(process.env.OUR_IDP_CONTRACT_PROFILES);
   if (requested.length > 0) {
     const invalid = requested.filter((value) => !isProfileName(value));
     if (invalid.length > 0) {
@@ -137,7 +137,7 @@ export function resolveRequestedProfiles(
     return requested as ProfileName[];
   }
 
-  const singleProfile = process.env.IDP_CONTRACT_PROFILE;
+  const singleProfile = process.env.OUR_IDP_CONTRACT_PROFILE;
   if (singleProfile !== undefined && singleProfile.trim().length > 0) {
     const trimmed = singleProfile.trim();
     if (!isProfileName(trimmed)) {
@@ -147,7 +147,7 @@ export function resolveRequestedProfiles(
     return [trimmed];
   }
 
-  if (process.env.IDP_STACK_PATH !== undefined && process.env.IDP_STACK_PATH.trim().length > 0) {
+  if (process.env.OUR_IDP_STACK_PATH !== undefined && process.env.OUR_IDP_STACK_PATH.trim().length > 0) {
     return [];
   }
 

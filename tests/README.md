@@ -11,19 +11,19 @@ the required HTTP endpoints.
 
 ## Configuration
 
-- `IDP_WEB_URL` (default: `http://localhost:3000`)
-- `IDP_BFF_URL` (default: `http://localhost:8000`)
-- `IDP_STACK_PATH` (optional; stack path used to load `stack.json` profile and
+- `OUR_IDP_WEB_URL` (default: `http://localhost:3000`)
+- `OUR_IDP_BFF_URL` (default: `http://localhost:8000`)
+- `OUR_IDP_STACK_PATH` (optional; stack path used to load `stack.json` profile and
   capability declarations, example: `stacks/nodejs/react-fastify/rest`)
-- `IDP_CONTRACT_PROFILE` (optional single profile override)
-- `IDP_CONTRACT_PROFILES` (optional comma-separated profile list override)
-- `IDP_UI_BROWSER_PATH` (optional; path to Chrome or Edge for browser-backed
+- `OUR_IDP_CONTRACT_PROFILE` (optional single profile override)
+- `OUR_IDP_CONTRACT_PROFILES` (optional comma-separated profile list override)
+- `OUR_IDP_UI_BROWSER_PATH` (optional; path to Chrome or Edge for browser-backed
   `ui-profile` rendering checks)
 - `OUR_IDP_OAUTH_PROVIDER` (optional; required when running `auth-profile`
   without an explicit `OUR_IDP_OAUTH_AUTH_URL`)
 - `OUR_IDP_OAUTH_AUTH_URL` (optional; explicit provider authorization URL used
   by `auth-profile` login redirect checks)
-- `MOCK_OAUTH_PORT` (optional; mock provider port used by `auth-profile` when
+- `OUR_IDP_OAUTH_MOCK_PORT` (optional; mock provider port used by `auth-profile` when
   `OUR_IDP_OAUTH_PROVIDER=mock`)
 
 ## Conformance Profiles
@@ -45,7 +45,7 @@ profiles such as `status-profile`, `ui-profile`, and `auth-profile` when both:
 - requested by environment profile selection, and
 - declared in stack metadata (`stack.json`)
 
-When `IDP_STACK_PATH` is provided and no profile override env vars are set,
+When `OUR_IDP_STACK_PATH` is provided and no profile override env vars are set,
 profiles are selected from `stack.json` (`contractProfiles`).
 
 The status MVP is intentionally scoped to IDP-owned components. Plug-in and
@@ -69,20 +69,20 @@ or run `make dev`.
 Example with overrides:
 
 ```bash
-IDP_WEB_URL="http://localhost:3001" IDP_BFF_URL="http://localhost:8001" npm run test:contract
+OUR_IDP_WEB_URL="http://localhost:3001" OUR_IDP_BFF_URL="http://localhost:8001" npm run test:contract
 ```
 
 Example for a specific stack and explicit profile set:
 
 ```bash
-IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" npm run test:contract
+OUR_IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" npm run test:contract
 ```
 
 Example for the auth profile against the current Go auth-capable stack with the
 mock provider:
 
 ```bash
-OUR_IDP_OAUTH_PROVIDER=mock IDP_STACK_PATH="stacks/go/net-http/rest" IDP_CONTRACT_PROFILE="auth-profile" npm run test:contract
+OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_STACK_PATH="stacks/go/net-http/rest" OUR_IDP_CONTRACT_PROFILE="auth-profile" npm run test:contract
 ```
 
 ## Container Image
@@ -105,9 +105,9 @@ Pass the target web and BFF URLs as environment variables:
 
 ```bash
 docker run --rm \
-  -e IDP_WEB_URL=http://host.docker.internal:3300 \
-  -e IDP_BFF_URL=http://host.docker.internal:8300 \
-  -e IDP_STACK_PATH=stacks/go/net-http/rest \
+  -e OUR_IDP_WEB_URL=http://host.docker.internal:3300 \
+  -e OUR_IDP_BFF_URL=http://host.docker.internal:8300 \
+  -e OUR_IDP_STACK_PATH=stacks/go/net-http/rest \
   localhost/stemix-contract-tests:latest
 ```
 

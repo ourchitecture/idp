@@ -14,14 +14,18 @@
     "typecheck:web:react-fastify": "tsc --project stacks/nodejs/react-fastify/rest/web/tsconfig.json --noEmit",
     "typecheck:bff:react-fastify": "tsc --project stacks/nodejs/react-fastify/rest/bff/tsconfig.json --noEmit",
     "typecheck:stack:react-fastify": "npm run typecheck:web:react-fastify && npm run typecheck:bff:react-fastify",
+    "test:bff:react-fastify": "node --import tsx --test stacks/nodejs/react-fastify/rest/bff/src/**/*.test.ts",
+    "test:stack:react-fastify": "npm run typecheck:stack:react-fastify && npm run test:bff:react-fastify",
     "test:contract": "tsx tests/src/index.ts",
     "test:contract:watch": "tsx watch tests/src/index.ts"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",
+    "@fastify/cookie": "^10.0.1",
     "@tanstack/react-query": "^5.96.2",
     "fastify": "^5.6.1",
     "nodejs-react-fastify-rest-lint": "file:stacks/nodejs/react-fastify/rest",
+    "openid-client": "^5.6.5",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.14.0",
@@ -31,11 +35,11 @@
     "@types/node": "^25.5.2",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "@vitejs/plugin-react": "^5.0.4",
+    "@vitejs/plugin-react": "^6.0.1",
     "markdownlint-cli2": "^0.21.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.4.5",
-    "vite": "^7.3.2"
+    "vite": "^8.0.7"
   }
 }

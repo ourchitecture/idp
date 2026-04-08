@@ -147,7 +147,7 @@ capability flag in `stack.json`:
 | `IDP_BFF_URL` | `http://localhost:8000` | Base URL for the BFF server |
 | `OUR_IDP_OAUTH_PROVIDER` | `none` | OAuth provider (`mock` or `github`) |
 | `OUR_IDP_OAUTH_AUTH_URL` | provider-specific | Optional explicit authorization URL override used by the login redirect assertion |
-| `MOCK_OAUTH_PORT` | `9000` | Mock OAuth provider port when `OUR_IDP_OAUTH_PROVIDER=mock` |
+| `OUR_IDP_OAUTH_MOCK_PORT` | `9000` | Mock OAuth provider port when `OUR_IDP_OAUTH_PROVIDER=mock` |
 
 ## Prerequisites
 

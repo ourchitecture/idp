@@ -302,7 +302,7 @@ For a UI-capable stack:
 | `IDP_UI_BROWSER_PATH` | _(auto-detect)_ | Chrome or Edge executable path for rendered `ui-profile` checks |
 | `OUR_IDP_OAUTH_PROVIDER` | `none` | OAuth provider selection used by `auth-profile` redirect assertions |
 | `OUR_IDP_OAUTH_AUTH_URL` | _(unset)_ | Explicit authorization URL override for `auth-profile` redirect assertions |
-| `MOCK_OAUTH_PORT` | `9000` | Mock OAuth provider port used when `OUR_IDP_OAUTH_PROVIDER=mock` |
+| `OUR_IDP_OAUTH_MOCK_PORT` | `9000` | Mock OAuth provider port used when `OUR_IDP_OAUTH_PROVIDER=mock` |
 
 ### Controlling where a stack binds
 

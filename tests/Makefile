@@ -1,6 +1,6 @@
 .PHONY: help build-container run-container
 
-CONTAINER_LOCAL_PREFIX := localhost
+CONTAINER_LOCAL_PREFIX := localhost/ourchitecture/idp
 CONTAINER_IMAGE_NAME := stemix-contract-tests
 ROOT_DIR := ..
 

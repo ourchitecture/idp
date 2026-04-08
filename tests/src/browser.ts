@@ -25,7 +25,7 @@ const LINUX_BROWSER_PATHS = [
 
 function getBrowserCandidates(): string[] {
   const envCandidates = [
-    process.env.IDP_UI_BROWSER_PATH?.trim(),
+    process.env.OUR_IDP_UI_BROWSER_PATH?.trim(),
     process.env.PUPPETEER_EXECUTABLE_PATH?.trim(),
   ].filter((value): value is string => value !== undefined && value.length > 0);
 
@@ -119,7 +119,7 @@ export async function renderDomOrThrow(url: URL): Promise<string> {
 
   throw new Error(
     "Unable to render the UI in a headless Chromium browser. " +
-      "Set IDP_UI_BROWSER_PATH to a local Chrome or Edge executable if auto-detection fails." +
+      "Set OUR_IDP_UI_BROWSER_PATH to a local Chrome or Edge executable if auto-detection fails." +
       detail
   );
 }

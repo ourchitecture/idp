@@ -1,20 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "baseUrl": ".",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "paths": {
-      "@modelcontextprotocol/sdk/server/*.js": [
-        "node_modules/@modelcontextprotocol/sdk/dist/esm/server/*.d.ts"
-      ]
-    },
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "types": ["node"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "include": ["src"]
 }

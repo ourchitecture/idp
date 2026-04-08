@@ -31,15 +31,45 @@ Rendered `ui-profile` checks use a local Chromium-family browser; set
 `IDP_UI_BROWSER_PATH` if Chrome or Edge cannot be auto-detected on the current
 machine.
 
-## Auth Capability Status
+## Auth Capability
 
-This stack does not yet implement the optional OAuth auth surface and does not
-currently declare `auth-profile`.
+The BFF implements the shared OAuth-based `auth-profile`. Auth routes are
+registered only when `OUR_IDP_OAUTH_PROVIDER` is set to a supported provider.
+The default (`none`) keeps auth disabled and preserves existing behaviour.
 
-When auth support lands, it should follow the shared ADR-0013 / `auth-profile`
-contract used by auth-capable stacks: `OUR_IDP_OAUTH_PROVIDER`,
-`/auth/login`, `/auth/callback`, `/auth/logout`, `/auth/me`, and the
-`idp_session` cookie contract.
+### Providers
+
+- `none` (default): auth routes are not registered.
+- `mock`: uses the local mock OAuth service (`tools/mock-oauth`, default port
+  `9000`). Override endpoints with `OUR_IDP_OAUTH_AUTH_URL`,
+  `OUR_IDP_OAUTH_TOKEN_URL`, and `OUR_IDP_OAUTH_USERINFO_URL` if needed; default
+  base URL is `http://127.0.0.1:${MOCK_OAUTH_PORT:-9000}`.
+- `github`: uses GitHub OAuth App endpoints.
+
+### Required env vars
+
+- `OUR_IDP_OAUTH_PROVIDER` — `none`, `mock`, or `github`
+- `OUR_IDP_OAUTH_CLIENT_ID`
+- `OUR_IDP_OAUTH_CLIENT_SECRET`
+- `OUR_IDP_OAUTH_REDIRECT_URL` — e.g. `http://127.0.0.1:8000/auth/callback`
+
+### Optional env vars
+
+- `OUR_IDP_OAUTH_SECURE_COOKIE` — set to `true` to mark the `idp_session`
+  cookie as `Secure` (use HTTPS when enabled).
+- `MOCK_OAUTH_PORT` — default `9000`
+- `OUR_IDP_OAUTH_AUTH_URL`, `OUR_IDP_OAUTH_TOKEN_URL`,
+  `OUR_IDP_OAUTH_USERINFO_URL` — override mock endpoints when needed
+
+### Routes and session contract
+
+- `GET /auth/login` — starts the OAuth flow with a CSRF state and redirects to
+  the provider.
+- `GET /auth/callback` — validates state, exchanges the code, fetches user info,
+  sets `idp_session` (`HttpOnly`, `SameSite=Lax`, optional `Secure`), and
+  redirects to `/`.
+- `POST /auth/logout` — clears the session and expires `idp_session`.
+- `GET /auth/me` — returns session-backed user info or `401` when unauthenticated.
 
 ## Commands
 

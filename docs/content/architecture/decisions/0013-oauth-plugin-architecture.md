@@ -131,10 +131,10 @@ Provider endpoint variables used by the `mock` provider:
 
 | Variable | Default |
 | --- | --- |
-| `OUR_IDP_OAUTH_AUTH_URL` | `http://127.0.0.1:<MOCK_OAUTH_PORT>/oauth/authorize` |
-| `OUR_IDP_OAUTH_TOKEN_URL` | `http://127.0.0.1:<MOCK_OAUTH_PORT>/oauth/token` |
-| `OUR_IDP_OAUTH_USERINFO_URL` | `http://127.0.0.1:<MOCK_OAUTH_PORT>/userinfo` |
-| `MOCK_OAUTH_PORT` | `9000` |
+| `OUR_IDP_OAUTH_AUTH_URL` | `http://127.0.0.1:<OUR_IDP_OAUTH_MOCK_PORT>/oauth/authorize` |
+| `OUR_IDP_OAUTH_TOKEN_URL` | `http://127.0.0.1:<OUR_IDP_OAUTH_MOCK_PORT>/oauth/token` |
+| `OUR_IDP_OAUTH_USERINFO_URL` | `http://127.0.0.1:<OUR_IDP_OAUTH_MOCK_PORT>/userinfo` |
+| `OUR_IDP_OAUTH_MOCK_PORT` | `9000` |
 
 The `github` provider uses fixed GitHub API URLs and requires
 `OUR_IDP_OAUTH_CLIENT_ID`, `OUR_IDP_OAUTH_CLIENT_SECRET`, and

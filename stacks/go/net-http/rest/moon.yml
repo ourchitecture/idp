@@ -37,12 +37,12 @@ tasks:
     command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build"]
     env:
-      STACK_PATH: "stacks/go/net-http/rest"
-      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3300 go run ./web"
-      BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8300 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3300 go run ./bff"
-      WEB_URL: "http://127.0.0.1:3300"
-      BFF_URL: "http://127.0.0.1:8300"
-      ROOT_DIR: "../../../.."
+      OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3300 go run ./web"
+      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8300 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3300 go run ./bff"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3300"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8300"
+      OUR_IDP_ROOT_DIR: "../../../.."
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["build", "check-lint", "check-test"]
@@ -97,19 +97,19 @@ tasks:
     command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build", "build-mock-oauth"]
     env:
-      STACK_PATH: "stacks/go/net-http/rest"
-      WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3300 env -- .bin/idp-go-web"
-      BFF_START_CMD: >-
+      OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3300 env -- .bin/idp-go-web"
+      OUR_IDP_BFF_START_CMD: >-
         OUR_IDP_API_HOST=127.0.0.1
         OUR_IDP_API_PORT=8300
         OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3300
         OUR_IDP_OAUTH_PROVIDER=mock
-        MOCK_OAUTH_PORT=9000
+        OUR_IDP_OAUTH_MOCK_PORT=9000
         OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8300/auth/callback
         env -- .bin/idp-go-bff
-      MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
-      MOCK_OAUTH_URL: "http://127.0.0.1:9000"
-      WEB_URL: "http://127.0.0.1:3300"
-      BFF_URL: "http://127.0.0.1:8300"
-      CONTRACT_PROFILES: "auth-profile"
-      ROOT_DIR: "../../../.."
+      OUR_IDP_MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
+      OUR_IDP_MOCK_OAUTH_URL: "http://127.0.0.1:9000"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3300"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8300"
+      OUR_IDP_CONTRACT_PROFILES: "auth-profile"
+      OUR_IDP_ROOT_DIR: "../../../.."
