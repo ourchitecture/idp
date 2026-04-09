@@ -138,6 +138,26 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - When beginning implementation on an approved issue, add the `in-progress` label to signal active work.
 - Before implementation for an approved issue, create or reuse the canonical issue worktree via the repo-local worktree helper flow. Planning remains non-mutating and may stay in the main checkout.
 
+### Draft-to-Ready PR Lifecycle
+
+Pull requests should follow a two-phase validation strategy using
+GitHub's built-in draft PR status:
+
+1. **Create PRs as drafts** (`gh pr create --draft` or MCP
+   `create_pull_request` with `draft: true`). Draft PRs trigger only
+   lightweight CI checks (change detection, markdown lint, commit
+   message validation) for early feedback.
+2. **Mark PRs ready for review** (`gh pr ready` or MCP
+   `update_pull_request` with `draft: false`) once local validation
+   passes. This triggers the full CI pipeline (stack validation,
+   container builds, integration tests).
+3. Agents must mark PRs ready-for-review before completing their work
+   and requesting human review. Do not leave PRs in draft status when
+   handing off to a maintainer.
+
+This lifecycle is enforced by draft-aware `if` conditions in the
+`pr-validate.yml` and `container-build.yml` workflows.
+
 ### Triage Model
 
 The Issue Triage workflow (`.github/workflows/issue-triage.yml` plus
