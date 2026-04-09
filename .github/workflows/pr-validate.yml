@@ -3,6 +3,7 @@ name: PR Validate
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -201,7 +202,9 @@ jobs:
     name: Check Stack (${{ matrix.label }})
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_stack_validation == 'true'
+    if: >
+      needs.detect-changes.outputs.run_stack_validation == 'true'
+      && github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -256,7 +259,9 @@ jobs:
     name: Check Docs Site
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_docs_validation == 'true'
+    if: >
+      needs.detect-changes.outputs.run_docs_validation == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -357,7 +362,9 @@ jobs:
     name: Check Container Build
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_any_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_any_containers == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -535,7 +542,9 @@ jobs:
     name: Check Mock OAuth Build
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_mock_oauth_build == 'true'
+    if: >
+      needs.detect-changes.outputs.run_mock_oauth_build == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -592,7 +601,9 @@ jobs:
     name: Check Auth Integration
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_auth_integration == 'true'
+    if: >
+      needs.detect-changes.outputs.run_auth_integration == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1

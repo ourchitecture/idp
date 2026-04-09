@@ -77,10 +77,16 @@ Check the issue labels and state:
      to the existing comment.
 3. If the issue has `blocked` label, stop and report the blocker.
 
-## Step 3: Claim the Issue
+## Step 3: Claim the Issue (mandatory)
 
-Add the `in-progress` label to the issue to signal that planning
-is underway. This prevents duplicate work by other agents.
+**This step is non-negotiable and must happen before any codebase
+exploration or plan creation.** Add the `in-progress` label to the
+issue immediately to signal that planning is underway. This prevents
+duplicate work by other agents.
+
+Do not proceed to Step 4 without first labeling the issue as
+`in-progress`. If the label operation fails, stop and report the
+failure — do not continue planning without the claim.
 
 Use the GitHub MCP `update_issue` tool or:
 
