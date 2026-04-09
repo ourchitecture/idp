@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -32,6 +34,24 @@ func useSessionStore(t *testing.T, ttl time.Duration, now func() time.Time) func
 		sessions = newSessionStore(resolveSessionTTL(), time.Now)
 		resetStores()
 	}
+}
+
+// captureLogOutput temporarily redirects the logger output to a buffer.
+func captureLogOutput(t *testing.T, fn func()) string {
+	t.Helper()
+
+	var buf bytes.Buffer
+	origWriter := log.Writer()
+	origFlags := log.Flags()
+	log.SetOutput(&buf)
+	log.SetFlags(0)
+	defer func() {
+		log.SetOutput(origWriter)
+		log.SetFlags(origFlags)
+	}()
+
+	fn()
+	return buf.String()
 }
 
 // --- stateStore ---
@@ -223,6 +243,25 @@ func TestRegisterAuthRoutesUnknownProvider(t *testing.T) {
 	mux.ServeHTTP(w, req)
 	if w.Code != http.StatusNotFound {
 		t.Errorf("expected 404 for unknown provider, got %d", w.Code)
+	}
+}
+
+func TestRegisterAuthRoutesIncompleteConfig(t *testing.T) {
+	t.Setenv("OUR_IDP_OAUTH_PROVIDER", "github")
+	mux := http.NewServeMux()
+
+	logs := captureLogOutput(t, func() {
+		registerAuthRoutes(mux)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/login", nil)
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected 404 for /auth/login when config incomplete, got %d", w.Code)
+	}
+	if !strings.Contains(logs, "missing required configuration") {
+		t.Fatalf("expected warning log for incomplete config, got: %s", logs)
 	}
 }
 

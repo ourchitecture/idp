@@ -16,7 +16,7 @@ const AUTH_ENV_KEYS = [
   "OUR_IDP_OAUTH_CLIENT_SECRET",
   "OUR_IDP_OAUTH_REDIRECT_URL",
   "OUR_IDP_OAUTH_SECURE_COOKIE",
-  "MOCK_OAUTH_PORT",
+  "OUR_IDP_OAUTH_MOCK_PORT",
 ] satisfies Array<keyof NodeJS.ProcessEnv>;
 
 function withEnv(overrides: EnvMap): () => void {
