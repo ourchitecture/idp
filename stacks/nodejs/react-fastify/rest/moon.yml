@@ -33,10 +33,12 @@ tasks:
         OUR_IDP_API_HOST=127.0.0.1
         OUR_IDP_API_PORT=8400
         OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400
-        OUR_IDP_OAUTH_PROVIDER=mock
-        OUR_IDP_OAUTH_MOCK_PORT=9000
-        OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8400/auth/callback
         npm --prefix ../../../.. run start:bff:react-fastify
+      OUR_IDP_OAUTH_PROVIDER: "mock"
+      OUR_IDP_OAUTH_MOCK_PORT: "9000"
+      OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
+      OUR_IDP_OAUTH_CLIENT_SECRET: "mock-client-secret"
+      OUR_IDP_OAUTH_REDIRECT_URL: "http://127.0.0.1:8400/auth/callback"
       OUR_IDP_MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
       OUR_IDP_MOCK_OAUTH_URL: "http://127.0.0.1:9000"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
@@ -93,16 +95,21 @@ tasks:
         OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400
         OUR_IDP_OAUTH_PROVIDER=mock
         OUR_IDP_OAUTH_MOCK_PORT=9000
+        OUR_IDP_OAUTH_CLIENT_ID=mock-client-id
+        OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret
         OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8400/auth/callback
         npm --prefix ../../../.. run start:bff:react-fastify
+      OUR_IDP_OAUTH_PROVIDER: "mock"
+      OUR_IDP_OAUTH_MOCK_PORT: "9000"
+      OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
+      OUR_IDP_OAUTH_CLIENT_SECRET: "mock-client-secret"
+      OUR_IDP_OAUTH_REDIRECT_URL: "http://127.0.0.1:8400/auth/callback"
       OUR_IDP_MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
       OUR_IDP_MOCK_OAUTH_URL: "http://127.0.0.1:9000"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
       OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
       OUR_IDP_CONTRACT_PROFILES: "auth-profile"
       OUR_IDP_ROOT_DIR: "../../../.."
-    options:
-      runInCI: false
   build-container-web:
     command: ["docker", "build", "--progress=plain", "-t", "localhost/stemix-nodejs-react-fastify-rest-web:latest", "-f", "web/Dockerfile", "../../../.."]
     options:
