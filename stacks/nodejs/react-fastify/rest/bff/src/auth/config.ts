@@ -35,15 +35,16 @@ export function resolveSecureCookie(env = process.env): boolean {
 export function buildMockOAuthConfig(env = process.env): OAuthProviderConfig {
   const port = normalize(env.MOCK_OAUTH_PORT) || "9000";
   const base = `http://127.0.0.1:${port}`;
+  const defaultRedirect = "http://127.0.0.1:8400/auth/callback";
 
   return {
     provider: "mock",
     authURL: normalize(env.OUR_IDP_OAUTH_AUTH_URL) || `${base}/oauth/authorize`,
     tokenURL: normalize(env.OUR_IDP_OAUTH_TOKEN_URL) || `${base}/oauth/token`,
     userinfoURL: normalize(env.OUR_IDP_OAUTH_USERINFO_URL) || `${base}/userinfo`,
-    clientID: normalize(env.OUR_IDP_OAUTH_CLIENT_ID),
-    clientSecret: normalize(env.OUR_IDP_OAUTH_CLIENT_SECRET),
-    redirectURL: normalize(env.OUR_IDP_OAUTH_REDIRECT_URL),
+    clientID: normalize(env.OUR_IDP_OAUTH_CLIENT_ID) || "mock-client-id",
+    clientSecret: normalize(env.OUR_IDP_OAUTH_CLIENT_SECRET) || "mock-client-secret",
+    redirectURL: normalize(env.OUR_IDP_OAUTH_REDIRECT_URL) || defaultRedirect,
   };
 }
 
