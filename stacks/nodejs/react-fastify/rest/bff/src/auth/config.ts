@@ -33,7 +33,7 @@ export function resolveSecureCookie(env = process.env): boolean {
 }
 
 export function buildMockOAuthConfig(env = process.env): OAuthProviderConfig {
-  const port = normalize(env.MOCK_OAUTH_PORT) || "9000";
+  const port = normalize(env.OUR_IDP_OAUTH_MOCK_PORT) || "9000";
   const base = `http://127.0.0.1:${port}`;
   const defaultRedirect = "http://127.0.0.1:8400/auth/callback";
 
