@@ -120,7 +120,7 @@ if [[ "${DELETE_ALL}" == "true" ]]; then
     exit 1
   fi
 
-  delete_cmd=(gh cache delete --all --confirm)
+  delete_cmd=(gh cache delete --all)
   delete_cmd+=("${repo_args[@]}" "${ref_args[@]}")
   echo "Running: ${delete_cmd[*]}"
   "${delete_cmd[@]}"
