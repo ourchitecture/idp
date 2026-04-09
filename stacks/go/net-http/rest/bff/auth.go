@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -149,6 +150,12 @@ func resolveSecureCookie() bool {
 	return strings.EqualFold(strings.TrimSpace(os.Getenv("OUR_IDP_OAUTH_SECURE_COOKIE")), "true")
 }
 
+// isConfigComplete returns true when required OAuth credentials and redirect
+// URL are all present.
+func isConfigComplete(cfg *oauthConfig) bool {
+	return cfg.clientID != "" && cfg.clientSecret != "" && cfg.redirectURL != ""
+}
+
 // oauth2ConfigFrom builds a golang.org/x/oauth2.Config from oauthConfig.
 func oauth2ConfigFrom(cfg *oauthConfig) *oauth2.Config {
 	return &oauth2.Config{
@@ -226,6 +233,11 @@ func registerAuthRoutes(mux *http.ServeMux) {
 	case "github":
 		cfg = buildGitHubOAuthConfig()
 	default:
+		return
+	}
+
+	if !isConfigComplete(cfg) {
+		log.Printf("WARN auth provider=%s missing required configuration; skipping auth route registration", providerName)
 		return
 	}
 
