@@ -80,7 +80,29 @@ outputs:
 End-to-end workflow: review working tree, create a feature branch,
 commit, push, open a PR, merge to main, and clean up.
 
-## Step 0: Implement linked issue when required (optional)
+## Step 0a: Claim the issue (conditional, mandatory when issue_number provided)
+
+When **`issue_number` is provided**, immediately add the `in-progress`
+label to the issue **before any other work begins**. This is the first
+action after reading the issue metadata and must happen regardless of
+whether the working tree already has an implementation. The label
+signals to other agents and maintainers that work is underway and
+prevents duplicate effort.
+
+Use the GitHub MCP `update_issue` tool or:
+
+```bash
+gh issue edit <issue_number> --add-label "in-progress"
+```
+
+If the issue already has the `in-progress` label, check comments for
+a prior plan or PR. If another agent is actively working the issue,
+stop and report the conflict rather than proceeding.
+
+**This step is non-negotiable.** Do not proceed to Step 0b or Step 1
+without first labeling the issue as `in-progress`.
+
+## Step 0b: Implement linked issue when required (optional)
 
 When **`issue_number` is provided** and the repository has **no**
 ready-to-ship implementation for that issue (working tree clean, only
@@ -104,9 +126,9 @@ criteria):
    large for a single pass, **stop** and ask the user instead of
    guessing.
 
-When Step 0 runs, the rest of the workflow operates on the new changes.
-If the working tree already contains a complete implementation for the
-issue, **skip Step 0** and start at Step 1.
+When Step 0b runs, the rest of the workflow operates on the new
+changes. If the working tree already contains a complete implementation
+for the issue, **skip Step 0b** and start at Step 1.
 
 ## Step 1: Review All Unstaged and Untracked Files
 
@@ -356,7 +378,7 @@ Determine the correct label from the commit type:
 | `chore`, `style`, `refactor`, `perf`, `build`, `ci`, `test`, `revert` | `chore` |
 | `security` | `bug` |
 
-Use the GitHub MCP `create_pull_request` tool to open a PR:
+Use the GitHub MCP `create_pull_request` tool to open a **draft** PR:
 
 - **owner**: repository owner (e.g., `ourchitecture`)
 - **repo**: repository name (e.g., `idp`)
@@ -365,13 +387,15 @@ Use the GitHub MCP `create_pull_request` tool to open a PR:
 - **title**: the commit subject line
 - **body**: the commit body. If `issue_number` was provided, append
   `\n\nCloses #<issue_number>` to the PR body.
+- **draft**: `true`
 
 **Fallback**: If the MCP tool is unavailable, use the `gh` CLI:
 
 ```bash
 gh pr create --base main --head <branch> \
   --title "<commit subject>" \
-  --body "<commit body>"
+  --body "<commit body>" \
+  --draft
 ```
 
 Record the PR number and URL from the response.
@@ -390,6 +414,27 @@ tool to set:
 gh pr edit <pr_number> --add-assignee "@me" \
   --add-label "<label>"
 ```
+
+## Step 12b: Mark PR Ready for Review
+
+After the draft PR is created and assignee/labels are set, mark the
+PR as ready for review. This transitions the PR from draft to
+non-draft status, which triggers the full CI pipeline (expensive
+jobs like stack validation, container builds, and integration tests
+are gated behind `github.event.pull_request.draft == false`).
+
+Use the GitHub MCP `update_pull_request` tool to set `draft: false`,
+or use the `gh` CLI:
+
+```bash
+gh pr ready <pr_number>
+```
+
+This step must complete before waiting for status checks in Step 13.
+The lightweight checks (change detection, markdown lint, commit
+message validation) run on the draft PR to provide early feedback;
+the full validation suite starts only after this ready-for-review
+transition.
 
 ## Step 13: Wait for Status Checks and Merge
 
@@ -474,10 +519,20 @@ After the merge completes:
    removed. Do not force-remove dirty or ambiguous worktrees.
 5. Verify by running `git log -1 --format="%H %s"` on main.
 
-## Step 15: Report to GitHub Issue (conditional)
+## Step 15: Report to GitHub Issue and Clean Up Labels (conditional)
 
-If `issue_number` was provided, use the GitHub MCP
-`add_issue_comment` tool to post a comment on the issue with the
-merge SHA, PR number, summary, and any leftover worktree cleanup action
-that still requires manual follow-up. Skip this step if no issue number
-was given.
+If `issue_number` was provided:
+
+1. **Remove the `in-progress` label** from the issue. The work is
+   complete and the label must not linger:
+
+   ```bash
+   gh issue edit <issue_number> --remove-label "in-progress"
+   ```
+
+2. **Post a completion comment** using the GitHub MCP
+   `add_issue_comment` tool with the merge SHA, PR number, summary,
+   and any leftover worktree cleanup action that still requires manual
+   follow-up.
+
+Skip this step if no issue number was given.
