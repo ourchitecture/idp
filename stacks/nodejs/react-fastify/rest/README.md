@@ -48,7 +48,7 @@ The default (`none`) keeps auth disabled and preserves existing behaviour.
 - `mock`: uses the local mock OAuth service (`tools/mock-oauth`, default port
   `9000`). Override endpoints with `OUR_IDP_OAUTH_AUTH_URL`,
   `OUR_IDP_OAUTH_TOKEN_URL`, and `OUR_IDP_OAUTH_USERINFO_URL` if needed; default
-  base URL is `http://127.0.0.1:${MOCK_OAUTH_PORT:-9000}`.
+  base URL is `http://127.0.0.1:${OUR_IDP_OAUTH_MOCK_PORT:-9000}`.
 - `github`: uses GitHub OAuth App endpoints.
 
 ### Required env vars
@@ -62,7 +62,7 @@ The default (`none`) keeps auth disabled and preserves existing behaviour.
 
 - `OUR_IDP_OAUTH_SECURE_COOKIE` — set to `true` to mark the `idp_session`
   cookie as `Secure` (use HTTPS when enabled).
-- `MOCK_OAUTH_PORT` — default `9000`
+- `OUR_IDP_OAUTH_MOCK_PORT` — default `9000`
 - `OUR_IDP_OAUTH_AUTH_URL`, `OUR_IDP_OAUTH_TOKEN_URL`,
   `OUR_IDP_OAUTH_USERINFO_URL` — override mock endpoints when needed
 
