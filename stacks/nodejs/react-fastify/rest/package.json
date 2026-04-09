@@ -1,12 +1,38 @@
 {
-  "name": "nodejs-react-fastify-rest-lint",
+  "name": "nodejs-react-fastify-rest",
   "version": "1.6.0-alpha.0",
   "private": true,
-  "description": "Local lint tooling for the nodejs-react-fastify-rest stack.",
+  "description": "React + Fastify TypeScript reference stack for IDP.",
   "scripts": {
-    "lint:md": "markdownlint-cli2 \"*.md\" \"!CHANGELOG.md\""
+    "lint:md": "markdownlint-cli2 \"*.md\" \"!CHANGELOG.md\"",
+    "start:web": "tsx web/server.ts",
+    "start:bff": "tsx bff/src/server.ts",
+    "build:web": "vite build --config web/vite.config.ts",
+    "typecheck:web": "tsc --project web/tsconfig.json --noEmit",
+    "typecheck:bff": "tsc --project bff/tsconfig.json --noEmit",
+    "typecheck:stack": "npm run typecheck:web && npm run typecheck:bff",
+    "test:bff": "node --import tsx --test bff/src/**/*.test.ts",
+    "test:stack": "npm run typecheck:stack && npm run test:bff"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/cookie": "^10.0.1",
+    "@tanstack/react-query": "^5.96.2",
+    "fastify": "^5.6.1",
+    "openid-client": "^5.6.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.5",
+    "react-router-dom": "^7.14.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "markdownlint-cli2": "0.22.0"
+    "@types/node": "^25.5.2",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react": "^6.0.1",
+    "markdownlint-cli2": "0.22.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5",
+    "vite": "^8.0.7"
   }
 }
