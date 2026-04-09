@@ -17,8 +17,8 @@ tsx tools/status/publish-status.ts
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `IDP_BFF_URL` | `http://127.0.0.1:8000` | Base URL for the BFF that serves `/api/portal/summary` |
-| `STATUS_PUBLISH_DIR` | `.tmp/status-site` | Output directory for the generated artifacts |
+| `OUR_IDP_BFF_URL` | `http://127.0.0.1:8000` | Base URL for the BFF that serves `/api/portal/summary` |
+| `OUR_IDP_STATUS_PUBLISH_DIR` | `.tmp/status-site` | Output directory for the generated artifacts |
 
 ## Output
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.6.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.5.2-alpha.0...nodejs-react-fastify-rest-v1.6.0-alpha.0) (2026-04-08)
+
+
+### Features
+
+* add Node auth validation, CI wiring, and docs parity ([#162](https://github.com/ourchitecture/idp/issues/162)) ([1843e51](https://github.com/ourchitecture/idp/commit/1843e512a62b8e907bb3abb9628d798016d395c3))
+
+## [1.5.2-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.5.1-alpha.0...nodejs-react-fastify-rest-v1.5.2-alpha.0) (2026-04-08)
+
+
+### Bug Fixes
+
+* **containers:** correct registry collection targets for CI and local builds ([#157](https://github.com/ourchitecture/idp/issues/157)) ([9bd80b3](https://github.com/ourchitecture/idp/commit/9bd80b39f0f5a707a725ec2a0bcdc44e57e72cfa)), closes [#153](https://github.com/ourchitecture/idp/issues/153)
+
 ## [1.5.1-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.5.0-alpha.0...nodejs-react-fastify-rest-v1.5.1-alpha.0) (2026-04-03)
 
 

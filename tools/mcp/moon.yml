@@ -23,7 +23,7 @@ tasks:
     command: ["npm", "run", "typecheck"]
     deps: ["install"]
   check-contract:
-    command: ["bash", "-c", "npm --prefix ../.. install && MCP_HTTP_PORT=8580 IDP_BFF_URL=http://127.0.0.1:8300 node dist/server.js >/dev/null 2>&1 & MCP_PID=$!; trap 'kill $MCP_PID >/dev/null 2>&1 || true' EXIT; sleep 2; IDP_MCP_URL=http://127.0.0.1:8580 IDP_STACK_PATH=tools/mcp IDP_CONTRACT_PROFILES=mcp-profile npm --prefix ../.. run test:contract; STATUS=$?; kill $MCP_PID >/dev/null 2>&1 || true; wait $MCP_PID 2>/dev/null || true; exit $STATUS"]
+    command: ["bash", "-c", "npm --prefix ../.. install && OUR_IDP_MCP_PORT=8580 IDP_BFF_URL=http://127.0.0.1:8300 node dist/server.js >/dev/null 2>&1 & MCP_PID=$!; trap 'kill $MCP_PID >/dev/null 2>&1 || true' EXIT; sleep 2; IDP_MCP_URL=http://127.0.0.1:8580 IDP_STACK_PATH=tools/mcp IDP_CONTRACT_PROFILES=mcp-profile npm --prefix ../.. run test:contract; STATUS=$?; kill $MCP_PID >/dev/null 2>&1 || true; wait $MCP_PID 2>/dev/null || true; exit $STATUS"]
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check-test"]
@@ -44,7 +44,7 @@ tasks:
       persistent: true
       runInCI: false
   run-http:
-    command: ["bash", "-c", "MCP_HTTP_PORT=8080 node dist/server.js"]
+    command: ["bash", "-c", "OUR_IDP_MCP_PORT=8080 node dist/server.js"]
     options:
       persistent: true
       runInCI: false

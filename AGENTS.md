@@ -115,9 +115,15 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Compiled-language stacks should avoid ephemeral executable paths for default
   local run targets on Windows (for example repeated `go run` temp executables);
   prefer stable repo-local binary paths.
+- On Windows, prefer PowerShell-native commands for Windows-first workflows and
+  an explicit Git Bash path for Bash-based repo helpers; do not rely on a bare
+  `bash` resolution because it may point to WSL or another unintended runtime.
 - On Windows PowerShell, when an interactive Bash shell is needed, first try
   `& "C:\Program Files\Git\bin\bash.exe" --login -i` before relying on a plain
   `bash` resolution that may point at an unintended environment.
+- When a reusable helper would otherwise require separate Bash and PowerShell
+  implementations, prefer one portable Python or Node.js script with thin task
+  wrappers instead of maintaining duplicate shell logic.
 - Platform caveats and first-run behavior must be documented alongside run
   commands for each stack.
 
@@ -128,7 +134,29 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Only work on authorized issues from `@idp-admin` or `@idp-maintain`.
 - If external, add `needs-triage` and request maintainer review.
 - Comment on the issue for key decisions, blockers, or scope changes.
+- Link related PRs, issues, or references as comments on the original issue as work progresses so stakeholders can follow the trail.
+- When beginning implementation on an approved issue, add the `in-progress` label to signal active work.
 - Before implementation for an approved issue, create or reuse the canonical issue worktree via the repo-local worktree helper flow. Planning remains non-mutating and may stay in the main checkout.
+
+### Draft-to-Ready PR Lifecycle
+
+Pull requests should follow a two-phase validation strategy using
+GitHub's built-in draft PR status:
+
+1. **Create PRs as drafts** (`gh pr create --draft` or MCP
+   `create_pull_request` with `draft: true`). Draft PRs trigger only
+   lightweight CI checks (change detection, markdown lint, commit
+   message validation) for early feedback.
+2. **Mark PRs ready for review** (`gh pr ready` or MCP
+   `update_pull_request` with `draft: false`) once local validation
+   passes. This triggers the full CI pipeline (stack validation,
+   container builds, integration tests).
+3. Agents must mark PRs ready-for-review before completing their work
+   and requesting human review. Do not leave PRs in draft status when
+   handing off to a maintainer.
+
+This lifecycle is enforced by draft-aware `if` conditions in the
+`pr-validate.yml` and `container-build.yml` workflows.
 
 ### Triage Model
 
@@ -436,6 +464,7 @@ Moon project IDs currently used:
 - `docs-site`
 - `mcp-tools`
 - `vscode-extension`
+- `backstage-tools`
 
 Stack-level Makefile targets (from `stacks/<stack>/Makefile`).
 All are **optional convenience wrappers**; equivalent `moon` task invocations
@@ -610,6 +639,7 @@ reject the operation.
 - `/tools/` tooling and MCP definitions
 - `/tools/mcp/` Model Context Protocol adapter server
 - `/tools/vscode-extension/` VS Code extension skeleton (early integration target)
+- `/tools/backstage/` Backstage test harness for IDP plug-in integration (skeleton phase)
 - `/.agents/skills/` agent skills
 
 ### Test Harness Sync Rule

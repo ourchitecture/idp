@@ -1,0 +1,34 @@
+{
+  "name": "stemix-idp-backstage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backstage test harness for Stemix IDP plug-in integration.",
+  "license": "MIT",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
+  "scripts": {
+    "build": "echo 'Backstage build placeholder'",
+    "build:backend": "yarn workspace backend build",
+    "build:all": "echo 'Backstage build:all placeholder'",
+    "dev": "echo 'Backstage dev placeholder'",
+    "start": "yarn workspace app start",
+    "start-backend": "yarn workspace backend start",
+    "typecheck": "echo 'Backstage typecheck placeholder'"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0",
+    "prettier": "^3.3.0",
+    "typescript": "~5.4.0"
+  },
+  "resolutions": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  },
+  "prettier": {},
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -163,11 +163,11 @@ func oauth2ConfigFrom(cfg *oauthConfig) *oauth2.Config {
 }
 
 // buildMockOAuthConfig constructs an oauthConfig for the local mock provider.
-// Endpoint URLs default to http://127.0.0.1:<MOCK_OAUTH_PORT|9000>/… but are
+// Endpoint URLs default to http://127.0.0.1:<OUR_IDP_OAUTH_MOCK_PORT|9000>/… but are
 // individually overridable via OUR_IDP_OAUTH_AUTH_URL, OUR_IDP_OAUTH_TOKEN_URL,
 // and OUR_IDP_OAUTH_USERINFO_URL.
 func buildMockOAuthConfig() *oauthConfig {
-	port := strings.TrimSpace(os.Getenv("MOCK_OAUTH_PORT"))
+	port := strings.TrimSpace(os.Getenv("OUR_IDP_OAUTH_MOCK_PORT"))
 	if port == "" {
 		port = "9000"
 	}

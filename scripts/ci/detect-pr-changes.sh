@@ -34,6 +34,7 @@ run_go_stack="false"
 run_node_stack="false"
 run_mcp_tools="false"
 run_vscode_extension="false"
+run_backstage_tools="false"
 run_workflow_lint="false"
 run_reference_all="false"
 run_docs_validation="false"
@@ -99,6 +100,14 @@ for file in "${changed_files[@]}"; do
     stacks/go/net-http/rest/*)
       run_go_stack="true"
       ;;
+    stacks/nodejs/react-fastify/rest/bff/src/routes/auth*)
+      run_node_stack="true"
+      run_auth_integration="true"
+      ;;
+    stacks/nodejs/react-fastify/rest/bff/src/auth/*)
+      run_node_stack="true"
+      run_auth_integration="true"
+      ;;
     stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
       ;;
@@ -113,6 +122,9 @@ for file in "${changed_files[@]}"; do
       ;;
     tools/vscode-extension/*)
       run_vscode_extension="true"
+      ;;
+    tools/backstage/*)
+      run_backstage_tools="true"
       ;;
     # docs/* includes architecture diagram sources under
     # docs/content/architecture/diagrams/* and generated assets under docs/static/diagrams/*.
@@ -151,6 +163,7 @@ if [[ "${run_reference_all}" == "true" ]]; then
   run_node_stack="true"
   run_mcp_tools="true"
   run_vscode_extension="true"
+  run_backstage_tools="true"
   run_go_containers="true"
   run_node_containers="true"
   run_mcp_containers="true"
@@ -161,7 +174,7 @@ if [[ "${run_reference_all}" == "true" ]]; then
 fi
 
 run_stack_validation="false"
-if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" || "${run_mcp_tools}" == "true" || "${run_vscode_extension}" == "true" ]]; then
+if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" || "${run_mcp_tools}" == "true" || "${run_vscode_extension}" == "true" || "${run_backstage_tools}" == "true" ]]; then
   run_stack_validation="true"
 fi
 
@@ -203,6 +216,10 @@ if [[ "${run_stack_validation}" == "true" ]]; then
     matrix_items+=("{\"project\":\"vscode-extension\",\"stack\":\"tools/vscode-extension\",\"label\":\"vscode-extension\"}")
   fi
 
+  if [[ "${run_backstage_tools}" == "true" ]]; then
+    matrix_items+=("{\"project\":\"backstage-tools\",\"stack\":\"tools/backstage\",\"label\":\"backstage-tools\"}")
+  fi
+
   if [[ ${#matrix_items[@]} -gt 0 ]]; then
     stack_matrix="[$(IFS=,; echo "${matrix_items[*]}")]"
   fi
@@ -224,6 +241,7 @@ echo "run_mock_oauth_build=${run_mock_oauth_build}"
 echo "run_mock_oauth_containers=${run_mock_oauth_containers}"
 echo "run_auth_integration=${run_auth_integration}"
 echo "run_vscode_extension=${run_vscode_extension}"
+echo "run_backstage_tools=${run_backstage_tools}"
 
 if [[ -n "${OUTPUT_FILE}" ]]; then
   {
@@ -243,5 +261,6 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_mock_oauth_containers=%s\n" "${run_mock_oauth_containers}"
     printf "run_auth_integration=%s\n" "${run_auth_integration}"
     printf "run_vscode_extension=%s\n" "${run_vscode_extension}"
+    printf "run_backstage_tools=%s\n" "${run_backstage_tools}"
   } >> "${OUTPUT_FILE}"
 fi

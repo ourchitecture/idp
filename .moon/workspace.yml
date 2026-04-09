@@ -8,6 +8,7 @@ projects:
     mcp-tools: "tools/mcp"
     mock-oauth: "tools/mock-oauth"
     vscode-extension: "tools/vscode-extension"
+    backstage-tools: "tools/backstage"
 
 defaultProject: "repo"
 versionConstraint: ">=2.1.3"

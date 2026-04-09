@@ -29,7 +29,7 @@ const portalSummarySchema = z.object({
 });
 
 function resolveBffUrl(): URL {
-  const raw = process.env.IDP_BFF_URL ?? "http://localhost:8000";
+  const raw = process.env.OUR_IDP_BFF_URL ?? "http://localhost:8000";
   return new URL(raw);
 }
 

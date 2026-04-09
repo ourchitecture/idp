@@ -1,0 +1,37 @@
+app:
+  title: Stemix IDP Backstage Test Instance
+  baseUrl: http://localhost:3000
+
+organization:
+  name: Stemix IDP
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    host: 127.0.0.1
+    port: 7007
+  database:
+    client: better-sqlite3
+    connection: ':memory:'
+  cache:
+    store: memory
+
+integrations:
+  github:
+    - host: github.com
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml
+  rules:
+    - allow: [Component, System, API, Resource, Location]
+  locations:
+    - type: file
+      target: ../../examples/entities.yaml
+      rules:
+        - allow: [User, Group]
+
+auth:
+  providers:
+    guest:
+      dangerouslyAllowOutsideDevelopment: true

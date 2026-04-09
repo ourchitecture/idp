@@ -6,7 +6,7 @@ MCP_TEST_HOST := 127.0.0.1
 MCP_TEST_PORT := 8580
 BFF_TEST_HOST := 127.0.0.1
 BFF_TEST_PORT := 8300
-CONTAINER_LOCAL_PREFIX := localhost
+CONTAINER_LOCAL_PREFIX := localhost/ourchitecture/idp
 CONTAINER_IMAGE_BASE := stemix-mcp-server
 PROTO_HOME ?= $(HOME)/.proto
 MOON_BIN := $(PROTO_HOME)/shims/moon
@@ -97,7 +97,7 @@ check-contract:
 		"$(MOON_BIN)" run mcp-tools:check-contract; \
 	else \
 		npm --prefix "$(ROOT_DIR)" install; \
-		MCP_HTTP_PORT="$(MCP_TEST_PORT)" IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" node dist/server.js >/dev/null 2>&1 & MCP_PID=$$!; \
+		OUR_IDP_MCP_PORT="$(MCP_TEST_PORT)" IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" node dist/server.js >/dev/null 2>&1 & MCP_PID=$$!; \
 		trap 'kill $$MCP_PID >/dev/null 2>&1 || true' EXIT; \
 		sleep 2; \
 		IDP_MCP_URL="http://$(MCP_TEST_HOST):$(MCP_TEST_PORT)" IDP_STACK_PATH="$(TOOL_PATH)" IDP_CONTRACT_PROFILES="mcp-profile" npm --prefix "$(ROOT_DIR)" run test:contract; \
@@ -120,7 +120,7 @@ run-http:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mcp-tools:run-http; \
 	else \
-		MCP_HTTP_PORT=8080 node dist/server.js; \
+		OUR_IDP_MCP_PORT=8080 node dist/server.js; \
 	fi
 
 build-container:

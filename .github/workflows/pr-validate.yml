@@ -3,6 +3,7 @@ name: PR Validate
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: read
@@ -32,6 +33,7 @@ jobs:
       run_mock_oauth_build: ${{ steps.detect.outputs.run_mock_oauth_build }}
       run_mock_oauth_containers: ${{ steps.detect.outputs.run_mock_oauth_containers }}
       run_auth_integration: ${{ steps.detect.outputs.run_auth_integration }}
+      run_backstage_tools: ${{ steps.detect.outputs.run_backstage_tools }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -39,7 +41,7 @@ jobs:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         continue-on-error: true
         with:
           path: |
@@ -51,7 +53,7 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -91,10 +93,11 @@ jobs:
           echo "run_mock_oauth_build=${{ steps.detect.outputs.run_mock_oauth_build }}"
           echo "run_mock_oauth_containers=${{ steps.detect.outputs.run_mock_oauth_containers }}"
           echo "run_auth_integration=${{ steps.detect.outputs.run_auth_integration }}"
+          echo "run_backstage_tools=${{ steps.detect.outputs.run_backstage_tools }}"
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -107,7 +110,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -135,7 +138,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -148,7 +151,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -176,7 +179,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -189,7 +192,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -199,7 +202,9 @@ jobs:
     name: Check Stack (${{ matrix.label }})
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_stack_validation == 'true'
+    if: >
+      needs.detect-changes.outputs.run_stack_validation == 'true'
+      && github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -221,7 +226,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -234,7 +239,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -242,7 +247,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -254,7 +259,9 @@ jobs:
     name: Check Docs Site
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_docs_validation == 'true'
+    if: >
+      needs.detect-changes.outputs.run_docs_validation == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -274,7 +281,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -287,7 +294,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -332,7 +339,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -345,7 +352,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -355,13 +362,15 @@ jobs:
     name: Check Container Build
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_any_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_any_containers == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build Go web container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
@@ -533,7 +542,9 @@ jobs:
     name: Check Mock OAuth Build
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_mock_oauth_build == 'true'
+    if: >
+      needs.detect-changes.outputs.run_mock_oauth_build == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -547,7 +558,7 @@ jobs:
           auto-install: true
 
       - name: Setup Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -557,7 +568,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -570,7 +581,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -578,7 +589,7 @@ jobs:
 
       - name: Save Maven cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -590,7 +601,9 @@ jobs:
     name: Check Auth Integration
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_auth_integration == 'true'
+    if: >
+      needs.detect-changes.outputs.run_auth_integration == 'true'
+      && github.event.pull_request.draft == false
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -604,7 +617,7 @@ jobs:
           auto-install: true
 
       - name: Setup Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -612,12 +625,15 @@ jobs:
       - name: Install npm dependencies
         run: npm install
 
-      - name: Run auth integration contract tests
+      - name: Run Go auth integration contract tests
         run: make -C stacks/go/net-http/rest check-contract-auth
+
+      - name: Run Node.js auth integration contract tests
+        run: make -C stacks/nodejs/react-fastify/rest check-contract-auth
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |
@@ -630,7 +646,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: ~/.npm
@@ -638,7 +654,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         continue-on-error: true
         with:
           path: |

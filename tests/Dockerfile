@@ -8,15 +8,15 @@
 #
 # Run example:
 #   docker run --rm \
-#     -e IDP_WEB_URL=http://host.docker.internal:3000 \
-#     -e IDP_BFF_URL=http://host.docker.internal:8000 \
+#     -e OUR_IDP_WEB_URL=http://host.docker.internal:3000 \
+#     -e OUR_IDP_BFF_URL=http://host.docker.internal:8000 \
 #     localhost/stemix-contract-tests:dev
 #
 # Run with explicit profiles:
 #   docker run --rm \
-#     -e IDP_WEB_URL=http://host.docker.internal:3000 \
-#     -e IDP_BFF_URL=http://host.docker.internal:8000 \
-#     -e IDP_CONTRACT_PROFILES=core,operational \
+#     -e OUR_IDP_WEB_URL=http://host.docker.internal:3000 \
+#     -e OUR_IDP_BFF_URL=http://host.docker.internal:8000 \
+#     -e OUR_IDP_CONTRACT_PROFILES=core,operational \
 #     localhost/stemix-contract-tests:dev
 
 ARG NODE_VERSION=24
@@ -33,11 +33,11 @@ RUN npm ci --ignore-scripts
 COPY tests/ ./tests/
 
 # Required at runtime — no defaults intentional (fail fast if not provided).
-ENV IDP_WEB_URL=""
-ENV IDP_BFF_URL=""
+ENV OUR_IDP_WEB_URL=""
+ENV OUR_IDP_BFF_URL=""
 
 # Optional: comma-separated profile list. Defaults to core,operational when unset.
-ENV IDP_CONTRACT_PROFILES=""
+ENV OUR_IDP_CONTRACT_PROFILES=""
 
 # Security Scan stage
 FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner

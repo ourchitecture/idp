@@ -14,7 +14,7 @@ function resolveExpectedAuthorizationUrl(): URL {
 
   const provider = process.env.OUR_IDP_OAUTH_PROVIDER?.trim().toLowerCase();
   if (provider === "mock") {
-    const port = process.env.MOCK_OAUTH_PORT?.trim() || "9000";
+    const port = process.env.OUR_IDP_OAUTH_MOCK_PORT?.trim() || "9000";
     return new URL(`http://127.0.0.1:${port}/oauth/authorize`);
   }
 

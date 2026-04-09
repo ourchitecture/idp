@@ -1,12 +1,12 @@
 {
   "name": "nodejs-react-fastify-rest-lint",
-  "version": "1.5.1-alpha.0",
+  "version": "1.6.0-alpha.0",
   "private": true,
   "description": "Local lint tooling for the nodejs-react-fastify-rest stack.",
   "scripts": {
     "lint:md": "markdownlint-cli2 \"*.md\" \"!CHANGELOG.md\""
   },
   "devDependencies": {
-    "markdownlint-cli2": "0.21.0"
+    "markdownlint-cli2": "0.22.0"
   }
 }

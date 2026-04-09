@@ -147,20 +147,19 @@ capability flag in `stack.json`:
 | `IDP_BFF_URL` | `http://localhost:8000` | Base URL for the BFF server |
 | `OUR_IDP_OAUTH_PROVIDER` | `none` | OAuth provider (`mock` or `github`) |
 | `OUR_IDP_OAUTH_AUTH_URL` | provider-specific | Optional explicit authorization URL override used by the login redirect assertion |
-| `MOCK_OAUTH_PORT` | `9000` | Mock OAuth provider port when `OUR_IDP_OAUTH_PROVIDER=mock` |
+| `OUR_IDP_OAUTH_MOCK_PORT` | `9000` | Mock OAuth provider port when `OUR_IDP_OAUTH_PROVIDER=mock` |
 
 ## Prerequisites
 
 The following tools must be installed before running the auth profile locally.
 Only the items marked **not managed by proto** require separate installation.
-The current runnable example commands below use the Go reference stack, which
-is the auth-capable stack implemented today.
+Both the Go and Node.js stacks now implement the auth contract.
 
 | Tool | Version | Managed by proto? | Notes |
 | --- | --- | --- | --- |
 | Java (JDK) | 21 | **No** | Required to build and run the mock OAuth service. Install via [SDKMAN](https://sdkman.io/), a system package manager, or a direct [Temurin JDK download](https://adoptium.net/). |
-| Go | Current (see `.prototools`) | Yes | Required for the current auth-capable reference-stack examples in this guide. |
-| Node.js | Current (see `.prototools`) | Yes | Required to run the contract test harness. |
+| Go | Current (see `.prototools`) | Yes | Required for the Go reference stack auth validation. |
+| Node.js | Current (see `.prototools`) | Yes | Required for the Node.js stack auth validation and the contract test harness. |
 
 > **Java 21 is not managed by `proto` for this MVP.** The `.prototools` file
 > pins `go`, `node`, `python`, `uv`, and `moon`, but not a JDK. You must
@@ -168,27 +167,66 @@ is the auth-capable stack implemented today.
 
 ## CI usage
 
-`auth-profile` is **not part of the default CI pipeline**. No workflow
-currently invokes it automatically. This is intentional: the profile requires a
-live OAuth provider (mock or real GitHub), which is not provisioned in standard
-CI runners.
+The `auth-profile` contract is run automatically in CI when changes to
+auth-related files are detected in either the Go or Node.js stacks. The
+`.github/workflows/pr-validate.yml` workflow includes a `check-auth-integration`
+job that runs both:
 
-The profile is opt-in. Stacks must explicitly list `"auth-profile"` in
-`contractProfiles` and set `capabilities.auth.enabled: true` in `stack.json`
-before any auth scenarios run.
+- `make -C stacks/go/net-http/rest check-contract-auth`
+- `make -C stacks/nodejs/react-fastify/rest check-contract-auth`
 
-Teams that want to exercise auth-profile in CI can do so by pre-starting the
-mock OAuth service in a CI step and then running:
+The `scripts/ci/detect-pr-changes.sh` script detects changes to:
 
-```sh
-OUR_IDP_OAUTH_PROVIDER=mock \
-IDP_BFF_URL=http://localhost:8000 \
-IDP_STACK_PATH=stacks/go/net-http/rest \
-IDP_CONTRACT_PROFILE=auth-profile \
-npm run test:contract
-```
+- `stacks/go/net-http/rest/bff/auth*` (Go auth implementation)
+- `stacks/nodejs/react-fastify/rest/bff/src/routes/auth*` (Node.js auth routes)
+- `stacks/nodejs/react-fastify/rest/bff/src/auth/*` (Node.js auth modules)
+- `tools/mock-oauth/*` (mock OAuth service)
+- `tests/features/auth-profile.feature` (auth contract spec)
+- `tests/src/profiles/auth-profile.ts` (auth contract harness)
+
+When any of these files change, the `run_auth_integration` flag is set to
+`true`, triggering the auth integration job.
+
+The profile remains **opt-in** at the stack level. Stacks must explicitly list
+`"auth-profile"` in `contractProfiles` and set `capabilities.auth.enabled: true`
+in `stack.json` before any auth scenarios run.
 
 ## Running the profile
+
+Both the Go and Node.js stacks support the auth-profile contract. Each stack
+provides a dedicated `check-contract-auth` target for local validation.
+
+### Go stack
+
+```sh
+# Run the Go auth validation (includes mock OAuth build and startup)
+make -C stacks/go/net-http/rest check-contract-auth
+
+# Or with moon directly
+moon run go-net-http-rest:check-contract-auth
+```
+
+### Node.js stack
+
+```sh
+# Run the Node.js auth validation (includes mock OAuth build and startup)
+make -C stacks/nodejs/react-fastify/rest check-contract-auth
+
+# Or with moon directly
+moon run nodejs-react-fastify-rest:check-contract-auth
+```
+
+Both targets:
+
+- Build the mock OAuth JAR (requires Java 21)
+- Start the mock OAuth service on port 9000
+- Start the stack web and BFF servers
+- Run the auth-profile contract tests
+- Clean up all processes
+
+The contract is stack-agnostic. Any future stack that declares
+`"auth-profile"` in `contractProfiles` and `capabilities.auth.enabled = true`
+must satisfy the same observable behavior.
 
 ### Mock provider (automated — no GitHub account required)
 
@@ -198,27 +236,47 @@ automated testing only.
 
 Requires Java 21 (see [Prerequisites](#prerequisites) above).
 
+If you prefer to run the services manually:
+
+#### Go stack manual
+
 ```sh
 # Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the current Go BFF example with mock provider
+# Terminal 2 – start the Go BFF with mock provider
 OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
 
 # Terminal 3 – run only the auth-profile contract tests
 OUR_IDP_OAUTH_PROVIDER=mock \
-IDP_BFF_URL=http://localhost:8000 \
+IDP_BFF_URL=http://localhost:8300 \
 IDP_STACK_PATH=stacks/go/net-http/rest \
+IDP_CONTRACT_PROFILE=auth-profile \
+npm run test:contract
+```
+
+#### Node.js stack manual
+
+```sh
+# Terminal 1 – start the mock OAuth service (requires Java 21)
+cd tools/mock-oauth && ./mvnw spring-boot:run -q
+
+# Terminal 2 – start the Node.js BFF with mock provider
+OUR_IDP_OAUTH_PROVIDER=mock \
+OUR_IDP_OAUTH_MOCK_PORT=9000 \
+OUR_IDP_OAUTH_REDIRECT_URL=http://localhost:8400/auth/callback \
+make -C stacks/nodejs/react-fastify/rest run-bff
+
+# Terminal 3 – run only the auth-profile contract tests
+OUR_IDP_OAUTH_PROVIDER=mock \
+IDP_BFF_URL=http://localhost:8400 \
+IDP_STACK_PATH=stacks/nodejs/react-fastify/rest \
 IDP_CONTRACT_PROFILE=auth-profile \
 npm run test:contract
 ```
 
 The contract test harness performs the full OAuth round-trip programmatically —
 no browser interaction is required.
-
-The contract itself is stack-agnostic. Any future stack that declares
-`"auth-profile"` in `contractProfiles` and `capabilities.auth.enabled = true`
-must satisfy the same observable behavior.
 
 ### Real GitHub OAuth (manual — GitHub App required)
 
@@ -229,7 +287,9 @@ GitHub authorization page and a browser redirect.
 **Additional prerequisites:**
 
 - A GitHub OAuth App registered under your account or organization.
-- The App's callback URL set to `http://localhost:8000/auth/callback`.
+- The App's callback URL set to the appropriate stack BFF port:
+  - Go stack: `http://localhost:8300/auth/callback`
+  - Node.js stack: `http://localhost:8400/auth/callback`
 
 **Additional environment variables:**
 
@@ -238,17 +298,34 @@ GitHub authorization page and a browser redirect.
 | `OUR_IDP_OAUTH_CLIENT_ID` | Client ID from your GitHub OAuth App settings |
 | `OUR_IDP_OAUTH_CLIENT_SECRET` | Client secret from your GitHub OAuth App settings |
 
+#### Go stack
+
 ```sh
-# Start the BFF with the real GitHub provider
+# Start the Go BFF with the real GitHub provider
 OUR_IDP_OAUTH_PROVIDER=github \
 OUR_IDP_OAUTH_CLIENT_ID=<your-client-id> \
 OUR_IDP_OAUTH_CLIENT_SECRET=<your-client-secret> \
 make -C stacks/go/net-http/rest run-bff
 ```
 
-Open `http://localhost:8000/auth/login` in a browser to initiate the GitHub
-OAuth flow. After granting access, GitHub redirects to
-`http://localhost:8000/auth/callback` and the BFF completes the code exchange.
+Open `http://localhost:8300/auth/login` in a browser to initiate the GitHub
+OAuth flow.
+
+#### Node.js stack
+
+```sh
+# Start the Node.js BFF with the real GitHub provider
+OUR_IDP_OAUTH_PROVIDER=github \
+OUR_IDP_OAUTH_CLIENT_ID=<your-client-id> \
+OUR_IDP_OAUTH_CLIENT_SECRET=<your-client-secret> \
+make -C stacks/nodejs/react-fastify/rest run-bff
+```
+
+Open `http://localhost:8400/auth/login` in a browser to initiate the GitHub
+OAuth flow.
+
+After granting access, GitHub redirects to the callback URL and the BFF
+completes the code exchange.
 
 > **Note:** The contract test harness (`npm run test:contract`) cannot exercise
 > the real GitHub OAuth path end-to-end because the authorization code is

@@ -3,6 +3,7 @@ name: Container Build
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "stacks/go/net-http/rest/**"
       - "stacks/nodejs/react-fastify/rest/**"
@@ -68,7 +69,9 @@ jobs:
     name: Build go-net-http-rest-web
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_go_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_go_containers == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -81,7 +84,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -92,7 +95,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            stemix-go-net-http-rest-web:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:pr-check
             ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:edge
           cache-from: type=gha,scope=go-net-http-rest-web,timeout=10m
           cache-to: type=gha,scope=go-net-http-rest-web,mode=max,ignore-error=true,timeout=10m
@@ -100,7 +103,7 @@ jobs:
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          CID=$(docker run -d -p 3300:3000 stemix-go-net-http-rest-web:pr-check)
+          CID=$(docker run -d -p 3300:3000 ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
           docker stop "${CID}" || true
@@ -113,7 +116,9 @@ jobs:
     name: Build go-net-http-rest-bff
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_go_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_go_containers == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -126,7 +131,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -137,7 +142,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            stemix-go-net-http-rest-bff:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:pr-check
             ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:edge
           cache-from: type=gha,scope=go-net-http-rest-bff,timeout=10m
           cache-to: type=gha,scope=go-net-http-rest-bff,mode=max,ignore-error=true,timeout=10m
@@ -145,7 +150,7 @@ jobs:
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          CID=$(docker run -d -p 8300:8000 stemix-go-net-http-rest-bff:pr-check)
+          CID=$(docker run -d -p 8300:8000 ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/health || true)
           docker stop "${CID}" || true
@@ -158,7 +163,9 @@ jobs:
     name: Build nodejs-react-fastify-rest-web
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_node_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_node_containers == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -171,7 +178,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -181,7 +188,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            stemix-nodejs-react-fastify-rest-web:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:pr-check
             ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:edge
           cache-from: type=gha,scope=nodejs-react-fastify-rest-web,timeout=10m
           cache-to: type=gha,scope=nodejs-react-fastify-rest-web,mode=max,ignore-error=true,timeout=10m
@@ -189,7 +196,7 @@ jobs:
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-nodejs-react-fastify-rest-web:pr-check)
+          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
           docker stop "${CID}" || true
@@ -202,7 +209,9 @@ jobs:
     name: Build nodejs-react-fastify-rest-bff
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_node_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_node_containers == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -215,7 +224,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -225,7 +234,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            stemix-nodejs-react-fastify-rest-bff:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:pr-check
             ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:edge
           cache-from: type=gha,scope=nodejs-react-fastify-rest-bff,timeout=10m
           cache-to: type=gha,scope=nodejs-react-fastify-rest-bff,mode=max,ignore-error=true,timeout=10m
@@ -233,7 +242,7 @@ jobs:
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          CID=$(docker run -d -p 8400:8000 stemix-nodejs-react-fastify-rest-bff:pr-check)
+          CID=$(docker run -d -p 8400:8000 ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/health || true)
           docker stop "${CID}" || true
@@ -246,7 +255,9 @@ jobs:
     name: Build contract-tests
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_tests_container == 'true'
+    if: >
+      needs.detect-changes.outputs.run_tests_container == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -259,7 +270,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -275,7 +286,9 @@ jobs:
     name: Build mcp-tools
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_mcp_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_mcp_containers == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -288,7 +301,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -298,7 +311,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            stemix-mcp-server:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:pr-check
             ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:edge
           cache-from: type=gha,scope=mcp-tools,timeout=10m
           cache-to: type=gha,scope=mcp-tools,mode=max,ignore-error=true,timeout=10m
@@ -306,7 +319,7 @@ jobs:
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          CID=$(docker run -d -p 8580:8080 stemix-mcp-server:pr-check)
+          CID=$(docker run -d -p 8580:8080 ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:pr-check)
           sleep 2
           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST http://localhost:8580/mcp \
@@ -324,7 +337,9 @@ jobs:
     name: Build mock-oauth
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
+    if: >
+      needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
+      && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
     steps:
       - name: Checkout
         uses: actions/checkout@v4.3.1
@@ -337,7 +352,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build image
         uses: docker/build-push-action@v6
@@ -347,7 +362,7 @@ jobs:
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
           tags: |
-            stemix-mock-oauth:pr-check
+            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:pr-check
             ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:edge
           cache-from: type=gha,scope=mock-oauth,timeout=10m
           cache-to: type=gha,scope=mock-oauth,mode=max,ignore-error=true,timeout=10m
@@ -355,7 +370,7 @@ jobs:
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
         run: |
-          CID=$(docker run -d -p 9900:9000 stemix-mock-oauth:pr-check)
+          CID=$(docker run -d -p 9900:9000 ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:pr-check)
           trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
 
           attempt=0
