@@ -7,12 +7,29 @@ import {
   resolveSecureCookie,
   type OAuthProviderConfig,
 } from "../auth/config";
-import { SessionStore, StateStore, type UserInfo } from "../auth/store";
+import {
+  SessionStore,
+  StateStore,
+  resolveSessionTTLMinutes,
+  type UserInfo,
+} from "../auth/store";
 
 const SESSION_COOKIE_NAME = "idp_session";
 
 const states = new StateStore();
-const sessions = new SessionStore();
+
+type SessionStoreOptions = {
+  sessionTtlMinutes?: number;
+  now?: () => number;
+};
+
+function createSessionStore(options?: SessionStoreOptions): SessionStore {
+  const ttlMinutes = options?.sessionTtlMinutes ?? resolveSessionTTLMinutes();
+  const now = options?.now ?? Date.now;
+  return new SessionStore(ttlMinutes, now);
+}
+
+let sessions = createSessionStore();
 
 function isConfigComplete(config: OAuthProviderConfig): boolean {
   return config.clientID !== "" && config.clientSecret !== "" && config.redirectURL !== "";
@@ -158,7 +175,8 @@ export const authRoutes: FastifyPluginAsync = async (app) => {
   });
 };
 
-export function resetAuthStores(): void {
+export function resetAuthStores(options?: SessionStoreOptions): void {
   states.clear();
-  sessions.clear();
+  sessions.stop();
+  sessions = createSessionStore(options);
 }

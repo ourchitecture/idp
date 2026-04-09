@@ -62,6 +62,8 @@ The default (`none`) keeps auth disabled and preserves existing behaviour.
 
 - `OUR_IDP_OAUTH_SECURE_COOKIE` — set to `true` to mark the `idp_session`
   cookie as `Secure` (use HTTPS when enabled).
+- `OUR_IDP_SESSION_TTL_MINUTES` — session lifetime in minutes (default `60`);
+  expired sessions are cleaned and return `401`.
 - `MOCK_OAUTH_PORT` — default `9000`
 - `OUR_IDP_OAUTH_AUTH_URL`, `OUR_IDP_OAUTH_TOKEN_URL`,
   `OUR_IDP_OAUTH_USERINFO_URL` — override mock endpoints when needed

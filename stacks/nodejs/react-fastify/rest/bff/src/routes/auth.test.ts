@@ -246,3 +246,57 @@ test("returns 401 when session cookie is missing", async (t) => {
 
   await app.close();
 });
+
+test("expires sessions after configured TTL", async (t) => {
+  const server = await startMockOAuthServer();
+  t.after(async () => {
+    await server.close();
+  });
+
+  const restoreEnv = withEnv({
+    OUR_IDP_OAUTH_PROVIDER: "mock",
+    OUR_IDP_OAUTH_AUTH_URL: `${server.baseUrl}/oauth/authorize`,
+    OUR_IDP_OAUTH_TOKEN_URL: `${server.baseUrl}/oauth/token`,
+    OUR_IDP_OAUTH_USERINFO_URL: `${server.baseUrl}/userinfo`,
+    OUR_IDP_OAUTH_CLIENT_ID: "client-id",
+    OUR_IDP_OAUTH_CLIENT_SECRET: "client-secret",
+    OUR_IDP_OAUTH_REDIRECT_URL: "http://localhost/auth/callback",
+  });
+  t.after(restoreEnv);
+
+  let now = Date.now();
+  const ttlMinutes = 0.01; // ~600ms
+  resetAuthStores({
+    sessionTtlMinutes: ttlMinutes,
+    now: () => now,
+  });
+
+  const app = createApp();
+  await app.register(authRoutes);
+
+  const login = await app.inject({ method: "GET", url: "/auth/login" });
+  const loginURL = new URL(login.headers.location ?? "", "http://localhost");
+  const state = loginURL.searchParams.get("state");
+  assert.ok(state && state.length > 0);
+
+  const callback = await app.inject({
+    method: "GET",
+    url: `/auth/callback?code=test-code&state=${state}`,
+  });
+  const sessionCookie = callback.cookies?.find((cookie) => cookie.name === "idp_session");
+  assert.ok(sessionCookie);
+
+  now += ttlMinutes * 60 * 1000 + 50;
+
+  const me = await app.inject({
+    method: "GET",
+    url: "/auth/me",
+    cookies: {
+      idp_session: sessionCookie.value,
+    },
+  });
+
+  assert.strictEqual(me.statusCode, 401);
+
+  await app.close();
+});

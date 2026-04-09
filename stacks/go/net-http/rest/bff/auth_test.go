@@ -16,8 +16,22 @@ func resetStores() {
 	states.mu.Unlock()
 
 	sessions.mu.Lock()
-	sessions.data = make(map[string]*userInfo)
+	sessions.data = make(map[string]sessionEntry)
 	sessions.mu.Unlock()
+}
+
+func useSessionStore(t *testing.T, ttl time.Duration, now func() time.Time) func() {
+	t.Helper()
+
+	sessions.stop()
+	sessions = newSessionStore(ttl, now)
+	resetStores()
+
+	return func() {
+		sessions.stop()
+		sessions = newSessionStore(resolveSessionTTL(), time.Now)
+		resetStores()
+	}
 }
 
 // --- stateStore ---
@@ -118,6 +132,30 @@ func TestSessionStoreEmptyID(t *testing.T) {
 
 	if _, ok := sessions.get(""); ok {
 		t.Error("empty session ID should return false")
+	}
+}
+
+func TestSessionStoreExpiresSessions(t *testing.T) {
+	now := time.Now()
+	restore := useSessionStore(t, time.Minute, func() time.Time { return now })
+	defer restore()
+
+	user := &userInfo{Login: "expired"}
+	id, err := sessions.create(user)
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+
+	now = now.Add(2 * time.Minute)
+	if _, ok := sessions.get(id); ok {
+		t.Fatal("expected session to be expired and removed")
+	}
+
+	sessions.mu.Lock()
+	count := len(sessions.data)
+	sessions.mu.Unlock()
+	if count != 0 {
+		t.Fatalf("expected store to clean expired session, found %d entries", count)
 	}
 }
 
@@ -499,6 +537,33 @@ func TestMeHandlerValidSession(t *testing.T) {
 	}
 	if got.Login != "carol" {
 		t.Errorf("expected login=carol, got %s", got.Login)
+	}
+}
+
+func TestMeHandlerExpiredSession(t *testing.T) {
+	now := time.Now()
+	restore := useSessionStore(t, time.Minute, func() time.Time { return now })
+	defer restore()
+
+	user := &userInfo{Login: "eve"}
+	sessionID, err := sessions.create(user)
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+
+	now = now.Add(2 * time.Minute)
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/me", nil)
+	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: sessionID})
+	w := httptest.NewRecorder()
+	handleMe(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401 for expired session, got %d", w.Code)
+	}
+
+	if _, ok := sessions.get(sessionID); ok {
+		t.Fatal("expected expired session to be removed")
 	}
 }
 
