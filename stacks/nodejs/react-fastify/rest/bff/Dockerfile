@@ -6,7 +6,7 @@
 #   docker build -t localhost/stemix-nodejs-react-fastify-rest-bff:dev \
 #     -f stacks/nodejs/react-fastify/rest/bff/Dockerfile .
 
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.14.1
 
 # ---------------------------------------------------------------------------
 # Stage 1: builder — compile TypeScript to JavaScript

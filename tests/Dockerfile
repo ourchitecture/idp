@@ -19,7 +19,7 @@
 #     -e OUR_IDP_CONTRACT_PROFILES=core,operational \
 #     localhost/stemix-contract-tests:dev
 
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.14.1
 
 FROM node:${NODE_VERSION}-alpine AS base
 

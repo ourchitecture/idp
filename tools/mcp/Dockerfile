@@ -5,7 +5,7 @@
 # Build example (from tools/mcp/):
 #   docker build -t localhost/stemix-mcp-server:dev .
 
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.14.1
 
 # ---------------------------------------------------------------------------
 # Stage 1: builder — compile TypeScript to JavaScript

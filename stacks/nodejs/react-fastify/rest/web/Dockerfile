@@ -13,7 +13,7 @@
 #   docker run --rm -p 3000:3000 -e BFF_URL=http://host.docker.internal:8000 \
 #     localhost/stemix-nodejs-react-fastify-rest-web:dev
 
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.14.1
 
 # ---------------------------------------------------------------------------
 # Stage 1: builder — produce Vite production build
