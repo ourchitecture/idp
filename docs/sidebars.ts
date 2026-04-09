@@ -119,6 +119,7 @@ const sidebars: SidebarsConfig = {
         "tools/vscode-extension",
       ],
     },
+    "versioning",
     "security",
   ],
 };

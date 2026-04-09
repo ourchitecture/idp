@@ -41,7 +41,7 @@ jobs:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -53,7 +53,7 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -97,7 +97,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -110,7 +110,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -138,7 +138,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -151,7 +151,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -179,7 +179,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -192,7 +192,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -226,7 +226,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -239,7 +239,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -247,7 +247,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -281,7 +281,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -294,7 +294,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -339,7 +339,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -352,7 +352,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -370,11 +370,11 @@ jobs:
         uses: actions/checkout@v4.3.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Build Go web container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
@@ -398,7 +398,7 @@ jobs:
 
       - name: Build Go BFF container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
@@ -422,7 +422,7 @@ jobs:
 
       - name: Build Node.js web container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/web/Dockerfile
@@ -445,7 +445,7 @@ jobs:
 
       - name: Build Node.js BFF container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
@@ -468,7 +468,7 @@ jobs:
 
       - name: Build contract tests container
         if: needs.detect-changes.outputs.run_tests_container == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: .
           file: tests/Dockerfile
@@ -479,7 +479,7 @@ jobs:
 
       - name: Build MCP server container
         if: needs.detect-changes.outputs.run_mcp_containers == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: tools/mcp
           file: tools/mcp/Dockerfile
@@ -507,7 +507,7 @@ jobs:
 
       - name: Build mock-oauth container
         if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v6.19.2
         with:
           context: tools/mock-oauth
           file: tools/mock-oauth/Dockerfile
@@ -558,7 +558,7 @@ jobs:
           auto-install: true
 
       - name: Setup Java 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.1.0
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -568,7 +568,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -581,7 +581,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -589,7 +589,7 @@ jobs:
 
       - name: Save Maven cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -617,7 +617,7 @@ jobs:
           auto-install: true
 
       - name: Setup Java 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v5.1.0
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -633,7 +633,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -646,7 +646,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -654,7 +654,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v5.0.4
         continue-on-error: true
         with:
           path: |

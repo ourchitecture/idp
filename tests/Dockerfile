@@ -19,9 +19,8 @@
 #     -e OUR_IDP_CONTRACT_PROFILES=core,operational \
 #     localhost/stemix-contract-tests:dev
 
-ARG NODE_VERSION=24
-
-FROM node:${NODE_VERSION}-alpine AS base
+# node:24.14.1-alpine — digest pinned 2026-04-09 (ADR-0008)
+FROM node:24.14.1-alpine@sha256:01743339035a5c3c11a373cd7c83aeab6ed1457b55da6a69e014a95ac4e4700b AS base
 
 WORKDIR /app
 
@@ -40,7 +39,8 @@ ENV OUR_IDP_BFF_URL=""
 ENV OUR_IDP_CONTRACT_PROFILES=""
 
 # Security Scan stage
-FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+# ghcr.io/aquasecurity/trivy:0.56.2 — digest pinned 2026-04-09 (ADR-0008)
+FROM ghcr.io/aquasecurity/trivy:0.56.2@sha256:26245f364b6f5d223003dc344ec1eb5eb8439052bfecb31d79aeba0c74344b3a AS scanner
 COPY --from=base / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 

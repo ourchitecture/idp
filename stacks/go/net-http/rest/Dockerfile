@@ -6,12 +6,11 @@
 #   docker build --build-arg SERVICE=web -t localhost/stemix-go-net-http-rest-web:dev -f stacks/go/net-http/rest/Dockerfile stacks/go/net-http/rest
 #   docker build --build-arg SERVICE=bff -t localhost/stemix-go-net-http-rest-bff:dev -f stacks/go/net-http/rest/Dockerfile stacks/go/net-http/rest
 
-ARG GO_VERSION=1.25
-
 # ---------------------------------------------------------------------------
 # Stage 1: builder
 # ---------------------------------------------------------------------------
-FROM golang:${GO_VERSION}-alpine AS builder
+# golang:1.25-alpine — digest pinned 2026-04-09 (ADR-0008)
+FROM golang:1.25-alpine@sha256:7a00384194cf2cb68924bbb918d675f1517357433c8541bac0ab2f929b9d5447 AS builder
 
 WORKDIR /src
 
@@ -27,7 +26,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /app/service
 # ---------------------------------------------------------------------------
 # Stage 2: runtime (distroless static — no shell, minimal attack surface)
 # ---------------------------------------------------------------------------
-FROM gcr.io/distroless/static-debian12:nonroot AS runtime
+# gcr.io/distroless/static-debian12:nonroot — digest pinned 2026-04-09 (ADR-0008)
+FROM gcr.io/distroless/static-debian12:nonroot@sha256:a9329520abc449e3b14d5bc3a6ffae065bdde0f02667fa10880c49b35c109fd1 AS runtime
 
 COPY --from=builder /app/service /app/service
 
@@ -42,7 +42,8 @@ EXPOSE 3000
 USER nonroot:nonroot
 
 # Security Scan stage
-FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+# ghcr.io/aquasecurity/trivy:0.56.2 — digest pinned 2026-04-09 (ADR-0008)
+FROM ghcr.io/aquasecurity/trivy:0.56.2@sha256:26245f364b6f5d223003dc344ec1eb5eb8439052bfecb31d79aeba0c74344b3a AS scanner
 COPY --from=runtime / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 

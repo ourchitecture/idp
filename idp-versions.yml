@@ -1,0 +1,162 @@
+# IDP Container and Toolchain Version Configuration
+#
+# This file is the authoritative catalog of container image versions, toolchain
+# pins, and update policies for the Stemix IDP. It supplements .prototools and
+# package.json for versioning concerns that those tools do not cover.
+#
+# Conventions:
+#   - "tag" is the human-readable tag used in FROM statements
+#   - "digest" is the sha256 content-digest for the multi-arch manifest index
+#   - "lts" indicates this is a long-term support version
+#   - "updater" indicates which automation tool manages updates for this entry
+#   - Digests must be updated when the tag is updated (Renovate handles this automatically)
+#
+# Last updated: 2026-04-09
+# Policy: ADR-0008 (docs/content/architecture/decisions/0008-dependency-and-tooling-pinning-policy.md)
+
+# ---------------------------------------------------------------------------
+# Container base images
+# ---------------------------------------------------------------------------
+images:
+  # Go builder image — used in stacks/go/net-http/rest/Dockerfile
+  golang-alpine:
+    registry: docker.io
+    image: golang
+    tag: "1.25-alpine"
+    digest: "sha256:7a00384194cf2cb68924bbb918d675f1517357433c8541bac0ab2f929b9d5447"
+    lts: false
+    notes: >
+      Go 1.25 is the current stable release. Prefer LTS if Go adopts an LTS cadence.
+      Tag "1.25-alpine" tracks the latest patch within 1.25 (currently Alpine 3.23).
+    updater: renovate
+    used_in:
+      - stacks/go/net-http/rest/Dockerfile
+
+  # Node.js LTS builder/runtime — used in Node.js stack, MCP, and contract tests
+  node-alpine:
+    registry: docker.io
+    image: node
+    tag: "24.14.1-alpine"
+    digest: "sha256:01743339035a5c3c11a373cd7c83aeab6ed1457b55da6a69e014a95ac4e4700b"
+    lts: true
+    notes: >
+      Node.js 24 LTS (Jod). Use the specific patch version tag (24.14.1-alpine)
+      rather than the floating 24-alpine tag for deterministic builds.
+      The digest matches 24-alpine and 24.14.1-alpine3.23 as of 2026-04-09.
+    updater: renovate
+    used_in:
+      - stacks/nodejs/react-fastify/rest/web/Dockerfile
+      - stacks/nodejs/react-fastify/rest/bff/Dockerfile
+      - tests/Dockerfile
+      - tools/mcp/Dockerfile
+
+  # nginx — SPA static file serving (web runtime)
+  nginx-alpine:
+    registry: docker.io
+    image: nginx
+    tag: "1.29-alpine"
+    digest: "sha256:645eda1c2477aaa9b879f73909b9222c6f19798dd45be6706268d82a661c6e6d"
+    lts: false
+    notes: >
+      nginx 1.29 is the current stable branch. Use the minor-version tag
+      (1.29-alpine) rather than the plain "alpine" tag so the major.minor is
+      explicit in the Dockerfile. The digest is the multi-arch manifest index.
+    updater: renovate
+    used_in:
+      - stacks/nodejs/react-fastify/rest/web/Dockerfile
+
+  # Eclipse Temurin JDK — Java builder for mock-oauth
+  eclipse-temurin-jdk-alpine:
+    registry: docker.io
+    image: eclipse-temurin
+    tag: "21-jdk-alpine"
+    digest: "sha256:c98f0d2e171c898bf896dc4166815d28a56d428e218190a1f35cdc7d82efd61f"
+    lts: true
+    notes: >
+      Eclipse Temurin 21 is the current LTS JDK release. The jdk-alpine variant
+      is used only for the Maven build stage; the runtime stage uses jre-alpine.
+    updater: renovate
+    used_in:
+      - tools/mock-oauth/Dockerfile
+
+  # Eclipse Temurin JRE — Java runtime for mock-oauth
+  eclipse-temurin-jre-alpine:
+    registry: docker.io
+    image: eclipse-temurin
+    tag: "21-jre-alpine"
+    digest: "sha256:6ad8ed080d9be96b61438ec3ce99388e294af216ed57356000c06070e85c5d5d"
+    lts: true
+    notes: >
+      Eclipse Temurin 21 LTS JRE for the lean runtime stage. Prefer JRE over
+      JDK for runtime images to minimize attack surface.
+      Note: distroless/java is an alternative if smaller images are desired.
+    updater: renovate
+    used_in:
+      - tools/mock-oauth/Dockerfile
+
+  # Distroless — minimal runtime for the Go stack
+  distroless-static-debian12:
+    registry: gcr.io
+    image: distroless/static-debian12
+    tag: "nonroot"
+    digest: "sha256:a9329520abc449e3b14d5bc3a6ffae065bdde0f02667fa10880c49b35c109fd1"
+    lts: false
+    notes: >
+      Google Distroless static image (no shell, no package manager) for minimal
+      Go binary runtime. The "nonroot" tag runs as UID 65532. The digest is the
+      OCI image index for all platforms as of 2026-04-09.
+      Renovate handles gcr.io digest updates via the docker datasource.
+    updater: renovate
+    used_in:
+      - stacks/go/net-http/rest/Dockerfile
+
+  # Trivy security scanner — security scan stage in all Dockerfiles
+  trivy:
+    registry: ghcr.io
+    image: aquasecurity/trivy
+    tag: "0.56.2"
+    digest: "sha256:26245f364b6f5d223003dc344ec1eb5eb8439052bfecb31d79aeba0c74344b3a"
+    lts: false
+    notes: >
+      Trivy is used in a scanner stage for every container image. Pin to a
+      specific release tag (not "latest"). The digest matches both the Docker Hub
+      and ghcr.io registries for this tag.
+      When upgrading Trivy, update both tag and digest in all Dockerfiles, or
+      use a shared ARG (see idp-versions.yml design note below).
+    updater: renovate
+    used_in:
+      - stacks/go/net-http/rest/Dockerfile
+      - stacks/nodejs/react-fastify/rest/web/Dockerfile
+      - stacks/nodejs/react-fastify/rest/bff/Dockerfile
+      - tests/Dockerfile
+      - tools/mcp/Dockerfile
+      - tools/mock-oauth/Dockerfile
+
+# ---------------------------------------------------------------------------
+# Toolchain versions (mirrors .prototools — single source of truth)
+# ---------------------------------------------------------------------------
+toolchain:
+  # Language runtimes — authoritative source is .prototools
+  node: "24.14.1"          # Node.js 24 LTS (Jod)
+  go: "1.25.0"             # Go 1.25 stable
+  python: "3.12.11"        # Python 3.12 LTS
+  moon: "2.1.3"            # moon task runner
+  proto: "0.55.4"          # proto toolchain manager
+  uv: "0.9.11"             # Python package manager
+
+# ---------------------------------------------------------------------------
+# Design notes
+# ---------------------------------------------------------------------------
+# Q: Why not use a shared ARG for the Trivy version across Dockerfiles?
+# A: Docker ARG values are local to each Dockerfile. There is no native
+#    mechanism to share ARGs across files. Options:
+#    1. Use Renovate to update each Dockerfile independently (current approach).
+#    2. Use a Makefile variable injected via --build-arg at build time.
+#    3. Use Docker Bake (docker buildx bake) with a shared HCL file.
+#    The current approach (1) is simplest and keeps each Dockerfile self-contained.
+#
+# Q: Why are version ARGs removed from Dockerfiles?
+# A: ARG-substituted image references (FROM ${IMAGE}:${TAG}) are not supported
+#    by Renovate's Dockerfile datasource for digest tracking. Hardcoded FROM
+#    lines with explicit tag+digest allow Renovate to manage updates automatically.
+#    Build-time overrides can still be achieved via --build-arg if needed.

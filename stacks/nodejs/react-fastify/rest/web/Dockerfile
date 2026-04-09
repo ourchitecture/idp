@@ -13,12 +13,11 @@
 #   docker run --rm -p 3000:3000 -e BFF_URL=http://host.docker.internal:8000 \
 #     localhost/stemix-nodejs-react-fastify-rest-web:dev
 
-ARG NODE_VERSION=24
-
 # ---------------------------------------------------------------------------
 # Stage 1: builder — produce Vite production build
 # ---------------------------------------------------------------------------
-FROM node:${NODE_VERSION}-alpine AS builder
+# node:24.14.1-alpine — digest pinned 2026-04-09 (ADR-0008)
+FROM node:24.14.1-alpine@sha256:01743339035a5c3c11a373cd7c83aeab6ed1457b55da6a69e014a95ac4e4700b AS builder
 
 WORKDIR /app
 
@@ -35,7 +34,8 @@ RUN npx vite build --config stacks/nodejs/react-fastify/rest/web/vite.config.ts
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — nginx serving the static build with SPA routing + API proxy
 # ---------------------------------------------------------------------------
-FROM nginx:alpine AS runtime
+# nginx:1.29-alpine — digest pinned 2026-04-09 (ADR-0008)
+FROM nginx:1.29-alpine@sha256:645eda1c2477aaa9b879f73909b9222c6f19798dd45be6706268d82a661c6e6d AS runtime
 
 # Install envsubst (provided by gettext) for runtime nginx config templating.
 RUN apk add --no-cache gettext
@@ -59,7 +59,8 @@ EXPOSE 3000
 # automatically on startup, writing results to /etc/nginx/conf.d/.
 
 # Security Scan stage
-FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+# ghcr.io/aquasecurity/trivy:0.56.2 — digest pinned 2026-04-09 (ADR-0008)
+FROM ghcr.io/aquasecurity/trivy:0.56.2@sha256:26245f364b6f5d223003dc344ec1eb5eb8439052bfecb31d79aeba0c74344b3a AS scanner
 COPY --from=runtime / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 

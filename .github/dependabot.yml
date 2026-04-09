@@ -1,39 +1,144 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
+# Dependabot version update configuration.
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# Scope: npm (all sub-projects), Go modules, Maven, GitHub Actions.
+# Docker digest pinning and .prototools updates are handled by Renovate (renovate.json).
+#
+# PR grouping strategy:
+#   - Each Dockerfile → separate PR (handled by Renovate, not Dependabot)
+#   - Each npm sub-project → separate PR
+#   - GitHub Actions → separate PRs per workflow change
+#   - Go modules for the Go stack → one PR per go.mod
+#   - Maven for mock-oauth → one PR per pom.xml
+#
+# Policy: ADR-0008 (docs/content/architecture/decisions/0008-dependency-and-tooling-pinning-policy.md)
 
 version: 2
 updates:
+  # ---------------------------------------------------------------------------
+  # GitHub Actions — pin all uses: to minor versions (weekly)
+  # Renovate will additionally manage SHA pinning for third-party actions.
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # ---------------------------------------------------------------------------
+  # npm — root workspace (shared stack deps, CLI tools)
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "tuesday"
+    labels:
+      - "dependencies"
+      - "npm"
+    groups:
+      root-npm:
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------------------
+  # npm — Docusaurus docs site
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/docs"
     schedule:
       interval: "weekly"
+      day: "tuesday"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "docs"
+    groups:
+      docs-npm:
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------------------
+  # npm — MCP server tools
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/tools/mcp"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "tools"
+    groups:
+      mcp-npm:
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------------------
+  # npm — VS Code extension
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/tools/vscode-extension"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "tools"
+    groups:
+      vscode-extension-npm:
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------------------
+  # npm — Node.js React/Fastify stack (web + BFF share the workspace)
+  # Groups Node.js, yarn, and package.json deps together per issue requirements.
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "npm"
     directory: "/stacks/nodejs/react-fastify/rest"
     schedule:
       interval: "weekly"
+      day: "thursday"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "stack"
+    groups:
+      nodejs-stack-npm:
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------------------
+  # Go modules — Go net/http REST stack
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "gomod"
     directory: "/stacks/go/net-http/rest"
     schedule:
       interval: "weekly"
+      day: "thursday"
+    labels:
+      - "dependencies"
+      - "go"
+      - "stack"
+
+  # ---------------------------------------------------------------------------
+  # Maven — mock-oauth service
+  # ---------------------------------------------------------------------------
   - package-ecosystem: "maven"
     directory: "/tools/mock-oauth"
     schedule:
       interval: "weekly"
+      day: "friday"
+    labels:
+      - "dependencies"
+      - "java"
+      - "tools"
+    groups:
+      mock-oauth-maven:
+        patterns:
+          - "*"

@@ -42,7 +42,7 @@ jobs:
             keep_env: KEEP_VERSIONS_MOCK_OAUTH
     steps:
       - name: Delete old container versions
-        uses: actions/delete-package-versions@v5
+        uses: actions/delete-package-versions@v5.0.0
         with:
           package-name: idp/${{ matrix.package }}
           package-type: container

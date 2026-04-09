@@ -1,0 +1,142 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate configuration for Stemix IDP. Handles Docker digest pinning, .prototools toolchain versions, and GitHub Actions SHA pinning — gaps not covered by Dependabot. Policy: ADR-0008.",
+  "extends": [
+    "config:base",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "group:allNonMajor"
+  ],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 4,
+  "labels": ["dependencies"],
+  "reviewers": [],
+
+  "packageRules": [
+    {
+      "description": "Each Dockerfile gets its own PR (per issue #168 requirement)",
+      "matchManagers": ["dockerfile"],
+      "groupName": null,
+      "separateMinorPatch": false
+    },
+    {
+      "description": "GitHub Actions from docker/* and googleapis/* should use SHA pinning",
+      "matchManagers": ["github-actions"],
+      "matchPackagePatterns": ["^docker/", "^googleapis/", "^imjasonh/"],
+      "pinDigests": true,
+      "groupName": "third-party github actions"
+    },
+    {
+      "description": "GitHub Actions from actions/* and moonrepo/* use pinned minor versions",
+      "matchManagers": ["github-actions"],
+      "matchPackagePatterns": ["^actions/", "^moonrepo/"],
+      "pinDigests": false,
+      "groupName": "github actions"
+    },
+    {
+      "description": "Node.js LTS updates — group runtime + Dockerfile + proto together per sub-project",
+      "matchManagers": ["dockerfile", "custom.regex"],
+      "matchPackageNames": ["node"],
+      "groupName": "node.js runtime",
+      "labels": ["dependencies", "runtime"]
+    },
+    {
+      "description": "Go runtime updates — group Dockerfile + proto together",
+      "matchManagers": ["dockerfile", "custom.regex"],
+      "matchPackageNames": ["golang", "go"],
+      "groupName": "go runtime",
+      "labels": ["dependencies", "runtime"]
+    },
+    {
+      "description": "Java/Temurin runtime updates — group both JDK and JRE stages together",
+      "matchManagers": ["dockerfile"],
+      "matchPackagePatterns": ["^eclipse-temurin"],
+      "groupName": "java runtime (mock-oauth)",
+      "labels": ["dependencies", "runtime"]
+    },
+    {
+      "description": "Trivy security scanner updates affect all Dockerfiles — group together",
+      "matchManagers": ["dockerfile"],
+      "matchPackagePatterns": ["^ghcr.io/aquasecurity/trivy", "^aquasecurity/trivy"],
+      "groupName": "trivy scanner",
+      "labels": ["dependencies", "security"]
+    },
+    {
+      "description": "Distroless runtime image updates",
+      "matchManagers": ["dockerfile"],
+      "matchPackagePatterns": ["^gcr.io/distroless"],
+      "groupName": "distroless runtime",
+      "labels": ["dependencies", "runtime"]
+    },
+    {
+      "description": "nginx updates",
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["nginx"],
+      "groupName": "nginx runtime",
+      "labels": ["dependencies", "runtime"]
+    },
+    {
+      "description": "Prefer LTS Node.js versions — block non-LTS major upgrades",
+      "matchManagers": ["dockerfile", "custom.regex"],
+      "matchPackageNames": ["node"],
+      "allowedVersions": "/^(18|20|22|24)\\./",
+      "labels": ["dependencies", "runtime"]
+    }
+  ],
+
+  "dockerfile": {
+    "enabled": true,
+    "pinDigests": true
+  },
+
+  "github-actions": {
+    "enabled": true,
+    "fileMatch": ["\\.github/workflows/.+\\.ya?ml$"]
+  },
+
+  "customManagers": [
+    {
+      "description": "Track .prototools toolchain versions (proto format: tool = \"version\")",
+      "customType": "regex",
+      "fileMatch": ["^\\.prototools$"],
+      "matchStrings": [
+        "(?<depName>node)\\s*=\\s*\"(?<currentValue>[^\"]+)\"",
+        "(?<depName>go)\\s*=\\s*\"(?<currentValue>[^\"]+)\"",
+        "(?<depName>python)\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "{{#if (equals depName 'node')}}nodejs/node{{else if (equals depName 'go')}}golang/go{{else if (equals depName 'python')}}python/cpython{{/if}}",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v?(?<version>.+)$"
+    },
+    {
+      "description": "Track moon and proto versions in .prototools",
+      "customType": "regex",
+      "fileMatch": ["^\\.prototools$"],
+      "matchStrings": [
+        "(?<depName>moon)\\s*=\\s*\"(?<currentValue>[^\"]+)\"",
+        "(?<depName>proto)\\s*=\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "{{#if (equals depName 'moon')}}moonrepo/moon{{else}}moonrepo/proto{{/if}}",
+      "versioningTemplate": "semver",
+      "extractVersionTemplate": "^v?(?<version>.+)$"
+    },
+    {
+      "description": "Track idp-versions.yml image digest entries for documentation/audit",
+      "customType": "regex",
+      "fileMatch": ["^idp-versions\\.yml$"],
+      "matchStrings": [
+        "tag:\\s*\"(?<currentValue>[^\"]+)\"\\s*\\n\\s*digest:\\s*\"(?<currentDigest>sha256:[a-f0-9]+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "placeholder"
+    }
+  ],
+
+  "ignorePaths": [
+    "node_modules/**",
+    ".agents/**",
+    "**/.git/**"
+  ]
+}

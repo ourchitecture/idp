@@ -6,6 +6,10 @@ title: Versioning and Releases
 Stemix IDP uses independent semantic versioning for each component, managed
 by [release-please](https://github.com/googleapis/release-please).
 
+For the dependency-pinning policy (container image digests, GitHub Actions
+SHAs, toolchain versions, npm exact versions), see the
+[Versioning Strategy](../versioning) page.
+
 ## Components
 
 Each component is versioned independently:
