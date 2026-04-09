@@ -95,7 +95,7 @@ if [[ -n "${REF}" ]]; then
 fi
 
 list_caches() {
-  gh cache list "${repo_args[@]}" "${ref_args[@]}" --json id,key,ref,sizeInBytes,lastAccessedAt --jq '.[] | "\(.id)\t\(.key)\t\(.ref // \"\")\t\(.sizeInBytes)\t\(.lastAccessedAt // \"\")"' || true
+  gh cache list "${repo_args[@]}" "${ref_args[@]}" --json id,key,ref,sizeInBytes,lastAccessedAt --jq '.[] | "\(.id)\t\(.key)\t\(.ref // "")\t\(.sizeInBytes)\t\(.lastAccessedAt // "")"' || true
 }
 
 echo "Listing caches before deletion..."
