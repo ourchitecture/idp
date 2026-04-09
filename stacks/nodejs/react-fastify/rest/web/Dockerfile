@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Multi-stage build for the Node.js React/Fastify web (SPA).
-# Build context must be the repository root (package.json and vite config live there).
+# Build context must be the repository root.
 #
 # The BFF URL is injected at container start via BFF_URL environment variable.
 # nginx proxies /api/* to that URL. Defaults to http://localhost:8000.
@@ -22,15 +22,15 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
-# Install all dependencies from root workspace.
-COPY package.json package-lock.json ./
+# Install dependencies from stack workspace.
+COPY stacks/nodejs/react-fastify/rest/package.json stacks/nodejs/react-fastify/rest/package-lock.json ./
 RUN npm ci --ignore-scripts
 
 # Copy web source files needed for the build.
-COPY stacks/nodejs/react-fastify/rest/web/ ./stacks/nodejs/react-fastify/rest/web/
+COPY stacks/nodejs/react-fastify/rest/web/ ./web/
 
 # Run Vite production build.
-RUN npx vite build --config stacks/nodejs/react-fastify/rest/web/vite.config.ts
+RUN npx vite build --config web/vite.config.ts
 
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — nginx serving the static build with SPA routing + API proxy
@@ -47,7 +47,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY stacks/nodejs/react-fastify/rest/web/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy Vite build output.
-COPY --from=builder /app/stacks/nodejs/react-fastify/rest/web/dist/ /usr/share/nginx/html/
+COPY --from=builder /app/web/dist/ /usr/share/nginx/html/
 
 # BFF_URL is required at runtime for /api/* proxy.
 # Default points to host machine port 8000 for local docker run convenience.
