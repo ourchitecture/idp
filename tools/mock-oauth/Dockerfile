@@ -10,7 +10,7 @@ ARG JAVA_VERSION=21
 # ---------------------------------------------------------------------------
 # Stage 1: builder — compile and package with Maven
 # ---------------------------------------------------------------------------
-FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine AS builder
+FROM eclipse-temurin:${JAVA_VERSION}-jdk-alpine@sha256:fd10ef3691adde33aa57cd1070eedd4ecbe7eff025e0bc82503fdd15e0e70f47 AS builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ RUN ./mvnw package -q -DskipTests
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — lean JRE image with the packaged jar only
 # ---------------------------------------------------------------------------
-FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine AS runtime
+FROM eclipse-temurin:${JAVA_VERSION}-jre-alpine@sha256:693c22ea458d62395bac47a2da405d0d18c77b205211ceec4846a550a37684b6 AS runtime
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ ENV OUR_IDP_OAUTH_MOCK_PORT=9000
 EXPOSE 9000
 
 # Security Scan stage
-FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+FROM ghcr.io/aquasecurity/trivy:0.56.2@sha256:9aebdee5e85129a1bdd9977676baa6cf0579195fc4809570cc9dd55f6e92863c AS scanner
 COPY --from=runtime / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 
