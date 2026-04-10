@@ -17,6 +17,7 @@ env:
   KEEP_VERSIONS_TESTS: "5"
   KEEP_VERSIONS_MCP: "5"
   KEEP_VERSIONS_MOCK_OAUTH: "5"
+  KEEP_VERSIONS_DEV_TOOLS: "5"
 
 jobs:
   cleanup:
@@ -40,6 +41,8 @@ jobs:
             keep_env: KEEP_VERSIONS_MCP
           - package: stemix-mock-oauth
             keep_env: KEEP_VERSIONS_MOCK_OAUTH
+          - package: stemix-dev-tools
+            keep_env: KEEP_VERSIONS_DEV_TOOLS
     steps:
       - name: Delete old container versions
         uses: actions/delete-package-versions@v5
