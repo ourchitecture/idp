@@ -374,7 +374,7 @@ jobs:
 
       - name: Build Go web container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
@@ -398,7 +398,7 @@ jobs:
 
       - name: Build Go BFF container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
@@ -422,7 +422,7 @@ jobs:
 
       - name: Build Node.js web container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/web/Dockerfile
@@ -445,7 +445,7 @@ jobs:
 
       - name: Build Node.js BFF container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
@@ -468,7 +468,7 @@ jobs:
 
       - name: Build contract tests container
         if: needs.detect-changes.outputs.run_tests_container == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: tests/Dockerfile
@@ -479,7 +479,7 @@ jobs:
 
       - name: Build MCP server container
         if: needs.detect-changes.outputs.run_mcp_containers == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mcp
           file: tools/mcp/Dockerfile
@@ -507,7 +507,7 @@ jobs:
 
       - name: Build mock-oauth container
         if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mock-oauth
           file: tools/mock-oauth/Dockerfile
