@@ -1,7 +1,7 @@
 proto = "0.55.4"
 moon = "2.1.3"
 go = "1.25.0"
-node = "24.0.0"
+node = "24.14.1"
 npm = "bundled"
 python = "3.12.11"
 uv = "0.9.11"

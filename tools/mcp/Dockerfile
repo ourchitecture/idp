@@ -5,12 +5,12 @@
 # Build example (from tools/mcp/):
 #   docker build -t localhost/stemix-mcp-server:dev .
 
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.14.1
 
 # ---------------------------------------------------------------------------
 # Stage 1: builder — compile TypeScript to JavaScript
 # ---------------------------------------------------------------------------
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ RUN npm run build
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — lean Node.js image with compiled output only
 # ---------------------------------------------------------------------------
-FROM node:${NODE_VERSION}-alpine AS runtime
+FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS runtime
 
 WORKDIR /app
 
@@ -44,7 +44,7 @@ ENV OUR_IDP_BFF_URL=http://localhost:8000
 EXPOSE 8080
 
 # Security Scan stage
-FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+FROM ghcr.io/aquasecurity/trivy:0.56.2@sha256:9aebdee5e85129a1bdd9977676baa6cf0579195fc4809570cc9dd55f6e92863c AS scanner
 COPY --from=runtime / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 

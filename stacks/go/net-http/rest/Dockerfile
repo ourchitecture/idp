@@ -11,7 +11,7 @@ ARG GO_VERSION=1.25
 # ---------------------------------------------------------------------------
 # Stage 1: builder
 # ---------------------------------------------------------------------------
-FROM golang:${GO_VERSION}-alpine AS builder
+FROM golang:${GO_VERSION}-alpine@sha256:c8c75acb9a4502fc2d1c9230d2041b8851a1db27d96f5de955db9cf13b9ab2b5 AS builder
 
 WORKDIR /src
 
@@ -27,7 +27,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /app/service
 # ---------------------------------------------------------------------------
 # Stage 2: runtime (distroless static — no shell, minimal attack surface)
 # ---------------------------------------------------------------------------
-FROM gcr.io/distroless/static-debian12:nonroot AS runtime
+FROM gcr.io/distroless/static-debian12:nonroot@sha256:5074667eecabac8ac5c5d395100a153a7b4e8426181cca36181cd019530f00c8 AS runtime
 
 COPY --from=builder /app/service /app/service
 
@@ -42,7 +42,7 @@ EXPOSE 3000
 USER nonroot:nonroot
 
 # Security Scan stage
-FROM ghcr.io/aquasecurity/trivy:0.56.2 AS scanner
+FROM ghcr.io/aquasecurity/trivy:0.56.2@sha256:9aebdee5e85129a1bdd9977676baa6cf0579195fc4809570cc9dd55f6e92863c AS scanner
 COPY --from=runtime / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 

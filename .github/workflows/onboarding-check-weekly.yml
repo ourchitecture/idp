@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -36,14 +36,14 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -52,7 +52,7 @@ jobs:
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@v0.6.4
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
@@ -62,7 +62,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -75,7 +75,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -83,7 +83,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -96,12 +96,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -113,14 +113,14 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -129,7 +129,7 @@ jobs:
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@v0.6.4
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
@@ -139,7 +139,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -152,7 +152,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -160,7 +160,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -173,12 +173,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -190,14 +190,14 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -206,7 +206,7 @@ jobs:
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@v0.6.4
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
@@ -216,7 +216,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -229,7 +229,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -237,7 +237,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -250,12 +250,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -267,14 +267,14 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -283,7 +283,7 @@ jobs:
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@v0.6.4
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
@@ -293,7 +293,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -306,7 +306,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -314,7 +314,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -327,12 +327,12 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -344,14 +344,14 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -360,7 +360,7 @@ jobs:
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@v0.6.4
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
@@ -370,7 +370,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -383,7 +383,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -391,7 +391,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -404,12 +404,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       - name: Restore proto and moon cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -421,14 +421,14 @@ jobs:
           key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Restore npm cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
       - name: Restore Go cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -437,7 +437,7 @@ jobs:
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@v0.6.4
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
@@ -447,7 +447,7 @@ jobs:
 
       - name: Save proto and moon cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
@@ -460,7 +460,7 @@ jobs:
 
       - name: Save npm cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: ~/.npm
@@ -468,7 +468,7 @@ jobs:
 
       - name: Save Go cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
         continue-on-error: true
         with:
           path: |
