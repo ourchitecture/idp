@@ -100,7 +100,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 
 # Create non-root user with passwordless sudo
-RUN useradd -m -s /bin/bash -G docker vscode \
+# Create docker group first (Docker CLI install doesn't create it)
+RUN groupadd docker \
+    && useradd -m -s /bin/bash -G docker vscode \
     && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/vscode \
     && chmod 0440 /etc/sudoers.d/vscode
 
