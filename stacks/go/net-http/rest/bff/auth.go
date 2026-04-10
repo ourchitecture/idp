@@ -8,8 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +20,8 @@ import (
 )
 
 const sessionCookieName = "idp_session"
+const defaultSessionTTL = 60 * time.Minute
+const sessionCleanupInterval = time.Minute
 
 // oauthStateMaxAge is the maximum time a CSRF state value remains valid after
 // /auth/login. Older values are rejected to limit replay windows.
@@ -48,16 +52,24 @@ type stateStore struct {
 	data map[string]time.Time
 }
 
+type sessionEntry struct {
+	user      *userInfo
+	createdAt time.Time
+}
+
 // sessionStore maps session IDs to user profiles.
 type sessionStore struct {
-	mu   sync.Mutex
-	data map[string]*userInfo
+	mu     sync.Mutex
+	data   map[string]sessionEntry
+	ttl    time.Duration
+	now    func() time.Time
+	stopCh chan struct{}
 }
 
 // Package-level stores shared across handlers.
 var (
 	states   = &stateStore{data: make(map[string]time.Time)}
-	sessions = &sessionStore{data: make(map[string]*userInfo)}
+	sessions = newSessionStore(resolveSessionTTL(), time.Now)
 )
 
 // generateHex returns a cryptographically random hex string of 2*n characters.
@@ -88,17 +100,96 @@ func (s *stateStore) consume(state string) bool {
 		return false
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	created, ok := s.data[state]
 	if !ok {
+		s.mu.Unlock()
 		return false
 	}
 	if time.Since(created) > oauthStateMaxAge {
 		delete(s.data, state)
+		s.mu.Unlock()
 		return false
 	}
 	delete(s.data, state)
+	s.mu.Unlock()
 	return true
+}
+
+func resolveSessionTTL() time.Duration {
+	raw := strings.TrimSpace(os.Getenv("OUR_IDP_SESSION_TTL_MINUTES"))
+	if raw == "" {
+		return defaultSessionTTL
+	}
+
+	minutes, err := strconv.ParseFloat(raw, 64)
+	if err != nil || minutes <= 0 {
+		return defaultSessionTTL
+	}
+
+	return time.Duration(minutes * float64(time.Minute))
+}
+
+func newSessionStore(ttl time.Duration, now func() time.Time) *sessionStore {
+	if ttl <= 0 {
+		ttl = defaultSessionTTL
+	}
+	if now == nil {
+		now = time.Now
+	}
+
+	store := &sessionStore{
+		data:   make(map[string]sessionEntry),
+		ttl:    ttl,
+		now:    now,
+		stopCh: make(chan struct{}),
+	}
+
+	interval := sessionCleanupInterval
+	if ttl < interval {
+		interval = ttl
+	}
+	if interval > 0 {
+		go store.startCleanup(interval)
+	}
+
+	return store
+}
+
+func (s *sessionStore) startCleanup(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			s.cleanupExpired()
+		case <-s.stopCh:
+			return
+		}
+	}
+}
+
+func (s *sessionStore) stop() {
+	if s == nil || s.stopCh == nil {
+		return
+	}
+	select {
+	case <-s.stopCh:
+		// already closed
+	default:
+		close(s.stopCh)
+	}
+}
+
+func (s *sessionStore) cleanupExpired() {
+	now := s.now()
+	s.mu.Lock()
+	for id, entry := range s.data {
+		if now.Sub(entry.createdAt) > s.ttl {
+			delete(s.data, id)
+		}
+	}
+	s.mu.Unlock()
 }
 
 // create stores the user under a new random session ID and returns the ID.
@@ -107,8 +198,14 @@ func (s *sessionStore) create(user *userInfo) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	now := s.now()
 	s.mu.Lock()
-	s.data[id] = user
+	for existingID, entry := range s.data {
+		if now.Sub(entry.createdAt) > s.ttl {
+			delete(s.data, existingID)
+		}
+	}
+	s.data[id] = sessionEntry{user: user, createdAt: now}
 	s.mu.Unlock()
 	return id, nil
 }
@@ -118,10 +215,18 @@ func (s *sessionStore) get(id string) (*userInfo, bool) {
 	if id == "" {
 		return nil, false
 	}
+	now := s.now()
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	u, ok := s.data[id]
-	return u, ok
+	entry, ok := s.data[id]
+	if !ok {
+		return nil, false
+	}
+	if now.Sub(entry.createdAt) > s.ttl {
+		delete(s.data, id)
+		return nil, false
+	}
+	return entry.user, true
 }
 
 // delete removes a session from the store.
@@ -147,6 +252,12 @@ func resolveOAuthProviderName() string {
 // that use HTTPS.
 func resolveSecureCookie() bool {
 	return strings.EqualFold(strings.TrimSpace(os.Getenv("OUR_IDP_OAUTH_SECURE_COOKIE")), "true")
+}
+
+// isConfigComplete returns true when required OAuth credentials and redirect
+// URL are all present.
+func isConfigComplete(cfg *oauthConfig) bool {
+	return cfg.clientID != "" && cfg.clientSecret != "" && cfg.redirectURL != ""
 }
 
 // oauth2ConfigFrom builds a golang.org/x/oauth2.Config from oauthConfig.
@@ -226,6 +337,11 @@ func registerAuthRoutes(mux *http.ServeMux) {
 	case "github":
 		cfg = buildGitHubOAuthConfig()
 	default:
+		return
+	}
+
+	if !isConfigComplete(cfg) {
+		log.Printf("WARN auth provider=%s missing required configuration; skipping auth route registration", providerName)
 		return
 	}
 

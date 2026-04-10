@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -16,8 +18,40 @@ func resetStores() {
 	states.mu.Unlock()
 
 	sessions.mu.Lock()
-	sessions.data = make(map[string]*userInfo)
+	sessions.data = make(map[string]sessionEntry)
 	sessions.mu.Unlock()
+}
+
+func useSessionStore(t *testing.T, ttl time.Duration, now func() time.Time) func() {
+	t.Helper()
+
+	sessions.stop()
+	sessions = newSessionStore(ttl, now)
+	resetStores()
+
+	return func() {
+		sessions.stop()
+		sessions = newSessionStore(resolveSessionTTL(), time.Now)
+		resetStores()
+	}
+}
+
+// captureLogOutput temporarily redirects the logger output to a buffer.
+func captureLogOutput(t *testing.T, fn func()) string {
+	t.Helper()
+
+	var buf bytes.Buffer
+	origWriter := log.Writer()
+	origFlags := log.Flags()
+	log.SetOutput(&buf)
+	log.SetFlags(0)
+	defer func() {
+		log.SetOutput(origWriter)
+		log.SetFlags(origFlags)
+	}()
+
+	fn()
+	return buf.String()
 }
 
 // --- stateStore ---
@@ -121,6 +155,30 @@ func TestSessionStoreEmptyID(t *testing.T) {
 	}
 }
 
+func TestSessionStoreExpiresSessions(t *testing.T) {
+	now := time.Now()
+	restore := useSessionStore(t, time.Minute, func() time.Time { return now })
+	defer restore()
+
+	user := &userInfo{Login: "expired"}
+	id, err := sessions.create(user)
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+
+	now = now.Add(2 * time.Minute)
+	if _, ok := sessions.get(id); ok {
+		t.Fatal("expected session to be expired and removed")
+	}
+
+	sessions.mu.Lock()
+	count := len(sessions.data)
+	sessions.mu.Unlock()
+	if count != 0 {
+		t.Fatalf("expected store to clean expired session, found %d entries", count)
+	}
+}
+
 // --- generateHex ---
 
 func TestGenerateHex(t *testing.T) {
@@ -185,6 +243,25 @@ func TestRegisterAuthRoutesUnknownProvider(t *testing.T) {
 	mux.ServeHTTP(w, req)
 	if w.Code != http.StatusNotFound {
 		t.Errorf("expected 404 for unknown provider, got %d", w.Code)
+	}
+}
+
+func TestRegisterAuthRoutesIncompleteConfig(t *testing.T) {
+	t.Setenv("OUR_IDP_OAUTH_PROVIDER", "github")
+	mux := http.NewServeMux()
+
+	logs := captureLogOutput(t, func() {
+		registerAuthRoutes(mux)
+	})
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/login", nil)
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected 404 for /auth/login when config incomplete, got %d", w.Code)
+	}
+	if !strings.Contains(logs, "missing required configuration") {
+		t.Fatalf("expected warning log for incomplete config, got: %s", logs)
 	}
 }
 
@@ -499,6 +576,33 @@ func TestMeHandlerValidSession(t *testing.T) {
 	}
 	if got.Login != "carol" {
 		t.Errorf("expected login=carol, got %s", got.Login)
+	}
+}
+
+func TestMeHandlerExpiredSession(t *testing.T) {
+	now := time.Now()
+	restore := useSessionStore(t, time.Minute, func() time.Time { return now })
+	defer restore()
+
+	user := &userInfo{Login: "eve"}
+	sessionID, err := sessions.create(user)
+	if err != nil {
+		t.Fatalf("create session: %v", err)
+	}
+
+	now = now.Add(2 * time.Minute)
+
+	req := httptest.NewRequest(http.MethodGet, "/auth/me", nil)
+	req.AddCookie(&http.Cookie{Name: sessionCookieName, Value: sessionID})
+	w := httptest.NewRecorder()
+	handleMe(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401 for expired session, got %d", w.Code)
+	}
+
+	if _, ok := sessions.get(sessionID); ok {
+		t.Fatal("expected expired session to be removed")
 	}
 }
 

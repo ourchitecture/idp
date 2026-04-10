@@ -74,6 +74,7 @@ still loaded from the configured userinfo endpoint.
 | `OUR_IDP_OAUTH_USERINFO_URL` | _(mock default)_ | Override the provider userinfo URL (mock provider only). |
 | `OUR_IDP_OAUTH_MOCK_PORT` | `9000` | Port for the mock OAuth service (mock provider only). |
 | `OUR_IDP_OAUTH_SECURE_COOKIE` | `false` | Set to `true` in HTTPS production deployments to enable the `Secure` cookie attribute. Leave `false` for local HTTP development. |
+| `OUR_IDP_SESSION_TTL_MINUTES` | `60` | Session lifetime in minutes. Expired sessions are removed and requests return `401`. |
 
 ### Quick Start with Mock Provider
 

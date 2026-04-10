@@ -35,4 +35,21 @@ jobs:
           cache: "npm"
 
       - name: Install Node.js dependencies
-        run: npm ci
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          install_log="$(mktemp)"
+          trap 'rm -f "$install_log"' EXIT
+
+          if npm ci 2>&1 | tee "$install_log"; then
+            exit 0
+          fi
+
+          if grep -q "package.json and package-lock.json" "$install_log"; then
+            echo "::warning::npm ci failed because package.json and package-lock.json are out of sync on this branch. Falling back to npm install --package-lock=false so the agent can start without rewriting the lockfile."
+            npm install --package-lock=false
+            exit 0
+          fi
+
+          exit 1
