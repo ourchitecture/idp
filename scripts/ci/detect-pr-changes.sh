@@ -44,6 +44,7 @@ run_mcp_containers="false"
 run_tests_container="false"
 run_mock_oauth_build="false"
 run_mock_oauth_containers="false"
+run_dev_tools_container="false"
 run_auth_integration="false"
 
 container_detection_output="$({
@@ -69,6 +70,9 @@ if [[ -n "${container_detection_output}" ]]; then
         ;;
       run_mock_oauth_containers)
         run_mock_oauth_containers="${value}"
+        ;;
+      run_dev_tools_container)
+        run_dev_tools_container="${value}"
         ;;
       run_any_containers)
         run_any_containers="${value}"
@@ -170,6 +174,7 @@ if [[ "${run_reference_all}" == "true" ]]; then
   run_tests_container="true"
   run_mock_oauth_build="true"
   run_mock_oauth_containers="true"
+  run_dev_tools_container="true"
   run_auth_integration="true"
 fi
 
@@ -186,13 +191,14 @@ if [[ "${markdown_only}" == "true" ]]; then
   run_tests_container="false"
   run_mock_oauth_build="false"
   run_mock_oauth_containers="false"
+  run_dev_tools_container="false"
   run_auth_integration="false"
 fi
 
 run_any_containers="false"
 if [[ "${run_go_containers}" == "true" || "${run_node_containers}" == "true" || \
       "${run_tests_container}" == "true" || "${run_mcp_containers}" == "true" || \
-      "${run_mock_oauth_containers}" == "true" ]]; then
+      "${run_mock_oauth_containers}" == "true" || "${run_dev_tools_container}" == "true" ]]; then
   run_any_containers="true"
 fi
 
@@ -239,6 +245,7 @@ echo "run_tests_container=${run_tests_container}"
 echo "run_any_containers=${run_any_containers}"
 echo "run_mock_oauth_build=${run_mock_oauth_build}"
 echo "run_mock_oauth_containers=${run_mock_oauth_containers}"
+echo "run_dev_tools_container=${run_dev_tools_container}"
 echo "run_auth_integration=${run_auth_integration}"
 echo "run_vscode_extension=${run_vscode_extension}"
 echo "run_backstage_tools=${run_backstage_tools}"
@@ -259,6 +266,7 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_any_containers=%s\n" "${run_any_containers}"
     printf "run_mock_oauth_build=%s\n" "${run_mock_oauth_build}"
     printf "run_mock_oauth_containers=%s\n" "${run_mock_oauth_containers}"
+    printf "run_dev_tools_container=%s\n" "${run_dev_tools_container}"
     printf "run_auth_integration=%s\n" "${run_auth_integration}"
     printf "run_vscode_extension=%s\n" "${run_vscode_extension}"
     printf "run_backstage_tools=%s\n" "${run_backstage_tools}"

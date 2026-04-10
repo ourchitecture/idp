@@ -1,0 +1,26 @@
+{
+  "name": "IDP Development Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "vscode",
+  "workspaceFolder": "/workspaces/idp",
+  "mounts": [
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-azuretools.vscode-docker",
+        "davidanson.vscode-markdownlint",
+        "redhat.vscode-yaml"
+      ]
+    }
+  },
+  "postCreateCommand": "npm ci || echo 'Warning: npm ci failed, continuing...'",
+  "features": {}
+}
