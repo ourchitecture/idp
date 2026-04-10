@@ -86,7 +86,7 @@ ARG TRIVY_APT_VERSION
 RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | tee /etc/apt/sources.list.d/trivy.list \
     && apt-get update \
-    && apt-get install -y trivy=${TRIVY_APT_VERSION}-0 \
+    && apt-get install -y trivy=${TRIVY_APT_VERSION} \
     && rm -rf /var/lib/apt/lists/*
 
 # Install semgrep at pinned version (matching scripts/ci/check-privacy.sh)
