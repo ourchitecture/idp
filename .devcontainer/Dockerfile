@@ -15,6 +15,9 @@
 # Run example:
 #   docker run --rm -it localhost/ourchitecture/idp/stemix-dev-tools:dev bash
 
+# Global ARG for Trivy version (used in scanner stage FROM)
+ARG TRIVY_VERSION=0.56.2
+
 FROM ubuntu:24.04@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b AS base
 
 # Avoid interactive prompts during package installation
@@ -75,7 +78,8 @@ ARG GITLEAKS_VERSION=v8.30.1
 RUN proto run go -- install "github.com/zricethezav/gitleaks/v8@${GITLEAKS_VERSION}"
 
 # Install Trivy at pinned version (matching tests/Dockerfile)
-ARG TRIVY_VERSION=0.56.2
+# Re-declare global ARG to use in this stage
+ARG TRIVY_VERSION
 RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | tee /etc/apt/sources.list.d/trivy.list \
     && apt-get update \
@@ -106,7 +110,6 @@ RUN echo 'export PROTO_HOME=/opt/proto' > /etc/profile.d/proto.sh \
 RUN chown -R vscode:vscode "${PROTO_HOME}" /workspace
 
 # Security scan stage
-ARG TRIVY_VERSION=0.56.2
 FROM ghcr.io/aquasecurity/trivy:${TRIVY_VERSION} AS scanner
 COPY --from=base / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
