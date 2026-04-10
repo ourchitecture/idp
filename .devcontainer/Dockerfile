@@ -15,7 +15,7 @@
 # Run example:
 #   docker run --rm -it localhost/ourchitecture/idp/stemix-dev-tools:dev bash
 
-FROM ubuntu:24.04 AS base
+FROM ubuntu:24.04@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b AS base
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
