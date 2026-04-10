@@ -27,6 +27,12 @@
       "component": "mcp-tools",
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md"
+    },
+    ".devcontainer": {
+      "release-type": "simple",
+      "component": "dev-tools",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }

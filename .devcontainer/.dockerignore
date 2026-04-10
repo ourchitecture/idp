@@ -1,0 +1,44 @@
+# Build artifacts and cache
+.moon/
+.tmp/
+node_modules/
+docs/node_modules/
+docs/build/
+docs/.docusaurus/
+stacks/nodejs/react-fastify/rest/node_modules/
+stacks/nodejs/react-fastify/rest/bff/dist/
+stacks/nodejs/react-fastify/rest/web/dist/
+stacks/go/net-http/rest/bin/
+tools/mcp/node_modules/
+tools/mcp/dist/
+tools/vscode-extension/node_modules/
+tools/vscode-extension/out/
+tools/backstage/node_modules/
+tools/backstage/packages/*/dist/
+tools/mock-oauth/target/
+
+# Git metadata
+.git/
+.github/
+.gitignore
+
+# VS Code and IDE
+.vscode/
+.idea/
+
+# Python virtual environments
+.venv/
+__pycache__/
+*.pyc
+
+# Temporary and local files
+*.log
+*.swp
+.DS_Store
+
+# CI/CD outputs
+coverage/
+*.tgz
+
+# Agent worktrees
+.agents/worktrees/
