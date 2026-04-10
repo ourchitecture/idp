@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers
+.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -265,4 +265,9 @@ build-containers:
 	printf "Building container image for tools/mcp\n"; \
 	"$(MAKE)" -C tools/mcp build-container; \
 	printf "Building container image for tests\n"; \
-	"$(MAKE)" -C tests build-container
+	"$(MAKE)" -C tests build-container; \
+	printf "Building container image for dev-tools\n"; \
+	"$(MAKE)" build-container-dev-tools
+
+build-container-dev-tools:
+	docker build -t localhost/ourchitecture/idp/stemix-dev-tools:dev -f .devcontainer/Dockerfile .
