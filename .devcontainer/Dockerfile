@@ -106,6 +106,7 @@ RUN echo 'export PROTO_HOME=/opt/proto' > /etc/profile.d/proto.sh \
 RUN chown -R vscode:vscode "${PROTO_HOME}" /workspace
 
 # Security scan stage
+ARG TRIVY_VERSION=0.56.2
 FROM ghcr.io/aquasecurity/trivy:${TRIVY_VERSION} AS scanner
 COPY --from=base / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
