@@ -17,6 +17,8 @@
 
 # Global ARG for Trivy version (used in scanner stage FROM)
 ARG TRIVY_VERSION=0.56.2
+# ARG for Trivy apt package version (what's available in the apt repository)
+ARG TRIVY_APT_VERSION=0.69.3
 
 FROM ubuntu:24.04@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b AS base
 
@@ -77,13 +79,14 @@ RUN proto install
 ARG GITLEAKS_VERSION=v8.30.1
 RUN proto run go -- install "github.com/zricethezav/gitleaks/v8@${GITLEAKS_VERSION}"
 
-# Install Trivy at pinned version (matching tests/Dockerfile)
+# Install Trivy CLI at available apt version (for developer use in container)
+# Scanner stage uses official container image at pinned version
 # Re-declare global ARG to use in this stage
-ARG TRIVY_VERSION
+ARG TRIVY_APT_VERSION
 RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | tee /etc/apt/sources.list.d/trivy.list \
     && apt-get update \
-    && apt-get install -y trivy=${TRIVY_VERSION}-0 \
+    && apt-get install -y trivy=${TRIVY_APT_VERSION}-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install semgrep at pinned version (matching scripts/ci/check-privacy.sh)
@@ -110,7 +113,7 @@ RUN echo 'export PROTO_HOME=/opt/proto' > /etc/profile.d/proto.sh \
 RUN chown -R vscode:vscode "${PROTO_HOME}" /workspace
 
 # Security scan stage
-FROM ghcr.io/aquasecurity/trivy:${TRIVY_VERSION} AS scanner
+FROM ghcr.io/aquasecurity/trivy:${TRIVY_VERSION}@sha256:9aebdee5e85129a1bdd9977676baa6cf0579195fc4809570cc9dd55f6e92863c AS scanner
 COPY --from=base / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 
