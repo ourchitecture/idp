@@ -11,6 +11,10 @@ on:
     paths:
       - .github/workflows/copilot-setup-steps.yml
 
+env:
+  PROTO_VERSION: "0.55.4"
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
+
 jobs:
   # Job name MUST be `copilot-setup-steps` — Copilot will not pick it up otherwise.
   copilot-setup-steps:
@@ -27,6 +31,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
 
       - name: Setup Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -53,3 +75,16 @@ jobs:
           fi
 
           exit 1
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
