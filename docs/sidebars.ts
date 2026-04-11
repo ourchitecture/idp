@@ -6,6 +6,20 @@ const sidebars: SidebarsConfig = {
     "project-status",
     {
       type: "category",
+      label: "Flow",
+      link: {
+        type: "doc",
+        id: "flow/index",
+      },
+      items: [
+        "flow/model",
+        "flow/signals",
+        "flow/scope",
+        "flow/intent-scenarios",
+      ],
+    },
+    {
+      type: "category",
       label: "Architecture",
       items: [
         {
