@@ -37,6 +37,8 @@ area of expected behavior. A stack declares which profiles it must pass in its
 | [`mcp-profile`](./profiles/mcp-profile) | MCP servers (opt-in) | 4 | MCP initialize, tool discovery, and tool invocation |
 | [`auth-profile`](./profiles/auth-profile) | Auth-capable stacks (opt-in) | 5 | OAuth 2.0 auth endpoint contract: 401 unauthenticated, login redirect, callback round-trip, 200 authenticated, logout |
 
+The flow insight Layer 1 intent scenarios live in [`flow/intent-scenarios`](../flow/intent-scenarios). They are not yet a conformance profile; the Layer 2 harness will follow once the canonical model stabilizes.
+
 ## Guides
 
 | Document | Audience | Description |

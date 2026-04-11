@@ -37,6 +37,7 @@ These capabilities are implemented and usable right now:
 
 These are design goals and planned work — not yet implemented:
 
+- **Flow insight canonical model and signal catalog** — provider-neutral semantics for cross-provider adapters and inference. Docs and Layer 1 intent are in progress; adapters, harnesses, and UIs will follow.
 - **Security hardening** — TLS, authentication, and authorization/RBAC are
   design goals. No auth layer exists yet.
 - **Plug-in SDK and extension architecture** — The `/plugins/` directory is not

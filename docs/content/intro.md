@@ -49,6 +49,8 @@ plug-in system are on the roadmap but not yet implemented.
 - **IDP users and decision stakeholders (primary)**:
   - Start with [Architecture Diagrams](./architecture/diagrams/) and follow the user-first path.
   - Focus on Level 1 user context, Level 2 user capabilities, and Level 3 user workflows.
+- **Flow insight MVP language (all roles)**:
+  - Start with [Flow Insights](./flow/) to learn the canonical model and signals that stay provider-neutral.
 - **IDP implementers and operators**:
   - Start with [Architecture Diagrams](./architecture/diagrams/) delivery and implementation path.
   - Continue with [Testing](./testing/) and [Container Images](./containers/).
