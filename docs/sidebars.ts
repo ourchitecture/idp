@@ -14,6 +14,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "flow/model",
         "flow/signals",
+        "flow/adapter-contract",
         "flow/scope",
         "flow/intent-scenarios",
       ],
