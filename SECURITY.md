@@ -8,8 +8,8 @@ made.
 
 ## Reporting a vulnerability
 
-- Report suspected vulnerabilities privately via GitHub Security Advisories:
-  https://github.com/ourchitecture/idp/security/advisories/new
+- Report suspected vulnerabilities privately via
+  [GitHub Security Advisories](https://github.com/ourchitecture/idp/security/advisories/new)
 - Do not open public GitHub issues or discussions for security reports.
 - Include the affected component (see **Components in scope**), version or
   commit, reproduction details, and expected impact. If the report depends on
@@ -48,6 +48,6 @@ Security reports cover all maintained sub-projects in this repository:
 ## Roadmap awareness
 
 Future security-related capabilities are tracked in
-https://github.com/ourchitecture/idp/issues/171. They are not yet available on
-`main`; do not assume roadmap items are implemented until the repository
-contains the corresponding code and documentation.
+[issue #171](https://github.com/ourchitecture/idp/issues/171). They are not yet
+available on `main`; do not assume roadmap items are implemented until the
+repository contains the corresponding code and documentation.
