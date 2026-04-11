@@ -66,7 +66,7 @@ interface Transform {
 function ZoomableMermaid({
   renderResult,
 }: {
-  renderResult: { svg: string; bindFunctions?: (el: Element | null) => void };
+  renderResult: { svg: string; bindFunctions?: (el: Element) => void };
 }): ReactNode {
   const svgRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -86,7 +86,9 @@ function ZoomableMermaid({
 
   useEffect(() => {
     const div = svgRef.current;
-    renderResult.bindFunctions?.(div);
+    if (div) {
+      renderResult.bindFunctions?.(div);
+    }
   }, [renderResult]);
 
   // --- Zoom helpers ---
