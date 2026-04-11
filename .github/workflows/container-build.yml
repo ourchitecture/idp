@@ -105,7 +105,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -173,7 +173,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -241,7 +241,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -308,7 +308,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -374,7 +374,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -428,7 +428,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -500,7 +500,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
@@ -577,7 +577,7 @@ jobs:
             type=raw,value=edge
           labels: |
             org.opencontainers.image.vendor=Ourchitecture
-            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.licenses=MIT
             org.opencontainers.image.url=https://github.com/ourchitecture/idp
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
