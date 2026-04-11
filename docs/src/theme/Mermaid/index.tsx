@@ -13,7 +13,7 @@ import {
   useMermaidConfig,
   useMermaidRenderResult,
 } from "@docusaurus/theme-mermaid/client";
-import type { MermaidConfig } from "mermaid";
+import type { MermaidConfig, RenderResult } from "mermaid";
 import styles from "./styles.module.css";
 
 const MIN_SCALE = 0.25;
@@ -66,7 +66,7 @@ interface Transform {
 function ZoomableMermaid({
   renderResult,
 }: {
-  renderResult: { svg: string; bindFunctions?: (el: Element | null) => void };
+  renderResult: RenderResult;
 }): ReactNode {
   const svgRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -86,7 +86,9 @@ function ZoomableMermaid({
 
   useEffect(() => {
     const div = svgRef.current;
-    renderResult.bindFunctions?.(div);
+    if (div) {
+      renderResult.bindFunctions?.(div);
+    }
   }, [renderResult]);
 
   // --- Zoom helpers ---
