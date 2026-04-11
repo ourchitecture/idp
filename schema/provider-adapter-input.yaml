@@ -1,0 +1,348 @@
+# Provider Adapter Input — JSON Schema (YAML format)
+#
+# This schema defines the normalized types that source control and CI provider
+# adapters must emit. It makes the contract in
+# docs/content/flow/adapter-contract.md unambiguous for tooling and
+# implementers.
+#
+# JSON Schema draft 2020-12.
+$schema: "https://json-schema.org/draft/2020-12/schema"
+$id: "schema/provider-adapter-input.yaml"
+title: "Provider Adapter Input"
+description: >
+  Normalized types produced by provider adapters and consumed by the signal
+  inference engine. No type in this schema introduces a concept not needed by
+  at least one of the six MVP flow insight signals.
+
+$defs:
+
+  ProviderEnum:
+    type: string
+    enum: [github, gitlab]
+    description: The source control or CI provider system.
+
+  ISOTimestamp:
+    type: string
+    format: date-time
+    description: An ISO 8601 date-time string (e.g. 2026-04-01T10:00:00Z).
+
+  NormalizedRepository:
+    type: object
+    description: >
+      Repository metadata. Maps to work item scope and ownership context in the
+      canonical flow model.
+    required: [provider, provider_id, full_name, default_branch, fetched_at]
+    additionalProperties: false
+    properties:
+      provider:
+        $ref: "#/$defs/ProviderEnum"
+      provider_id:
+        type: string
+        description: Provider-scoped stable identifier.
+      full_name:
+        type: string
+        description: Repository full name, e.g. org/repo.
+      default_branch:
+        type: string
+        description: Trunk branch name.
+      visibility:
+        type: string
+        enum: [public, private, internal]
+      archived:
+        type: boolean
+      fetched_at:
+        $ref: "#/$defs/ISOTimestamp"
+        description: When data was retrieved from the provider API.
+      is_partial:
+        type: boolean
+        description: >
+          True when the adapter could not retrieve all required fields due to a
+          provider API gap or authorization constraint.
+
+  NormalizedWorkItemRef:
+    type: object
+    description: >
+      A reference to a work item. This is a pointer only — not a full work item
+      record. Maps to the Work item concept in the canonical flow model.
+    required: [external_id]
+    additionalProperties: false
+    properties:
+      external_id:
+        type: string
+        description: >
+          The identifier as seen in the provider (issue number, ticket key).
+      title:
+        type: string
+        description: Best-effort title from the PR/MR body or linked issue.
+      provider:
+        type: string
+        description: Source system if known.
+      url:
+        type: string
+        format: uri
+      state:
+        type: string
+        description: "Coarse state if fetchable: open or closed."
+
+  NormalizedChange:
+    type: object
+    description: >
+      A reviewable modification to code, config, or content proposed against a
+      target branch. Maps to the Change concept in the canonical flow model.
+    required:
+      - provider
+      - provider_id
+      - repository_id
+      - source_branch
+      - target_branch
+      - state
+      - author_actor_id
+      - created_at
+      - updated_at
+      - fetched_at
+    additionalProperties: false
+    properties:
+      provider:
+        $ref: "#/$defs/ProviderEnum"
+      provider_id:
+        type: string
+      repository_id:
+        type: string
+        description: >
+          Matches NormalizedRepository.provider_id for the same provider.
+      source_branch:
+        type: string
+      target_branch:
+        type: string
+      state:
+        type: string
+        enum: [open, closed, merged, locked]
+      author_actor_id:
+        type: string
+        description: Matches NormalizedActor.provider_id.
+      created_at:
+        $ref: "#/$defs/ISOTimestamp"
+      updated_at:
+        $ref: "#/$defs/ISOTimestamp"
+      title:
+        type: string
+      is_draft:
+        type: boolean
+        description: True for GitHub draft PRs or GitLab draft MRs.
+      work_item_refs:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedWorkItemRef"
+        description: >
+          Empty array when none detected. Never null. Adapters must not infer
+          work items from branch name patterns alone.
+      merged_at:
+        $ref: "#/$defs/ISOTimestamp"
+        description: Present only when state is merged.
+      closed_at:
+        $ref: "#/$defs/ISOTimestamp"
+        description: Present only when state is closed.
+      fetched_at:
+        $ref: "#/$defs/ISOTimestamp"
+      is_partial:
+        type: boolean
+
+  NormalizedActor:
+    type: object
+    description: >
+      A person or automation that initiates, reviews, validates, or owns a
+      change. Maps to the Actor concept in the canonical flow model.
+    required: [provider, provider_id, display_name]
+    additionalProperties: false
+    properties:
+      provider:
+        $ref: "#/$defs/ProviderEnum"
+      provider_id:
+        type: string
+      display_name:
+        type: string
+        description: Best-effort human-readable name.
+      provider_login:
+        type: string
+        description: Username as shown in the provider UI.
+      team_memberships:
+        type: array
+        items:
+          type: string
+        description: Team or group slugs.
+
+  NormalizedReviewState:
+    type: object
+    description: >
+      The state of human review for a change. Maps to the Review state concept
+      in the canonical flow model.
+    required: [change_id, state, as_of]
+    additionalProperties: false
+    properties:
+      change_id:
+        type: string
+        description: Matches NormalizedChange.provider_id.
+      state:
+        type: string
+        enum:
+          - awaiting_review
+          - under_review
+          - changes_requested
+          - approved
+          - not_required
+      as_of:
+        $ref: "#/$defs/ISOTimestamp"
+        description: When this state was last computed.
+      reviewer_actor_ids:
+        type: array
+        items:
+          type: string
+        description: Actors assigned or who have responded.
+      last_activity_at:
+        $ref: "#/$defs/ISOTimestamp"
+        description: Most recent review action.
+      approval_count:
+        type: integer
+        minimum: 0
+      required_approval_count:
+        type: integer
+        minimum: 0
+
+  NormalizedValidationRun:
+    type: object
+    description: >
+      The state of automated or manual checks verifying a change. Maps to the
+      Validation state concept in the canonical flow model.
+    required: [change_id, scope, state, run_at]
+    additionalProperties: false
+    properties:
+      change_id:
+        type: string
+      scope:
+        type: string
+        enum: [branch, trunk]
+        description: >
+          branch = pre-merge (triggered on the PR or MR).
+          trunk = post-merge integration on the default branch.
+      state:
+        type: string
+        enum: [pending, running, passed, failed, flaky, skipped]
+      run_at:
+        $ref: "#/$defs/ISOTimestamp"
+        description: When the run was recorded or last updated.
+      name:
+        type: string
+        description: Check name or pipeline name.
+      url:
+        type: string
+        format: uri
+        description: Link to run details.
+      duration_seconds:
+        type: integer
+        minimum: 0
+      failure_summary:
+        type: string
+        description: Brief failure description. No stack traces.
+
+  NormalizedMergeEvent:
+    type: object
+    description: >
+      Records the point at which a change was merged. Signals the transition
+      from implementation to post-merge validation. Feeds aging and trunk
+      validation signals.
+    required: [change_id, merged_at, target_branch]
+    additionalProperties: false
+    properties:
+      change_id:
+        type: string
+      merged_at:
+        $ref: "#/$defs/ISOTimestamp"
+      target_branch:
+        type: string
+      merged_by_actor_id:
+        type: string
+        description: Absent when the provider does not expose the merge actor.
+      merge_commit_sha:
+        type: string
+
+  NormalizedOwnershipHint:
+    type: object
+    description: >
+      A hint about who owns a repository scope. Maps to the Ownership state
+      concept in the canonical flow model. At least one of owner_actor_ids or
+      owner_team_names must be present when the hint represents a known owner.
+      An empty-owner hint with confidence inferred signals that ownership data
+      could not be found.
+    required: [repository_id]
+    additionalProperties: false
+    properties:
+      repository_id:
+        type: string
+      owner_actor_ids:
+        type: array
+        items:
+          type: string
+      owner_team_names:
+        type: array
+        items:
+          type: string
+        description: Team or group slugs.
+      path_pattern:
+        type: string
+        description: >
+          Glob pattern from CODEOWNERS. Absent means repository-level hint.
+      source:
+        type: string
+        enum: [codeowners, group_membership, branch_protection, manual]
+        description: How the hint was derived.
+      confidence:
+        type: string
+        enum: [declared, inferred]
+        description: >
+          declared when from an explicit file or rule. inferred when derived
+          from contributor history or heuristics.
+
+  ProviderAdapterInput:
+    type: object
+    description: >
+      The top-level container for all normalized types produced by a provider
+      adapter for a single repository context. All arrays may be empty but must
+      not be null.
+    required: [repository]
+    additionalProperties: false
+    properties:
+      repository:
+        $ref: "#/$defs/NormalizedRepository"
+      changes:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedChange"
+        default: []
+      actors:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedActor"
+        default: []
+      review_states:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedReviewState"
+        default: []
+      validation_runs:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedValidationRun"
+        default: []
+      merge_events:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedMergeEvent"
+        default: []
+      ownership_hints:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedOwnershipHint"
+        default: []
+
+# Root schema — validates a ProviderAdapterInput document
+$ref: "#/$defs/ProviderAdapterInput"
