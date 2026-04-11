@@ -13,8 +13,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "25.5.2",
-    "markdownlint-cli2": "0.21.0",
+    "@types/node": "25.6.0",
+    "markdownlint-cli2": "0.22.0",
     "ts-node": "10.9.2",
     "tsx": "4.21.0",
     "typescript": "6.0.2"
