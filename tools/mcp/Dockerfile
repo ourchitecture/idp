@@ -49,4 +49,14 @@ COPY --from=runtime / /
 RUN trivy rootfs --exit-code 1 --severity HIGH,CRITICAL --no-progress /
 
 FROM runtime
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=dev
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.revision="${VCS_REF}"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.source="https://github.com/ourchitecture/idp"
+LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
+LABEL org.opencontainers.image.vendor="Ourchitecture"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
 CMD ["node", "dist/server.js"]
