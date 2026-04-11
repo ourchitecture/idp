@@ -76,6 +76,7 @@ function startMockOAuthServer() {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(
         JSON.stringify({
+          sub: "mock-user-sub",
           login: "mock-user",
           id: 42,
           name: "Mock User",
