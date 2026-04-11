@@ -187,3 +187,5 @@ The web container uses nginx and proxies `/api/*` requests to the BFF via the
 
 - `ghcr.io/ourchitecture/idp/stemix-nodejs-react-fastify-rest-web`
 - `ghcr.io/ourchitecture/idp/stemix-nodejs-react-fastify-rest-bff`
+
+Published images include OCI labels, SBOMs, and provenance attestations; follow the [Verifying Published Images guide](../../../../docs/content/operations/verifying-releases.md) to validate them.

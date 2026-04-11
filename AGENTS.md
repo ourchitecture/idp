@@ -587,6 +587,8 @@ Agents must validate that requested changes actually took effect and report evid
 - Never commit secrets, credentials, or environment-specific configs.
 - Do not bypass auth/permission checks for convenience.
 - Prefer secure defaults; document any exceptions.
+- All container builds must emit OCI labels plus SBOM and provenance attestations; keep `sbom`/`provenance` enabled in release workflows and carry labels into final images.
+- Review SBOM findings and remediate or document any High/Critical issues before releasing containers.
 - Run dependency and container vulnerability scans when changes affect dependency graphs, executable behavior, or Dockerfiles (for example manifests/lockfiles, runtime source, build scripts, CI scripts, Makefiles, moon task definitions, or container definitions).
 - For documentation-only or Markdown-only changes, skip dependency audits and run markdown lint (`moon run repo:check-lint-md`) as the required validation.
 - For container changes, ensure the integrated Dockerfile vulnerability scan passes during `make build-containers`.

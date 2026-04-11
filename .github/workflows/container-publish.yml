@@ -13,6 +13,8 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
+  attestations: write
 
 env:
   REGISTRY: ghcr.io
@@ -54,17 +56,36 @@ jobs:
             echo "major_minor=${MAJOR}.${MINOR}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-${{ matrix.service }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build and push versioned image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
-          build-args: SERVICE=${{ matrix.service }}
+          build-args: |
+            SERVICE=${{ matrix.service }}
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-${{ matrix.service }}:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-${{ matrix.service }}:${{ steps.version.outputs.major_minor }}
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-${{ matrix.service }}:${{ steps.version.outputs.major }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: true
+          sbom: true
           cache-from: type=gha,scope=go-net-http-rest-${{ matrix.service }},timeout=10m
           cache-to: type=gha,scope=go-net-http-rest-${{ matrix.service }},mode=max,ignore-error=true,timeout=10m
 
@@ -107,16 +128,35 @@ jobs:
             echo "major_minor=${MAJOR}.${MINOR}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-${{ matrix.service }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build and push versioned image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: ${{ matrix.dockerfile }}
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-${{ matrix.service }}:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-${{ matrix.service }}:${{ steps.version.outputs.major_minor }}
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-${{ matrix.service }}:${{ steps.version.outputs.major }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: true
+          sbom: true
           cache-from: type=gha,scope=nodejs-react-fastify-rest-${{ matrix.service }},timeout=10m
           cache-to: type=gha,scope=nodejs-react-fastify-rest-${{ matrix.service }},mode=max,ignore-error=true,timeout=10m
 
@@ -152,16 +192,35 @@ jobs:
             echo "major_minor=${MAJOR}.${MINOR}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build and push versioned image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: tests/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-contract-tests:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_PREFIX }}/stemix-contract-tests:${{ steps.version.outputs.major_minor }}
-            ${{ env.IMAGE_PREFIX }}/stemix-contract-tests:${{ steps.version.outputs.major }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: true
+          sbom: true
           cache-from: type=gha,scope=contract-tests,timeout=10m
           cache-to: type=gha,scope=contract-tests,mode=max,ignore-error=true,timeout=10m
 
@@ -197,16 +256,35 @@ jobs:
             echo "major_minor=${MAJOR}.${MINOR}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-mcp-server
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build and push versioned image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mcp
           file: tools/mcp/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:${{ steps.version.outputs.major_minor }}
-            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:${{ steps.version.outputs.major }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: true
+          sbom: true
           cache-from: type=gha,scope=mcp-tools,timeout=10m
           cache-to: type=gha,scope=mcp-tools,mode=max,ignore-error=true,timeout=10m
 
@@ -242,16 +320,35 @@ jobs:
             echo "major_minor=${MAJOR}.${MINOR}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build and push versioned image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mock-oauth
           file: tools/mock-oauth/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:${{ steps.version.outputs.major_minor }}
-            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:${{ steps.version.outputs.major }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: true
+          sbom: true
           cache-from: type=gha,scope=mock-oauth,timeout=10m
           cache-to: type=gha,scope=mock-oauth,mode=max,ignore-error=true,timeout=10m
 
@@ -287,15 +384,34 @@ jobs:
             echo "major_minor=${MAJOR}.${MINOR}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-dev-tools
+          tags: |
+            type=raw,value=${{ steps.version.outputs.version }}
+            type=raw,value=${{ steps.version.outputs.major_minor }}
+            type=raw,value=${{ steps.version.outputs.major }}
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build and push versioned image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: .devcontainer/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ steps.version.outputs.version }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-dev-tools:${{ steps.version.outputs.version }}
-            ${{ env.IMAGE_PREFIX }}/stemix-dev-tools:${{ steps.version.outputs.major_minor }}
-            ${{ env.IMAGE_PREFIX }}/stemix-dev-tools:${{ steps.version.outputs.major }}
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: true
+          sbom: true
           cache-from: type=gha,scope=dev-tools,timeout=10m
           cache-to: type=gha,scope=dev-tools,mode=max,ignore-error=true,timeout=10m
