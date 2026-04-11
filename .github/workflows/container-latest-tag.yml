@@ -59,6 +59,7 @@ jobs:
               continue
             fi
 
-            echo "Re-tagging ${IMAGE}:${HIGHEST} as latest"
-            crane tag "${FULL}:${HIGHEST}" latest
+            DIGEST=$(crane digest "${FULL}:${HIGHEST}")
+            echo "Re-tagging ${IMAGE}:${HIGHEST} (digest ${DIGEST}) as latest"
+            crane tag "${FULL}@${DIGEST}" latest
           done

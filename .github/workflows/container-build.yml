@@ -28,6 +28,8 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
+  attestations: write
 
 env:
   REGISTRY: ghcr.io
@@ -74,6 +76,8 @@ jobs:
     name: Build go-net-http-rest-web
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_go_containers == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -91,17 +95,36 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
-          build-args: SERVICE=web
+          build-args: |
+            SERVICE=web
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=go-net-http-rest-web,timeout=10m
           cache-to: type=gha,scope=go-net-http-rest-web,mode=max,ignore-error=true,timeout=10m
 
@@ -121,6 +144,8 @@ jobs:
     name: Build go-net-http-rest-bff
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_go_containers == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -138,17 +163,36 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
-          build-args: SERVICE=bff
+          build-args: |
+            SERVICE=bff
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=go-net-http-rest-bff,timeout=10m
           cache-to: type=gha,scope=go-net-http-rest-bff,mode=max,ignore-error=true,timeout=10m
 
@@ -168,6 +212,8 @@ jobs:
     name: Build nodejs-react-fastify-rest-web
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_node_containers == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -185,16 +231,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/web/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=nodejs-react-fastify-rest-web,timeout=10m
           cache-to: type=gha,scope=nodejs-react-fastify-rest-web,mode=max,ignore-error=true,timeout=10m
 
@@ -214,6 +279,8 @@ jobs:
     name: Build nodejs-react-fastify-rest-bff
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_node_containers == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -231,16 +298,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=nodejs-react-fastify-rest-bff,timeout=10m
           cache-to: type=gha,scope=nodejs-react-fastify-rest-bff,mode=max,ignore-error=true,timeout=10m
 
@@ -260,6 +346,8 @@ jobs:
     name: Build contract-tests
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_tests_container == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -277,13 +365,33 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests
+          tags: |
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: tests/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-          tags: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=contract-tests,timeout=10m
           cache-to: type=gha,scope=contract-tests,mode=max,ignore-error=true,timeout=10m
 
@@ -291,6 +399,8 @@ jobs:
     name: Build mcp-tools
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_mcp_containers == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -308,16 +418,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-mcp-server
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mcp
           file: tools/mcp/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=mcp-tools,timeout=10m
           cache-to: type=gha,scope=mcp-tools,mode=max,ignore-error=true,timeout=10m
 
@@ -342,6 +471,8 @@ jobs:
     name: Build mock-oauth
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -359,16 +490,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mock-oauth
           file: tools/mock-oauth/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=mock-oauth,timeout=10m
           cache-to: type=gha,scope=mock-oauth,mode=max,ignore-error=true,timeout=10m
 
@@ -398,6 +548,8 @@ jobs:
     name: Build stemix-dev-tools
     runs-on: ubuntu-latest
     needs: [detect-changes]
+    env:
+      VERSION_LABEL: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
     if: >
       needs.detect-changes.outputs.run_dev_tools_container == 'true'
       && (github.event_name != 'pull_request' || github.event.pull_request.draft == false)
@@ -415,16 +567,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
+      - name: Extract metadata (OCI labels)
+        id: meta
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        with:
+          images: ${{ env.IMAGE_PREFIX }}/stemix-dev-tools
+          tags: |
+            type=raw,value=pr-check
+            type=raw,value=edge
+          labels: |
+            org.opencontainers.image.vendor=Ourchitecture
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.url=https://github.com/ourchitecture/idp
+            org.opencontainers.image.source=https://github.com/ourchitecture/idp
+
       - name: Build image
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
           file: .devcontainer/Dockerfile
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            VERSION=${{ env.VERSION_LABEL }}
+          labels: ${{ steps.meta.outputs.labels }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           load: ${{ github.event_name == 'pull_request' }}
-          tags: |
-            ${{ env.IMAGE_PREFIX }}/stemix-dev-tools:pr-check
-            ${{ env.IMAGE_PREFIX }}/stemix-dev-tools:edge
+          tags: ${{ steps.meta.outputs.tags }}
+          provenance: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          sbom: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           cache-from: type=gha,scope=dev-tools,timeout=10m
           cache-to: type=gha,scope=dev-tools,mode=max,ignore-error=true,timeout=10m
 

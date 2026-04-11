@@ -182,3 +182,5 @@ Containers default to `0.0.0.0` host binding (overriding the native-dev
 
 - `ghcr.io/ourchitecture/idp/stemix-go-net-http-rest-web`
 - `ghcr.io/ourchitecture/idp/stemix-go-net-http-rest-bff`
+
+Published images carry OCI labels, SBOMs, and provenance attestations; see [Verifying Published Images](../../../../docs/content/operations/verifying-releases.md) for validation commands.

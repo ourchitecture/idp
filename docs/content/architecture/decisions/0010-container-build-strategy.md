@@ -199,6 +199,14 @@ All images are subject to automated vulnerability scanning:
 - **CI:** GitHub Actions use `aquasecurity/trivy-action` to scan images during the PR validation phase. High and Critical vulnerabilities in the application layer must be addressed before merging.
 - **Registry:** A scheduled workflow scans published images on `ghcr.io` daily. Results are uploaded to the GitHub Security Tab.
 
+### 10. Build traceability
+
+- All published images and `main` branch builds must include OCI labels for `created`, `revision`, `version`, `source`, `url`, `vendor`, and `licenses`.
+- Release builds enable Buildx `sbom: true` and `provenance: true` to attach SPDX SBOMs and provenance attestations to every pushed image.
+- PR builds omit attestations for speed but still embed OCI labels in the baked image for auditability.
+- The `latest` retag workflow re-tags the digest directly so attached SBOM/provenance artifacts remain discoverable.
+- Consumers can verify labels, SBOM, and provenance using the runbook in `docs/content/operations/verifying-releases.md`.
+
 The use of distroless and Alpine base images is a primary mitigation strategy to reduce the attack surface and minimize the number of detectable vulnerabilities in the OS layer.
 
 ## Consequences

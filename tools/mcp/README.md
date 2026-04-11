@@ -83,6 +83,8 @@ docker run --rm -p 8080:8080 \
   localhost/stemix-mcp-server:latest
 ```
 
+Published images include OCI labels, SBOMs, and provenance attestations; see the [Verifying Published Images guide](../../docs/content/operations/verifying-releases.md) for validation steps.
+
 ## Tools exposed
 
 | Tool                 | Description                                                             |
