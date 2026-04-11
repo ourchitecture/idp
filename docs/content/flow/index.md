@@ -22,4 +22,4 @@ Flow insights define the smallest shared language for understanding how work mov
 
 ## Epic alignment
 
-The flow insight MVP (issue `#219`) depends on this language before any adapter, inference engine, or UI work begins. This section is semantic only — no storage schemas, HTTP routes, MCP tools, or UI behaviors are defined here.
+The flow insight MVP depends on this language before any adapter, inference engine, or UI work begins. This section is semantic only — no storage schemas, HTTP routes, MCP tools, or UI behaviors are defined here.
