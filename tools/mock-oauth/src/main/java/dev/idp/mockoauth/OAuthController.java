@@ -118,6 +118,7 @@ public class OAuthController {
       @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization) {
 
     Map<String, Object> user = new LinkedHashMap<>();
+    user.put("sub", "mock-user-sub");
     user.put("login", InMemoryTokenStore.MOCK_USER_LOGIN);
     user.put("id", 1);
     user.put("name", "Mock User");
