@@ -54,6 +54,20 @@ Use this intake threshold before adding an ADR:
 - If the threshold is not met, document in regular docs instead of
   `docs/content/architecture/decisions/`.
 
+### Long-Lived Documentation Reference Rule
+
+ADRs (`docs/content/architecture/decisions/`) and other long-lived documentation
+(for example `docs/content/flow/`) must not reference short-term artifacts such
+as GitHub issues, pull requests, milestones, project cards, or commit SHAs. If
+the content of a short-term artifact is valuable, integrate it into the
+documentation directly. Cross-references inside long-lived docs must point to
+other long-lived canonical artifacts — file paths inside this repository, other
+ADRs, or stable external specifications.
+
+Short-term project-management artifacts (issue comments, PR summaries, release
+notes, changelog entries) may still reference issues because they are themselves
+short-term and tied to workflow state.
+
 ## Multi-Agent Collaboration (Priority Context)
 
 Multiple agents may work in this repo concurrently. Each agent operates independently but must assume others are making changes in parallel.
