@@ -89,7 +89,7 @@ For the flow insight MVP:
 
 **Semantic equivalence is required; byte-for-byte equality is not.** Acceptable formatting differences (for example, JSON key order, timestamp precision) must be documented in shared scenarios.
 
-See [ADR-0014: MVP Flow Observation Technical Foundations](../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the technical decision on cross-stack equivalence and fixture strategy.
+See [ADR-0014: MVP Flow Observation Technical Foundations](../../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the technical decision on cross-stack equivalence and fixture strategy.
 
 ## Why HTTP API and MCP expose the same core meaning
 
@@ -128,7 +128,7 @@ The following capabilities are explicitly deferred to post-MVP or later phases:
 - **Heavy analytics platforming** — the MVP provides current-state insights, not long-term trend analysis, historical audit trails, or time-series storage.
 - **Standalone flow service decomposition** — the MVP is embedded within the IDP stacks. A separate flow-only service may be justified later by scale or isolation requirements, but it is not an MVP goal.
 
-See [ADR-0014: MVP Flow Observation Technical Foundations](../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the full deferred scope list.
+See [ADR-0014: MVP Flow Observation Technical Foundations](../../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the full deferred scope list.
 
 ## What contributors must not do while extending this MVP
 
