@@ -12,7 +12,7 @@ informed: []
 
 ## Context and Problem Statement
 
-The flow insight capability must stay capability-first: one shared semantic model, thin provider adapters, and stable transports that expose the same meaning. Without a recorded foundation, the MVP can drift toward a CMDB, a workflow engine, a vendor abstraction exercise, or storage- and eventing-first designs. The work also spans multiple stacks and provider adapters (GitHub SaaS, GitLab SaaS, GitLab self-managed) plus a controlled GitLab harness used only for validation. This ADR locks the technical foundations so contributors align on “three adapters, one core model, one controlled harness” and avoid turning any single implementation, provider, or storage choice into the product contract.
+The flow insight MVP spans multiple implementation stacks and must decide on technical foundations for inference, storage boundaries, eventing posture, fixture strategy, and transport equivalence. Without explicit technical decisions, stacks may diverge on inference approaches (rule-based vs. ML-based), storage patterns (normalized vs. raw-only), eventing strategies (event sourcing vs. current-state refresh), or fixture ownership (stack-local vs. shared). This ADR establishes the required technical posture to keep all implementations aligned to the same capability contract while maintaining stack independence.
 
 ### Gate Assessment
 
@@ -26,20 +26,19 @@ All five gates are true. The ADR intake threshold is met.
 
 ## Decision Drivers
 
-- One shared capability contract with multiple possible implementations.
-- The semantic model is the center of gravity; provider adapters remain thin.
-- The durable product surface is the shared insight contract, not any storage schema.
-- The controlled GitLab harness validates boundaries and behavior but does not define truth.
-- HTTP API and MCP must expose the same core model; Backstage consumes the API rather than defining it.
-- Write-back automation and orchestration remain out of scope for this slice.
+- Implementations must share the same semantic inference posture to ensure cross-stack equivalence.
+- Storage schema and eventing choices must remain internal; only the insight contract is public.
+- Fixtures must be shared and provider-independent to enable deterministic testing across stacks.
+- Transport layers (HTTP API, MCP) must expose equivalent capabilities without redefining the model.
+- Technical decisions must preserve stack independence while enforcing semantic consistency.
 
 ## Considered Options
 
-- Leave decisions implicit and let each stack choose its own approach.
-- Lock foundations around one provider or one stack and let others follow later.
-- Lock provider-neutral foundations now and keep transports and stacks aligned to the same semantic core.
+- **Option 1:** Leave technical decisions implicit and let each stack choose its own inference, storage, eventing, and fixture approaches independently.
+- **Option 2:** Lock technical foundations around one reference stack and require other stacks to match its choices.
+- **Option 3:** Establish shared technical foundations (inference posture, storage boundaries, eventing approach, fixture catalog) while preserving stack implementation independence.
 
-Chosen option: lock provider-neutral foundations now so all stacks and transports align to the same semantic core while adapters stay thin.
+**Chosen option:** Option 3, because it enforces semantic consistency and deterministic testing across stacks without dictating implementation details or tying the product surface to any single stack.
 
 ## Decision Outcome
 
@@ -66,6 +65,7 @@ Chosen option: lock provider-neutral foundations now so all stacks and transport
 - One shared fixture catalog rooted at `schema/fixtures/provider-adapter-input/`, extending the established patterns such as `blocked-on-review-github.yaml`.
 - Provider-specific observations map into the normalized contract; expected insight outputs are owned by shared contract tests.
 - A controlled GitLab CE or self-managed harness provides deterministic end-to-end validation of adapters and inference. It validates boundaries and behavior but does not define semantic truth.
+- Fixtures are the source of truth for contract testing; stacks must pass the same fixture-based scenarios to satisfy the shared capability contract.
 
 ### Provider strategy and adapter posture
 
@@ -83,22 +83,27 @@ Chosen option: lock provider-neutral foundations now so all stacks and transport
 
 - The shared insight contract is the durable product surface.
 - HTTP API and MCP expose the same core model; transports do not redefine meaning.
-- Backstage consumes the API; it must not define the domain or reshape the model.
+- Backstage and other UI consumers consume the API; they must not define the domain or reshape the model.
+- Transport-specific capabilities (for example, MCP-only tool arguments) must not introduce semantic divergence from the HTTP API.
 
-### Deferred scope and contributor guardrails
+### Deferred scope
 
-- Deferred: write-back automation, orchestration, workflow engine behavior, broad entity modeling, heavy analytics platforming, standalone flow service decomposition unless later justified.
-- Do not let storage or eventing choices become public contracts.
-- Do not expand into CMDB territory or vendor-abstraction exercises.
-- Do not imply that one reference stack is canonical for product meaning.
+Deferred to post-MVP or later capability phases:
+
+- Write-back automation and change orchestration
+- Workflow engine behavior or transition control
+- Broad entity modeling beyond the six MVP signals
+- Heavy analytics platforming or long-term trend storage
+- Standalone flow service decomposition unless later justified by scale or isolation requirements
 
 ## Consequences
 
-- Good, because contributors share one semantic center and can add providers or stacks without redefining the product surface.
-- Good, because a controlled GitLab harness and shared fixtures keep adapters and inference deterministic without becoming sources of truth.
-- Good, because transports stay aligned: API, MCP, and Backstage consume the same contract.
+- Good, because shared technical foundations enforce semantic consistency across all stacks and providers.
+- Good, because fixture-based contract testing provides deterministic validation without coupling to any provider or stack.
+- Good, because transport equivalence ensures API, MCP, and UI consumers see the same capability model.
+- Good, because storage and eventing remain internal, allowing stacks to evolve implementations without breaking the product contract.
 - Neutral, because maintaining fixture catalogs and semantic equivalence tests requires ongoing upkeep.
-- Bad if ignored, because provider-shaped or storage-first designs would fragment the capability and increase migration cost.
+- Bad if ignored, because divergent inference or storage-first designs would fragment the capability and increase cross-stack migration cost.
 
 ## Confirmation
 
