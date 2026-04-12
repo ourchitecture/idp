@@ -22,3 +22,4 @@ operators.
 - [ADR-0010](./container-build-strategy) — container build and publish contract
 - [ADR-0011](./ietf-health-endpoint-contract) — `/health` and `/readiness` IETF contract
 - [ADR-0013](./oauth-plugin-architecture) — optional OAuth plug-in architecture
+- [ADR-0014](./mvp-flow-observation-technical-foundations) — flow insight MVP technical foundations
