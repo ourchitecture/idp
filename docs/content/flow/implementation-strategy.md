@@ -177,6 +177,13 @@ This flow is repeated for all six MVP signals across all provider configurations
 
 See [Provider Adapter Contract](./adapter-contract) for the fixture YAML shape and normalization rules.
 
+GitHub SaaS adapter normalization for the Node.js stack currently lives in
+`stacks/nodejs/react-fastify/rest/bff/src/flow/github/adapter.ts` with fixtures
+in `schema/fixtures/provider-adapter-input/blocked-on-review-github.yaml` and
+`schema/fixtures/provider-adapter-input/trunk-integration-failed-github.yaml`.
+Run `npm run test:bff` from `stacks/nodejs/react-fastify/rest` to validate the
+adapter against those fixtures.
+
 ## Adding a new implementation stack
 
 To add a new implementation stack (for example, Java/Spring, Python/FastAPI):

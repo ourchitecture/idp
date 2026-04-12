@@ -11,7 +11,7 @@
     "typecheck:web": "tsc --project web/tsconfig.json --noEmit",
     "typecheck:bff": "tsc --project bff/tsconfig.json --noEmit",
     "typecheck:stack": "npm run typecheck:web && npm run typecheck:bff",
-    "test:bff": "node --import tsx --test bff/src/**/*.test.ts",
+    "test:bff": "node --import tsx --test bff/src/routes/auth.test.ts bff/src/flow/github/adapter.test.ts",
     "test:stack": "npm run typecheck:stack && npm run test:bff"
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "markdownlint-cli2": "0.22.0",
     "tsx": "^4.20.6",
     "typescript": "^5.4.5",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "yaml": "^2.7.0"
   }
 }
