@@ -17,6 +17,9 @@ const sidebars: SidebarsConfig = {
         "flow/adapter-contract",
         "flow/scope",
         "flow/intent-scenarios",
+        "flow/mvp-boundaries",
+        "flow/implementation-strategy",
+        "flow/deferred-scope",
       ],
     },
     {
@@ -47,6 +50,8 @@ const sidebars: SidebarsConfig = {
                 "architecture/decisions/intent-specification-format",
                 "architecture/decisions/container-build-strategy",
                 "architecture/decisions/ietf-health-endpoint-contract",
+                "architecture/decisions/oauth-plugin-architecture",
+                "architecture/decisions/mvp-flow-observation-technical-foundations",
               ],
             },
             {
