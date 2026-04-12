@@ -32,7 +32,7 @@ Flow insights define the smallest shared language for understanding how work mov
 
 ### Architecture decisions
 
-- See [ADR-0014: MVP Flow Observation Technical Foundations](../../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the technical decision on inference approach, storage boundaries, eventing posture, fixture strategy, and cross-stack equivalence.
+- See [ADR-0014: MVP Flow Observation Technical Foundations](../architecture/decisions/mvp-flow-observation-technical-foundations) for the technical decision on inference approach, storage boundaries, eventing posture, fixture strategy, and cross-stack equivalence.
 
 ## Epic alignment
 

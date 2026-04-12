@@ -48,7 +48,7 @@ Implementation stacks are **constrained** by the shared capability contract:
 - **Fixture-based testing:** All stacks must pass the same fixtures and produce semantically equivalent signals.
 - **Transport equivalence:** HTTP API and MCP tools must expose the same core model; transport-specific capabilities must not introduce semantic divergence.
 
-See [ADR-0014: MVP Flow Observation Technical Foundations](../../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the technical decision on inference approach, storage boundaries, eventing posture, and cross-stack equivalence.
+See [ADR-0014: MVP Flow Observation Technical Foundations](../architecture/decisions/mvp-flow-observation-technical-foundations) for the technical decision on inference approach, storage boundaries, eventing posture, and cross-stack equivalence.
 
 ## Provider adapter organization
 
@@ -154,7 +154,7 @@ Example MCP tools (illustrative; actual tools may vary by stack):
 - `flow_get_signal` — get signal details by ID
 - `flow_list_repository_signals` — list signals scoped to a repository
 
-See [ADR-0014: MVP Flow Observation Technical Foundations](../../architecture/decisions/0014-mvp-flow-observation-technical-foundations) for the technical decision on transport ownership and equivalence.
+See [ADR-0014: MVP Flow Observation Technical Foundations](../architecture/decisions/mvp-flow-observation-technical-foundations) for the technical decision on transport ownership and equivalence.
 
 ## Fixture-based contract testing
 
