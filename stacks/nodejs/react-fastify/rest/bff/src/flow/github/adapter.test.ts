@@ -5,7 +5,13 @@ import { test } from "node:test";
 import YAML from "yaml";
 import type { ProviderAdapterInput } from "../types";
 import { buildGitHubProviderInput } from "./adapter";
-import { blockedOnReviewSource, trunkIntegrationFailureSource } from "./fixtures";
+import {
+  blockedOnReviewSource,
+  changesRequestedSource,
+  partialEvidenceSource,
+  reviewNotRequiredSource,
+  trunkIntegrationFailureSource,
+} from "./fixtures";
 
 function findRepoRoot(startDir: string): string {
   let current = startDir;
@@ -92,9 +98,30 @@ test("normalizes GitHub data for blocked-on-review scenario", () => {
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });
 
+test("normalizes GitHub data when changes are requested", () => {
+  const result = buildGitHubProviderInput(changesRequestedSource);
+  const expected = loadNormalizedFixture("changes-requested-github.yaml");
+
+  assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
+});
+
+test("normalizes GitHub data when review is not required", () => {
+  const result = buildGitHubProviderInput(reviewNotRequiredSource);
+  const expected = loadNormalizedFixture("review-not-required-github.yaml");
+
+  assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
+});
+
 test("normalizes GitHub data with trunk integration failure after merge", () => {
   const result = buildGitHubProviderInput(trunkIntegrationFailureSource);
   const expected = loadNormalizedFixture("trunk-integration-failed-github.yaml");
+
+  assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
+});
+
+test("marks GitHub adapter output partial when evidence is missing", () => {
+  const result = buildGitHubProviderInput(partialEvidenceSource);
+  const expected = loadNormalizedFixture("partial-data-github.yaml");
 
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });

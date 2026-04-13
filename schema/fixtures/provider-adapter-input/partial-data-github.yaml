@@ -1,0 +1,98 @@
+# Fixture: partial-data-github
+#
+# A merged change with missing post-merge validation evidence, unresolved
+# CODEOWNERS user identity, and a requested review team.
+
+fixture_id: "partial-data-github"
+scenario: "partial_evidence"
+provider: "github"
+description: >
+  A merged change with only branch evidence available, a requested review team,
+  and CODEOWNERS data that could not be fully resolved.
+
+repository:
+  provider: "github"
+  provider_id: "repo-frontend-001"
+  full_name: "example-org/frontend"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-04T09:30:00Z"
+
+changes:
+  - provider: "github"
+    provider_id: "pr-888"
+    repository_id: "repo-frontend-001"
+    source_branch: "feature/header-refactor"
+    target_branch: "main"
+    state: "merged"
+    author_actor_id: "actor-henry"
+    created_at: "2026-04-03T18:00:00Z"
+    updated_at: "2026-04-04T09:12:00Z"
+    title: "Refactor header layout"
+    work_item_refs:
+      - external_id: "77"
+        provider: "github"
+        url: "https://github.com/example-org/frontend/issues/77"
+    merged_at: "2026-04-04T09:10:00Z"
+    closed_at: "2026-04-04T09:10:00Z"
+    fetched_at: "2026-04-04T09:30:00Z"
+    is_partial: true
+
+actors:
+  - provider: "github"
+    provider_id: "actor-henry"
+    display_name: "Henry"
+    provider_login: "henry"
+
+review_states:
+  - change_id: "pr-888"
+    state: "awaiting_review"
+    as_of: "2026-04-04T09:12:00Z"
+    reviewer_actor_ids: []
+    reviewer_team_names: ["frontend-team"]
+    last_activity_at: "2026-04-04T09:12:00Z"
+    approval_count: 0
+    required_approval_count: 1
+    is_partial: true
+
+validation_runs:
+  - change_id: "pr-888"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-04T08:50:00Z"
+    name: "ci / ui"
+    url: "https://github.com/example-org/frontend/checks/88"
+    duration_seconds: 600
+  - change_id: "pr-888"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-04T08:52:00Z"
+    name: "legacy-ui"
+    url: "https://github.com/example-org/frontend/status/42"
+  - change_id: "pr-888"
+    scope: "trunk"
+    state: "pending"
+    run_at: "2026-04-04T09:30:00Z"
+    name: "post-merge-validation"
+    failure_summary: "post-merge validation evidence not available"
+    is_partial: true
+
+merge_events:
+  - change_id: "pr-888"
+    merged_at: "2026-04-04T09:10:00Z"
+    target_branch: "main"
+    merged_by_actor_id: "actor-henry"
+    merge_commit_sha: "merge-sha-888"
+
+ownership_hints:
+  - repository_id: "repo-frontend-001"
+    owner_actor_ids: ["github-user-octocat"]
+    owner_team_names: ["frontend-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"
+    is_partial: true
+  - repository_id: "repo-frontend-001"
+    owner_team_names: ["frontend-team"]
+    source: "branch_protection"
+    confidence: "declared"

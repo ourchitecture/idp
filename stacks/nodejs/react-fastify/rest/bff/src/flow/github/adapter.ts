@@ -170,8 +170,9 @@ function extractWorkItemRefs(
   pr: GitHubPullRequest,
   repo: GitHubRepository,
   issues?: GitHubIssue[],
-): NormalizedWorkItemRef[] {
+): { refs: NormalizedWorkItemRef[]; isPartial: boolean } {
   const refs = new Map<string, NormalizedWorkItemRef>();
+  let isPartial = false;
   const text = `${pr.title}\n${pr.body ?? ""}`;
   const pattern =
     /\b(?:(?:close[sd]?|closes|closed|closing|fix|fixe[sd]?|fixing|resolve[sd]?|resolving))\s+#(\d+)/gi;
@@ -190,11 +191,17 @@ function extractWorkItemRefs(
         ref.url = issue.html_url ?? `https://github.com/${repo.full_name}/issues/${issue.number}`;
       } else {
         ref.url = `https://github.com/${repo.full_name}/issues/${ref.external_id}`;
+        isPartial = true;
       }
     }
+  } else if (refs.size > 0) {
+    for (const ref of refs.values()) {
+      ref.url = ref.url ?? `https://github.com/${repo.full_name}/issues/${ref.external_id}`;
+    }
+    isPartial = true;
   }
 
-  return Array.from(refs.values());
+  return { refs: Array.from(refs.values()), isPartial };
 }
 
 function normalizeChange(
@@ -204,7 +211,7 @@ function normalizeChange(
   issues?: GitHubIssue[],
 ): NormalizedChange {
   const providerId = pr.node_id ?? String(pr.id);
-  const workItemRefs = extractWorkItemRefs(pr, repo, issues);
+  const { refs: workItemRefs, isPartial: isPartialRefs } = extractWorkItemRefs(pr, repo, issues);
 
   let state: NormalizedChange["state"] = "open";
   if (pr.state === "closed") {
@@ -227,6 +234,7 @@ function normalizeChange(
     merged_at: pr.merged_at ?? undefined,
     closed_at: pr.closed_at ?? undefined,
     fetched_at: fetchedAt,
+    is_partial: isPartialRefs ? true : undefined,
   };
 }
 
@@ -237,6 +245,19 @@ function mapReviewState(
   fetchedAt: string,
 ): NormalizedReviewState {
   const requiredApprovalCount = branchProtection?.required_approving_review_count ?? 0;
+  const requiredUserIds =
+    branchProtection?.required_reviewers
+      ?.filter((reviewer) => reviewer.type === "User")
+      .map((reviewer) => actorId({ id: reviewer.id ?? reviewer.name, login: reviewer.name })) ?? [];
+  const requestedTeamNames = (pr.requested_teams ?? [])
+    .map((team) => team.slug ?? team.name)
+    .filter((name): name is string => Boolean(name));
+  const protectionTeamNames =
+    branchProtection?.required_reviewers
+      ?.filter((reviewer) => reviewer.type === "Team")
+      .map((reviewer) => reviewer.name)
+      .filter((name): name is string => Boolean(name)) ?? [];
+  const reviewerTeamNames = Array.from(new Set([...requestedTeamNames, ...protectionTeamNames]));
   const reviewerStates = new Map<
     string,
     { state: GitHubReview["state"]; submitted_at?: string; reviewer: GitHubUser }
@@ -267,6 +288,7 @@ function mapReviewState(
   const requestedReviewerIds = (pr.requested_reviewers ?? []).map(actorId);
   const reviewerIds = new Set<string>([
     ...requestedReviewerIds,
+    ...requiredUserIds,
     ...Array.from(reviewerStates.keys()),
   ]);
 
@@ -277,16 +299,18 @@ function mapReviewState(
       .sort()
       .pop() ?? pr.updated_at;
 
-  let state: NormalizedReviewState["state"] = "awaiting_review";
+  let state: NormalizedReviewState["state"] = pr.draft ? "not_required" : "awaiting_review";
 
-  if (changesRequestedCount > 0) {
-    state = "changes_requested";
-  } else if (requiredApprovalCount > 0 && approvalCount >= requiredApprovalCount) {
-    state = "approved";
-  } else if (approvalCount > 0 || underReviewCount > 0) {
-    state = "under_review";
-  } else if (reviewerIds.size === 0 && requiredApprovalCount === 0) {
-    state = "not_required";
+  if (!pr.draft) {
+    if (changesRequestedCount > 0) {
+      state = "changes_requested";
+    } else if (requiredApprovalCount > 0 && approvalCount >= requiredApprovalCount) {
+      state = "approved";
+    } else if (approvalCount > 0 || underReviewCount > 0) {
+      state = "under_review";
+    } else if (reviewerIds.size === 0 && requiredApprovalCount === 0) {
+      state = "not_required";
+    }
   }
 
   return {
@@ -294,9 +318,11 @@ function mapReviewState(
     state,
     as_of: lastActivity ?? fetchedAt,
     reviewer_actor_ids: Array.from(reviewerIds),
+    reviewer_team_names: reviewerTeamNames.length > 0 ? reviewerTeamNames : undefined,
     last_activity_at: lastActivity,
     approval_count: approvalCount,
     required_approval_count: requiredApprovalCount,
+    is_partial: reviewerTeamNames.length > 0 ? true : undefined,
   };
 }
 
@@ -333,17 +359,16 @@ function mapCheckState(status: GitHubCheckRun["status"], conclusion?: GitHubChec
 
 function normalizeCheckRuns(
   pr: GitHubPullRequest,
-  repo: GitHubRepository,
   fetchedAt: string,
   runs: GitHubCheckRun[],
 ): NormalizedValidationRun[] {
   return runs.map((run) => {
-    const scope: NormalizedValidationRun["scope"] =
-      (run.pull_requests && run.pull_requests.length > 0) || run.head_branch === pr.head.ref
-        ? "branch"
-        : run.head_branch === repo.default_branch
-          ? "trunk"
-          : "branch";
+    let scope: NormalizedValidationRun["scope"] = "branch";
+    if (run.head_sha && pr.merge_commit_sha && run.head_sha === pr.merge_commit_sha) {
+      scope = "trunk";
+    } else if ((run.pull_requests && run.pull_requests.length > 0) || run.head_branch === pr.head.ref) {
+      scope = "branch";
+    }
 
     const start = run.started_at ?? fetchedAt;
     const durationSeconds =
@@ -369,9 +394,10 @@ function normalizeCheckRuns(
 
 function normalizeStatuses(
   pr: GitHubPullRequest,
-  repo: GitHubRepository,
   fetchedAt: string,
   statuses: GitHubStatus[],
+  scope: NormalizedValidationRun["scope"],
+  options?: { isAmbiguous?: boolean },
 ): NormalizedValidationRun[] {
   return statuses.map((status) => {
     const state =
@@ -383,12 +409,13 @@ function normalizeStatuses(
 
     return {
       change_id: pr.node_id ?? String(pr.id),
-      scope: pr.base.ref === repo.default_branch ? "trunk" : "branch",
+      scope,
       state,
       run_at: status.updated_at ?? fetchedAt,
       name: status.context,
       url: status.target_url,
       failure_summary: state === "failed" ? status.state : undefined,
+      is_partial: options?.isAmbiguous ? true : undefined,
     };
   });
 }
@@ -398,6 +425,7 @@ function normalizeWorkflowRuns(
   fetchedAt: string,
   runs: GitHubWorkflowRun[],
   scope: NormalizedValidationRun["scope"],
+  options?: { isPartial?: boolean },
 ): NormalizedValidationRun[] {
   return runs.map((run) => {
     const runAt = run.updated_at ?? run.run_started_at ?? fetchedAt;
@@ -427,6 +455,7 @@ function normalizeWorkflowRuns(
       url: run.html_url,
       duration_seconds: durationSeconds,
       failure_summary: state === "failed" ? run.conclusion ?? "failed" : undefined,
+      is_partial: options?.isPartial ? true : undefined,
     };
   });
 }
@@ -435,15 +464,26 @@ function normalizeOwnershipHints(
   repo: GitHubRepository,
   codeownersText: string | undefined,
   branchProtection: GitHubBranchProtection | undefined,
+  actors: NormalizedActor[],
 ): NormalizedOwnershipHint[] {
   const hints: NormalizedOwnershipHint[] = [];
   const repositoryId = repo.node_id ?? String(repo.id);
+  const actorByLogin = new Map<string, string>();
+  const actorById = new Set<string>();
+
+  for (const actor of actors) {
+    if (actor.provider_login) {
+      actorByLogin.set(actor.provider_login.toLowerCase(), actor.provider_id);
+    }
+    actorById.add(actor.provider_id);
+  }
 
   if (codeownersText) {
     const entries = parseCodeowners(codeownersText);
     for (const entry of entries) {
       const ownerActorIds: string[] = [];
       const ownerTeamNames: string[] = [];
+      let isPartial = false;
       for (const owner of entry.owners) {
         if (!owner.startsWith("@")) {
           continue;
@@ -453,25 +493,41 @@ function normalizeOwnershipHints(
           const parts = token.split("/");
           ownerTeamNames.push(parts[parts.length - 1]);
         } else {
-          ownerActorIds.push(token);
+          const normalizedToken = token.toLowerCase();
+          const actorIdMatch =
+            actorByLogin.get(normalizedToken) || (actorById.has(token) ? token : undefined);
+          if (actorIdMatch) {
+            ownerActorIds.push(actorIdMatch);
+          } else {
+            ownerActorIds.push(`github-user-${token}`);
+            isPartial = true;
+          }
         }
       }
 
-      hints.push({
-        repository_id: repositoryId,
-        owner_actor_ids: ownerActorIds.length > 0 ? ownerActorIds : undefined,
-        owner_team_names: ownerTeamNames.length > 0 ? ownerTeamNames : undefined,
-        path_pattern: entry.pattern,
-        source: "codeowners",
-        confidence: "declared",
-      });
+      if (ownerActorIds.length > 0 || ownerTeamNames.length > 0) {
+        hints.push({
+          repository_id: repositoryId,
+          owner_actor_ids: ownerActorIds.length > 0 ? ownerActorIds : undefined,
+          owner_team_names: ownerTeamNames.length > 0 ? ownerTeamNames : undefined,
+          path_pattern: entry.pattern,
+          source: "codeowners",
+          confidence: "declared",
+          is_partial: isPartial ? true : undefined,
+        });
+      }
     }
   }
 
   if (branchProtection?.required_reviewers) {
     const users = branchProtection.required_reviewers
       .filter((reviewer) => reviewer.type === "User")
-      .map((reviewer) => reviewer.name);
+      .map((reviewer) => {
+        const normalized = reviewer.name.toLowerCase();
+        const actorIdMatch =
+          actorByLogin.get(normalized) || (actorById.has(reviewer.name) ? reviewer.name : undefined);
+        return actorIdMatch ?? `github-user-${reviewer.name}`;
+      });
     const teams = branchProtection.required_reviewers
       .filter((reviewer) => reviewer.type === "Team")
       .map((reviewer) => reviewer.name);
@@ -483,6 +539,7 @@ function normalizeOwnershipHints(
         owner_team_names: teams.length > 0 ? teams : undefined,
         source: "branch_protection",
         confidence: "declared",
+        is_partial: users.some((user) => user.startsWith("github-user-")) ? true : undefined,
       });
     }
   }
@@ -565,16 +622,22 @@ export function buildGitHubProviderInput(source: GitHubAdapterSource): ProviderA
     mapReviewState(pr, source.reviews_by_pull_number[pr.number] ?? [], source.branch_protection, fetchedAt),
   );
 
+  const actors = collectActors(pullRequests, source.reviews_by_pull_number, source.branch_protection);
+
   const validationRuns: NormalizedValidationRun[] = [];
   for (const pr of pullRequests) {
     const checkRuns = source.check_runs_by_pull_number?.[pr.number] ?? [];
-    validationRuns.push(...normalizeCheckRuns(pr, repository, fetchedAt, checkRuns));
+    validationRuns.push(...normalizeCheckRuns(pr, fetchedAt, checkRuns));
 
-    const statuses =
-      (pr.head.sha && source.statuses_by_head_sha?.[pr.head.sha]) ||
-      (pr.merge_commit_sha && source.statuses_by_head_sha?.[pr.merge_commit_sha]) ||
-      [];
-    validationRuns.push(...normalizeStatuses(pr, repository, fetchedAt, statuses));
+    const headStatuses = (pr.head.sha && source.statuses_by_head_sha?.[pr.head.sha]) || [];
+    if (headStatuses.length > 0) {
+      validationRuns.push(...normalizeStatuses(pr, fetchedAt, headStatuses, "branch"));
+    }
+
+    const mergeStatuses = (pr.merge_commit_sha && source.statuses_by_head_sha?.[pr.merge_commit_sha]) || [];
+    if (mergeStatuses.length > 0) {
+      validationRuns.push(...normalizeStatuses(pr, fetchedAt, mergeStatuses, "trunk"));
+    }
 
     const branchRuns =
       source.workflow_runs_by_branch?.[pr.head.ref] ??
@@ -584,12 +647,26 @@ export function buildGitHubProviderInput(source: GitHubAdapterSource): ProviderA
       validationRuns.push(...normalizeWorkflowRuns(pr, fetchedAt, branchRuns, "branch"));
     }
 
-    const trunkRuns = source.workflow_runs_by_branch?.[repository.default_branch] ?? [];
-    const matchingTrunkRuns = trunkRuns.filter(
-      (run) => run.head_sha === pr.merge_commit_sha || run.head_branch === repository.default_branch,
-    );
-    if (matchingTrunkRuns.length > 0) {
-      validationRuns.push(...normalizeWorkflowRuns(pr, fetchedAt, matchingTrunkRuns, "trunk"));
+    const trunkRuns =
+      pr.merge_commit_sha && source.workflow_runs_by_branch?.[repository.default_branch]
+        ? source.workflow_runs_by_branch[repository.default_branch].filter(
+            (run) => run.head_sha === pr.merge_commit_sha,
+          )
+        : [];
+    if (trunkRuns.length > 0) {
+      validationRuns.push(...normalizeWorkflowRuns(pr, fetchedAt, trunkRuns, "trunk"));
+    }
+
+    if (pr.merged_at && pr.merge_commit_sha && mergeStatuses.length === 0 && trunkRuns.length === 0) {
+      validationRuns.push({
+        change_id: pr.node_id ?? String(pr.id),
+        scope: "trunk",
+        state: "pending",
+        run_at: fetchedAt,
+        name: "post-merge-validation",
+        is_partial: true,
+        failure_summary: "post-merge validation evidence not available",
+      });
     }
   }
 
@@ -597,9 +674,8 @@ export function buildGitHubProviderInput(source: GitHubAdapterSource): ProviderA
     repository,
     source.codeowners_text,
     source.branch_protection,
+    actors,
   );
-
-  const actors = collectActors(pullRequests, source.reviews_by_pull_number, source.branch_protection);
 
   return {
     repository: repo,

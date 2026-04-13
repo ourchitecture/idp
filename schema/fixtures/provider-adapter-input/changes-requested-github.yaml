@@ -1,0 +1,86 @@
+# Fixture: changes-requested-github
+#
+# A change with a requested reviewer who submitted changes requested. Legacy
+# statuses remain branch-scoped even when targeting the default branch.
+
+fixture_id: "changes-requested-github"
+scenario: "changes_requested"
+provider: "github"
+description: >
+  An open change with a reviewer requesting changes. Branch validation failed
+  via both Checks and legacy status contexts.
+
+repository:
+  provider: "github"
+  provider_id: "repo-config-001"
+  full_name: "example-org/config-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-03T12:05:00Z"
+
+changes:
+  - provider: "github"
+    provider_id: "pr-321"
+    repository_id: "repo-config-001"
+    source_branch: "feature/config"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-ivy"
+    created_at: "2026-04-03T10:30:00Z"
+    updated_at: "2026-04-03T12:02:00Z"
+    title: "Tighten config validation"
+    work_item_refs:
+      - external_id: "210"
+        provider: "github"
+        title: "Improve config validation"
+        state: "open"
+        url: "https://github.com/example-org/config-service/issues/210"
+    fetched_at: "2026-04-03T12:05:00Z"
+
+actors:
+  - provider: "github"
+    provider_id: "actor-gary"
+    display_name: "Gary"
+    provider_login: "gary"
+    team_memberships: ["config-team"]
+  - provider: "github"
+    provider_id: "actor-ivy"
+    display_name: "Ivy"
+    provider_login: "ivy"
+    team_memberships: ["config-team"]
+
+review_states:
+  - change_id: "pr-321"
+    state: "changes_requested"
+    as_of: "2026-04-03T12:00:00Z"
+    reviewer_actor_ids:
+      - "actor-gary"
+    last_activity_at: "2026-04-03T12:00:00Z"
+    required_approval_count: 1
+    approval_count: 0
+
+validation_runs:
+  - change_id: "pr-321"
+    scope: "branch"
+    state: "failed"
+    run_at: "2026-04-03T12:00:00Z"
+    name: "ci / lint"
+    url: "https://github.com/example-org/config-service/checks/42"
+    duration_seconds: 300
+    failure_summary: "failure"
+  - change_id: "pr-321"
+    scope: "branch"
+    state: "failed"
+    run_at: "2026-04-03T12:02:00Z"
+    name: "legacy-ci"
+    url: "https://github.com/example-org/config-service/status/1"
+    failure_summary: "failure"
+
+merge_events: []
+
+ownership_hints:
+  - repository_id: "repo-config-001"
+    owner_team_names: ["config-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"

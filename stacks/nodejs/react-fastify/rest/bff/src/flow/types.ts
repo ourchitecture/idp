@@ -51,9 +51,11 @@ export interface NormalizedReviewState {
   state: "awaiting_review" | "under_review" | "changes_requested" | "approved" | "not_required";
   as_of: string;
   reviewer_actor_ids?: string[];
+  reviewer_team_names?: string[];
   last_activity_at?: string;
   approval_count?: number;
   required_approval_count?: number;
+  is_partial?: boolean;
 }
 
 export interface NormalizedValidationRun {
@@ -65,6 +67,7 @@ export interface NormalizedValidationRun {
   url?: string;
   duration_seconds?: number;
   failure_summary?: string;
+  is_partial?: boolean;
 }
 
 export interface NormalizedMergeEvent {
@@ -82,6 +85,7 @@ export interface NormalizedOwnershipHint {
   path_pattern?: string;
   source?: "codeowners" | "group_membership" | "branch_protection" | "manual";
   confidence?: "declared" | "inferred";
+  is_partial?: boolean;
 }
 
 export interface ProviderAdapterInput {

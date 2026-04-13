@@ -180,3 +180,250 @@ export const trunkIntegrationFailureSource: GitHubAdapterSource = {
   ],
   fetched_at: "2026-04-02T12:00:00Z",
 };
+
+export const changesRequestedSource: GitHubAdapterSource = {
+  repository: {
+    id: "repo-config-001",
+    node_id: "repo-config-001",
+    name: "config-service",
+    full_name: "example-org/config-service",
+    default_branch: "main",
+    visibility: "private",
+    archived: false,
+  },
+  pull_requests: [
+    {
+      id: "pr-321",
+      node_id: "pr-321",
+      number: 321,
+      title: "Tighten config validation",
+      body: "Fixes #210",
+      state: "open",
+      draft: false,
+      merged_at: null,
+      closed_at: null,
+      merge_commit_sha: null,
+      merged: false,
+      user: {
+        id: "actor-ivy",
+        node_id: "actor-ivy",
+        login: "ivy",
+        name: "Ivy",
+        teams: ["config-team"],
+      },
+      created_at: "2026-04-03T10:30:00Z",
+      updated_at: "2026-04-03T12:02:00Z",
+      base: { ref: "main" },
+      head: { ref: "feature/config", sha: "sha-pr-321" },
+      requested_reviewers: [
+        { id: "actor-gary", node_id: "actor-gary", login: "gary", name: "Gary", teams: ["config-team"] },
+      ],
+    },
+  ],
+  reviews_by_pull_number: {
+    321: [
+      {
+        id: "review-1",
+        user: { id: "actor-gary", node_id: "actor-gary", login: "gary", name: "Gary" },
+        state: "CHANGES_REQUESTED",
+        submitted_at: "2026-04-03T12:00:00Z",
+      },
+    ],
+  },
+  check_runs_by_pull_number: {
+    321: [
+      {
+        id: "check-config",
+        name: "ci / lint",
+        status: "completed",
+        conclusion: "failure",
+        started_at: "2026-04-03T11:55:00Z",
+        completed_at: "2026-04-03T12:00:00Z",
+        head_branch: "feature/config",
+        html_url: "https://github.com/example-org/config-service/checks/42",
+      },
+    ],
+  },
+  workflow_runs_by_branch: {},
+  statuses_by_head_sha: {
+    "sha-pr-321": [
+      {
+        state: "failure",
+        context: "legacy-ci",
+        updated_at: "2026-04-03T12:02:00Z",
+        target_url: "https://github.com/example-org/config-service/status/1",
+      },
+    ],
+  },
+  branch_protection: {
+    required_approving_review_count: 1,
+  },
+  codeowners_text: "* @example-org/config-team",
+  issues: [
+    {
+      number: 210,
+      title: "Improve config validation",
+      state: "open",
+      html_url: "https://github.com/example-org/config-service/issues/210",
+    },
+  ],
+  fetched_at: "2026-04-03T12:05:00Z",
+};
+
+export const reviewNotRequiredSource: GitHubAdapterSource = {
+  repository: {
+    id: "repo-docs-001",
+    node_id: "repo-docs-001",
+    name: "docs",
+    full_name: "example-org/docs",
+    default_branch: "main",
+    visibility: "public",
+    archived: false,
+  },
+  pull_requests: [
+    {
+      id: "pr-555",
+      node_id: "pr-555",
+      number: 555,
+      title: "Draft: update onboarding checklist",
+      body: "Early draft; no review needed yet.",
+      state: "open",
+      draft: true,
+      merged_at: null,
+      closed_at: null,
+      merge_commit_sha: null,
+      merged: false,
+      user: {
+        id: "actor-jules",
+        node_id: "actor-jules",
+        login: "jules",
+        name: "Jules",
+        teams: ["docs-team"],
+      },
+      created_at: "2026-04-02T09:00:00Z",
+      updated_at: "2026-04-02T09:15:00Z",
+      base: { ref: "main" },
+      head: { ref: "docs/draft-onboarding", sha: "sha-pr-555" },
+      requested_reviewers: [],
+    },
+  ],
+  reviews_by_pull_number: {
+    555: [],
+  },
+  check_runs_by_pull_number: {
+    555: [
+      {
+        id: "check-docs",
+        name: "docs / preview",
+        status: "queued",
+        conclusion: null,
+        started_at: "2026-04-02T09:10:00Z",
+        completed_at: null,
+        head_branch: "docs/draft-onboarding",
+        html_url: "https://github.com/example-org/docs/checks/12",
+      },
+    ],
+  },
+  workflow_runs_by_branch: {},
+  statuses_by_head_sha: {},
+  branch_protection: {
+    required_approving_review_count: 0,
+  },
+  codeowners_text: "* @example-org/docs-team",
+  fetched_at: "2026-04-02T09:20:00Z",
+};
+
+export const partialEvidenceSource: GitHubAdapterSource = {
+  repository: {
+    id: "repo-frontend-001",
+    node_id: "repo-frontend-001",
+    name: "frontend",
+    full_name: "example-org/frontend",
+    default_branch: "main",
+    visibility: "private",
+    archived: false,
+  },
+  pull_requests: [
+    {
+      id: "pr-888",
+      node_id: "pr-888",
+      number: 888,
+      title: "Refactor header layout",
+      body: "Refactors header layout. Closes #77",
+      state: "closed",
+      draft: false,
+      merged_at: "2026-04-04T09:10:00Z",
+      closed_at: "2026-04-04T09:10:00Z",
+      merge_commit_sha: "merge-sha-888",
+      merged: true,
+      user: {
+        id: "actor-henry",
+        node_id: "actor-henry",
+        login: "henry",
+        name: "Henry",
+      },
+      created_at: "2026-04-03T18:00:00Z",
+      updated_at: "2026-04-04T09:12:00Z",
+      base: { ref: "main" },
+      head: { ref: "feature/header-refactor", sha: "sha-pr-888" },
+      requested_reviewers: [],
+      requested_teams: [{ id: "team-frontend", slug: "frontend-team", name: "Frontend Team" }],
+      merged_by: {
+        id: "actor-henry",
+        node_id: "actor-henry",
+        login: "henry",
+        name: "Henry",
+      },
+    },
+  ],
+  reviews_by_pull_number: {
+    888: [],
+  },
+  check_runs_by_pull_number: {
+    888: [
+      {
+        id: "check-ui",
+        name: "ci / ui",
+        status: "completed",
+        conclusion: "success",
+        started_at: "2026-04-04T08:40:00Z",
+        completed_at: "2026-04-04T08:50:00Z",
+        head_branch: "feature/header-refactor",
+        head_sha: "sha-pr-888",
+        html_url: "https://github.com/example-org/frontend/checks/88",
+      },
+    ],
+  },
+  workflow_runs_by_branch: {
+    main: [
+      {
+        id: "trunk-run-1",
+        name: "deploy / main",
+        status: "completed",
+        conclusion: "failure",
+        run_started_at: "2026-04-04T09:20:00Z",
+        updated_at: "2026-04-04T09:35:00Z",
+        html_url: "https://github.com/example-org/frontend/actions/runs/9001",
+        head_branch: "main",
+        head_sha: "other-commit",
+        event: "push",
+      },
+    ],
+  },
+  statuses_by_head_sha: {
+    "sha-pr-888": [
+      {
+        state: "success",
+        context: "legacy-ui",
+        updated_at: "2026-04-04T08:52:00Z",
+        target_url: "https://github.com/example-org/frontend/status/42",
+      },
+    ],
+  },
+  branch_protection: {
+    required_approving_review_count: 1,
+    required_reviewers: [{ type: "Team", name: "frontend-team" }],
+  },
+  codeowners_text: "* @example-org/frontend-team @octocat",
+  fetched_at: "2026-04-04T09:30:00Z",
+};
