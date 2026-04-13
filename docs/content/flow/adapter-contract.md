@@ -95,9 +95,11 @@ Maps to: Review state (human review status for a change).
 | `state` | yes | enum: `awaiting_review`, `under_review`, `changes_requested`, `approved`, `not_required` | |
 | `as_of` | yes | ISO 8601 timestamp | When this state was last computed |
 | `reviewer_actor_ids` | no | string[] | Actors assigned or who have responded |
+| `reviewer_team_names` | no | string[] | Requested review teams or groups |
 | `last_activity_at` | no | ISO 8601 timestamp | Most recent review action |
 | `approval_count` | no | integer | |
 | `required_approval_count` | no | integer | |
+| `is_partial` | no | boolean | True when review requirements or reviewer identity are incomplete |
 
 ### NormalizedValidationRun
 
@@ -113,6 +115,7 @@ Maps to: Validation state (automated checks or manual gates).
 | `url` | no | string | Link to run details |
 | `duration_seconds` | no | integer | |
 | `failure_summary` | no | string | Brief failure description; no stack traces |
+| `is_partial` | no | boolean | True when the run record is incomplete or association is ambiguous |
 
 ### NormalizedMergeEvent
 
@@ -143,6 +146,7 @@ inferred` signals that ownership data could not be found.
 | `path_pattern` | no | string | Glob pattern from CODEOWNERS; absent means repository-level hint |
 | `source` | no | enum: `codeowners`, `group_membership`, `branch_protection`, `manual` | How the hint was derived |
 | `confidence` | no | enum: `declared`, `inferred` | `declared` when from an explicit file or rule |
+| `is_partial` | no | boolean | True when owner identities could not be fully resolved |
 
 ### NormalizedWorkItemRef
 
@@ -231,6 +235,15 @@ The optional `is_partial` flag (boolean) must be set to `true` on any type
 where the adapter could not retrieve all required fields due to a provider API
 gap or authorization constraint. Signal inference must treat partial inputs as
 reduced-confidence.
+
+## Deferred GitHub semantics in the MVP slice
+
+The current GitHub adapter intentionally defers some provider nuances:
+
+- Stale approvals after new commits and dismissed reviews are not expanded into reviewer identity changes.
+- Requested review teams are surfaced as team names; individual team members are not expanded.
+- Branch protection rules that require specific code owners are represented as partial ownership when identities cannot be resolved.
+- Post-merge validation is attached only when a run matches the merge commit SHA; missing evidence is marked partial instead of over-associating.
 
 ## Provider capability notes
 

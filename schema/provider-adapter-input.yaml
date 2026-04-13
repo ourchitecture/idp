@@ -198,6 +198,11 @@ $defs:
         items:
           type: string
         description: Actors assigned or who have responded.
+      reviewer_team_names:
+        type: array
+        items:
+          type: string
+        description: Requested review teams or groups.
       last_activity_at:
         $ref: "#/$defs/ISOTimestamp"
         description: Most recent review action.
@@ -207,6 +212,10 @@ $defs:
       required_approval_count:
         type: integer
         minimum: 0
+      is_partial:
+        type: boolean
+        description: >
+          True when review requirements or reviewer identities are incomplete.
 
   NormalizedValidationRun:
     type: object
@@ -243,6 +252,10 @@ $defs:
       failure_summary:
         type: string
         description: Brief failure description. No stack traces.
+      is_partial:
+        type: boolean
+        description: >
+          True when the run record is incomplete or association is ambiguous.
 
   NormalizedMergeEvent:
     type: object
@@ -301,6 +314,10 @@ $defs:
         description: >
           declared when from an explicit file or rule. inferred when derived
           from contributor history or heuristics.
+      is_partial:
+        type: boolean
+        description: >
+          True when owner identities could not be fully resolved.
 
   ProviderAdapterInput:
     type: object
