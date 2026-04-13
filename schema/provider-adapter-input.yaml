@@ -278,6 +278,54 @@ $defs:
       merge_commit_sha:
         type: string
 
+  NormalizedEvidenceState:
+    type: object
+    description: >
+      The status of required evidence (security attestations, approvals,
+      traceability artifacts) needed for a change. Maps to the Evidence state
+      concept in the canonical flow model. Used by the "waiting on evidence,
+      not effort" signal.
+    required: [change_id, state, as_of]
+    additionalProperties: false
+    properties:
+      change_id:
+        type: string
+        description: Matches NormalizedChange.provider_id.
+      state:
+        type: string
+        enum: [not_required, required, pending, recorded, stale]
+        description: >
+          not_required = no evidence required for this change.
+          required = evidence is required but not yet supplied.
+          pending = evidence has been requested but not yet confirmed.
+          recorded = required evidence is on file.
+          stale = previously recorded evidence no longer satisfies freshness requirements.
+      as_of:
+        $ref: "#/$defs/ISOTimestamp"
+        description: When this evidence state was last computed.
+      required_types:
+        type: array
+        items:
+          type: string
+        description: >
+          Names of required evidence types, e.g. "security attestation",
+          "deployment trace". Empty array when state is not_required.
+      owner_actor_id:
+        type: string
+        description: >
+          Actor responsible for supplying the missing evidence. Matches
+          NormalizedActor.provider_id.
+      freshness_at:
+        $ref: "#/$defs/ISOTimestamp"
+        description: >
+          When evidence was last confirmed fresh. Absent when state is
+          pending, required, or not_required.
+      is_partial:
+        type: boolean
+        description: >
+          True when evidence requirements could not be fully determined
+          due to a provider API gap or authorization constraint.
+
   NormalizedOwnershipHint:
     type: object
     description: >
@@ -354,6 +402,11 @@ $defs:
         type: array
         items:
           $ref: "#/$defs/NormalizedMergeEvent"
+        default: []
+      evidence_states:
+        type: array
+        items:
+          $ref: "#/$defs/NormalizedEvidenceState"
         default: []
       ownership_hints:
         type: array

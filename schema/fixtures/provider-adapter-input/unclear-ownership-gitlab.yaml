@@ -1,0 +1,75 @@
+# Fixture: unclear-ownership-gitlab
+#
+# A GitLab merge request scoped to the "notifications" service where ownership
+# could not be determined. The Code Owners file exists but no group or user
+# entry covers the affected paths. The adapter emits an ownership hint with
+# empty owner lists and confidence "inferred".
+
+fixture_id: "unclear-ownership-gitlab"
+scenario: "unclear_ownership"
+provider: "gitlab"
+description: >
+  A GitLab MR scoped to the notifications service with no resolvable ownership.
+  Code Owners file exists but no entry matches the changed paths.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-notifications-gl-001"
+  full_name: "example-org/notifications-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-06T09:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-400"
+    repository_id: "repo-notifications-gl-001"
+    source_branch: "feature/add-push-notifications"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-marcus-gl"
+    created_at: "2026-04-05T08:00:00Z"
+    updated_at: "2026-04-06T08:30:00Z"
+    title: "Add push notification support"
+    work_item_refs:
+      - external_id: "88"
+        provider: "gitlab"
+        title: "Implement push notifications"
+        state: "open"
+        url: "https://gitlab.com/example-org/notifications-service/-/issues/88"
+    fetched_at: "2026-04-06T09:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-marcus-gl"
+    display_name: "Marcus"
+    provider_login: "marcus"
+
+review_states:
+  - change_id: "mr-400"
+    state: "awaiting_review"
+    as_of: "2026-04-06T08:30:00Z"
+    reviewer_actor_ids: []
+    last_activity_at: "2026-04-06T08:30:00Z"
+    approval_count: 0
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "mr-400"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-05T09:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/notifications-service/-/pipelines/3001"
+    duration_seconds: 120
+
+merge_events: []
+
+ownership_hints:
+  - repository_id: "repo-notifications-gl-001"
+    # No owner resolved — empty owner lists with inferred confidence.
+    owner_actor_ids: []
+    owner_team_names: []
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "inferred"

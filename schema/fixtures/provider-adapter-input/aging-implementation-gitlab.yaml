@@ -1,0 +1,88 @@
+# Fixture: aging-implementation-gitlab
+#
+# A GitLab merge request for which implementation finished 3 days ago and trunk
+# pipeline validation has not started. The expected validation start window of
+# 24 hours has been exceeded. Ownership declared via Code Owners.
+
+fixture_id: "aging-implementation-gitlab"
+scenario: "aging_implementation"
+provider: "gitlab"
+description: >
+  A merged GitLab MR where trunk pipeline has not started 3 days after merge.
+  The expected validation start window of 24 hours has been exceeded.
+  Ownership declared via Code Owners.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-auth-gl-001"
+  full_name: "example-org/auth-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-10T09:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-700"
+    repository_id: "repo-auth-gl-001"
+    source_branch: "feature/oauth-refresh-token"
+    target_branch: "main"
+    state: "merged"
+    author_actor_id: "actor-rachel-gl"
+    created_at: "2026-04-06T10:00:00Z"
+    updated_at: "2026-04-07T15:00:00Z"
+    title: "Add OAuth refresh token support"
+    work_item_refs:
+      - external_id: "55"
+        provider: "gitlab"
+        title: "Implement OAuth 2.0 refresh tokens"
+        state: "open"
+        url: "https://gitlab.com/example-org/auth-service/-/issues/55"
+    merged_at: "2026-04-07T15:00:00Z"
+    closed_at: "2026-04-07T15:00:00Z"
+    fetched_at: "2026-04-10T09:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-rachel-gl"
+    display_name: "Rachel"
+    provider_login: "rachel"
+    team_memberships: ["auth-team"]
+
+review_states:
+  - change_id: "mr-700"
+    state: "approved"
+    as_of: "2026-04-07T14:45:00Z"
+    reviewer_actor_ids: ["actor-rachel-gl"]
+    last_activity_at: "2026-04-07T14:45:00Z"
+    approval_count: 1
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "mr-700"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-07T12:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/auth-service/-/pipelines/5001"
+    duration_seconds: 260
+  - change_id: "mr-700"
+    # Post-merge pipeline has not started; pending 3 days after merge.
+    scope: "trunk"
+    state: "pending"
+    run_at: "2026-04-10T09:00:00Z"
+    name: "integration / main"
+    url: "https://gitlab.com/example-org/auth-service/-/pipelines/5002"
+
+merge_events:
+  - change_id: "mr-700"
+    merged_at: "2026-04-07T15:00:00Z"
+    target_branch: "main"
+    merged_by_actor_id: "actor-rachel-gl"
+    merge_commit_sha: "merge-sha-gl-700"
+
+ownership_hints:
+  - repository_id: "repo-auth-gl-001"
+    owner_team_names: ["auth-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"

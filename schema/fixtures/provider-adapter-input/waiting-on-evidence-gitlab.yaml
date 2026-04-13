@@ -1,0 +1,94 @@
+# Fixture: waiting-on-evidence-gitlab
+#
+# A GitLab merge request that has been merged and all MR pipeline jobs passed,
+# but a compliance attestation is still pending. Group ownership is declared.
+# The responsible actor for supplying the attestation is identified.
+
+fixture_id: "waiting-on-evidence-gitlab"
+scenario: "waiting_on_evidence"
+provider: "gitlab"
+description: >
+  A merged GitLab MR with passing pipeline but a pending compliance attestation.
+  Group ownership declared. Responsible actor for the attestation identified.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-payments-gl-003"
+  full_name: "example-org/payments-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-08T14:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-600"
+    repository_id: "repo-payments-gl-003"
+    source_branch: "feature/pci-compliance-update"
+    target_branch: "main"
+    state: "merged"
+    author_actor_id: "actor-olivia-gl"
+    created_at: "2026-04-06T09:00:00Z"
+    updated_at: "2026-04-08T12:00:00Z"
+    title: "PCI compliance update"
+    work_item_refs:
+      - external_id: "130"
+        provider: "gitlab"
+        title: "Implement PCI DSS compliance changes"
+        state: "open"
+        url: "https://gitlab.com/example-org/payments-service/-/issues/130"
+    merged_at: "2026-04-08T11:45:00Z"
+    closed_at: "2026-04-08T11:45:00Z"
+    fetched_at: "2026-04-08T14:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-olivia-gl"
+    display_name: "Olivia"
+    provider_login: "olivia"
+    team_memberships: ["payments-team"]
+  - provider: "gitlab"
+    provider_id: "actor-sam-gl"
+    display_name: "Sam"
+    provider_login: "sam"
+    team_memberships: ["security-team"]
+
+review_states:
+  - change_id: "mr-600"
+    state: "approved"
+    as_of: "2026-04-08T11:30:00Z"
+    reviewer_actor_ids:
+      - "actor-sam-gl"
+    last_activity_at: "2026-04-08T11:30:00Z"
+    approval_count: 1
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "mr-600"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-07T10:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/payments-service/-/pipelines/4001"
+    duration_seconds: 320
+
+merge_events:
+  - change_id: "mr-600"
+    merged_at: "2026-04-08T11:45:00Z"
+    target_branch: "main"
+    merged_by_actor_id: "actor-olivia-gl"
+    merge_commit_sha: "merge-sha-gl-600"
+
+evidence_states:
+  - change_id: "mr-600"
+    state: "pending"
+    as_of: "2026-04-08T14:00:00Z"
+    required_types:
+      - "compliance attestation"
+    owner_actor_id: "actor-sam-gl"
+
+ownership_hints:
+  - repository_id: "repo-payments-gl-003"
+    owner_team_names: ["payments-team"]
+    path_pattern: "*"
+    source: "group_membership"
+    confidence: "declared"

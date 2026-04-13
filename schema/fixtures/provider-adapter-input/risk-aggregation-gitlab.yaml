@@ -1,0 +1,166 @@
+# Fixture: risk-aggregation-gitlab
+#
+# Three GitLab merge requests for the "checkout" service within a 48-hour
+# window, each contributing a different risk signal: trunk pipeline failure,
+# blocked on review, and unclear ownership. The service ownership is declared.
+# This is the GitLab counterpart to risk-aggregation-github.yaml.
+
+fixture_id: "risk-aggregation-gitlab"
+scenario: "risk_aggregation"
+provider: "gitlab"
+description: >
+  Three GitLab MRs for the checkout service within 48 hours, each contributing
+  a distinct risk signal: trunk failure, blocked on review, and unclear
+  ownership. Service ownership declared.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-checkout-gl-001"
+  full_name: "example-org/checkout-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-09T16:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-801"
+    repository_id: "repo-checkout-gl-001"
+    source_branch: "feature/payment-retry"
+    target_branch: "main"
+    state: "merged"
+    author_actor_id: "actor-tom-gl"
+    created_at: "2026-04-08T09:00:00Z"
+    updated_at: "2026-04-08T14:30:00Z"
+    title: "Add payment retry logic"
+    work_item_refs:
+      - external_id: "200"
+        provider: "gitlab"
+        state: "open"
+    merged_at: "2026-04-08T14:30:00Z"
+    closed_at: "2026-04-08T14:30:00Z"
+    fetched_at: "2026-04-09T16:00:00Z"
+  - provider: "gitlab"
+    provider_id: "mr-802"
+    repository_id: "repo-checkout-gl-001"
+    source_branch: "feature/discount-engine"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-uma-gl"
+    created_at: "2026-04-08T10:00:00Z"
+    updated_at: "2026-04-09T15:00:00Z"
+    title: "Refactor discount engine"
+    work_item_refs:
+      - external_id: "201"
+        provider: "gitlab"
+        state: "open"
+    fetched_at: "2026-04-09T16:00:00Z"
+  - provider: "gitlab"
+    provider_id: "mr-803"
+    repository_id: "repo-checkout-gl-001"
+    source_branch: "feature/cart-persistence"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-victor-gl"
+    created_at: "2026-04-09T08:00:00Z"
+    updated_at: "2026-04-09T15:30:00Z"
+    title: "Add cart persistence"
+    work_item_refs:
+      - external_id: "202"
+        provider: "gitlab"
+        state: "open"
+    fetched_at: "2026-04-09T16:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-tom-gl"
+    display_name: "Tom"
+    provider_login: "tom"
+    team_memberships: ["checkout-team"]
+  - provider: "gitlab"
+    provider_id: "actor-uma-gl"
+    display_name: "Uma"
+    provider_login: "uma"
+    team_memberships: ["checkout-team"]
+  - provider: "gitlab"
+    provider_id: "actor-victor-gl"
+    display_name: "Victor"
+    provider_login: "victor"
+    team_memberships: ["checkout-team"]
+
+review_states:
+  - change_id: "mr-801"
+    state: "approved"
+    as_of: "2026-04-08T14:00:00Z"
+    reviewer_actor_ids: ["actor-uma-gl"]
+    last_activity_at: "2026-04-08T14:00:00Z"
+    approval_count: 1
+    required_approval_count: 1
+  - change_id: "mr-802"
+    # Blocked on review — approval threshold not met, overdue by 29 hours.
+    state: "awaiting_review"
+    as_of: "2026-04-09T15:00:00Z"
+    reviewer_actor_ids: ["actor-tom-gl"]
+    last_activity_at: "2026-04-08T10:00:00Z"
+    approval_count: 0
+    required_approval_count: 1
+  - change_id: "mr-803"
+    # Blocked on review — no reviewer assigned yet.
+    state: "awaiting_review"
+    as_of: "2026-04-09T15:30:00Z"
+    reviewer_actor_ids: []
+    last_activity_at: "2026-04-09T08:00:00Z"
+    approval_count: 0
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "mr-801"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-08T12:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/checkout-service/-/pipelines/6001"
+    duration_seconds: 185
+  - change_id: "mr-801"
+    # Trunk pipeline failed after merge — contributes risk signal.
+    scope: "trunk"
+    state: "failed"
+    run_at: "2026-04-08T15:00:00Z"
+    name: "deploy / main"
+    url: "https://gitlab.com/example-org/checkout-service/-/pipelines/6002"
+    duration_seconds: 520
+    failure_summary: "failure"
+  - change_id: "mr-802"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-08T11:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/checkout-service/-/pipelines/6003"
+    duration_seconds: 192
+  - change_id: "mr-803"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-09T09:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/checkout-service/-/pipelines/6004"
+    duration_seconds: 198
+
+merge_events:
+  - change_id: "mr-801"
+    merged_at: "2026-04-08T14:30:00Z"
+    target_branch: "main"
+    merged_by_actor_id: "actor-tom-gl"
+    merge_commit_sha: "merge-sha-gl-801"
+
+ownership_hints:
+  - repository_id: "repo-checkout-gl-001"
+    owner_team_names: ["checkout-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"
+  # mr-803 scope has no matching Code Owners entry — unclear ownership.
+  - repository_id: "repo-checkout-gl-001"
+    owner_actor_ids: []
+    owner_team_names: []
+    path_pattern: "src/cart/*"
+    source: "codeowners"
+    confidence: "inferred"

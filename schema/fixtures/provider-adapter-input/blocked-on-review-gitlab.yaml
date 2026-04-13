@@ -1,0 +1,92 @@
+# Fixture: blocked-on-review-gitlab
+#
+# A GitLab merge request blocked on review because approval rules require 2
+# approvals and none have been recorded. The MR pipeline passed all jobs.
+# Group ownership is declared via a Code Owners file.
+#
+# This fixture is the GitLab SaaS counterpart to blocked-on-review-github.yaml.
+# The same "blocked on review" signal must be inferred from both, with the same
+# signal identity and severity intent (cross-stack equivalence rule).
+
+fixture_id: "blocked-on-review-gitlab"
+scenario: "blocked_on_review"
+provider: "gitlab"
+description: >
+  A GitLab MR waiting 36 hours past the expected review window with two
+  assigned approvers who have not responded. MR pipeline passed. Group
+  ownership declared via Code Owners.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-payments-gl-001"
+  full_name: "example-org/payments-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-01T10:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-789"
+    repository_id: "repo-payments-gl-001"
+    source_branch: "feature/add-payment-webhook"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-alice-gl"
+    created_at: "2026-03-30T08:00:00Z"
+    updated_at: "2026-04-01T09:00:00Z"
+    title: "Add payment webhook"
+    work_item_refs:
+      - external_id: "42"
+        provider: "gitlab"
+        title: "Add payment webhook handler"
+        state: "open"
+        url: "https://gitlab.com/example-org/payments-service/-/issues/42"
+    fetched_at: "2026-04-01T10:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-alice-gl"
+    display_name: "Alice"
+    provider_login: "alice"
+    team_memberships: ["payments-team"]
+  - provider: "gitlab"
+    provider_id: "actor-bob-gl"
+    display_name: "Bob"
+    provider_login: "bob"
+    team_memberships: ["payments-team"]
+  - provider: "gitlab"
+    provider_id: "actor-carol-gl"
+    display_name: "Carol"
+    provider_login: "carol"
+    team_memberships: ["payments-team"]
+
+review_states:
+  - change_id: "mr-789"
+    # GitLab: approval rules require 2 approvals; none recorded.
+    # Normalizes to awaiting_review — approval threshold not met.
+    state: "awaiting_review"
+    as_of: "2026-04-01T09:00:00Z"
+    reviewer_actor_ids:
+      - "actor-bob-gl"
+      - "actor-carol-gl"
+    last_activity_at: "2026-04-01T09:00:00Z"
+    required_approval_count: 2
+    approval_count: 0
+
+validation_runs:
+  - change_id: "mr-789"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-03-30T09:00:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/payments-service/-/pipelines/1001"
+    duration_seconds: 150
+
+merge_events: []
+
+ownership_hints:
+  - repository_id: "repo-payments-gl-001"
+    owner_team_names: ["payments-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"

@@ -130,6 +130,20 @@ validation signals).
 | `merged_by_actor_id` | no | string | Absent when the provider does not expose the merge actor |
 | `merge_commit_sha` | no | string | |
 
+### NormalizedEvidenceState
+
+Maps to: Evidence state (required evidence for compliance or risk acceptance).
+
+| Field | Required | Type | Notes |
+| --- | --- | --- | --- |
+| `change_id` | yes | string | Matches `NormalizedChange.provider_id` |
+| `state` | yes | enum: `not_required`, `required`, `pending`, `recorded`, `stale` | |
+| `as_of` | yes | ISO 8601 timestamp | When this evidence state was last computed |
+| `required_types` | no | string[] | Names of required evidence types, e.g. `security attestation`, `deployment trace` |
+| `owner_actor_id` | no | string | Actor responsible for supplying the evidence; matches `NormalizedActor.provider_id` |
+| `freshness_at` | no | ISO 8601 timestamp | When evidence was last confirmed fresh; absent when `state` is `pending`, `required`, or `not_required` |
+| `is_partial` | no | boolean | True when evidence requirements could not be fully determined |
+
 ### NormalizedOwnershipHint
 
 Maps to: Ownership state (clarity of accountability for a scope).
@@ -332,6 +346,13 @@ merge_events:
   - change_id: "string"
     merged_at: "ISO 8601"
     target_branch: "string"
+
+evidence_states:
+  - change_id: "string"
+    state: "not_required | required | pending | recorded | stale"
+    as_of: "ISO 8601"
+    required_types: []
+    owner_actor_id: "string"
 
 ownership_hints:
   - repository_id: "string"
