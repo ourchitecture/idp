@@ -30,17 +30,16 @@ npm install
 ```
 
 `npm install` automatically runs `scripts/setup-claude-skills.js` via the
-`postinstall` hook. This script ensures `.claude/skills` points to
+`postinstall` hook. This creates `.claude/skills` as a local link to
 `.agents/skills/` so Claude Code can discover skills alongside other AI agents:
 
-- **Linux / macOS** — git creates the symlink at clone time; the script is a
-  no-op.
-- **Windows (default)** — git writes a text stub instead of a real symlink; the
-  script replaces it with an NTFS junction, which requires no elevated
-  privileges.
+- **Linux / macOS** — creates a real directory symlink.
+- **Windows** — tries a real symlink first; falls back to an NTFS junction,
+  which requires no elevated privileges.
 
-If you skip `npm install`, Claude Code will not find skills via `.claude/`.
-Skills remain fully available to other agents from `.agents/skills/` regardless.
+`.claude/skills` is not tracked by git — `npm install` is the sole setup step
+on every platform. If you skip it, Claude Code will not find skills via
+`.claude/`. Skills remain directly available in `.agents/skills/` regardless.
 
 ### Running a Stack Locally
 

@@ -784,8 +784,9 @@ an update to generated assets in `docs/static/diagrams/` in the same change.
 ## What Not To Do
 
 - Do not navigate, read, write, or execute commands outside the repository root.
-- Do not use symlinks, except for the documented `.claude/skills → ../.agents/skills`
-  bridge managed by `scripts/setup-claude-skills.js`. All other ad-hoc symlink use is prohibited.
+- Do not use symlinks, except for the documented `.claude/skills` bridge to
+  `.agents/skills/` managed by `scripts/setup-claude-skills.js`. All other
+  ad-hoc symlink use is prohibited.
 - Do not disable security features.
 - Do not introduce cloud-provider lock-in without an abstraction.
 - Do not add AI/LLM calls without error handling, rate limits, and cost controls.
