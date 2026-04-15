@@ -80,6 +80,51 @@ outputs:
 End-to-end workflow: review working tree, create a feature branch,
 commit, push, open a PR, merge to main, and clean up.
 
+## Operating Mode: Iterate in Small Commits
+
+This skill is the final "ship" step, but the implementation work that
+feeds it (Step 0b and any refinement loops along the way) must be
+performed as a sequence of small, granular commits — not as one
+large, in-memory edit session that lands a single monster commit at
+the end.
+
+Follow these rules whenever the skill is actively editing the repo:
+
+- **Commit after every meaningful change.** Every new file, every
+  edit to an existing file, and every deletion is a candidate for
+  its own commit. Do not batch unrelated changes into a single
+  commit just because they happened in the same session.
+- **Do not hold the whole implementation in memory.** Plan the
+  smallest next step, edit, stage, commit, and then re-read the repo
+  to plan the step after that. The commit history is the working
+  memory of the task.
+- **It is okay to revise a previous commit with a new commit.**
+  When a commit turns out to be wrong or incomplete, land a
+  follow-up commit that fixes it rather than trying to rewrite the
+  earlier one in place. The squash-merge at Step 13 collapses the
+  series into a single clean commit on `main`, so intermediate
+  "change direction" commits on the feature branch are expected and
+  healthy.
+- **Stage explicit file paths per commit.** Prefer
+  `git add <path>` over `git add .` / `git add -A` so each commit's
+  scope matches the change you just made and unrelated working-tree
+  changes do not leak in.
+- **Push early and often.** Once the feature branch has its first
+  commit, push it (Step 11) so concurrent agents and reviewers can
+  see progress. Continue pushing after each additional commit rather
+  than waiting until the end.
+- **Re-read before re-editing.** Before modifying a file you already
+  edited earlier in this session, re-read it from disk. Your mental
+  model can drift; the committed state is ground truth.
+
+The numbered steps below describe a single ship pass. When a pass
+produces more than one logical change, repeat Steps 1–11 for each
+slice (stage → classify → lint → commit → push) before moving on to
+Steps 12–15 to open and merge the pull request.
+
+See the top-level [`AGENTS.md`](../../../AGENTS.md) "Iterative Small
+Commits" section for the repo-wide rule this skill implements.
+
 ## Step 0a: Claim the issue (conditional, mandatory when issue_number provided)
 
 When **`issue_number` is provided**, immediately add the `in-progress`
