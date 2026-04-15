@@ -39,6 +39,7 @@ async function main(): Promise<void> {
   const orderedProfiles: ProfileName[] = [
     "core",
     "operational",
+    "flow-insights",
     "status-profile",
     "ui-profile",
     "mcp-profile",
