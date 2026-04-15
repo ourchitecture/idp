@@ -1,0 +1,38 @@
+language: "javascript"
+layer: "tool"
+stack: "infrastructure"
+
+project:
+  title: "gitlab-harness"
+  description: "GitLab CE/self-managed harness for deterministic adapter testing."
+
+tasks:
+  up:
+    command: ["bash", "./tools/gitlab-harness/scripts/up.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  down:
+    command: ["bash", "./tools/gitlab-harness/scripts/down.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  reset:
+    command: ["bash", "./tools/gitlab-harness/scripts/reset.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  wait-healthy:
+    command: ["bash", "./tools/gitlab-harness/scripts/wait-healthy.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  token:
+    command: ["bash", "./tools/gitlab-harness/scripts/root-token.sh"]
+    options:
+      runFromWorkspaceRoot: true
+  seed:
+    command: ["bash", "./tools/gitlab-harness/scripts/seed.sh"]
+    deps: ["up", "wait-healthy", "token"]
+    options:
+      runFromWorkspaceRoot: true
+  logs:
+    command: ["bash", "./tools/gitlab-harness/scripts/logs.sh"]
+    options:
+      runFromWorkspaceRoot: true

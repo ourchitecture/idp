@@ -4,7 +4,7 @@ sidebar_position: 5
 
 # Flow Intent Scenarios (Layer 1)
 
-These Layer 1 Gherkin scenarios express the flow insight MVP in provider-neutral language. They are ground truth for the semantics and precede a future Layer 2 harness.
+These Layer 1 Gherkin scenarios express the flow insight MVP in provider-neutral language. They are ground truth for the signal semantics. A Layer 2 conformance profile and TypeScript contract harness now exist to validate these semantics against running stacks.
 
 Source: [`tests/features/flow-insights.feature`](https://github.com/ourchitecture/idp/blob/main/tests/features/flow-insights.feature)
 

@@ -1,0 +1,42 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:16.11.4-ce.0
+    hostname: gitlab-harness
+    container_name: gitlab-harness
+    restart: unless-stopped
+    shm_size: 1gb
+    ports:
+      - "8929:8929"
+      - "2424:22"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8929/-/readiness"]
+      interval: 15s
+      timeout: 10s
+      retries: 40
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        from_file "/etc/gitlab/gitlab.rb"
+    volumes:
+      - ./gitlab.rb:/etc/gitlab/gitlab.rb:ro
+      - ./data/logs:/var/log/gitlab
+      - ./data/data:/var/opt/gitlab
+
+  runner:
+    image: gitlab/gitlab-runner:16.11.4
+    container_name: gitlab-harness-runner
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "/harness/register-runner.sh"]
+    environment:
+      GITLAB_URL: http://gitlab:8929
+      REGISTRATION_TOKEN: ${GITLAB_RUNNER_REGISTRATION_TOKEN:-gitlab-harness-runner-token}
+      RUNNER_NAME: gitlab-harness-runner
+      RUNNER_EXECUTOR: shell
+      RUNNER_TAG_LIST: gitlab-harness
+    extra_hosts:
+      - "gitlab-harness:127.0.0.1"
+    volumes:
+      - ./scripts/register-runner.sh:/harness/register-runner.sh:ro
+      - ./data/runner:/etc/gitlab-runner

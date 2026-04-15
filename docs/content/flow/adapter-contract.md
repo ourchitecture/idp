@@ -353,6 +353,8 @@ evidence_states:
     as_of: "ISO 8601"
     required_types: []
     owner_actor_id: "string"
+    freshness_at: "ISO 8601 — optional; absent when state is pending, required, or not_required"
+    is_partial: "boolean — optional; true when evidence requirements could not be fully determined"
 
 ownership_hints:
   - repository_id: "string"
