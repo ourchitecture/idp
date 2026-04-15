@@ -163,17 +163,37 @@ criteria):
    `git worktree` commands. If already inside the matching issue
    worktree, continue there. If the current checkout is dirty and does
    not belong to the same issue worktree, stop and surface the conflict.
-3. **Implement** the required code and documentation in-repo following
-   `AGENTS.md` and existing patterns. Run the issue’s validation
-   commands (or stack-equivalent checks) and fix failures before
-   staging.
-4. If requirements are ambiguous, the issue is blocked, or scope is too
-   large for a single pass, **stop** and ask the user instead of
-   guessing.
+3. **Implement incrementally** following `AGENTS.md` and existing
+   patterns. Break the implementation into the smallest useful steps
+   and commit each step before starting the next:
+   - Plan only the next small step — not the entire implementation.
+   - Make the edit (create, update, or delete one file, or a tightly
+     related group of files that must change together).
+   - Run the fast validation relevant to the change (lint the file,
+     run the narrow test) when it is cheap.
+   - Stage the exact paths you touched and create a commit with a
+     descriptive Conventional Commits message.
+   - Push the branch (see Step 11) so the commit is visible.
+   - Re-read the repo state and plan the next small step from the
+     newly-committed baseline.
+   Repeat this loop until the issue's acceptance criteria are met.
+   Run the issue's full validation commands (or stack-equivalent
+   checks) before handing off to Step 12, and fix failures with
+   additional small commits rather than by rewriting earlier ones.
+4. **Revise with follow-up commits, not rewrites.** If an earlier
+   commit in the series turns out to be wrong or incomplete, land a
+   new commit that corrects it. The squash-merge in Step 13 will
+   collapse the whole series into a single commit on `main`, so
+   intermediate "change direction" commits on the feature branch are
+   expected and healthy.
+5. If requirements are ambiguous, the issue is blocked, or an
+   individual step is still too large to commit cleanly, **stop** and
+   ask the user instead of guessing or batching many unrelated
+   changes into one commit.
 
-When Step 0b runs, the rest of the workflow operates on the new
-changes. If the working tree already contains a complete implementation
-for the issue, **skip Step 0b** and start at Step 1.
+When Step 0b runs, the rest of the workflow operates on the committed
+series of changes. If the working tree already contains a complete
+implementation for the issue, **skip Step 0b** and start at Step 1.
 
 ## Step 1: Review All Unstaged and Untracked Files
 
