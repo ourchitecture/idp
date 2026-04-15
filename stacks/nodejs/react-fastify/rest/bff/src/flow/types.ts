@@ -78,6 +78,16 @@ export interface NormalizedMergeEvent {
   merge_commit_sha?: string;
 }
 
+export interface NormalizedEvidenceState {
+  change_id: string;
+  state: "not_required" | "required" | "pending" | "recorded" | "stale";
+  as_of: string;
+  required_types?: string[];
+  owner_actor_id?: string;
+  freshness_at?: string;
+  is_partial?: boolean;
+}
+
 export interface NormalizedOwnershipHint {
   repository_id: string;
   owner_actor_ids?: string[];
@@ -95,5 +105,6 @@ export interface ProviderAdapterInput {
   review_states: NormalizedReviewState[];
   validation_runs: NormalizedValidationRun[];
   merge_events: NormalizedMergeEvent[];
+  evidence_states?: NormalizedEvidenceState[];
   ownership_hints: NormalizedOwnershipHint[];
 }

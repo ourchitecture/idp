@@ -4,13 +4,15 @@ import path from "node:path";
 import { test } from "node:test";
 import YAML from "yaml";
 import type { ProviderAdapterInput } from "../types";
-import { buildGitHubProviderInput } from "./adapter";
+import { buildGitLabProviderInput } from "./adapter";
 import {
+  agingImplementationSource,
+  blockedOnReviewSelfManagedSource,
   blockedOnReviewSource,
-  changesRequestedSource,
-  partialEvidenceSource,
-  reviewNotRequiredSource,
+  riskAggregationSource,
   trunkIntegrationFailureSource,
+  unclearOwnershipSource,
+  waitingOnEvidenceSource,
 } from "./fixtures";
 
 function findRepoRoot(startDir: string): string {
@@ -35,7 +37,7 @@ function loadNormalizedFixture(filename: string): ProviderAdapterInput {
   const content = fs.readFileSync(filePath, "utf8");
   const parsed = YAML.parse(content) as Partial<ProviderAdapterInput> & Record<string, unknown>;
   return {
-    repository: parsed.repository ?? { provider: "github", provider_id: "", full_name: "", default_branch: "", fetched_at: "" },
+    repository: parsed.repository ?? { provider: "gitlab", provider_id: "", full_name: "", default_branch: "", fetched_at: "" },
     changes: parsed.changes ?? [],
     actors: parsed.actors ?? [],
     review_states: parsed.review_states ?? [],
@@ -98,37 +100,51 @@ function normalizeOutput(input: ProviderAdapterInput): ProviderAdapterInput {
   return normalized;
 }
 
-test("normalizes GitHub data for blocked-on-review scenario", () => {
-  const result = buildGitHubProviderInput(blockedOnReviewSource);
-  const expected = loadNormalizedFixture("blocked-on-review-github.yaml");
+test("normalizes GitLab data for blocked-on-review scenario (SaaS)", () => {
+  const result = buildGitLabProviderInput(blockedOnReviewSource);
+  const expected = loadNormalizedFixture("blocked-on-review-gitlab.yaml");
 
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });
 
-test("normalizes GitHub data when changes are requested", () => {
-  const result = buildGitHubProviderInput(changesRequestedSource);
-  const expected = loadNormalizedFixture("changes-requested-github.yaml");
+test("normalizes GitLab data for blocked-on-review self-managed scenario", () => {
+  const result = buildGitLabProviderInput(blockedOnReviewSelfManagedSource);
+  const expected = loadNormalizedFixture("blocked-on-review-gitlab-self-managed.yaml");
 
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });
 
-test("normalizes GitHub data when review is not required", () => {
-  const result = buildGitHubProviderInput(reviewNotRequiredSource);
-  const expected = loadNormalizedFixture("review-not-required-github.yaml");
+test("normalizes GitLab data for trunk integration failure scenario", () => {
+  const result = buildGitLabProviderInput(trunkIntegrationFailureSource);
+  const expected = loadNormalizedFixture("trunk-integration-failed-gitlab.yaml");
 
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });
 
-test("normalizes GitHub data with trunk integration failure after merge", () => {
-  const result = buildGitHubProviderInput(trunkIntegrationFailureSource);
-  const expected = loadNormalizedFixture("trunk-integration-failed-github.yaml");
+test("normalizes GitLab data for unclear ownership scenario", () => {
+  const result = buildGitLabProviderInput(unclearOwnershipSource);
+  const expected = loadNormalizedFixture("unclear-ownership-gitlab.yaml");
 
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });
 
-test("marks GitHub adapter output partial when evidence is missing", () => {
-  const result = buildGitHubProviderInput(partialEvidenceSource);
-  const expected = loadNormalizedFixture("partial-data-github.yaml");
+test("normalizes GitLab data for waiting on evidence scenario", () => {
+  const result = buildGitLabProviderInput(waitingOnEvidenceSource);
+  const expected = loadNormalizedFixture("waiting-on-evidence-gitlab.yaml");
+
+  assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
+});
+
+test("normalizes GitLab data for aging implementation scenario", () => {
+  const result = buildGitLabProviderInput(agingImplementationSource);
+  const expected = loadNormalizedFixture("aging-implementation-gitlab.yaml");
+
+  assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
+});
+
+test("normalizes GitLab data for risk aggregation scenario", () => {
+  const result = buildGitLabProviderInput(riskAggregationSource);
+  const expected = loadNormalizedFixture("risk-aggregation-gitlab.yaml");
 
   assert.deepStrictEqual(normalizeOutput(result), normalizeOutput(expected));
 });
