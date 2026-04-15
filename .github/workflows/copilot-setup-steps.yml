@@ -11,6 +11,8 @@ on:
     paths:
       - .github/workflows/copilot-setup-steps.yml
 
+permissions: {}
+
 env:
   PROTO_VERSION: "0.55.4"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3

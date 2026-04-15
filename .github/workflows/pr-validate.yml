@@ -386,15 +386,11 @@ jobs:
 
       - name: Smoke Go web container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
-        run: |
-          CID=$(docker run -d -p 3300:3000 stemix-go-net-http-rest-web:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: stemix-go-net-http-rest-web:pr-check
+          PORT: "3300:3000"
+          URL: http://localhost:3300/
+        run: bash scripts/ci/smoke-test-container.sh
 
       - name: Build Go BFF container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
@@ -410,15 +406,11 @@ jobs:
 
       - name: Smoke Go BFF container
         if: needs.detect-changes.outputs.run_go_containers == 'true'
-        run: |
-          CID=$(docker run -d -p 8300:8000 stemix-go-net-http-rest-bff:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/health || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: stemix-go-net-http-rest-bff:pr-check
+          PORT: "8300:8000"
+          URL: http://localhost:8300/health
+        run: bash scripts/ci/smoke-test-container.sh
 
       - name: Build Node.js web container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
@@ -433,15 +425,12 @@ jobs:
 
       - name: Smoke Node.js web container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
-        run: |
-          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 stemix-nodejs-react-fastify-rest-web:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: stemix-nodejs-react-fastify-rest-web:pr-check
+          PORT: "3400:3000"
+          URL: http://localhost:3400/
+          DOCKER_ARGS: -e BFF_URL=http://localhost:8400
+        run: bash scripts/ci/smoke-test-container.sh
 
       - name: Build Node.js BFF container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
@@ -456,15 +445,11 @@ jobs:
 
       - name: Smoke Node.js BFF container
         if: needs.detect-changes.outputs.run_node_containers == 'true'
-        run: |
-          CID=$(docker run -d -p 8400:8000 stemix-nodejs-react-fastify-rest-bff:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/health || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: stemix-nodejs-react-fastify-rest-bff:pr-check
+          PORT: "8400:8000"
+          URL: http://localhost:8400/health
+        run: bash scripts/ci/smoke-test-container.sh
 
       - name: Build contract tests container
         if: needs.detect-changes.outputs.run_tests_container == 'true'
@@ -490,20 +475,15 @@ jobs:
 
       - name: Smoke MCP server container
         if: needs.detect-changes.outputs.run_mcp_containers == 'true'
-        run: |
-          CID=$(docker run -d -p 8580:8080 stemix-mcp-server:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST http://localhost:8580/mcp \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/json, text/event-stream" \
-            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke-test","version":"0.0.1"}}}' \
-            || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: stemix-mcp-server:pr-check
+          PORT: "8580:8080"
+          URL: http://localhost:8580/mcp
+          CURL_METHOD: POST
+          CURL_CONTENT_TYPE: application/json
+          CURL_ACCEPT: "application/json, text/event-stream"
+          CURL_DATA: '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke-test","version":"0.0.1"}}}'
+        run: bash scripts/ci/smoke-test-container.sh
 
       - name: Build mock-oauth container
         if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
@@ -518,25 +498,12 @@ jobs:
 
       - name: Smoke mock-oauth container
         if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
-        run: |
-          CID=$(docker run -d -p 9900:9000 stemix-mock-oauth:pr-check)
-          trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
-
-          attempt=0
-          STATUS="000"
-          until [[ "${attempt}" -ge 10 ]]; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9900/health || true)
-            if [[ "${STATUS}" == "200" ]]; then
-              break
-            fi
-            sleep 1
-            attempt=$((attempt + 1))
-          done
-
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: stemix-mock-oauth:pr-check
+          PORT: "9900:9000"
+          URL: http://localhost:9900/health
+          POLL_ATTEMPTS: "10"
+        run: bash scripts/ci/smoke-test-container.sh
 
   check-mock-oauth-build:
     name: Check Mock OAuth Build
@@ -678,60 +645,14 @@ jobs:
       - check-auth-integration
     steps:
       - name: Verify required checks
-        run: |
-          result_detect="${{ needs.detect-changes.result }}"
-          result_lint_md="${{ needs.check-lint-md.result }}"
-          result_workflows="${{ needs.check-workflow-files.result }}"
-          result_stack="${{ needs.check-stack-matrix.result }}"
-          result_docs="${{ needs.check-docs-site.result }}"
-          result_commit="${{ needs.validate-commit-message.result }}"
-          result_containers="${{ needs.check-container-build.result }}"
-          result_mock_oauth="${{ needs.check-mock-oauth-build.result }}"
-          result_auth_integration="${{ needs.check-auth-integration.result }}"
-
-          if [[ "${result_detect}" != "success" ]]; then
-            echo "::error::detect-changes failed (${result_detect})"
-            exit 1
-          fi
-
-          if [[ "${result_commit}" != "success" ]]; then
-            echo "::error::validate-commit-message failed (${result_commit})"
-            exit 1
-          fi
-
-          if [[ "${result_lint_md}" != "success" && "${result_lint_md}" != "skipped" ]]; then
-            echo "::error::check-lint-md failed (${result_lint_md})"
-            exit 1
-          fi
-
-          if [[ "${result_workflows}" != "success" && "${result_workflows}" != "skipped" ]]; then
-            echo "::error::check-workflow-files failed (${result_workflows})"
-            exit 1
-          fi
-
-          if [[ "${result_stack}" != "success" && "${result_stack}" != "skipped" ]]; then
-            echo "::error::check-stack-matrix failed (${result_stack})"
-            exit 1
-          fi
-
-          if [[ "${result_docs}" != "success" && "${result_docs}" != "skipped" ]]; then
-            echo "::error::check-docs-site failed (${result_docs})"
-            exit 1
-          fi
-
-          if [[ "${result_containers}" != "success" && "${result_containers}" != "skipped" ]]; then
-            echo "::error::check-container-build failed (${result_containers})"
-            exit 1
-          fi
-
-          if [[ "${result_mock_oauth}" != "success" && "${result_mock_oauth}" != "skipped" ]]; then
-            echo "::error::check-mock-oauth-build failed (${result_mock_oauth})"
-            exit 1
-          fi
-
-          if [[ "${result_auth_integration}" != "success" && "${result_auth_integration}" != "skipped" ]]; then
-            echo "::error::check-auth-integration failed (${result_auth_integration})"
-            exit 1
-          fi
-
-          echo "All required PR validation checks completed successfully."
+        env:
+          RESULT_DETECT: ${{ needs.detect-changes.result }}
+          RESULT_COMMIT: ${{ needs.validate-commit-message.result }}
+          RESULT_LINT_MD: ${{ needs.check-lint-md.result }}
+          RESULT_WORKFLOWS: ${{ needs.check-workflow-files.result }}
+          RESULT_STACK: ${{ needs.check-stack-matrix.result }}
+          RESULT_DOCS: ${{ needs.check-docs-site.result }}
+          RESULT_CONTAINERS: ${{ needs.check-container-build.result }}
+          RESULT_MOCK_OAUTH: ${{ needs.check-mock-oauth-build.result }}
+          RESULT_AUTH_INTEGRATION: ${{ needs.check-auth-integration.result }}
+        run: bash scripts/ci/check-pr-validation-result.sh

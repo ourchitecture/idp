@@ -44,17 +44,10 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#go-net-http-rest-v}"
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-          MINOR="${MINOR#*.}"
-          {
-            echo "version=${VERSION}"
-            echo "major=${MAJOR}"
-            echo "major_minor=${MAJOR}.${MINOR}"
-          } >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.ref_name }}
+          PREFIX: go-net-http-rest-v
+        run: OUTPUT_FILE="$GITHUB_OUTPUT" bash scripts/ci/extract-container-version.sh
 
       - name: Extract metadata (OCI labels)
         id: meta
@@ -116,17 +109,10 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#nodejs-react-fastify-rest-v}"
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-          MINOR="${MINOR#*.}"
-          {
-            echo "version=${VERSION}"
-            echo "major=${MAJOR}"
-            echo "major_minor=${MAJOR}.${MINOR}"
-          } >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.ref_name }}
+          PREFIX: nodejs-react-fastify-rest-v
+        run: OUTPUT_FILE="$GITHUB_OUTPUT" bash scripts/ci/extract-container-version.sh
 
       - name: Extract metadata (OCI labels)
         id: meta
@@ -180,17 +166,10 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#contract-tests-v}"
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-          MINOR="${MINOR#*.}"
-          {
-            echo "version=${VERSION}"
-            echo "major=${MAJOR}"
-            echo "major_minor=${MAJOR}.${MINOR}"
-          } >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.ref_name }}
+          PREFIX: contract-tests-v
+        run: OUTPUT_FILE="$GITHUB_OUTPUT" bash scripts/ci/extract-container-version.sh
 
       - name: Extract metadata (OCI labels)
         id: meta
@@ -244,17 +223,10 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#mcp-tools-v}"
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-          MINOR="${MINOR#*.}"
-          {
-            echo "version=${VERSION}"
-            echo "major=${MAJOR}"
-            echo "major_minor=${MAJOR}.${MINOR}"
-          } >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.ref_name }}
+          PREFIX: mcp-tools-v
+        run: OUTPUT_FILE="$GITHUB_OUTPUT" bash scripts/ci/extract-container-version.sh
 
       - name: Extract metadata (OCI labels)
         id: meta
@@ -308,17 +280,10 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#mock-oauth-v}"
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-          MINOR="${MINOR#*.}"
-          {
-            echo "version=${VERSION}"
-            echo "major=${MAJOR}"
-            echo "major_minor=${MAJOR}.${MINOR}"
-          } >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.ref_name }}
+          PREFIX: mock-oauth-v
+        run: OUTPUT_FILE="$GITHUB_OUTPUT" bash scripts/ci/extract-container-version.sh
 
       - name: Extract metadata (OCI labels)
         id: meta
@@ -372,17 +337,10 @@ jobs:
 
       - name: Extract version from tag
         id: version
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${TAG#dev-tools-v}"
-          MAJOR="${VERSION%%.*}"
-          MINOR="${VERSION%.*}"
-          MINOR="${MINOR#*.}"
-          {
-            echo "version=${VERSION}"
-            echo "major=${MAJOR}"
-            echo "major_minor=${MAJOR}.${MINOR}"
-          } >> "$GITHUB_OUTPUT"
+        env:
+          TAG: ${{ github.ref_name }}
+          PREFIX: dev-tools-v
+        run: OUTPUT_FILE="$GITHUB_OUTPUT" bash scripts/ci/extract-container-version.sh
 
       - name: Extract metadata (OCI labels)
         id: meta

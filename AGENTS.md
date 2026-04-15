@@ -409,8 +409,34 @@ Before creating a pull request via any GitHub API channel:
 - Any CI/CD command that developers should be able to reproduce locally must be
   exposed through GNU Make targets and/or repo scripts (for example
   `scripts/ci/`).
-- GitHub workflows should call those Make targets/scripts rather than embedding
-  one-off inline shell logic when the logic is reusable.
+- **Workflow script policy (strictly required):** GitHub Actions `run:` steps
+  must not contain significant scripting logic. Any `run:` block with more than
+  3 lines of shell, or any logic that is reusable across steps or workflows,
+  **must** be extracted to a script in `scripts/ci/`. Permitted inline uses are
+  limited to:
+  - A single delegating command (`moon run`, `make`, `bash scripts/ci/foo.sh`).
+  - Environment variable forwarding required before calling a script or tool
+    (e.g., `export VAR=...`).
+  - Writing to GitHub Actions output files (`$GITHUB_OUTPUT`,
+    `$GITHUB_STEP_SUMMARY`) when the value is a single literal string, not a
+    computed result.
+  - A GitHub-Actions-only built-in that has no local equivalent.
+  Inline scripts are not acceptable when the same logic appears in more than
+  one step or workflow, the logic is locally testable, or the block exceeds 3
+  lines of shell. New workflows that violate this rule will be rejected in
+  review.
+- Scripts in `scripts/ci/` must be executable (`chmod +x`), accept inputs
+  exclusively via environment variables, and produce correct output when invoked
+  directly from a developer's terminal. Scripts that write to `$GITHUB_OUTPUT`
+  or `$GITHUB_STEP_SUMMARY` must accept the path via an `OUTPUT_FILE`
+  environment variable and default to `/dev/stdout` for local execution.
+- **Workflow permissions (strictly required):** Every GitHub Actions workflow
+  file **must** declare an explicit top-level `permissions:` block. Relying on
+  the repository default is not acceptable. Apply the principle of least
+  privilege: grant only the permissions the workflow actually needs, and nothing
+  more. Workflows missing an explicit `permissions:` block will be rejected in
+  review. When a workflow needs no GitHub API access at all, use
+  `permissions: {}` to explicitly revoke all permissions.
 - Validation and test commands in Makefiles should use `check-` prefixed
   targets (for example `check-lint-md`, `check-test`, `check-contract`).
 - Use `check-lint-md` as the canonical Markdown lint target name (not

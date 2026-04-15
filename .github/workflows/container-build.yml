@@ -130,15 +130,11 @@ jobs:
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
-        run: |
-          CID=$(docker run -d -p 3300:3000 ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3300/ || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web:pr-check
+          PORT: "3300:3000"
+          URL: http://localhost:3300/
+        run: bash scripts/ci/smoke-test-container.sh
 
   build-go-bff:
     name: Build go-net-http-rest-bff
@@ -198,15 +194,11 @@ jobs:
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
-        run: |
-          CID=$(docker run -d -p 8300:8000 ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8300/health || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff:pr-check
+          PORT: "8300:8000"
+          URL: http://localhost:8300/health
+        run: bash scripts/ci/smoke-test-container.sh
 
   build-nodejs-web:
     name: Build nodejs-react-fastify-rest-web
@@ -265,15 +257,12 @@ jobs:
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
-        run: |
-          CID=$(docker run -d -p 3400:3000 -e BFF_URL=http://localhost:8400 ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3400/ || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web:pr-check
+          PORT: "3400:3000"
+          URL: http://localhost:3400/
+          DOCKER_ARGS: -e BFF_URL=http://localhost:8400
+        run: bash scripts/ci/smoke-test-container.sh
 
   build-nodejs-bff:
     name: Build nodejs-react-fastify-rest-bff
@@ -332,15 +321,11 @@ jobs:
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
-        run: |
-          CID=$(docker run -d -p 8400:8000 ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8400/health || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff:pr-check
+          PORT: "8400:8000"
+          URL: http://localhost:8400/health
+        run: bash scripts/ci/smoke-test-container.sh
 
   build-contract-tests:
     name: Build contract-tests
@@ -452,20 +437,15 @@ jobs:
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
-        run: |
-          CID=$(docker run -d -p 8580:8080 ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:pr-check)
-          sleep 2
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -X POST http://localhost:8580/mcp \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/json, text/event-stream" \
-            -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke-test","version":"0.0.1"}}}' \
-            || true)
-          docker stop "${CID}" || true
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/stemix-mcp-server:pr-check
+          PORT: "8580:8080"
+          URL: http://localhost:8580/mcp
+          CURL_METHOD: POST
+          CURL_CONTENT_TYPE: application/json
+          CURL_ACCEPT: "application/json, text/event-stream"
+          CURL_DATA: '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke-test","version":"0.0.1"}}}'
+        run: bash scripts/ci/smoke-test-container.sh
 
   build-mock-oauth:
     name: Build mock-oauth
@@ -524,25 +504,12 @@ jobs:
 
       - name: Smoke test image (PR only)
         if: github.event_name == 'pull_request'
-        run: |
-          CID=$(docker run -d -p 9900:9000 ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:pr-check)
-          trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
-
-          attempt=0
-          STATUS="000"
-          until [[ "${attempt}" -ge 10 ]]; do
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9900/health || true)
-            if [[ "${STATUS}" == "200" ]]; then
-              break
-            fi
-            sleep 1
-            attempt=$((attempt + 1))
-          done
-
-          if [[ "${STATUS}" != "200" ]]; then
-            echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS}"
-            exit 1
-          fi
+        env:
+          IMAGE: ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth:pr-check
+          PORT: "9900:9000"
+          URL: http://localhost:9900/health
+          POLL_ATTEMPTS: "10"
+        run: bash scripts/ci/smoke-test-container.sh
 
   build-dev-tools:
     name: Build stemix-dev-tools
@@ -621,28 +588,18 @@ jobs:
       - build-mock-oauth
       - build-dev-tools
     steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
       - name: Verify all container builds passed
-        run: |
-          result_detect="${{ needs.detect-changes.result }}"
-          result_go_web="${{ needs.build-go-web.result }}"
-          result_go_bff="${{ needs.build-go-bff.result }}"
-          result_node_web="${{ needs.build-nodejs-web.result }}"
-          result_node_bff="${{ needs.build-nodejs-bff.result }}"
-          result_tests="${{ needs.build-contract-tests.result }}"
-          result_mcp="${{ needs.build-mcp-server.result }}"
-          result_mock_oauth="${{ needs.build-mock-oauth.result }}"
-          result_dev_tools="${{ needs.build-dev-tools.result }}"
-
-          failed="false"
-          for result in "${result_detect}" "${result_go_web}" "${result_go_bff}" "${result_node_web}" "${result_node_bff}" "${result_tests}" "${result_mcp}" "${result_mock_oauth}" "${result_dev_tools}"; do
-            if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
-              failed="true"
-            fi
-          done
-
-          if [[ "${failed}" == "true" ]]; then
-            echo "::error::One or more container builds failed"
-            exit 1
-          fi
-
-          echo "All container builds completed successfully."
+        env:
+          RESULT_DETECT: ${{ needs.detect-changes.result }}
+          RESULT_GO_WEB: ${{ needs.build-go-web.result }}
+          RESULT_GO_BFF: ${{ needs.build-go-bff.result }}
+          RESULT_NODE_WEB: ${{ needs.build-nodejs-web.result }}
+          RESULT_NODE_BFF: ${{ needs.build-nodejs-bff.result }}
+          RESULT_TESTS: ${{ needs.build-contract-tests.result }}
+          RESULT_MCP: ${{ needs.build-mcp-server.result }}
+          RESULT_MOCK_OAUTH: ${{ needs.build-mock-oauth.result }}
+          RESULT_DEV_TOOLS: ${{ needs.build-dev-tools.result }}
+        run: bash scripts/ci/check-container-build-result.sh
