@@ -644,6 +644,8 @@ jobs:
       - check-mock-oauth-build
       - check-auth-integration
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Verify required checks
         env:
           RESULT_DETECT: ${{ needs.detect-changes.result }}
