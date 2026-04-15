@@ -1,9 +1,6 @@
 # Local AI assistant settings
 .claude/settings.json
 .claude/settings.local.json
-# Claude Code skill bridge — created by npm install via scripts/setup-claude-skills.js.
-# Kept out of git to avoid junction/symlink type-change confusion on Windows.
-.claude/skills
 
 # Repo-local agent worktrees
 .agents/worktrees/

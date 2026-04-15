@@ -5,7 +5,6 @@
   "description": "Intent-Driven Portal (IDP)",
   "license": "MIT",
   "scripts": {
-    "postinstall": "node scripts/setup-claude-skills.js",
     "lint:md": "markdownlint-cli2",
     "start:web": "make -C \"stacks/go/net-http/rest\" run-web",
     "start:bff": "make -C \"stacks/go/net-http/rest\" run-bff",

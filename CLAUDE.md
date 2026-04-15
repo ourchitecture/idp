@@ -7,14 +7,9 @@ Full development standards, maintenance rules, and agent workflow are in
 ## Skills
 
 Agent workflow skills are defined in `.agents/skills/`. Each skill is a
-directory containing a `SKILL.md` file. Claude Code discovers them locally
-via `.claude/skills/`, which is a symlink or junction created by `npm install`
-and is not tracked by git.
+directory containing a `SKILL.md` file. Claude Code does not yet support
+the open standard `.agents/skills/` discovery path, so this file exists to
+direct Claude Code to the correct location.
 
-When reading this repository through a tool that does not have a local
-checkout (for example the GitHub MCP server), read skills directly from
-`.agents/skills/<name>/SKILL.md`.
-
-> Details on the cross-platform setup, agent rules for the skill bridge, and
-> maintenance instructions are documented in the **Claude Code Skill Discovery
-> Bridge** section of [AGENTS.md](AGENTS.md).
+> All skill details, agent rules, and maintenance instructions belong in
+> [AGENTS.md](AGENTS.md). Do not duplicate content here.
