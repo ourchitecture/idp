@@ -393,6 +393,11 @@ git commit -m "<validated commit message>"
 Run `git log -1 --format="%H %s"` to confirm the commit was created
 successfully.
 
+When the feature branch needs to carry more than one logical change,
+return to Step 1 after this commit and process the next slice. Each
+slice should be its own small commit — do not try to consolidate
+several unrelated changes into the message composed in Steps 4–7.
+
 ## Step 11: Push to Remote
 
 Run `git remote get-url <remote>` (default: `upstream`) to confirm
@@ -424,6 +429,11 @@ REMOTE_SHA=$(git rev-parse <remote>/<branch>)
 ```
 
 If they do not match, stop and report the failure.
+
+Push after every new commit, not just the last one in the series.
+Early pushes make in-progress work visible to concurrent agents and
+reviewers, and keep the remote branch close to the local branch so a
+later failure does not lose work.
 
 ## Step 12: Create a Pull Request
 
