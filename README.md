@@ -171,12 +171,18 @@ moon run nodejs-react-fastify-rest:check-ci
 
 All development follows the issue-driven workflow defined in [AGENTS.md](AGENTS.md). Work is tracked via GitHub Issues and authorized through the `@idp-admin` and `@idp-maintain` teams.
 
-Agent workflow skills are available in `/.agents/skills/`:
+Agent workflow skills are defined in `/.agents/skills/` (the canonical location)
+and are automatically available to Claude Code via `/.claude/skills/`, which is a
+symlink created at clone time on Linux/macOS or by `npm install` on Windows.
 
 - `/find-work` to discover the next authorized issue.
 - `/plan-work issue_number=<N>` to prepare an implementation plan.
 - `/ship-changes issue_number=<N>` to commit, open a PR, and merge.
 - `/audit-work-integrity` to enforce strict branch/PR/issue linkage hygiene.
+
+Most AI agents discover skills from `.agents/skills/` natively. Claude Code reads
+from `.claude/` — the symlink bridges both without duplicating any files. See
+[AGENTS.md](AGENTS.md) for the cross-platform setup details.
 
 ### Documentation Site
 
