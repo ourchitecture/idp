@@ -734,6 +734,9 @@ an update to generated assets in `docs/static/diagrams/` in the same change.
 
 - No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md` found in this repo.
 - If these files appear later, include their guidance here.
+- `CLAUDE.md` exists at the repo root for Claude Code context. It is intentionally
+  brief — full standards and maintenance instructions live here in `AGENTS.md`, not
+  in `CLAUDE.md`. Do not duplicate content between the two files.
 
 ## What Not To Do
 
