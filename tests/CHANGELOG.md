@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.4.1-alpha.0...contract-tests-v1.5.0-alpha.0) (2026-04-15)
+
+
+### Features
+
+* **flow:** add scenario-based contract tests for provider-neutral flow insights ([#238](https://github.com/ourchitecture/idp/issues/238)) ([313f2ac](https://github.com/ourchitecture/idp/commit/313f2ac7459aa1bbe5a20fba23a628dbc6aa3d29))
+
 ## [1.4.1-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.4.0-alpha.0...contract-tests-v1.4.1-alpha.0) (2026-04-08)
 
 
