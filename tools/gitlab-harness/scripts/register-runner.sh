@@ -4,8 +4,8 @@ set -euo pipefail
 GITLAB_URL=${GITLAB_URL:-http://gitlab:8929}
 REGISTRATION_TOKEN=${REGISTRATION_TOKEN:-}
 RUNNER_NAME=${RUNNER_NAME:-gitlab-harness-runner}
-RUNNER_EXECUTOR=${RUNNER_EXECUTOR:-docker}
-RUNNER_IMAGE=${RUNNER_IMAGE:-docker:24.0.9}
+RUNNER_EXECUTOR=${RUNNER_EXECUTOR:-shell}
+RUNNER_TAG_LIST=${RUNNER_TAG_LIST:-gitlab-harness}
 CONFIG_DIR=${CONFIG_DIR:-/etc/gitlab-runner}
 
 if [ -f "$CONFIG_DIR/config.toml" ]; then
@@ -27,7 +27,7 @@ gitlab-runner register --non-interactive \
   --registration-token "$REGISTRATION_TOKEN" \
   --name "$RUNNER_NAME" \
   --executor "$RUNNER_EXECUTOR" \
-  --docker-image "$RUNNER_IMAGE" \
+  --tag-list "$RUNNER_TAG_LIST" \
   --locked=false \
   --run-untagged=true \
   --access-level=not_protected

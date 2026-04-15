@@ -33,11 +33,10 @@ services:
       GITLAB_URL: http://gitlab:8929
       REGISTRATION_TOKEN: ${GITLAB_RUNNER_REGISTRATION_TOKEN:-gitlab-harness-runner-token}
       RUNNER_NAME: gitlab-harness-runner
-      RUNNER_EXECUTOR: docker
-      RUNNER_IMAGE: docker:24.0.9
+      RUNNER_EXECUTOR: shell
+      RUNNER_TAG_LIST: gitlab-harness
     extra_hosts:
       - "gitlab-harness:127.0.0.1"
     volumes:
       - ./scripts/register-runner.sh:/harness/register-runner.sh:ro
       - ./data/runner:/etc/gitlab-runner
-      - /var/run/docker.sock:/var/run/docker.sock
