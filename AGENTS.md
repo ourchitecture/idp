@@ -185,6 +185,11 @@ plan, implement, and perfect a large change in a single edit pass.
 - When a reusable helper would otherwise require separate Bash and PowerShell
   implementations, prefer one portable Python or Node.js script with thin task
   wrappers instead of maintaining duplicate shell logic.
+- Do not prefix Bash tool commands with `cd <path> &&`. The working directory
+  is already the repository root. Prefixing with `cd` breaks permission
+  allowlist patterns (e.g. `Bash(git *)` will not match `cd ... && git ...`).
+  If a command needs to run in a subdirectory, either use a separate `cd`
+  command first or pass absolute/relative paths as arguments to the tool.
 - Platform caveats and first-run behavior must be documented alongside run
   commands for each stack.
 
