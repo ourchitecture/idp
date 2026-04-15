@@ -1,0 +1,99 @@
+# Fixture: waiting-on-evidence-github
+#
+# A GitHub pull request that has completed implementation (merged) and passed
+# all branch validation, but is waiting on two required evidence items: a
+# security attestation and a deployment trace. The responsible actor is
+# identified. This fixture supports the "waiting on evidence, not effort" signal.
+
+fixture_id: "waiting-on-evidence-github"
+scenario: "waiting_on_evidence"
+provider: "github"
+description: >
+  A merged GitHub PR with passing branch validation but pending evidence state.
+  Security attestation and deployment trace are required but not yet supplied.
+  The responsible actor for supplying evidence is identified.
+
+repository:
+  provider: "github"
+  provider_id: "repo-payments-003"
+  full_name: "example-org/payments-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-08T14:00:00Z"
+
+changes:
+  - provider: "github"
+    provider_id: "pr-600"
+    repository_id: "repo-payments-003"
+    source_branch: "feature/pci-compliance-update"
+    target_branch: "main"
+    state: "merged"
+    author_actor_id: "actor-olivia"
+    created_at: "2026-04-06T09:00:00Z"
+    updated_at: "2026-04-08T12:00:00Z"
+    title: "PCI compliance update"
+    work_item_refs:
+      - external_id: "130"
+        provider: "github"
+        title: "Implement PCI DSS compliance changes"
+        state: "open"
+        url: "https://github.com/example-org/payments-service/issues/130"
+    merged_at: "2026-04-08T11:45:00Z"
+    closed_at: "2026-04-08T11:45:00Z"
+    fetched_at: "2026-04-08T14:00:00Z"
+
+actors:
+  - provider: "github"
+    provider_id: "actor-olivia"
+    display_name: "Olivia"
+    provider_login: "olivia"
+    team_memberships: ["payments-team"]
+  - provider: "github"
+    provider_id: "actor-sam"
+    display_name: "Sam"
+    provider_login: "sam"
+    team_memberships: ["security-team"]
+
+review_states:
+  - change_id: "pr-600"
+    state: "approved"
+    as_of: "2026-04-08T11:30:00Z"
+    reviewer_actor_ids:
+      - "actor-sam"
+    last_activity_at: "2026-04-08T11:30:00Z"
+    approval_count: 1
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "pr-600"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-07T10:00:00Z"
+    name: "ci / test"
+    url: "https://github.com/example-org/payments-service/checks/600"
+    duration_seconds: 300
+
+merge_events:
+  - change_id: "pr-600"
+    merged_at: "2026-04-08T11:45:00Z"
+    target_branch: "main"
+    merged_by_actor_id: "actor-olivia"
+    merge_commit_sha: "merge-sha-600"
+
+evidence_states:
+  - change_id: "pr-600"
+    # Implementation complete and validation passed, but evidence pending.
+    # Two evidence types required; neither has been supplied yet.
+    state: "pending"
+    as_of: "2026-04-08T14:00:00Z"
+    required_types:
+      - "security attestation"
+      - "deployment trace"
+    owner_actor_id: "actor-sam"
+
+ownership_hints:
+  - repository_id: "repo-payments-003"
+    owner_team_names: ["payments-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"

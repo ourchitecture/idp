@@ -1,0 +1,77 @@
+# Fixture: unclear-ownership-github
+#
+# A GitHub pull request for a change scoped to the "notifications" service where
+# ownership state is unclear because no CODEOWNERS entry covers the affected
+# paths. The adapter emits an ownership hint with empty owner lists and
+# confidence "inferred" to signal that ownership data could not be found.
+
+fixture_id: "unclear-ownership-github"
+scenario: "unclear_ownership"
+provider: "github"
+description: >
+  A GitHub PR scoped to the notifications service with no resolvable ownership.
+  No CODEOWNERS entry matches the changed paths. Ownership hint has empty
+  owner lists and confidence inferred.
+
+repository:
+  provider: "github"
+  provider_id: "repo-notifications-001"
+  full_name: "example-org/notifications-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-06T09:00:00Z"
+
+changes:
+  - provider: "github"
+    provider_id: "pr-400"
+    repository_id: "repo-notifications-001"
+    source_branch: "feature/add-push-notifications"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-marcus"
+    created_at: "2026-04-05T08:00:00Z"
+    updated_at: "2026-04-06T08:30:00Z"
+    title: "Add push notification support"
+    work_item_refs:
+      - external_id: "88"
+        provider: "github"
+        title: "Implement push notifications"
+        state: "open"
+        url: "https://github.com/example-org/notifications-service/issues/88"
+    fetched_at: "2026-04-06T09:00:00Z"
+
+actors:
+  - provider: "github"
+    provider_id: "actor-marcus"
+    display_name: "Marcus"
+    provider_login: "marcus"
+
+review_states:
+  - change_id: "pr-400"
+    state: "awaiting_review"
+    as_of: "2026-04-06T08:30:00Z"
+    reviewer_actor_ids: []
+    last_activity_at: "2026-04-06T08:30:00Z"
+    approval_count: 0
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "pr-400"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-05T09:00:00Z"
+    name: "ci / test"
+    url: "https://github.com/example-org/notifications-service/checks/200"
+    duration_seconds: 120
+
+merge_events: []
+
+ownership_hints:
+  - repository_id: "repo-notifications-001"
+    # No owner resolved — empty owners with inferred confidence signals
+    # that the adapter could not find ownership data for the affected paths.
+    owner_actor_ids: []
+    owner_team_names: []
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "inferred"

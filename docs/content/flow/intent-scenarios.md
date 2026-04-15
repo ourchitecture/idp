@@ -17,6 +17,16 @@ Source: [`tests/features/flow-insights.feature`](https://github.com/ourchitectur
 - **Aging work between implementation and validation:** Implementation finished, yet validation has not started or is stalled beyond the expected window; the signal cites the delay and outstanding checks.
 - **Risk signal by service, team, or flow stage:** Multiple signals cluster in the same scope within a short window, elevating risk and recommending focused remediation.
 
-## Not a conformance profile (yet)
+## Provider-specific and edge-case scenarios
 
-These scenarios are Layer 1 intent only. They do not define harness steps, HTTP routes, or stack obligations. A formal profile and Layer 2 harness will follow once the canonical model is stable.
+The feature file also includes provider-tagged scenarios (`@github`, `@gitlab`,
+`@gitlab-self-managed`, `@cross-provider`) that validate provider-specific
+normalization paths, cross-provider equivalence, ownership ambiguity, evidence
+state inference, and reduced-confidence behavior under partial data.
+
+## Layer 2 conformance profile
+
+A formal Layer 2 profile and TypeScript contract harness now exist for this
+capability. See [Flow Insights Profile](../testing/profiles/flow-insights) for
+the scenario table, fixture catalog, cross-stack equivalence rules, and stack
+declaration requirements.

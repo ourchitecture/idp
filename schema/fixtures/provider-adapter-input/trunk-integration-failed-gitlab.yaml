@@ -1,0 +1,104 @@
+# Fixture: trunk-integration-failed-gitlab
+#
+# A GitLab merge request that passed all MR pipeline jobs and was merged, but
+# the trunk pipeline failed within 15 minutes of the merge. This is the GitLab
+# counterpart to trunk-integration-failed-github.yaml.
+#
+# The same "passed checks but failing trunk integration" signal must be inferred
+# from both, with the same signal identity and severity intent
+# (cross-stack equivalence rule).
+
+fixture_id: "trunk-integration-failed-gitlab"
+scenario: "trunk_integration_failure"
+provider: "gitlab"
+description: >
+  A GitLab MR with all pipeline jobs passing pre-merge but the trunk pipeline
+  failing within 15 minutes of merge. Required approvals were met. Ownership
+  declared via Code Owners.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-observability-gl-001"
+  full_name: "example-org/observability"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-02T12:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-1234"
+    repository_id: "repo-observability-gl-001"
+    source_branch: "feature/add-alerting"
+    target_branch: "main"
+    state: "merged"
+    author_actor_id: "actor-dana-gl"
+    created_at: "2026-04-01T15:00:00Z"
+    updated_at: "2026-04-02T10:20:00Z"
+    title: "Add alerting rules"
+    work_item_refs:
+      - external_id: "105"
+        title: "Add alerting for latency"
+        provider: "gitlab"
+        url: "https://gitlab.com/example-org/observability/-/issues/105"
+        state: "open"
+    merged_at: "2026-04-02T10:15:00Z"
+    closed_at: "2026-04-02T10:15:00Z"
+    fetched_at: "2026-04-02T12:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-dana-gl"
+    display_name: "Dana"
+    provider_login: "dana"
+  - provider: "gitlab"
+    provider_id: "actor-eli-gl"
+    display_name: "Eli"
+    provider_login: "eli"
+  - provider: "gitlab"
+    provider_id: "actor-fay-gl"
+    display_name: "Fay"
+    provider_login: "fay"
+
+review_states:
+  - change_id: "mr-1234"
+    state: "approved"
+    as_of: "2026-04-02T10:10:00Z"
+    reviewer_actor_ids:
+      - "actor-eli-gl"
+      - "actor-fay-gl"
+    last_activity_at: "2026-04-02T10:10:00Z"
+    approval_count: 2
+    required_approval_count: 2
+
+validation_runs:
+  - change_id: "mr-1234"
+    # MR-scoped pipeline — all jobs passed before merge.
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-02T09:45:00Z"
+    name: "ci / test"
+    url: "https://gitlab.com/example-org/observability/-/pipelines/2001"
+    duration_seconds: 480
+  - change_id: "mr-1234"
+    # Trunk pipeline triggered after merge — failed within 15 minutes.
+    scope: "trunk"
+    state: "failed"
+    run_at: "2026-04-02T10:25:00Z"
+    name: "deploy / main"
+    url: "https://gitlab.com/example-org/observability/-/pipelines/2002"
+    duration_seconds: 600
+    failure_summary: "failure"
+
+merge_events:
+  - change_id: "mr-1234"
+    merged_at: "2026-04-02T10:15:00Z"
+    target_branch: "main"
+    merged_by_actor_id: "actor-dana-gl"
+    merge_commit_sha: "merge-sha-gl-1234"
+
+ownership_hints:
+  - repository_id: "repo-observability-gl-001"
+    owner_team_names: ["sre-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"

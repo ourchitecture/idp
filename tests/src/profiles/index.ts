@@ -1,5 +1,6 @@
 import { createAuthProfileTests } from "./auth-profile";
 import { createCoreTests } from "./core";
+import { createFlowInsightsTests } from "./flow-insights";
 import { createMcpProfileTests } from "./mcp-profile";
 import { createOperationalTests } from "./operational";
 import { createStatusProfileTests } from "./status-profile";
@@ -25,6 +26,10 @@ export function buildTestsForProfile(profile: ProfileName, context: ContractCont
 
   if (profile === "auth-profile") {
     return createAuthProfileTests(context);
+  }
+
+  if (profile === "flow-insights") {
+    return createFlowInsightsTests(context);
   }
 
   return createUiProfileTests(context);

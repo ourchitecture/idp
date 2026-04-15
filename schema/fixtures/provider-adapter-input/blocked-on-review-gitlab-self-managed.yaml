@@ -1,0 +1,88 @@
+# Fixture: blocked-on-review-gitlab-self-managed
+#
+# A GitLab self-managed merge request blocked on review. The same "blocked on
+# review" semantics apply. The merge actor identity is marked partial because
+# the self-managed instance runs a version that does not expose the merge actor
+# via the API (pre-14.x behavior). Branch validation ran via legacy commit
+# status rather than GitLab Pipelines.
+#
+# is_partial: true on the review state signals that reviewer identities could
+# not be fully resolved, reducing inference confidence.
+
+fixture_id: "blocked-on-review-gitlab-self-managed"
+scenario: "blocked_on_review"
+provider: "gitlab"
+description: >
+  A GitLab self-managed MR blocked on review with partial reviewer identity.
+  Branch validation passed via legacy commit status. Merge actor identity
+  unavailable due to a provider API version gap.
+
+repository:
+  provider: "gitlab"
+  provider_id: "repo-infra-sm-001"
+  full_name: "example-org/infra"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-05T14:00:00Z"
+
+changes:
+  - provider: "gitlab"
+    provider_id: "mr-512"
+    repository_id: "repo-infra-sm-001"
+    source_branch: "feature/update-network-policy"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-peter-sm"
+    created_at: "2026-04-03T10:00:00Z"
+    updated_at: "2026-04-05T13:00:00Z"
+    title: "Update network policy"
+    work_item_refs:
+      - external_id: "99"
+        provider: "gitlab"
+        title: "Update firewall policy for prod"
+        state: "open"
+    fetched_at: "2026-04-05T14:00:00Z"
+
+actors:
+  - provider: "gitlab"
+    provider_id: "actor-peter-sm"
+    display_name: "Peter"
+    provider_login: "peter"
+    team_memberships: ["infra-team"]
+  - provider: "gitlab"
+    provider_id: "actor-quinn-sm"
+    display_name: "Quinn"
+    provider_login: "quinn"
+    team_memberships: ["infra-team"]
+
+review_states:
+  - change_id: "mr-512"
+    # Reviewer identity partially resolved; self-managed API did not return
+    # individual reviewer assignments for this instance version.
+    state: "awaiting_review"
+    as_of: "2026-04-05T13:00:00Z"
+    reviewer_actor_ids: []
+    reviewer_team_names: ["infra-team"]
+    last_activity_at: "2026-04-05T13:00:00Z"
+    required_approval_count: 1
+    approval_count: 0
+    is_partial: true
+
+validation_runs:
+  - change_id: "mr-512"
+    # Legacy commit status path on self-managed instance.
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-03T11:00:00Z"
+    name: "legacy-ci"
+    duration_seconds: 200
+
+merge_events: []
+
+ownership_hints:
+  - repository_id: "repo-infra-sm-001"
+    owner_team_names: ["infra-team"]
+    path_pattern: "*"
+    source: "codeowners"
+    confidence: "declared"
+    is_partial: true

@@ -1,0 +1,86 @@
+# Fixture: unclear-ownership-ambiguous-github
+#
+# A GitHub pull request scoped to the "notifications" service where two
+# separate teams are listed as accountable owners in CODEOWNERS with no single
+# confirmed owner. The adapter emits two conflicting ownership hints and sets
+# confidence "inferred" on each, per the adapter contract rule for conflicting
+# ownership hints.
+#
+# This is the "two teams, no single owner" ambiguity case from the feature spec.
+
+fixture_id: "unclear-ownership-ambiguous-github"
+scenario: "unclear_ownership"
+provider: "github"
+description: >
+  A GitHub PR scoped to the notifications service with two conflicting CODEOWNERS
+  entries assigning different teams as accountable owners. No single confirmed
+  owner. Both hints are emitted with confidence inferred.
+
+repository:
+  provider: "github"
+  provider_id: "repo-notifications-002"
+  full_name: "example-org/notifications-service"
+  default_branch: "main"
+  visibility: "private"
+  fetched_at: "2026-04-07T11:00:00Z"
+
+changes:
+  - provider: "github"
+    provider_id: "pr-450"
+    repository_id: "repo-notifications-002"
+    source_branch: "feature/notification-routing"
+    target_branch: "main"
+    state: "open"
+    author_actor_id: "actor-nina"
+    created_at: "2026-04-06T10:00:00Z"
+    updated_at: "2026-04-07T10:30:00Z"
+    title: "Refactor notification routing"
+    work_item_refs:
+      - external_id: "91"
+        provider: "github"
+        title: "Consolidate notification routing logic"
+        state: "open"
+        url: "https://github.com/example-org/notifications-service/issues/91"
+    fetched_at: "2026-04-07T11:00:00Z"
+
+actors:
+  - provider: "github"
+    provider_id: "actor-nina"
+    display_name: "Nina"
+    provider_login: "nina"
+    team_memberships: ["platform-team"]
+
+review_states:
+  - change_id: "pr-450"
+    state: "awaiting_review"
+    as_of: "2026-04-07T10:30:00Z"
+    reviewer_actor_ids: []
+    reviewer_team_names: ["platform-team", "notifications-team"]
+    last_activity_at: "2026-04-07T10:30:00Z"
+    approval_count: 0
+    required_approval_count: 1
+
+validation_runs:
+  - change_id: "pr-450"
+    scope: "branch"
+    state: "passed"
+    run_at: "2026-04-06T11:00:00Z"
+    name: "ci / test"
+    url: "https://github.com/example-org/notifications-service/checks/300"
+    duration_seconds: 160
+
+merge_events: []
+
+ownership_hints:
+  # Two conflicting CODEOWNERS entries for the same path pattern.
+  # Per the adapter contract: emit all hints, set confidence inferred on each.
+  - repository_id: "repo-notifications-002"
+    owner_team_names: ["platform-team"]
+    path_pattern: "src/routing/*"
+    source: "codeowners"
+    confidence: "inferred"
+  - repository_id: "repo-notifications-002"
+    owner_team_names: ["notifications-team"]
+    path_pattern: "src/routing/*"
+    source: "codeowners"
+    confidence: "inferred"
