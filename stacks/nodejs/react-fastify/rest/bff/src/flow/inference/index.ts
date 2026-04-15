@@ -1,29 +1,43 @@
+import { inferBlockedOnReview } from "./blockedOnReview";
+import { inferTrunkIntegrationFailure } from "./trunkIntegrationFailure";
+import { inferUnclearOwnership } from "./unclearOwnership";
+import { inferWaitingOnEvidence } from "./waitingOnEvidence";
+import { inferAgingImplementation } from "./agingImplementationToValidation";
+import { inferRiskByScope } from "./riskByScope";
 import type { ProviderAdapterInput } from "../types";
-import type { FlowInferenceEngine, FlowInsightsResponse, InferenceContext } from "./types";
+import type { FlowInferenceEngine, FlowInsightsResponse, InferenceContext, FlowSignal } from "./types";
 
 const defaultContext: InferenceContext = {
   now: new Date(),
 };
 
-function buildEmptyResponse(): FlowInsightsResponse {
-  return { signals: [] };
-}
-
 export const flowInferenceEngine: FlowInferenceEngine = {
   infer(input: ProviderAdapterInput, context?: Partial<InferenceContext>): FlowInsightsResponse {
-    // Future rule-based implementation will consume the normalized input to
-    // produce actionable flow signals. For now, return an empty set while the
-    // deterministic inference rules are implemented.
     const runtimeContext: InferenceContext = {
       ...defaultContext,
       ...context,
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _input = input;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _now = runtimeContext.now;
+    const signals: FlowSignal[] = [];
 
-    return buildEmptyResponse();
+    const blocked = inferBlockedOnReview(input, runtimeContext.now);
+    if (blocked) signals.push(blocked);
+
+    const trunk = inferTrunkIntegrationFailure(input, runtimeContext.now);
+    if (trunk) signals.push(trunk);
+
+    const ownership = inferUnclearOwnership(input);
+    if (ownership) signals.push(ownership);
+
+    const evidence = inferWaitingOnEvidence(input);
+    if (evidence) signals.push(evidence);
+
+    const aging = inferAgingImplementation(input, runtimeContext.now);
+    if (aging) signals.push(aging);
+
+    const risk = inferRiskByScope(signals);
+    if (risk) signals.push(risk);
+
+    return { signals };
   },
 };
