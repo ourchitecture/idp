@@ -5,6 +5,7 @@ import path from "node:path";
 import yaml from "yaml";
 import { flowInferenceEngine } from "./index";
 import type { ProviderAdapterInput } from "../types";
+import type { FlowSignal } from "./types";
 
 const FIXTURE_DIR = path.resolve(
   __dirname,
@@ -24,7 +25,7 @@ function loadFixture(name: string): ProviderAdapterInput {
   return yaml.parse(raw) as ProviderAdapterInput;
 }
 
-function findSignal(resultId: string, signals: { id: string }[]) {
+function findSignal(resultId: string, signals: FlowSignal[]): FlowSignal | undefined {
   return signals.find((signal) => signal.id === resultId);
 }
 
