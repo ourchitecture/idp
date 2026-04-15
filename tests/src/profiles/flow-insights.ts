@@ -135,6 +135,30 @@ export function createFlowInsightsTests(context: ContractContext): TestCase[] {
   const { bffBaseUrl } = context;
 
   return [
+    // ── Provisional endpoint gate ──────────────────────────────────────────
+    // The flow insights API endpoint is provisional until issues #225 and
+    // #226 land. This test runs first and fails clearly so that stacks
+    // declaring the capability before the endpoint exists get an explicit
+    // error instead of silent test failures downstream.
+    {
+      name: "flow-insights:provisional endpoint is reachable",
+      run: async () => {
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+        const probeUrl = new URL(PROVISIONAL_ENDPOINT, bffBaseUrl);
+        // Send a minimal empty-body POST; we only care that the endpoint
+        // exists (non-404/405), not that it produces a valid signal result.
+        const response = await post(probeUrl, {});
+        if (response.status === 404 || response.status === 405) {
+          throw new Error(
+            `Provisional endpoint ${PROVISIONAL_ENDPOINT} returned ${response.status}. ` +
+            `This profile requires the endpoint to exist (see issues #225 and #226). ` +
+            `Stacks must not declare capabilities.flowInsights.enabled = true until ` +
+            `the endpoint is available.`,
+          );
+        }
+      },
+    },
+
     // ── Core provider-neutral scenarios ─────────────────────────────────────
 
     {
