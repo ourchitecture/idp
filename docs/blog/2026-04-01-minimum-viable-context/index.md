@@ -8,7 +8,7 @@ tags:
   - ai
   - context-engineering
   - developer-experience
-draft: true
+draft: false
 date: 2026-04-01
 description: "Why teams need minimum viable context before minimum viable product in an AI-accelerated delivery model."
 ---

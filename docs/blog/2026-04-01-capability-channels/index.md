@@ -8,7 +8,7 @@ tags:
   - ai
   - mcp
   - developer-experience
-draft: true
+draft: false
 date: 2026-04-01
 description: "Design capabilities first, then express them through API, CLI, UI, and agent channels."
 ---
