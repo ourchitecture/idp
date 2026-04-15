@@ -14,7 +14,7 @@ cd tools/gitlab-harness
 make up
 make wait-healthy
 make token       # writes .secrets/gitlab-harness.token
-make seed        # populates test data (pending implementation)
+make seed        # populates bootstrap org/users/projects (scenario seeds pending)
 make logs        # follow logs during troubleshooting
 make down        # stop containers
 make reset       # stop and clear persisted data
@@ -29,4 +29,4 @@ make reset       # stop and clear persisted data
 
 - Data, runner config, and logs persist under `tools/gitlab-harness/data/`.
 - The harness is intended only for testing and should not be treated as a source of truth.
-- Seeding scripts are stubbed; scenarios will be added to mirror existing GitLab fixtures.
+- Seeding currently bootstraps the GitLab org/users/projects; individual scenario seeds will map to existing GitLab fixtures in follow-up steps.
