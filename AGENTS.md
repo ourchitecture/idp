@@ -706,7 +706,41 @@ reject the operation.
 - `/tools/mcp/` Model Context Protocol adapter server
 - `/tools/vscode-extension/` VS Code extension skeleton (early integration target)
 - `/tools/backstage/` Backstage test harness for IDP plug-in integration (skeleton phase)
-- `/.agents/skills/` agent skills
+- `/.agents/skills/` agent skills — canonical location for all skill definitions
+- `/.claude/skills/` symlink → `../.agents/skills/` — Claude Code skill discovery bridge (see below)
+
+### Claude Code Skill Discovery Bridge
+
+Claude Code discovers skills from `.claude/` while most other AI agents look in
+`.agents/skills/`. A git symlink bridges the two without duplication:
+
+```text
+.claude/skills  →  ../.agents/skills   (git mode 120000)
+```
+
+**Cross-platform setup**
+
+| Platform | Mechanism | Requires |
+|---|---|---|
+| Linux / macOS | git creates a real symlink at clone time | nothing |
+| Windows (`core.symlinks=true`) | git creates a real symlink at clone time | Developer Mode or admin |
+| Windows (`core.symlinks=false`, default) | `npm install` creates an NTFS junction | nothing extra |
+
+The `postinstall` hook in `package.json` runs `scripts/setup-claude-skills.js`
+on every `npm install`. On Linux/macOS it detects the real symlink and exits
+immediately. On Windows it replaces the text stub git left behind with an NTFS
+junction pointing to `.agents/skills/`, which requires no elevated privileges.
+
+**Rules for agents**
+
+- Never delete, move, or re-create `.claude/skills` as a directory. It is a
+  managed symlink/junction — treat it as read-only infrastructure.
+- Never duplicate skill files between `.agents/skills/` and `.claude/`. The
+  symlink means both paths resolve to the same files.
+- Add new skills only under `.agents/skills/<name>/SKILL.md`. Claude Code will
+  pick them up automatically via the symlink.
+- The one-time exception to the "Do not use symlinks" rule in **What Not To Do**
+  is this bridge. All other ad-hoc symlink use remains prohibited.
 
 ### Test Harness Sync Rule
 
@@ -738,7 +772,8 @@ an update to generated assets in `docs/static/diagrams/` in the same change.
 ## What Not To Do
 
 - Do not navigate, read, write, or execute commands outside the repository root.
-- Do not use symlinks.
+- Do not use symlinks, except for the documented `.claude/skills → ../.agents/skills`
+  bridge managed by `scripts/setup-claude-skills.js`. All other ad-hoc symlink use is prohibited.
 - Do not disable security features.
 - Do not introduce cloud-provider lock-in without an abstraction.
 - Do not add AI/LLM calls without error handling, rate limits, and cost controls.
