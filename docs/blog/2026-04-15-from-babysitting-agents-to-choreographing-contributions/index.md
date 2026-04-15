@@ -1,11 +1,18 @@
 ---
 slug: from-babysitting-agents-to-choreographing-contributions
-title: From babysitting agents to choreographing contributions
-authors: [eric]
-tags: [ai, agents, developer-experience, open-source, idp]
+title: "From babysitting agents to choreographing contributions"
+authors: [stemix_team]
+tags:
+  - ai
+  - agents
+  - developer-experience
+  - open-source
+  - idp
+draft: false
+date: 2026-04-15
 ---
 
-# From babysitting agents to choreographing contributions
+<!-- markdownlint-disable MD041 -->
 
 One of the more humbling lessons in the IDP project so far is this:
 
@@ -85,6 +92,7 @@ That includes direct and indirect dependence.
 If a contribution workflow only works because one maintainer owns premium AI accounts, that workflow is not truly community-ready. It may work privately. It does not scale as a contribution model.
 
 The contribution model has to let each person bring their own tools:
+
 - paid cloud agents
 - free local models
 - editor integrations
@@ -121,6 +129,7 @@ In other words, scale requires decomposition discipline.
 Not every task deserves a premium cloud model.
 
 Some tasks are repetitive and mechanical:
+
 - summarize a failing PR
 - extract changed files
 - draft a handoff note
@@ -154,6 +163,7 @@ Instead of asking, "Did the agent finish?" we ask:
 - Who or what should receive it next?
 
 This is a much healthier mental model for open-source contribution at scale because it works with:
+
 - humans
 - premium agents
 - local models
@@ -186,6 +196,7 @@ The repo needs machine-readable work intent, not only human-readable guidance.
 The repository is already good at validating changed code paths and repository quality. That is a real strength.
 
 But many of the painful failures happen before or between those checks:
+
 - work never really started
 - work silently stalled
 - a PR was created too early
@@ -201,6 +212,7 @@ It is reasonable for the repository to include setup help for specific tools. Th
 But those should remain adapters, not the center of gravity.
 
 The durable product surface of the contribution model should be:
+
 - repository rules
 - work packet format
 - handoff semantics
@@ -218,6 +230,7 @@ Here is the path I think the IDP project should take next.
 The repo should introduce a small machine-readable work packet format.
 
 Each packet should describe:
+
 - objective
 - parent issue
 - allowed paths
@@ -248,6 +261,7 @@ A work packet should not be "in progress" forever.
 It should be leased.
 
 That means:
+
 - one active worker or role claims it
 - the lease has a TTL
 - the worker renews the lease while active
@@ -265,6 +279,7 @@ A worker should not be considered done because it said so.
 A worker should be considered ready for handoff only when it produces a completion artifact.
 
 That artifact should include:
+
 - task id
 - changed files
 - checks run
@@ -282,6 +297,7 @@ This lowers the cost of review because the human is verifying evidence, not reco
 The repo should refuse early handoff when minimum conditions are not met.
 
 Examples:
+
 - no PR if there are zero commits
 - no PR if the packet has no completion evidence
 - no "done" state if required checks were not run
@@ -295,6 +311,7 @@ That makes the system more honest.
 Instead of automating personal AI accounts to wait on PR checks, the project should provide a local utility contributors can run on their own machines.
 
 That utility should:
+
 - watch PR checks
 - summarize failures
 - produce a follow-up work packet
@@ -312,6 +329,7 @@ Not as magical replacements for strong coding judgment.
 As cheap helpers for grunt work.
 
 This could include optional guidance for using local tooling such as:
+
 - Ollama
 - Aider
 - Continue
@@ -351,6 +369,7 @@ A few future directions are worth keeping in mind, but should remain future-faci
 ### Role-based packet routing
 
 Over time, the project could formalize roles such as:
+
 - planner
 - implementer
 - validator
@@ -371,6 +390,7 @@ But it should remain optional and outside the required public contribution path.
 ### Better repository-native evaluation
 
 The project should eventually maintain a small corpus of:
+
 - representative work packets
 - good and bad handoff artifacts
 - examples of false completion
