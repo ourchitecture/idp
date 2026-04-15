@@ -660,7 +660,10 @@ Agents must validate that requested changes actually took effect and report evid
 
 - Conventional Commits are required for maintainers.
 - Include issue references: `Refs #N` or `Closes #N`.
-- Keep commits atomic and scoped to one logical change.
+- Keep commits atomic and scoped to one logical change. See
+  [Iterative Small Commits](#iterative-small-commits-required) — prefer
+  many small commits over one large commit, and commit after each new
+  file, edit, or deletion rather than batching many changes together.
 - Branch naming: `<type>/<short-description>`.
 
 ### Branch Protection (GitHub Rulesets)
