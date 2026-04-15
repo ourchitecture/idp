@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"idp-go-net-http-rest/bff/flow/inference"
 )
 
 const defaultPort = 8000
@@ -290,6 +292,7 @@ func main() {
 	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/readiness", handleReadiness)
 	mux.HandleFunc("/api/portal/summary", handlePortalSummary)
+	mux.Handle("/api/flow/insights", inference.NewHandler())
 	registerAuthRoutes(mux)
 
 	payload, err := json.Marshal(startupLog{

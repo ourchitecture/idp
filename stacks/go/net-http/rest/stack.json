@@ -6,7 +6,8 @@
     "core",
     "operational",
     "status-profile",
-    "auth-profile"
+    "auth-profile",
+    "flow-insights"
   ],
   "capabilities": {
     "status": {
@@ -18,6 +19,9 @@
     "auth": {
       "enabled": true,
       "providers": ["none", "mock", "github"]
+    },
+    "flowInsights": {
+      "enabled": true
     }
   }
 }

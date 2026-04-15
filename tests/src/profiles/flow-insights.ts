@@ -4,11 +4,8 @@
 // feature file and this profile disagree, the feature file is authoritative
 // (ADR-0009).
 //
-// NOTE: The inference API endpoint assumed here is provisional.
-// This profile assumes POST /api/flow/insights on the BFF base URL.
-// The exact endpoint shape must be confirmed when issue #225 (inference engine)
-// and issue #226 (HTTP API surface) land. Stacks should declare
-// capabilities.flowInsights.enabled = true only once they expose the endpoint.
+// The inference API endpoint is POST /api/flow/insights on the BFF base URL.
+// Stacks declare capabilities.flowInsights.enabled = true only once they expose it.
 //
 // Cross-stack equivalence rules enforced by this profile:
 //   Required to be equivalent across stacks:
@@ -34,7 +31,7 @@ import type { ContractContext, TestCase } from "../types";
 
 const FIXTURE_DIR = path.resolve(__dirname, "../../../schema/fixtures/provider-adapter-input");
 
-const PROVISIONAL_ENDPOINT = "/api/flow/insights";
+const FLOW_INSIGHTS_ENDPOINT = "/api/flow/insights";
 
 type FlowSignal = {
   id: string;
@@ -64,11 +61,11 @@ async function postFixture(
   bffBaseUrl: URL,
   fixture: unknown,
 ): Promise<FlowInsightsResponse> {
-  const response = await post(new URL(PROVISIONAL_ENDPOINT, bffBaseUrl), fixture);
+  const response = await post(new URL(FLOW_INSIGHTS_ENDPOINT, bffBaseUrl), fixture);
 
   if (response.status < 200 || response.status >= 300) {
     throw new Error(
-      `POST ${PROVISIONAL_ENDPOINT} returned ${response.status}: ${response.body}`,
+      `POST ${FLOW_INSIGHTS_ENDPOINT} returned ${response.status}: ${response.body}`,
     );
   }
 
@@ -77,7 +74,7 @@ async function postFixture(
     parsed = JSON.parse(response.body);
   } catch {
     throw new Error(
-      `POST ${PROVISIONAL_ENDPOINT} response is not valid JSON: ${response.body}`,
+      `POST ${FLOW_INSIGHTS_ENDPOINT} response is not valid JSON: ${response.body}`,
     );
   }
 
@@ -87,7 +84,7 @@ async function postFixture(
     !Array.isArray((parsed as FlowInsightsResponse).signals)
   ) {
     throw new Error(
-      `POST ${PROVISIONAL_ENDPOINT} response must contain a 'signals' array`,
+      `POST ${FLOW_INSIGHTS_ENDPOINT} response must contain a 'signals' array`,
     );
   }
 
@@ -135,25 +132,19 @@ export function createFlowInsightsTests(context: ContractContext): TestCase[] {
   const { bffBaseUrl } = context;
 
   return [
-    // ── Provisional endpoint gate ──────────────────────────────────────────
-    // The flow insights API endpoint is provisional until issues #225 and
-    // #226 land. This test runs first and fails clearly so that stacks
-    // declaring the capability before the endpoint exists get an explicit
-    // error instead of silent test failures downstream.
+    // ── Endpoint gate ──────────────────────────────────────────
     {
       name: "flow-insights:provisional endpoint is reachable",
       run: async () => {
         await ensureServiceAvailable("BFF server", bffBaseUrl);
-        const probeUrl = new URL(PROVISIONAL_ENDPOINT, bffBaseUrl);
+        const probeUrl = new URL(FLOW_INSIGHTS_ENDPOINT, bffBaseUrl);
         // Send a minimal empty-body POST; we only care that the endpoint
         // exists (non-404/405), not that it produces a valid signal result.
         const response = await post(probeUrl, {});
         if (response.status === 404 || response.status === 405) {
           throw new Error(
-            `Provisional endpoint ${PROVISIONAL_ENDPOINT} returned ${response.status}. ` +
-            `This profile requires the endpoint to exist (see issues #225 and #226). ` +
-            `Stacks must not declare capabilities.flowInsights.enabled = true until ` +
-            `the endpoint is available.`,
+            `Flow insights endpoint ${FLOW_INSIGHTS_ENDPOINT} returned ${response.status}. ` +
+            `Stacks must expose the endpoint before enabling capabilities.flowInsights.`,
           );
         }
       },

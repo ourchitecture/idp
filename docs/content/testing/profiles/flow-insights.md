@@ -124,13 +124,6 @@ Source: [`tests/src/profiles/flow-insights.ts`](https://github.com/ourchitecture
 The TypeScript harness is derived from the `.feature` file above. When they
 disagree, the `.feature` file is authoritative (ADR-0009).
 
-### Provisional API assumption
-
-The profile assumes `POST /api/flow/insights` on the BFF base URL. This
-endpoint shape must be confirmed when the inference engine (issue #225) and the
-HTTP API surface (issue #226) land. Stacks must not declare
-`capabilities.flowInsights.enabled = true` until the endpoint is available.
-
 ## Stack declarations
 
 Stacks that expose the flow insights capability must declare both the profile

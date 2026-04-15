@@ -65,3 +65,16 @@ Each signal uses only the canonical model concepts and stays provider-neutral. F
 - **Recommended next action:** Escalate to the accountable owner for the scope, allocate review/validation capacity, or pause incoming changes until the risk clears.
 - **Confidence guidance:** High when signals share the same scope and window; medium when scope is inferred from filenames or tags.
 - **Worked example:** Over the last 48 hours, three changes in the notifications service triggered trunk integration failures and two showed unclear ownership. The signal highlights the service scope and recommends a focused remediation window.
+
+## Signal IDs, severity, and confidence
+
+These IDs and severity tiers are canonical across stacks and providers:
+
+- `blocked_on_review` — severity `high`, confidence starts at `high`
+- `trunk_integration_failure` — severity `high`, confidence `high` if within 15 minutes of merge, otherwise `medium`
+- `unclear_ownership` — severity `medium`, confidence starts at `high`
+- `waiting_on_evidence` — severity `medium`, confidence starts at `high`
+- `aging_implementation` — severity `medium`, confidence starts at `high`
+- `risk_aggregation` — severity `high`, confidence starts at `high`
+
+Confidence is reduced one tier (`high` → `medium` → `low`) when any consumed input is marked `is_partial: true`. Review window is 24 hours, trunk integration window is 15 minutes from merge, aging window is 24 hours from merge, and risk aggregation uses a 48-hour clustering window.
