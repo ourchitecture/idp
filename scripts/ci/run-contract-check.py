@@ -340,6 +340,7 @@ def main() -> int:
         "OUR_IDP_WEB_URL": WEB_URL,
         "OUR_IDP_BFF_URL": BFF_URL,
         "OUR_IDP_STACK_PATH": STACK_PATH,
+        "OUR_IDP_SERVERS_STARTED": "1",
     }
     if CONTRACT_PROFILES:
         test_env["OUR_IDP_CONTRACT_PROFILES"] = CONTRACT_PROFILES
