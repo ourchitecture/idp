@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.4.0
+version: 1.5.0
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
