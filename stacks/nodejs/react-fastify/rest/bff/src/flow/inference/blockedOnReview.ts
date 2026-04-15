@@ -1,5 +1,5 @@
 import { REVIEW_WINDOW_HOURS } from "./thresholds";
-import { degradeConfidence, resolveActors } from "./explain";
+import { degradeConfidence, resolveActors, resolvePrimaryTeam } from "./explain";
 import type {
   NormalizedActor,
   NormalizedReviewState,
@@ -71,6 +71,9 @@ export function inferBlockedOnReview(
     input.changes.some((c) => c.provider_id === changeId && c.is_partial);
 
   const confidence = degradeConfidence(baseConfidence, partialFlag);
+  const service = input.repository.full_name ?? input.repository.provider_id;
+  const team = resolvePrimaryTeam(input.ownership_hints);
+  const observedAt = reviewState.as_of ?? referenceTime ?? new Date().toISOString();
 
   return {
     id: "blocked_on_review",
@@ -79,6 +82,8 @@ export function inferBlockedOnReview(
     confidence,
     explanation: `Waiting ${Math.floor(elapsedHours)}h for review: pending ${waitingOn}.`,
     recommendedNextAction: "Notify assigned reviewers or reassess reviewer assignment.",
-    relatedEntities: [changeId],
+    relatedEntities: [service, changeId],
+    scope: { service, team, stage: "review" },
+    observedAt,
   };
 }

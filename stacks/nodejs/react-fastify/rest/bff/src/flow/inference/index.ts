@@ -35,7 +35,7 @@ export const flowInferenceEngine: FlowInferenceEngine = {
     const aging = inferAgingImplementation(input, runtimeContext.now);
     if (aging) signals.push(aging);
 
-    const risk = inferRiskByScope(signals);
+    const risk = inferRiskByScope(input, signals, runtimeContext.now);
     if (risk) signals.push(risk);
 
     return { signals };

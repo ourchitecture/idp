@@ -43,15 +43,23 @@ func InferAgingImplementation(input flow.ProviderAdapterInput, now time.Time) (*
 	}
 
 	partial := merged.IsPartial || trunkPending.IsPartial || input.Repository.IsPartial
+	service := serviceFrom(input.Repository)
+	team := resolvePrimaryTeam(input.OwnershipHints)
 
 	signal := flow.FlowSignal{
-		ID:         "aging_implementation",
-		Title:      "Aging between implementation and validation",
-		Severity:   "medium",
-		Confidence: degradeConfidence("high", partial),
-		Explanation: fmt.Sprintf("Implementation merged %.0fh ago; trunk validation still %s.", elapsed, trunkPending.State),
+		ID:                    "aging_implementation",
+		Title:                 "Aging between implementation and validation",
+		Severity:              "medium",
+		Confidence:            degradeConfidence("high", partial),
+		Explanation:           fmt.Sprintf("Implementation merged %.0fh ago; trunk validation still %s.", elapsed, trunkPending.State),
 		RecommendedNextAction: "Start or prioritize trunk validation for the merged change.",
-		RelatedEntities:      []any{merged.ProviderID},
+		RelatedEntities:       []any{service, merged.ProviderID},
+		Scope: &flow.FlowSignalScope{
+			Service: service,
+			Team:    team,
+			Stage:   flow.StageValidation,
+		},
+		ObservedAt: trunkPending.RunAt,
 	}
 
 	return &signal, true

@@ -1,5 +1,5 @@
 import { AGING_WINDOW_HOURS } from "./thresholds";
-import { degradeConfidence } from "./explain";
+import { degradeConfidence, resolvePrimaryTeam } from "./explain";
 import type { ProviderAdapterInput, NormalizedValidationRun } from "../types";
 import type { FlowSignal } from "./types";
 
@@ -38,6 +38,8 @@ export function inferAgingImplementation(
 
   const partialFlag =
     mergedChange.is_partial === true || trunkPending.is_partial === true || input.repository.is_partial === true;
+  const service = input.repository.full_name ?? input.repository.provider_id;
+  const team = resolvePrimaryTeam(input.ownership_hints);
 
   return {
     id: "aging_implementation",
@@ -46,6 +48,8 @@ export function inferAgingImplementation(
     confidence: degradeConfidence("high", partialFlag),
     explanation: `Implementation merged ${Math.floor(elapsedHours)}h ago; trunk validation still ${trunkPending.state}.`,
     recommendedNextAction: "Start or prioritize trunk validation for the merged change.",
-    relatedEntities: [mergedChange.provider_id],
+    relatedEntities: [service, mergedChange.provider_id],
+    scope: { service, team, stage: "validation" },
+    observedAt: trunkPending.run_at,
   };
 }

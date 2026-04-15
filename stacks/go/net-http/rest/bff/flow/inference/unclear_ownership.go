@@ -72,6 +72,11 @@ func InferUnclearOwnership(input flow.ProviderAdapterInput) (*flow.FlowSignal, b
 	}
 
 	owners := summarizeOwners(input.OwnershipHints)
+	service := serviceFrom(input.Repository)
+	team := ""
+	if len(owners) > 0 {
+		team = owners[0]
+	}
 
 	signal := flow.FlowSignal{
 		ID:         "unclear_ownership",
@@ -85,7 +90,13 @@ func InferUnclearOwnership(input flow.ProviderAdapterInput) (*flow.FlowSignal, b
 			return "No ownership signals found for this scope."
 		}(),
 		RecommendedNextAction: "Assign or confirm a single accountable owner for the affected scope.",
-		RelatedEntities:      make([]any, 0),
+		RelatedEntities:       []any{service},
+		Scope: &flow.FlowSignalScope{
+			Service: service,
+			Team:    team,
+			Stage:   flow.StageOwnership,
+		},
+		ObservedAt: input.Repository.FetchedAt,
 	}
 	for _, owner := range owners {
 		signal.RelatedEntities = append(signal.RelatedEntities, owner)

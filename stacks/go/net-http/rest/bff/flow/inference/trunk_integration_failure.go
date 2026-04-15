@@ -72,20 +72,33 @@ func InferTrunkIntegrationFailure(input flow.ProviderAdapterInput, now time.Time
 	withinWindow := deltaMinutes <= TrunkWindowMinutes
 
 	partial := merged.IsPartial || branchPass.IsPartial || trunkFail.IsPartial || input.Repository.IsPartial
+	service := serviceFrom(input.Repository)
+	team := resolvePrimaryTeam(input.OwnershipHints)
 
 	signal := flow.FlowSignal{
-		ID:         "trunk_integration_failure",
-		Title:      "Trunk integration failed after passing branch checks",
-		Severity:   "high",
+		ID:       "trunk_integration_failure",
+		Title:    "Trunk integration failed after passing branch checks",
+		Severity: "high",
 		Confidence: degradeConfidence(func() flow.FlowSignalConfidence {
 			if withinWindow {
 				return "high"
 			}
 			return "medium"
 		}(), partial),
-		Explanation: fmt.Sprintf("Branch checks passed but trunk run '%s' failed %.0f minutes after merge.", trunkFail.Name, deltaMinutes),
+		Explanation:           fmt.Sprintf("Branch checks passed but trunk run '%s' failed %.0f minutes after merge.", trunkFail.Name, deltaMinutes),
 		RecommendedNextAction: "Investigate trunk failure, fix forward or roll back the change on trunk.",
-		RelatedEntities:      []any{merged.ProviderID, trunkFail.Name},
+		RelatedEntities:       []any{service, merged.ProviderID, trunkFail.Name},
+		Scope: &flow.FlowSignalScope{
+			Service: service,
+			Team:    team,
+			Stage:   flow.StageValidation,
+		},
+		ObservedAt: func() string {
+			if input.Repository.FetchedAt != "" {
+				return input.Repository.FetchedAt
+			}
+			return trunkFail.RunAt
+		}(),
 	}
 
 	return &signal, true

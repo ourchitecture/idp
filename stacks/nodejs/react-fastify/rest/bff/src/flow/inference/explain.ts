@@ -48,3 +48,13 @@ export function summarizeOwners(hints: NormalizedOwnershipHint[]): string[] {
 
   return Array.from(owners).sort((a, b) => a.localeCompare(b));
 }
+
+export function resolvePrimaryTeam(hints: NormalizedOwnershipHint[]): string | undefined {
+  for (const hint of hints) {
+    const [team] = hint.owner_team_names ?? [];
+    if (team && team.trim().length > 0) {
+      return team;
+    }
+  }
+  return undefined;
+}

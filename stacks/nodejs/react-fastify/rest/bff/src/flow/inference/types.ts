@@ -3,6 +3,20 @@ import type { ProviderAdapterInput } from "../types";
 export type FlowSignalSeverity = "low" | "medium" | "high";
 export type FlowSignalConfidence = "low" | "medium" | "high";
 
+export type FlowSignalStage =
+  | "review"
+  | "validation"
+  | "ownership"
+  | "evidence"
+  | "implementation"
+  | "aggregate";
+
+export interface FlowSignalScope {
+  service?: string;
+  team?: string;
+  stage?: FlowSignalStage;
+}
+
 export interface FlowSignal {
   id: string;
   title: string;
@@ -11,6 +25,8 @@ export interface FlowSignal {
   explanation?: string;
   recommendedNextAction?: string;
   relatedEntities?: unknown[];
+  scope?: FlowSignalScope;
+  observedAt?: string;
 }
 
 export interface FlowInsightsResponse {

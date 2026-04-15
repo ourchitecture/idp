@@ -1,5 +1,5 @@
 import { TRUNK_WINDOW_MINUTES } from "./thresholds";
-import { degradeConfidence } from "./explain";
+import { degradeConfidence, resolvePrimaryTeam } from "./explain";
 import type { ProviderAdapterInput, NormalizedValidationRun } from "../types";
 import type { FlowSignal } from "./types";
 
@@ -59,6 +59,8 @@ export function inferTrunkIntegrationFailure(
     branchPass.is_partial === true ||
     trunkFail.is_partial === true ||
     input.repository.is_partial === true;
+  const service = input.repository.full_name ?? input.repository.provider_id;
+  const team = resolvePrimaryTeam(input.ownership_hints);
 
   return {
     id: "trunk_integration_failure",
@@ -67,6 +69,8 @@ export function inferTrunkIntegrationFailure(
     confidence: degradeConfidence(withinWindow ? "high" : "medium", partialFlag),
     explanation: `Branch checks passed but trunk run '${trunkFail.name ?? "trunk"}' failed ${Math.ceil(deltaMinutes)} minutes after merge.`,
     recommendedNextAction: "Investigate trunk failure, fix forward or roll back the change on trunk.",
-    relatedEntities: [mergedChange.provider_id, trunkFail.name ?? "trunk"],
+    relatedEntities: [service, mergedChange.provider_id, trunkFail.name ?? "trunk"],
+    scope: { service, team, stage: "validation" },
+    observedAt: input.repository.fetched_at ?? trunkFail.run_at ?? mergedChange.updated_at ?? mergedAt,
   };
 }

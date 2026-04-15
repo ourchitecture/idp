@@ -37,7 +37,7 @@ export const flowInsightsRoutes: FastifyPluginAsync = async (app) => {
     }
 
     const input = parsed.data as ProviderAdapterInput;
-    const signals = flowInferenceEngine.infer(input, { now: new Date() });
-    return { signals };
+    const result = flowInferenceEngine.infer(input, { now: new Date() });
+    return result;
   });
 };

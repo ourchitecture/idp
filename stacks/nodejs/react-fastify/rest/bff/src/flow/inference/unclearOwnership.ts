@@ -29,6 +29,8 @@ export function inferUnclearOwnership(input: ProviderAdapterInput): FlowSignal |
   const scopeDescription = owners.length > 0 ? owners.join(", ") : "no confirmed owners";
 
   const partialFlag = input.ownership_hints.some((hint) => hint.is_partial);
+  const service = input.repository.full_name ?? input.repository.provider_id;
+  const [team] = owners;
 
   return {
     id: "unclear_ownership",
@@ -39,6 +41,8 @@ export function inferUnclearOwnership(input: ProviderAdapterInput): FlowSignal |
       ? `Conflicting owners detected: ${scopeDescription}.`
       : "No ownership signals found for this scope.",
     recommendedNextAction: "Assign or confirm a single accountable owner for the affected scope.",
-    relatedEntities: owners,
+    relatedEntities: [service, ...owners],
+    scope: { service, team, stage: "ownership" },
+    observedAt: input.repository.fetched_at,
   };
 }

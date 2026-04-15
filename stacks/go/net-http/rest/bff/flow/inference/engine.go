@@ -43,7 +43,7 @@ func (e *Engine) Infer(input flow.ProviderAdapterInput, ctx *Context) flow.FlowI
 		signals = append(signals, *aging)
 	}
 
-	if risk, ok := InferRiskByScope(signals); ok {
+	if risk, ok := InferRiskByScope(input, signals, now); ok {
 		signals = append(signals, *risk)
 	}
 

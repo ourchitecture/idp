@@ -94,15 +94,28 @@ func InferBlockedOnReview(input flow.ProviderAdapterInput, now time.Time) (*flow
 			break
 		}
 	}
+	service := serviceFrom(input.Repository)
+	team := resolvePrimaryTeam(input.OwnershipHints)
 
 	signal := flow.FlowSignal{
-		ID:         "blocked_on_review",
-		Title:      "Blocked on review",
-		Severity:   "high",
-		Confidence: degradeConfidence("high", partial),
-		Explanation: fmt.Sprintf("Waiting %.0fh for review: pending %s.", elapsed, waitingOn),
+		ID:                    "blocked_on_review",
+		Title:                 "Blocked on review",
+		Severity:              "high",
+		Confidence:            degradeConfidence("high", partial),
+		Explanation:           fmt.Sprintf("Waiting %.0fh for review: pending %s.", elapsed, waitingOn),
 		RecommendedNextAction: "Notify assigned reviewers or reassess reviewer assignment.",
-		RelatedEntities:      []any{changeID},
+		RelatedEntities:       []any{service, changeID},
+		Scope: &flow.FlowSignalScope{
+			Service: service,
+			Team:    team,
+			Stage:   flow.StageReview,
+		},
+		ObservedAt: func() string {
+			if reviewState.AsOf != "" {
+				return reviewState.AsOf
+			}
+			return refTime
+		}(),
 	}
 
 	return &signal, true

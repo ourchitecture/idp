@@ -42,20 +42,68 @@ func InferWaitingOnEvidence(input flow.ProviderAdapterInput) (*flow.FlowSignal, 
 		return nil, false
 	}
 
-	owner := resolveActorName(input.Actors, evidence.OwnerActorID)
-	types := evidence.RequiredTypes
-	desc := "Evidence pending for this change."
-	if len(types) > 0 {
-		desc = fmt.Sprintf("Evidence pending: %s.", strings.Join(types, ", "))
+	var change *flow.NormalizedChange
+	for i := range input.Changes {
+		if input.Changes[i].ProviderID == evidence.ChangeID {
+			change = &input.Changes[i]
+			break
+		}
+	}
+	if change == nil || change.State != "merged" {
+		return nil, false
 	}
 
-	partial := evidence.IsPartial
+	runs := make([]flow.NormalizedValidationRun, 0)
+	for _, run := range input.ValidationRuns {
+		if run.ChangeID == change.ProviderID {
+			runs = append(runs, run)
+		}
+	}
+
+	hasPassed := false
+	hasBlocking := false
+	for _, run := range runs {
+		if run.State == "passed" {
+			hasPassed = true
+		}
+		if run.State == "failed" || run.State == "flaky" || run.State == "pending" || run.State == "running" {
+			hasBlocking = true
+		}
+	}
+	if !hasPassed || hasBlocking {
+		return nil, false
+	}
+
+	owner := resolveActorName(input.Actors, evidence.OwnerActorID)
+	types := evidence.RequiredTypes
+	service := serviceFrom(input.Repository)
+	desc := fmt.Sprintf("Evidence pending for %s.", service)
+	if len(types) > 0 {
+		desc = fmt.Sprintf("Evidence pending for %s: %s.", service, strings.Join(types, ", "))
+	}
+
+	partial := evidence.IsPartial || change.IsPartial || input.Repository.IsPartial
+	for _, run := range runs {
+		if run.IsPartial {
+			partial = true
+			break
+		}
+	}
+	team := resolvePrimaryTeam(input.OwnershipHints)
+	if team == "" {
+		for _, actor := range input.Actors {
+			if actor.ProviderID == evidence.OwnerActorID && len(actor.TeamMemberships) > 0 {
+				team = actor.TeamMemberships[0]
+				break
+			}
+		}
+	}
 
 	signal := flow.FlowSignal{
-		ID:         "waiting_on_evidence",
-		Title:      "Waiting on evidence, not effort",
-		Severity:   "medium",
-		Confidence: degradeConfidence("high", partial),
+		ID:          "waiting_on_evidence",
+		Title:       "Waiting on evidence, not effort",
+		Severity:    "medium",
+		Confidence:  degradeConfidence("high", partial),
 		Explanation: desc,
 		RecommendedNextAction: func() string {
 			if owner != "" {
@@ -63,6 +111,13 @@ func InferWaitingOnEvidence(input flow.ProviderAdapterInput) (*flow.FlowSignal, 
 			}
 			return "Request required evidence from the accountable owner."
 		}(),
+		RelatedEntities: []any{service, change.ProviderID},
+		Scope: &flow.FlowSignalScope{
+			Service: service,
+			Team:    team,
+			Stage:   flow.StageEvidence,
+		},
+		ObservedAt: evidence.AsOf,
 	}
 	for _, t := range types {
 		signal.RelatedEntities = append(signal.RelatedEntities, t)
