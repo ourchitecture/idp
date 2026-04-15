@@ -707,49 +707,26 @@ reject the operation.
 - `/tools/vscode-extension/` VS Code extension skeleton (early integration target)
 - `/tools/backstage/` Backstage test harness for IDP plug-in integration (skeleton phase)
 - `/.agents/skills/` agent skills — canonical location for all skill definitions
-- `/.claude/skills/` symlink/junction → `.agents/skills/` — Claude Code skill discovery bridge (see below; **not tracked by git**, created by `npm install`)
+- `/.claude/skills/` — gitignored local link to `.agents/skills/`; created by
+  `npm install` for Claude Code's file-based discovery (see **Claude Code Skill Discovery**)
 
-### Claude Code Skill Discovery Bridge
+### Claude Code Skill Discovery
 
-Claude Code discovers skills from `.claude/` while most other AI agents look in
-`.agents/skills/`. A local symlink/junction bridges the two without duplication.
+Skills live in `.agents/skills/` and are discovered by most AI agents natively
+from that path. Claude Code also looks in `.claude/`, so `npm install` creates
+`.claude/skills` as a local symlink (Linux/macOS) or NTFS junction (Windows)
+pointing to `.agents/skills/`. This link is gitignored and never committed.
 
-`.claude/skills` is listed in `.gitignore` and is **never committed**. Git
-tracking is intentionally avoided because Windows NTFS junctions appear to git
-as plain directories — if committed, `git add .` could traverse the junction and
-stage every skill file a second time under `.claude/skills/` paths, creating
-duplicate index entries alongside the already-tracked `.agents/skills/` copies.
-
-The `postinstall` hook in `package.json` runs `scripts/setup-claude-skills.js`
-on every `npm install`. This is the sole creation mechanism on all platforms.
-
-**Cross-platform setup**
-
-| Platform | Mechanism | Requires |
-|---|---|---|
-| Linux / macOS | `npm install` creates a real directory symlink | nothing |
-| Windows (Developer Mode or admin) | `npm install` creates a real directory symlink | Developer Mode or admin |
-| Windows (default) | `npm install` creates an NTFS junction (real symlink attempted first, junction is fallback) | nothing extra |
-
-**Why not a git-tracked symlink?**
-
-Git stores symlinks as mode-`120000` blobs. On Windows with `core.symlinks=false`
-(the default), git writes a text stub instead of a real symlink at checkout.
-When `npm install` later replaces that stub with an NTFS junction, git sees a
-directory where its index expected a blob. Subsequent `git add .` calls can
-traverse the junction and stage skill files a second time under `.claude/skills/`
-paths. Keeping `.claude/skills` out of git entirely removes this risk.
+When a Claude Code session reads this repository without a local checkout (for
+example via GitHub MCP), `CLAUDE.md` at the repo root supplies the skill
+location directly.
 
 **Rules for agents**
 
-- Never `git add .claude/skills` or any path beneath it. It is gitignored
-  infrastructure — treat it as read-only.
-- Never duplicate skill files between `.agents/skills/` and `.claude/`. Both
-  paths resolve to the same files via the symlink/junction.
-- Add new skills only under `.agents/skills/<name>/SKILL.md`. Claude Code will
-  pick them up automatically via the local link.
-- The one-time exception to the "Do not use symlinks" rule in **What Not To Do**
-  is this bridge. All other ad-hoc symlink use remains prohibited.
+- Never `git add .claude/skills` or any path beneath it — it is gitignored infrastructure.
+- Add new skills only under `.agents/skills/<name>/SKILL.md`.
+- Never duplicate skill files under `.claude/` — both paths resolve to the same files.
+- This is the only permitted use of symlinks/junctions; see **What Not To Do**.
 
 ### Test Harness Sync Rule
 
