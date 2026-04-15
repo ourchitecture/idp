@@ -1,0 +1,28 @@
+blocked_on_review:
+  project: example-org/payments-service
+  merge_request_iid: 789
+  fixture: blocked-on-review-gitlab.yaml
+blocked_on_review_self_managed:
+  project: example-org/infra
+  merge_request_iid: 512
+  fixture: blocked-on-review-gitlab-self-managed.yaml
+trunk_integration_failure:
+  project: example-org/observability
+  merge_request_iid: 1234
+  fixture: trunk-integration-failed-gitlab.yaml
+unclear_ownership:
+  project: example-org/notifications-service
+  merge_request_iid: 400
+  fixture: unclear-ownership-gitlab.yaml
+waiting_on_evidence:
+  project: example-org/payments-service
+  merge_request_iid: 600
+  fixture: waiting-on-evidence-gitlab.yaml
+aging_implementation:
+  project: example-org/auth-service
+  merge_request_iid: 700
+  fixture: aging-implementation-gitlab.yaml
+risk_aggregation:
+  project: example-org/checkout-service
+  merge_request_iid: 801
+  fixture: risk-aggregation-gitlab.yaml
