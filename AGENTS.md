@@ -72,6 +72,13 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Make the smallest change that satisfies the current task. Do not refactor or reorganize unrelated code.
 - Prefer appending or patching over rewriting. Wholesale rewrites increase merge conflicts and wasted effort.
 - Commit atomically and frequently so concurrent agents can rebase cleanly.
+- Do not try to hold an entire implementation in memory before editing files
+  and committing. Break the work into the smallest useful step, apply it,
+  commit it, and then plan the next step from the newly-committed state.
+- It is expected and healthy to change a file one way, learn that a
+  different approach is required, and then update it again in a follow-up
+  commit. Rely on source control for iteration — do not try to land the
+  "perfect" version in a single edit.
 
 ### Real-time adaptation
 
