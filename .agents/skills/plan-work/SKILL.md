@@ -45,6 +45,16 @@ implementation plan posted as a comment for maintainer approval.
 The GitHub issue comment is the authoritative review artifact.
 This skill never implements code -- it only plans.
 
+## Branch Policy
+
+This skill is non-mutating with respect to git branches. It runs entirely
+from the main checkout and must not create any branches. If the agent
+runtime automatically creates a branch at session start, this skill must
+delete that branch before completing — no commits should exist on it and
+no PR should be opened from it. Leaving an agent-created branch without
+commits or a PR is an integrity violation that will be flagged by the
+audit-work-integrity skill and removed by the weekly branch cleanup workflow.
+
 ## Step 1: Fetch the Issue
 
 Use the GitHub MCP `get_issue` tool to retrieve the full issue
@@ -221,3 +231,5 @@ This skill is done only when all of the following are true:
 2. The issue is labeled for review (`needs-review`) rather than left only
    in `in-progress`.
 3. The local output includes the posted-plan summary and the comment link.
+4. No agent-created branch exists as a result of running this skill. If the
+   runtime auto-created a branch, it has been deleted before this skill exits.

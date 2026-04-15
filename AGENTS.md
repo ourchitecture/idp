@@ -105,6 +105,26 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Automatic cleanup is allowed only after successful merge confirmation and only for clean issue worktrees. Dirty or ambiguous worktrees must be reported and audited rather than deleted blindly.
 - All worktree paths must remain inside the repository root. Do not create sibling-directory or parent-directory worktrees.
 
+### Branch Hygiene
+
+Agent-created branches must not accumulate without corresponding open pull
+requests. The weekly branch cleanup workflow removes orphaned zero-commit
+branches, but agents are responsible for not creating branches they do not need.
+
+- Planning, triage, review, and read-only skills run from the main checkout
+  and must not create branches.
+- If the agent runtime automatically creates a branch at session start, the
+  skill must detect this and delete the branch before completing when no
+  commits were made and no PR was opened from it.
+- Any non-exempt branch with zero commits ahead of `main` and no open PR is
+  considered orphaned. The automated weekly cleanup workflow will delete it.
+- Do not create multiple branches for the same issue. Repeated invocations
+  that produce branch names like `fix/foo-again` or `fix/foo-another-one`
+  signal a process failure, not a workflow pattern. Stop and reconcile the
+  existing branch instead.
+- Exempt from cleanup: `main`, `master`, and any branch matching the prefix
+  `release-please--`.
+
 ## Iterative Small Commits (Required)
 
 Source control is the agent's working memory. Use it instead of trying to
