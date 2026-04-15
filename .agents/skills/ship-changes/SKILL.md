@@ -1,6 +1,6 @@
 ---
 name: ship-changes
-version: 1.4.0
+version: 1.5.0
 description: >
   End-to-end workflow that reviews working tree changes, creates a
   feature branch, commits with strict Conventional Commits format,
@@ -80,6 +80,51 @@ outputs:
 End-to-end workflow: review working tree, create a feature branch,
 commit, push, open a PR, merge to main, and clean up.
 
+## Operating Mode: Iterate in Small Commits
+
+This skill is the final "ship" step, but the implementation work that
+feeds it (Step 0b and any refinement loops along the way) must be
+performed as a sequence of small, granular commits — not as one
+large, in-memory edit session that lands a single monster commit at
+the end.
+
+Follow these rules whenever the skill is actively editing the repo:
+
+- **Commit after every meaningful change.** Every new file, every
+  edit to an existing file, and every deletion is a candidate for
+  its own commit. Do not batch unrelated changes into a single
+  commit just because they happened in the same session.
+- **Do not hold the whole implementation in memory.** Plan the
+  smallest next step, edit, stage, commit, and then re-read the repo
+  to plan the step after that. The commit history is the working
+  memory of the task.
+- **It is okay to revise a previous commit with a new commit.**
+  When a commit turns out to be wrong or incomplete, land a
+  follow-up commit that fixes it rather than trying to rewrite the
+  earlier one in place. The squash-merge at Step 13 collapses the
+  series into a single clean commit on `main`, so intermediate
+  "change direction" commits on the feature branch are expected and
+  healthy.
+- **Stage explicit file paths per commit.** Prefer
+  `git add <path>` over `git add .` / `git add -A` so each commit's
+  scope matches the change you just made and unrelated working-tree
+  changes do not leak in.
+- **Push early and often.** Once the feature branch has its first
+  commit, push it (Step 11) so concurrent agents and reviewers can
+  see progress. Continue pushing after each additional commit rather
+  than waiting until the end.
+- **Re-read before re-editing.** Before modifying a file you already
+  edited earlier in this session, re-read it from disk. Your mental
+  model can drift; the committed state is ground truth.
+
+The numbered steps below describe a single ship pass. When a pass
+produces more than one logical change, repeat Steps 1–11 for each
+slice (stage → classify → lint → commit → push) before moving on to
+Steps 12–15 to open and merge the pull request.
+
+See the top-level [`AGENTS.md`](../../../AGENTS.md) "Iterative Small
+Commits" section for the repo-wide rule this skill implements.
+
 ## Step 0a: Claim the issue (conditional, mandatory when issue_number provided)
 
 When **`issue_number` is provided**, immediately add the `in-progress`
@@ -118,17 +163,37 @@ criteria):
    `git worktree` commands. If already inside the matching issue
    worktree, continue there. If the current checkout is dirty and does
    not belong to the same issue worktree, stop and surface the conflict.
-3. **Implement** the required code and documentation in-repo following
-   `AGENTS.md` and existing patterns. Run the issue’s validation
-   commands (or stack-equivalent checks) and fix failures before
-   staging.
-4. If requirements are ambiguous, the issue is blocked, or scope is too
-   large for a single pass, **stop** and ask the user instead of
-   guessing.
+3. **Implement incrementally** following `AGENTS.md` and existing
+   patterns. Break the implementation into the smallest useful steps
+   and commit each step before starting the next:
+   - Plan only the next small step — not the entire implementation.
+   - Make the edit (create, update, or delete one file, or a tightly
+     related group of files that must change together).
+   - Run the fast validation relevant to the change (lint the file,
+     run the narrow test) when it is cheap.
+   - Stage the exact paths you touched and create a commit with a
+     descriptive Conventional Commits message.
+   - Push the branch (see Step 11) so the commit is visible.
+   - Re-read the repo state and plan the next small step from the
+     newly-committed baseline.
+   Repeat this loop until the issue's acceptance criteria are met.
+   Run the issue's full validation commands (or stack-equivalent
+   checks) before handing off to Step 12, and fix failures with
+   additional small commits rather than by rewriting earlier ones.
+4. **Revise with follow-up commits, not rewrites.** If an earlier
+   commit in the series turns out to be wrong or incomplete, land a
+   new commit that corrects it. The squash-merge in Step 13 will
+   collapse the whole series into a single commit on `main`, so
+   intermediate "change direction" commits on the feature branch are
+   expected and healthy.
+5. If requirements are ambiguous, the issue is blocked, or an
+   individual step is still too large to commit cleanly, **stop** and
+   ask the user instead of guessing or batching many unrelated
+   changes into one commit.
 
-When Step 0b runs, the rest of the workflow operates on the new
-changes. If the working tree already contains a complete implementation
-for the issue, **skip Step 0b** and start at Step 1.
+When Step 0b runs, the rest of the workflow operates on the committed
+series of changes. If the working tree already contains a complete
+implementation for the issue, **skip Step 0b** and start at Step 1.
 
 ## Step 1: Review All Unstaged and Untracked Files
 
@@ -328,6 +393,11 @@ git commit -m "<validated commit message>"
 Run `git log -1 --format="%H %s"` to confirm the commit was created
 successfully.
 
+When the feature branch needs to carry more than one logical change,
+return to Step 1 after this commit and process the next slice. Each
+slice should be its own small commit — do not try to consolidate
+several unrelated changes into the message composed in Steps 4–7.
+
 ## Step 11: Push to Remote
 
 Run `git remote get-url <remote>` (default: `upstream`) to confirm
@@ -359,6 +429,11 @@ REMOTE_SHA=$(git rev-parse <remote>/<branch>)
 ```
 
 If they do not match, stop and report the failure.
+
+Push after every new commit, not just the last one in the series.
+Early pushes make in-progress work visible to concurrent agents and
+reviewers, and keep the remote branch close to the local branch so a
+later failure does not lose work.
 
 ## Step 12: Create a Pull Request
 

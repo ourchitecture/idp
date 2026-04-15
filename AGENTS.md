@@ -72,6 +72,13 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - Make the smallest change that satisfies the current task. Do not refactor or reorganize unrelated code.
 - Prefer appending or patching over rewriting. Wholesale rewrites increase merge conflicts and wasted effort.
 - Commit atomically and frequently so concurrent agents can rebase cleanly.
+- Do not try to hold an entire implementation in memory before editing files
+  and committing. Break the work into the smallest useful step, apply it,
+  commit it, and then plan the next step from the newly-committed state.
+- It is expected and healthy to change a file one way, learn that a
+  different approach is required, and then update it again in a follow-up
+  commit. Rely on source control for iteration — do not try to land the
+  "perfect" version in a single edit.
 
 ### Real-time adaptation
 
@@ -97,6 +104,58 @@ Multiple agents may work in this repo concurrently. Each agent operates independ
 - If the current checkout is dirty and you are not already in the matching issue worktree, stop and resolve that state before creating or reusing a worktree for another issue.
 - Automatic cleanup is allowed only after successful merge confirmation and only for clean issue worktrees. Dirty or ambiguous worktrees must be reported and audited rather than deleted blindly.
 - All worktree paths must remain inside the repository root. Do not create sibling-directory or parent-directory worktrees.
+
+## Iterative Small Commits (Required)
+
+Source control is the agent's working memory. Use it instead of trying to
+plan, implement, and perfect a large change in a single edit pass.
+
+### Commit on every meaningful step
+
+- Commit after every meaningful step: a new file created, an existing file
+  edited, or a file deleted. "Meaningful" is small — a single file change
+  that leaves the repo in a coherent state is enough.
+- Prefer many small commits on a feature branch over one large commit.
+  Small commits are easier to review, revert, rebase, and reason about.
+- Stage and commit related files together when they only make sense as a
+  unit (for example, a generated artifact and the source that produced it).
+  Otherwise, commit each change on its own.
+- Run the relevant lint/test/validation for the touched scope before the
+  commit when it is cheap to do so; rely on follow-up commits to fix
+  issues surfaced by broader validation later in the loop.
+
+### Do not hold the whole change in memory
+
+- Do not accumulate edits across many files before writing any of them to
+  disk. Edit, save, and commit in small slices so the working tree always
+  reflects the latest decision.
+- Re-read a file just before editing it, even if you edited it earlier in
+  the same session. Your mental model goes stale; the commit history and
+  the file on disk are ground truth.
+- When a task looks too large to commit in one step, split it into a
+  sequence of small commits (scaffolding → wiring → behavior → docs → tests,
+  or similar). Land each slice before planning the next.
+
+### Iterate through commits, not through rework
+
+- It is expected and normal to change a file one way, learn that a
+  different approach is required, and then update it again in a later
+  commit. Do not treat the first attempt as wasted work — the earlier
+  commit is a checkpoint that makes the revision safe.
+- Prefer a follow-up commit (`fix:`, `refactor:`, or a squash at merge)
+  over silently rewriting an earlier commit. Other agents and reviewers
+  may already be reading the intermediate state.
+- If a direction turns out to be wrong, revert or adjust with a new
+  commit. Do not force-push to erase the exploration from history on a
+  shared branch.
+
+### Delete and move with commits too
+
+- Deleting a file is a change worth committing on its own. Do not bundle
+  unrelated deletions into a larger feature commit.
+- Renames and moves should be committed separately from behavioral
+  changes so git can detect the rename cleanly and reviewers can see the
+  intent of each step.
 
 ## Core Principles
 
@@ -601,7 +660,10 @@ Agents must validate that requested changes actually took effect and report evid
 
 - Conventional Commits are required for maintainers.
 - Include issue references: `Refs #N` or `Closes #N`.
-- Keep commits atomic and scoped to one logical change.
+- Keep commits atomic and scoped to one logical change. See
+  [Iterative Small Commits](#iterative-small-commits-required) — prefer
+  many small commits over one large commit, and commit after each new
+  file, edit, or deletion rather than batching many changes together.
 - Branch naming: `<type>/<short-description>`.
 
 ### Branch Protection (GitHub Rulesets)
