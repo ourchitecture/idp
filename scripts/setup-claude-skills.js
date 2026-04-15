@@ -5,13 +5,16 @@
  * Ensures .claude/skills points to .agents/skills so Claude Code can discover
  * skills from the canonical location without duplication.
  *
- * On Linux/macOS git creates the real symlink at clone time (mode 120000), so
- * this script is a no-op for those platforms.
+ * .claude/skills is NOT tracked by git (see .gitignore). This script is the
+ * sole mechanism that creates the link on every platform, so that git never
+ * sees a junction or symlink type-change on Windows.
  *
- * On Windows, git defaults to core.symlinks=false and writes a text stub
- * instead of a real symlink. This script detects that case and replaces the
- * stub with an NTFS junction, which works for directories without elevated
- * privileges or Developer Mode.
+ * Platform behaviour:
+ *   Linux / macOS  — creates a real directory symlink (no privileges needed).
+ *   Windows        — creates an NTFS junction, which works for directories
+ *                    without Developer Mode or elevated privileges. A real
+ *                    symlink is attempted first if core.symlinks=true; the
+ *                    junction is the fallback.
  */
 
 'use strict';
@@ -21,8 +24,9 @@ const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..');
 const linkPath = path.join(repoRoot, '.claude', 'skills');
+// Absolute target for Windows junctions (junctions require absolute paths).
 const targetAbsolute = path.join(repoRoot, '.agents', 'skills');
-// Relative target keeps the symlink portable if the repo is moved.
+// Relative target keeps the symlink portable when the repo moves.
 const targetRelative = path.join('..', '.agents', 'skills');
 
 function isRealSymlink(p) {
@@ -33,7 +37,7 @@ function isRealSymlink(p) {
   }
 }
 
-function exists(p) {
+function pathExists(p) {
   try {
     fs.accessSync(p);
     return true;
@@ -46,34 +50,50 @@ function exists(p) {
 fs.mkdirSync(path.join(repoRoot, '.claude'), { recursive: true });
 
 if (isRealSymlink(linkPath)) {
-  // Already a real symlink (Linux/macOS git checkout, or a previous run of
-  // this script on Windows with Developer Mode enabled).
   console.log('.claude/skills is already a symlink — nothing to do.');
   process.exit(0);
 }
 
-if (exists(linkPath)) {
-  // On Windows with core.symlinks=false git writes a plain text file whose
-  // content is the symlink target path. Remove it before creating the junction.
+// Remove any stale text stub or directory (e.g. a previous failed run).
+if (pathExists(linkPath)) {
   fs.rmSync(linkPath, { recursive: true, force: true });
 }
 
-try {
-  // 'junction' is Windows-only and requires no elevated privileges for
-  // directories. On other platforms 'dir' or 'file' would be used but this
-  // branch is only reached on Windows in practice.
-  const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
-  const target = process.platform === 'win32' ? targetAbsolute : targetRelative;
-  fs.symlinkSync(target, linkPath, symlinkType);
-  console.log(`.claude/skills -> ${target} (${symlinkType})`);
-} catch (err) {
-  // Non-fatal: degrade gracefully. Claude Code will simply not find the skills
-  // via .claude/; they remain fully available in .agents/skills/.
-  console.warn(
-    `Warning: could not create .claude/skills symlink: ${err.message}`
-  );
-  console.warn(
-    'Claude Code skill discovery from .claude/ will not work on this machine.'
-  );
-  console.warn('Skills remain available in .agents/skills/ for other agents.');
+if (process.platform === 'win32') {
+  // Try a real symlink first (requires Developer Mode or admin). If that fails,
+  // fall back to an NTFS junction, which needs no special privileges.
+  try {
+    fs.symlinkSync(targetAbsolute, linkPath, 'dir');
+    console.log(`.claude/skills -> ${targetAbsolute} (symlink)`);
+  } catch {
+    try {
+      fs.symlinkSync(targetAbsolute, linkPath, 'junction');
+      console.log(`.claude/skills -> ${targetAbsolute} (junction)`);
+    } catch (err) {
+      console.warn(
+        `Warning: could not create .claude/skills link: ${err.message}`
+      );
+      console.warn(
+        'Claude Code skill discovery from .claude/ will not work on this machine.'
+      );
+      console.warn(
+        'Skills remain available in .agents/skills/ for other agents.'
+      );
+    }
+  }
+} else {
+  try {
+    fs.symlinkSync(targetRelative, linkPath, 'dir');
+    console.log(`.claude/skills -> ${targetRelative} (symlink)`);
+  } catch (err) {
+    console.warn(
+      `Warning: could not create .claude/skills symlink: ${err.message}`
+    );
+    console.warn(
+      'Claude Code skill discovery from .claude/ will not work on this machine.'
+    );
+    console.warn(
+      'Skills remain available in .agents/skills/ for other agents.'
+    );
+  }
 }
