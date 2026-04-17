@@ -18,7 +18,7 @@ Command used:
 
 - `make -C stacks/go/net-http/rest check-contract-flow-insights`
 - `make -C stacks/nodejs/react-fastify/rest check-contract-flow-insights`
-- `bash /home/runner/work/idp/idp/scripts/ci/check-flow-insights-equivalence.sh`
+- `bash scripts/ci/check-flow-insights-equivalence.sh`
 
 Result:
 
