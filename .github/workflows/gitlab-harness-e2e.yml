@@ -24,8 +24,28 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
+        with:
+          proto-version: "0.55.4"
+          auto-install: true
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Install Node.js BFF dependencies
+        run: npm install --prefix stacks/nodejs/react-fastify/rest
+
       - name: Run GitLab harness e2e
         env:
           GITLAB_HARNESS: "1"
         run: |
           bash scripts/e2e/run-gitlab-harness.sh
+
+      - name: Upload equivalence artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitlab-harness-e2e-flow-insights-equivalence
+          path: .tmp/flow-insights-equivalence
+          if-no-files-found: ignore
