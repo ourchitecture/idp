@@ -18,7 +18,7 @@ wait-healthy:
 	@bash ./scripts/wait-healthy.sh
 
 seed:
-	@bash ./scripts/seed.sh
+	@bash ./seed/seed-all.sh
 
 token:
 	@bash ./scripts/root-token.sh

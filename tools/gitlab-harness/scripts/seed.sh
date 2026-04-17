@@ -8,9 +8,4 @@ if [ ! -f "$TOKEN_FILE" ]; then
   exit 1
 fi
 
-./scripts/wait-healthy.sh
-
-export GITLAB_HARNESS_TOKEN
-GITLAB_HARNESS_TOKEN=$(cat "$TOKEN_FILE")
-
-ruby ./seed/run.rb
+./seed/seed-all.sh
