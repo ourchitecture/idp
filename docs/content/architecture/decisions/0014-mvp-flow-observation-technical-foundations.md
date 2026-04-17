@@ -107,7 +107,7 @@ Deferred to post-MVP or later capability phases:
 
 ## Validation
 
-- Cross-stack equivalence has been confirmed; see [Cross-Stack Equivalence](../../flow/cross-stack-equivalence.md) for the documented results and harness coverage.
+- Cross-stack equivalence is validated through the shared flow insight contract tests (`tests/features/flow-insights.feature`, `tests/src/profiles/flow-insights.ts`) and the provider adapter fixtures in `schema/fixtures/provider-adapter-input/`. Documented results and harness coverage are captured in [Cross-Stack Equivalence](../../flow/cross-stack-equivalence.md).
 
 ## Confirmation
 
