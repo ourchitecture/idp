@@ -1,6 +1,6 @@
 ---
-status: proposed
-date: 2026-04-12
+status: accepted
+date: 2026-04-17
 decision-makers:
   - "@idp-admin"
   - "@idp-maintain"
@@ -104,6 +104,10 @@ Deferred to post-MVP or later capability phases:
 - Good, because storage and eventing remain internal, allowing stacks to evolve implementations without breaking the product contract.
 - Neutral, because maintaining fixture catalogs and semantic equivalence tests requires ongoing upkeep.
 - Bad if ignored, because divergent inference or storage-first designs would fragment the capability and increase cross-stack migration cost.
+
+## Validation
+
+- Cross-stack equivalence has been confirmed; see [Cross-Stack Equivalence](../../flow/cross-stack-equivalence.md) for the documented results and harness coverage.
 
 ## Confirmation
 
