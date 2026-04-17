@@ -8,9 +8,7 @@ export function inferRiskByScope(
   signals: FlowSignal[],
   now: Date,
 ): FlowSignal | null {
-  const windowStart = now.getTime() - RISK_WINDOW_HOURS * 60 * 60 * 1000;
-
-  const contributing = signals
+  const candidates = signals
     .filter((signal) => signal.id !== "risk_aggregation")
     .map((signal) => {
       const observedMs = signal.observedAt ? Date.parse(signal.observedAt) : Number.NaN;
@@ -23,7 +21,21 @@ export function inferRiskByScope(
         stage: signal.scope?.stage,
         observedMs,
       };
-    })
+    });
+
+  let latestObservedMs = Number.NaN;
+  for (const entry of candidates) {
+    if (Number.isNaN(entry.observedMs)) {
+      continue;
+    }
+    if (Number.isNaN(latestObservedMs) || entry.observedMs > latestObservedMs) {
+      latestObservedMs = entry.observedMs;
+    }
+  }
+  const anchorMs = Number.isNaN(latestObservedMs) ? now.getTime() : latestObservedMs;
+  const windowStart = anchorMs - RISK_WINDOW_HOURS * 60 * 60 * 1000;
+
+  const contributing = candidates
     .filter((entry) => Number.isNaN(entry.observedMs) || entry.observedMs >= windowStart);
 
   if (contributing.length < 3) {

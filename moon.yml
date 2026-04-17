@@ -35,6 +35,10 @@ tasks:
     command: ["bash", "./scripts/ci/detect-pr-changes.sh"]
     options:
       runFromWorkspaceRoot: true
+  check-flow-insights-equivalence:
+    command: ["bash", "./scripts/ci/check-flow-insights-equivalence.sh"]
+    options:
+      runFromWorkspaceRoot: true
   issue-number:
     command: ["bash", "./scripts/ci/issue-number-from-dispatch.sh"]
     options:

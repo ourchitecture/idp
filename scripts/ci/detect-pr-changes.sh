@@ -46,6 +46,7 @@ run_mock_oauth_build="false"
 run_mock_oauth_containers="false"
 run_dev_tools_container="false"
 run_auth_integration="false"
+run_flow_insights_equivalence="false"
 
 container_detection_output="$({
   BASE_SHA="${BASE_SHA}" \
@@ -178,6 +179,10 @@ if [[ "${run_reference_all}" == "true" ]]; then
   run_auth_integration="true"
 fi
 
+if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" ]]; then
+  run_flow_insights_equivalence="true"
+fi
+
 run_stack_validation="false"
 if [[ "${run_go_stack}" == "true" || "${run_node_stack}" == "true" || "${run_mcp_tools}" == "true" || "${run_vscode_extension}" == "true" || "${run_backstage_tools}" == "true" ]]; then
   run_stack_validation="true"
@@ -193,6 +198,7 @@ if [[ "${markdown_only}" == "true" ]]; then
   run_mock_oauth_containers="false"
   run_dev_tools_container="false"
   run_auth_integration="false"
+  run_flow_insights_equivalence="false"
 fi
 
 run_any_containers="false"
@@ -247,6 +253,7 @@ echo "run_mock_oauth_build=${run_mock_oauth_build}"
 echo "run_mock_oauth_containers=${run_mock_oauth_containers}"
 echo "run_dev_tools_container=${run_dev_tools_container}"
 echo "run_auth_integration=${run_auth_integration}"
+echo "run_flow_insights_equivalence=${run_flow_insights_equivalence}"
 echo "run_vscode_extension=${run_vscode_extension}"
 echo "run_backstage_tools=${run_backstage_tools}"
 
@@ -268,6 +275,7 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_mock_oauth_containers=%s\n" "${run_mock_oauth_containers}"
     printf "run_dev_tools_container=%s\n" "${run_dev_tools_container}"
     printf "run_auth_integration=%s\n" "${run_auth_integration}"
+    printf "run_flow_insights_equivalence=%s\n" "${run_flow_insights_equivalence}"
     printf "run_vscode_extension=%s\n" "${run_vscode_extension}"
     printf "run_backstage_tools=%s\n" "${run_backstage_tools}"
   } >> "${OUTPUT_FILE}"

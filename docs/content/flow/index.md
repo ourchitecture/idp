@@ -29,6 +29,7 @@ Flow insights define the smallest shared language for understanding how work mov
 - Read [MVP Boundaries and Strategy](./mvp-boundaries) to understand what the flow insight MVP is and what it is not.
 - Review [Implementation Strategy](./implementation-strategy) to see how multiple stacks satisfy the shared capability contract.
 - Consult [Deferred Scope and Follow-On Direction](./deferred-scope) to understand what capabilities are intentionally postponed and why.
+- Review the [cross-stack equivalence report](./cross-stack-equivalence) for the current verification baseline across stacks.
 
 ### Architecture decisions
 

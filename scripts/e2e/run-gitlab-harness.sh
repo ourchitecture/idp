@@ -14,4 +14,5 @@ make gitlab-harness-wait-healthy
 make gitlab-harness-token
 make gitlab-harness-seed
 
-echo "GitLab harness is up and seeded. Add live adapter test commands here (GITLAB_HARNESS=1)."
+GITLAB_HARNESS=1 make -C stacks/go/net-http/rest check-contract-flow-insights
+GITLAB_HARNESS=1 make -C stacks/nodejs/react-fastify/rest check-contract-flow-insights

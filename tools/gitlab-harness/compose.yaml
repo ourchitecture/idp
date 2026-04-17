@@ -22,7 +22,7 @@ services:
       - ./data/data:/var/opt/gitlab
 
   runner:
-    image: gitlab/gitlab-runner:16.11.4
+    image: gitlab/gitlab-runner:alpine-v16.11.4
     container_name: gitlab-harness-runner
     depends_on:
       gitlab:

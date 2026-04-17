@@ -1,4 +1,4 @@
-.PHONY: help all install build clean lint check-lint check-test check-contract check-ci check test test-contract e2e run-web run-bff build-container-web build-container-bff build-containers check-java build-mock-oauth check-contract-auth
+.PHONY: help all install build clean lint check-lint check-test check-contract check-contract-flow-insights check-ci check test test-contract e2e run-web run-bff build-container-web build-container-bff build-containers check-java build-mock-oauth check-contract-auth
 
 ROOT_DIR := ../../../..
 STACK_PATH := stacks/nodejs/react-fastify/rest
@@ -23,6 +23,7 @@ help:
 	@printf "  check-lint    Run lint checks\n"
 	@printf "  check-test    Run stack tests\n"
 	@printf "  check-contract Run contract tests against this stack\n"
+	@printf "  check-contract-flow-insights Run flow-insights contract profile checks\n"
 	@printf "  check-ci      Run CI-safe validation checks\n"
 	@printf "  check         Run lint, tests, and contract checks\n"
 	@printf "  test          Alias for check-test\n"
@@ -114,6 +115,20 @@ check-contract:
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
 		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
+		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+	fi
+
+check-contract-flow-insights:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-contract-flow-insights; \
+	else \
+		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" npm run start:web' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm run start:bff' \
+		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
+		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
+		OUR_IDP_CONTRACT_PROFILES=flow-insights \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi

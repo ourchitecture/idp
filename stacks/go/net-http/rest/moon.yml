@@ -43,6 +43,17 @@ tasks:
       OUR_IDP_WEB_URL: "http://127.0.0.1:3300"
       OUR_IDP_BFF_URL: "http://127.0.0.1:8300"
       OUR_IDP_ROOT_DIR: "../../../.."
+  check-contract-flow-insights:
+    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    deps: ["build"]
+    env:
+      OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3300 go run ./web"
+      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8300 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3300 go run ./bff"
+      OUR_IDP_WEB_URL: "http://127.0.0.1:3300"
+      OUR_IDP_BFF_URL: "http://127.0.0.1:8300"
+      OUR_IDP_CONTRACT_PROFILES: "flow-insights"
+      OUR_IDP_ROOT_DIR: "../../../.."
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["build", "check-lint", "check-test"]
