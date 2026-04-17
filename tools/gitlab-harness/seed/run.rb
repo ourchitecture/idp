@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require_relative "lib/api"
+require_relative "lib/helpers"
 
 module Seeds
   class << self
