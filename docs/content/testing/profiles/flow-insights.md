@@ -140,8 +140,20 @@ and the capability flag in `stack.json`:
 }
 ```
 
+## Cross-stack equivalence harness
+
+The `flow-insights` profile pairs with a cross-stack equivalence harness that
+boots both BFFs together, captures `/api/flow/insights` signal summaries for
+every fixture against each stack, and diffs the two captures under the
+equivalence rules above. The harness is invoked as
+`make check-flow-insights-equivalence` and is gated as a required PR check.
+
+See [Cross-Stack Equivalence](../../flow/cross-stack-equivalence) for the full
+methodology, allow-list policy, and guidance for reading a failed run.
+
 ## Related
 
+- [Cross-Stack Equivalence](../../flow/cross-stack-equivalence) — Harness methodology and allow-list policy
 - [Contract Test Harness](../contract-harness) — Full harness guide
 - [Flow Intent Scenarios](../../flow/intent-scenarios) — Layer 1 source
 - [Signal Catalog](../../flow/signals) — Canonical signal definitions
