@@ -4,6 +4,13 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 6 * * *"
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/gitlab-harness-e2e.yml
+      - scripts/e2e/run-gitlab-harness.sh
+      - scripts/ci/run-flow-insights-equivalence.sh
+      - tools/gitlab-harness/**
 
 permissions:
   contents: read
@@ -15,9 +22,9 @@ env:
 
 jobs:
   gitlab-harness-e2e:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
