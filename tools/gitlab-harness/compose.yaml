@@ -9,10 +9,11 @@ services:
       - "8929:8929"
       - "2424:22"
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8929/-/readiness"]
+      test: ["CMD", "/opt/gitlab/bin/gitlab-healthcheck", "--fail", "--max-time", "10"]
+      start_period: 5m
       interval: 15s
       timeout: 10s
-      retries: 40
+      retries: 120
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         from_file "/etc/gitlab/gitlab.rb"
@@ -22,7 +23,7 @@ services:
       - ./data/data:/var/opt/gitlab
 
   runner:
-    image: gitlab/gitlab-runner:16.11.4
+    image: gitlab/gitlab-runner:v16.11.4
     container_name: gitlab-harness-runner
     depends_on:
       gitlab:

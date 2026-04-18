@@ -384,6 +384,27 @@ Before creating a pull request via any GitHub API channel:
    4 polls, surface the blocker and stop — do not attempt to create the
    PR against a branch GitHub cannot see.
 
+### CI Check Failure Debugging
+
+The GitHub MCP tools expose check-run **metadata** (conclusion, status,
+timestamps, URLs) but **cannot retrieve raw job log output**. The log
+download endpoint exists in the GitHub REST API but is not surfaced by
+the available MCP tools.
+
+**Required behaviour when a CI check fails:**
+
+1. Call `pull_request_read` with `method: get_check_runs` to identify
+   which job failed and its conclusion.
+2. **Immediately ask the user for the relevant log lines.** Do not
+   attempt to guess the failure cause from metadata alone — this wastes
+   rounds and leads to incorrect speculation.
+3. Once the user provides log output, diagnose from that content and act.
+
+Do not spend multiple tool calls speculating about failure causes that
+are directly visible in the job log. A single question — "can you share
+the failing log lines?" — is always faster than inferring from timing,
+metadata, or code inspection.
+
 ## CI/CD and Make Reuse (Required)
 
 - The authoritative call hierarchy is: `make target` -> `moon run project:task`

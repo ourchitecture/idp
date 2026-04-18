@@ -1,6 +1,6 @@
 COMPOSE := docker compose -f compose.yaml
 
-.PHONY: up down reset logs wait-healthy seed token ensure-dirs
+.PHONY: up down reset logs wait-healthy wait-init seed token ensure-dirs
 
 up: ensure-dirs
 	$(COMPOSE) up -d
@@ -16,6 +16,9 @@ logs:
 
 wait-healthy:
 	@bash ./scripts/wait-healthy.sh
+
+wait-init:
+	@bash ./scripts/wait-init.sh
 
 seed:
 	@bash ./seed/seed-all.sh
