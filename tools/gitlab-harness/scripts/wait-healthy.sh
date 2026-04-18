@@ -2,7 +2,7 @@
 set -euo pipefail
 
 CONTAINER=${CONTAINER:-gitlab-harness}
-MAX_WAIT=${MAX_WAIT:-600}
+MAX_WAIT=${MAX_WAIT:-1800}
 SLEEP_SECONDS=${SLEEP_SECONDS:-5}
 
 elapsed=0
