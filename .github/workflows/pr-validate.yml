@@ -715,7 +715,7 @@ jobs:
       - check-flow-insights-equivalence
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Verify required checks
         env:
           RESULT_DETECT: ${{ needs.detect-changes.result }}
