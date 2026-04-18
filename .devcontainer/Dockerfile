@@ -18,7 +18,7 @@
 # Global ARG for Trivy version (used in scanner stage FROM)
 ARG TRIVY_VERSION=0.56.2
 # ARG for Trivy apt package version (what's available in the apt repository)
-ARG TRIVY_APT_VERSION=0.69.3
+ARG TRIVY_APT_VERSION=0.70.0
 
 FROM ubuntu:24.04@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b AS base
 
