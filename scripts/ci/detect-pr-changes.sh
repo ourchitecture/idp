@@ -46,6 +46,7 @@ run_mock_oauth_build="false"
 run_mock_oauth_containers="false"
 run_dev_tools_container="false"
 run_auth_integration="false"
+run_flow_insights_equivalence="false"
 
 container_detection_output="$({
   BASE_SHA="${BASE_SHA}" \
@@ -94,12 +95,20 @@ for file in "${changed_files[@]}"; do
     .github/workflows/*)
       run_workflow_lint="true"
       ;;
+    scripts/ci/run-flow-insights-equivalence.sh)
+      run_workflow_lint="true"
+      run_flow_insights_equivalence="true"
+      ;;
     scripts/ci/*)
       run_workflow_lint="true"
       ;;
     stacks/go/net-http/rest/bff/auth*)
       run_go_stack="true"
       run_auth_integration="true"
+      ;;
+    stacks/go/net-http/rest/bff/flow/*)
+      run_go_stack="true"
+      run_flow_insights_equivalence="true"
       ;;
     stacks/go/net-http/rest/*)
       run_go_stack="true"
@@ -108,12 +117,27 @@ for file in "${changed_files[@]}"; do
       run_node_stack="true"
       run_auth_integration="true"
       ;;
+    stacks/nodejs/react-fastify/rest/bff/src/routes/flow-insights*)
+      run_node_stack="true"
+      run_flow_insights_equivalence="true"
+      ;;
     stacks/nodejs/react-fastify/rest/bff/src/auth/*)
       run_node_stack="true"
       run_auth_integration="true"
       ;;
+    stacks/nodejs/react-fastify/rest/bff/src/flow/*)
+      run_node_stack="true"
+      run_flow_insights_equivalence="true"
+      ;;
     stacks/nodejs/react-fastify/rest/*)
       run_node_stack="true"
+      ;;
+    schema/fixtures/provider-adapter-input/*)
+      run_flow_insights_equivalence="true"
+      ;;
+    tests/src/tools/flow-insights-equivalence.ts|tests/src/profiles/flow-insights.ts|tests/features/flow-insights.feature)
+      run_flow_insights_equivalence="true"
+      run_reference_all="true"
       ;;
     tools/mock-oauth/*)
       run_mock_oauth_build="true"
@@ -142,7 +166,7 @@ for file in "${changed_files[@]}"; do
     Makefile|package.json|package-lock.json|tests/*)
       run_reference_all="true"
       ;;
-    *.md|.github/*|scripts/ci/*)
+    *.md|.github/*)
       ;;
     *)
       run_reference_all="true"
@@ -176,6 +200,7 @@ if [[ "${run_reference_all}" == "true" ]]; then
   run_mock_oauth_containers="true"
   run_dev_tools_container="true"
   run_auth_integration="true"
+  run_flow_insights_equivalence="true"
 fi
 
 run_stack_validation="false"
@@ -193,6 +218,7 @@ if [[ "${markdown_only}" == "true" ]]; then
   run_mock_oauth_containers="false"
   run_dev_tools_container="false"
   run_auth_integration="false"
+  run_flow_insights_equivalence="false"
 fi
 
 run_any_containers="false"
@@ -247,6 +273,7 @@ echo "run_mock_oauth_build=${run_mock_oauth_build}"
 echo "run_mock_oauth_containers=${run_mock_oauth_containers}"
 echo "run_dev_tools_container=${run_dev_tools_container}"
 echo "run_auth_integration=${run_auth_integration}"
+echo "run_flow_insights_equivalence=${run_flow_insights_equivalence}"
 echo "run_vscode_extension=${run_vscode_extension}"
 echo "run_backstage_tools=${run_backstage_tools}"
 
@@ -268,6 +295,7 @@ if [[ -n "${OUTPUT_FILE}" ]]; then
     printf "run_mock_oauth_containers=%s\n" "${run_mock_oauth_containers}"
     printf "run_dev_tools_container=%s\n" "${run_dev_tools_container}"
     printf "run_auth_integration=%s\n" "${run_auth_integration}"
+    printf "run_flow_insights_equivalence=%s\n" "${run_flow_insights_equivalence}"
     printf "run_vscode_extension=%s\n" "${run_vscode_extension}"
     printf "run_backstage_tools=%s\n" "${run_backstage_tools}"
   } >> "${OUTPUT_FILE}"
