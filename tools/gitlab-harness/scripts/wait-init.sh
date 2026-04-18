@@ -9,7 +9,7 @@ set -euo pipefail
 
 CONTAINER=${CONTAINER:-gitlab-harness}
 COMPOSE=${COMPOSE:-docker compose -f compose.yaml}
-MAX_WAIT=${MAX_WAIT:-300}
+MAX_WAIT=${MAX_WAIT:-1800}
 SLEEP_SECONDS=${SLEEP_SECONDS:-10}
 
 CHECK_SCRIPT="exit(User.find_by_username('root') ? 0 : 1)"
