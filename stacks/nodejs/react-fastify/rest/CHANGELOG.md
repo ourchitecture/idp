@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.1-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.6.0-alpha.0...nodejs-react-fastify-rest-v1.6.1-alpha.0) (2026-04-18)
+
+
+### Bug Fixes
+
+* **bff:** add explicit rootDir to tsconfig for TypeScript 6.0 compatibility ([#282](https://github.com/ourchitecture/idp/issues/282)) ([83e001c](https://github.com/ourchitecture/idp/commit/83e001cff5bd5f861fe013a912361c90cfdc9144))
+* **flow-insights:** anchor risk_aggregation window to latest observed signal ([#280](https://github.com/ourchitecture/idp/issues/280)) ([0d16d56](https://github.com/ourchitecture/idp/commit/0d16d56ec6b239df67c3efa442089239aac059fb))
+
 ## [1.6.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.5.2-alpha.0...nodejs-react-fastify-rest-v1.6.0-alpha.0) (2026-04-08)
 
 
