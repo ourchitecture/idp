@@ -7,14 +7,14 @@ import (
 )
 
 func InferRiskByScope(input flow.ProviderAdapterInput, signals []flow.FlowSignal, now time.Time) (*flow.FlowSignal, bool) {
-	windowStart := now.Add(-1 * RiskWindowHours * time.Hour)
-	contributing := make([]struct {
+	candidates := make([]struct {
 		signal     flow.FlowSignal
 		service    string
 		team       string
 		stage      flow.FlowSignalStage
 		observedAt time.Time
 	}, 0)
+	latestObserved := time.Time{}
 
 	for _, s := range signals {
 		if s.ID == "risk_aggregation" {
@@ -26,8 +26,8 @@ func InferRiskByScope(input flow.ProviderAdapterInput, signals []flow.FlowSignal
 				observed = parsed
 			}
 		}
-		if observed.Before(windowStart) {
-			continue
+		if observed.After(latestObserved) {
+			latestObserved = observed
 		}
 		service := ""
 		team := ""
@@ -43,7 +43,7 @@ func InferRiskByScope(input flow.ProviderAdapterInput, signals []flow.FlowSignal
 		if team == "" {
 			team = resolvePrimaryTeam(input.OwnershipHints)
 		}
-		contributing = append(contributing, struct {
+		candidates = append(candidates, struct {
 			signal     flow.FlowSignal
 			service    string
 			team       string
@@ -56,6 +56,24 @@ func InferRiskByScope(input flow.ProviderAdapterInput, signals []flow.FlowSignal
 			stage:      stage,
 			observedAt: observed,
 		})
+	}
+
+	if latestObserved.IsZero() {
+		latestObserved = now
+	}
+	windowStart := latestObserved.Add(-1 * RiskWindowHours * time.Hour)
+	contributing := make([]struct {
+		signal     flow.FlowSignal
+		service    string
+		team       string
+		stage      flow.FlowSignalStage
+		observedAt time.Time
+	}, 0)
+	for _, candidate := range candidates {
+		if candidate.observedAt.Before(windowStart) {
+			continue
+		}
+		contributing = append(contributing, candidate)
 	}
 
 	if len(contributing) < 3 {
