@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-token gitlab-harness-logs
+.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-token gitlab-harness-logs
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -20,6 +20,7 @@ help:
 	@printf "  check-lint-md Lint all Markdown files\n"
 	@printf "  check-lint-workflows Lint GitHub workflow definitions\n"
 	@printf "  check-privacy Run privacy and secret scanning\n"
+	@printf "  check-flow-insights-equivalence Run cross-stack equivalence check for /api/flow/insights\n"
 	@printf "  check-stack   Run full checks for STACK\n"
 	@printf "  check-team-membership Check org team authorization\n"
 	@printf "  check-pr-title Validate PR title policy\n"
@@ -110,6 +111,9 @@ check-privacy:
 	else \
 		"bash" "./$(CI_SCRIPTS_DIR)/check-privacy.sh"; \
 	fi
+
+check-flow-insights-equivalence:
+	@"bash" "./$(CI_SCRIPTS_DIR)/run-flow-insights-equivalence.sh"
 
 check-stack:
 	@"$(MAKE)" -C "$(STACK)" all

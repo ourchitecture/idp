@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.4.1-alpha.0...go-net-http-rest-v1.4.2-alpha.0) (2026-04-18)
+
+
+### Bug Fixes
+
+* **flow-insights:** anchor risk_aggregation window to latest observed signal ([#280](https://github.com/ourchitecture/idp/issues/280)) ([0d16d56](https://github.com/ourchitecture/idp/commit/0d16d56ec6b239df67c3efa442089239aac059fb))
+
 ## [1.4.1-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.4.0-alpha.0...go-net-http-rest-v1.4.1-alpha.0) (2026-04-08)
 
 

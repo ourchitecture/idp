@@ -1,7 +1,7 @@
 {
-  "stacks/go/net-http/rest": "1.4.1-alpha.0",
-  "stacks/nodejs/react-fastify/rest": "1.6.0-alpha.0",
-  "tests": "1.5.0-alpha.0",
+  "stacks/go/net-http/rest": "1.4.2-alpha.0",
+  "stacks/nodejs/react-fastify/rest": "1.6.1-alpha.0",
+  "tests": "1.6.0-alpha.0",
   "tools/mcp": "0.4.1-alpha.0",
   ".devcontainer": "0.1.0-alpha.0"
 }

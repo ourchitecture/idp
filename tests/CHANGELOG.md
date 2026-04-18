@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.5.0-alpha.0...contract-tests-v1.6.0-alpha.0) (2026-04-18)
+
+
+### Features
+
+* **flow-insights:** enforce cross-stack equivalence via fixture-based PR check ([#277](https://github.com/ourchitecture/idp/issues/277)) ([e4e4299](https://github.com/ourchitecture/idp/commit/e4e4299b0b1c959f8855933795a1c08686dcb713))
+
 ## [1.5.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.4.1-alpha.0...contract-tests-v1.5.0-alpha.0) (2026-04-15)
 
 
