@@ -1,6 +1,6 @@
 {
   "name": "nodejs-react-fastify-rest",
-  "version": "1.6.0-alpha.0",
+  "version": "1.6.1-alpha.0",
   "private": true,
   "description": "React + Fastify TypeScript reference stack for IDP.",
   "scripts": {
