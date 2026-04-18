@@ -51,7 +51,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-${{ matrix.service }}
           tags: |
@@ -116,7 +116,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-${{ matrix.service }}
           tags: |
@@ -173,7 +173,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests
           tags: |
@@ -230,7 +230,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-mcp-server
           tags: |
@@ -287,7 +287,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth
           tags: |
@@ -344,7 +344,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-dev-tools
           tags: |
