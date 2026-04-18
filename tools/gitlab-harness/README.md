@@ -47,6 +47,7 @@ scenario so downstream e2e tests can reference them.
 
 - Data, runner config, and logs persist under `tools/gitlab-harness/data/`.
 - The harness is intended only for testing and should not be treated as a source of truth.
+- First startup can take 10-20 minutes depending on CPU/disk; helper waits now allow up to 30 minutes for readiness and application init. If it still is not healthy after that, check `make logs`.
 - GitLab CE lacks some enterprise features (for example richer approval rules
   and evidence workflows). The seeds emulate fixture intent with available CE
   APIs using merge request approvals, commit statuses, labels, and CODEOWNERS.

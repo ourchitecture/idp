@@ -4,30 +4,64 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 6 * * *"
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/gitlab-harness-e2e.yml
+      - scripts/e2e/run-gitlab-harness.sh
+      - scripts/ci/run-flow-insights-equivalence.sh
+      - tools/gitlab-harness/**
 
 permissions:
   contents: read
   id-token: write
 
+env:
+  PROTO_VERSION: "0.55.4"
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
+
 jobs:
   gitlab-harness-e2e:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
-      - name: Set up Node
-        uses: actions/setup-node@v6
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
         with:
-          node-version: "20"
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Restore npm cache
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Restore Go cache
+        uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
-          proto-version: "0.55.4"
+          proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
 
       - name: Install npm dependencies
@@ -39,6 +73,7 @@ jobs:
       - name: Run GitLab harness e2e
         env:
           GITLAB_HARNESS: "1"
+          OUR_IDP_READY_TIMEOUT: "300"
         run: |
           bash scripts/e2e/run-gitlab-harness.sh
 
@@ -49,3 +84,34 @@ jobs:
           name: gitlab-harness-e2e-flow-insights-equivalence
           path: .tmp/flow-insights-equivalence
           if-no-files-found: ignore
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
+      - name: Save Go cache
+        if: always()
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
