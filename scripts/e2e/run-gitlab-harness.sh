@@ -11,6 +11,7 @@ trap cleanup EXIT
 
 make gitlab-harness-up
 make gitlab-harness-wait-healthy
+make gitlab-harness-wait-init
 make gitlab-harness-token
 make gitlab-harness-seed
 

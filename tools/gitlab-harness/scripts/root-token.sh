@@ -5,8 +5,6 @@ TOKEN_NAME=${TOKEN_NAME:-gitlab-harness-root}
 TOKEN_VALUE=${GITLAB_HARNESS_ROOT_TOKEN:-gitlab-harness-root-token}
 TOKEN_FILE=${TOKEN_FILE:-.secrets/gitlab-harness.token}
 COMPOSE=${COMPOSE:-docker compose -f compose.yaml}
-MAX_ATTEMPTS=${MAX_ATTEMPTS:-20}
-SLEEP_SECONDS=${SLEEP_SECONDS:-15}
 
 mkdir -p .secrets
 
@@ -31,24 +29,10 @@ end
 puts token_value
 "
 
-# GitLab's /readiness endpoint passes before the root user is created in the
-# database. Retry until the root user exists or the attempt limit is reached.
-attempt=0
-TOKEN=""
-while [ "$attempt" -lt "$MAX_ATTEMPTS" ]; do
-  attempt=$((attempt + 1))
-  output=$($COMPOSE exec -T gitlab bash -lc "TOKEN_VALUE=$TOKEN_VALUE gitlab-rails runner \"$SCRIPT\"" 2>&1) || true
-  if echo "$output" | grep -q "Root user missing"; then
-    echo "Attempt ${attempt}/${MAX_ATTEMPTS}: root user not yet available, retrying in ${SLEEP_SECONDS}s..."
-    sleep "$SLEEP_SECONDS"
-    continue
-  fi
-  TOKEN=$(echo "$output" | tail -1)
-  break
-done
+TOKEN=$($COMPOSE exec -T gitlab bash -lc "TOKEN_VALUE=$TOKEN_VALUE gitlab-rails runner \"$SCRIPT\"")
 
 if [ -z "$TOKEN" ]; then
-  echo "Failed to create or read token after ${attempt} attempts" >&2
+  echo "Failed to create or read token" >&2
   exit 1
 fi
 
