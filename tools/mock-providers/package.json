@@ -1,0 +1,22 @@
+{
+  "name": "stemix-idp-mock-providers",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thin mock HTTP providers for GitHub and GitLab adapter integration tests and demos.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "test": "node --import tsx --test \"src/tests/**/*.test.ts\"",
+    "start:github": "tsx src/github/index.ts",
+    "start:gitlab": "tsx src/gitlab/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "25.6.0",
+    "tsx": "^4.20.6",
+    "typescript": "^6.0.3",
+    "yaml": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
