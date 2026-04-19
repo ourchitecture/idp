@@ -16,6 +16,10 @@ permissions:
   contents: read
   id-token: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   PROTO_VERSION: "0.55.4"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
