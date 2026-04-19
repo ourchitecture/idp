@@ -9,6 +9,10 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/ourchitecture/idp
