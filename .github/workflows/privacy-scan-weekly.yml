@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 env:
   PROTO_VERSION: "0.55.4"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
