@@ -7,6 +7,7 @@ export type GitHubUser = {
   node_id?: string;
   login: string;
   name?: string | null;
+  teams?: string[];
 };
 
 export type GitHubTeam = {
@@ -166,14 +167,14 @@ export const scenarios: Record<string, GitHubScenario> = {
         closed_at: null,
         merge_commit_sha: null,
         merged: false,
-        user: { id: "actor-alice", node_id: "actor-alice", login: "alice", name: "Alice" },
+        user: { id: "actor-alice", node_id: "actor-alice", login: "alice", name: "Alice", teams: ["payments-team"] },
         created_at: "2026-03-30T08:00:00Z",
         updated_at: "2026-04-01T09:00:00Z",
         base: { ref: "main" },
         head: { ref: "feature/add-payment-webhook", sha: "sha-pr-789" },
         requested_reviewers: [
-          { id: "actor-bob", node_id: "actor-bob", login: "bob", name: "Bob" },
-          { id: "actor-carol", node_id: "actor-carol", login: "carol", name: "Carol" },
+          { id: "actor-bob", node_id: "actor-bob", login: "bob", name: "Bob", teams: ["payments-team"] },
+          { id: "actor-carol", node_id: "actor-carol", login: "carol", name: "Carol", teams: ["payments-team"] },
         ],
       },
     ],
@@ -330,13 +331,13 @@ export const scenarios: Record<string, GitHubScenario> = {
         closed_at: null,
         merge_commit_sha: null,
         merged: false,
-        user: { id: "actor-ivy", node_id: "actor-ivy", login: "ivy", name: "Ivy" },
+        user: { id: "actor-ivy", node_id: "actor-ivy", login: "ivy", name: "Ivy", teams: ["config-team"] },
         created_at: "2026-04-03T10:30:00Z",
         updated_at: "2026-04-03T12:02:00Z",
         base: { ref: "main" },
         head: { ref: "feature/config", sha: "sha-pr-321" },
         requested_reviewers: [
-          { id: "actor-gary", node_id: "actor-gary", login: "gary", name: "Gary" },
+          { id: "actor-gary", node_id: "actor-gary", login: "gary", name: "Gary", teams: ["config-team"] },
         ],
       },
     ],
