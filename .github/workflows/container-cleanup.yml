@@ -8,6 +8,10 @@ on:
 permissions:
   packages: write
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 env:
   # Minimum number of versions to keep per image (floor threshold)
   KEEP_VERSIONS_GO_WEB: "5"

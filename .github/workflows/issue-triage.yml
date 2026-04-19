@@ -8,6 +8,10 @@ permissions:
   issues: write
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
 env:
   PROTO_VERSION: "0.55.4"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
