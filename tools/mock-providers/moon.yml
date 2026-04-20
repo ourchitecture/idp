@@ -1,0 +1,49 @@
+language: "typescript"
+layer: "tool"
+stack: "backend"
+
+project:
+  title: "mock-providers"
+  description: >
+    Thin mock HTTP providers for GitHub and GitLab adapter integration tests
+    and deterministic demos. Not production services.
+
+tasks:
+  all:
+    command: ["bash", "-c", "true"]
+    deps: ["install", "check"]
+  install:
+    command: ["npm", "install"]
+  clean:
+    command: ["bash", "-c", "echo 'No build artifacts to clean'"]
+  check-lint:
+    command: ["npm", "run", "typecheck"]
+    deps: ["install"]
+  check-test:
+    command: ["npm", "test"]
+    deps: ["install"]
+  check-ci:
+    command: ["bash", "-c", "true"]
+    deps: ["install", "check-lint", "check-test"]
+    options:
+      runInCI: true
+  check:
+    command: ["bash", "-c", "true"]
+    deps: ["check-lint", "check-test"]
+  test:
+    command: ["bash", "-c", "true"]
+    deps: ["check-test"]
+  run-github:
+    command: ["npm", "run", "start:github"]
+    options:
+      persistent: true
+      runInCI: false
+    env:
+      OUR_IDP_GITHUB_MOCK_PORT: "8601"
+  run-gitlab:
+    command: ["npm", "run", "start:gitlab"]
+    options:
+      persistent: true
+      runInCI: false
+    env:
+      OUR_IDP_GITLAB_MOCK_PORT: "8602"
