@@ -7,6 +7,7 @@ projects:
     docs-site: "docs"
     mcp-tools: "tools/mcp"
     mock-oauth: "tools/mock-oauth"
+    mock-providers: "tools/mock-providers"
     vscode-extension: "tools/vscode-extension"
     backstage-tools: "tools/backstage"
 

@@ -14,6 +14,7 @@
 #   RESULT_MOCK_OAUTH      — check-mock-oauth-build job result
 #   RESULT_AUTH_INTEGRATION — check-auth-integration job result
 #   RESULT_FLOW_INSIGHTS   — check-flow-insights-equivalence job result
+#   RESULT_MOCK_PROVIDERS  — check-mock-providers job result
 #
 # Exit codes:
 #   0 — All required checks passed or were skipped
@@ -30,6 +31,7 @@ set -euo pipefail
 : "${RESULT_MOCK_OAUTH:?RESULT_MOCK_OAUTH is required}"
 : "${RESULT_AUTH_INTEGRATION:?RESULT_AUTH_INTEGRATION is required}"
 : "${RESULT_FLOW_INSIGHTS:?RESULT_FLOW_INSIGHTS is required}"
+: "${RESULT_MOCK_PROVIDERS:?RESULT_MOCK_PROVIDERS is required}"
 
 failed=false
 
@@ -61,6 +63,7 @@ _check "check-container-build"    "${RESULT_CONTAINERS}"
 _check "check-mock-oauth-build"   "${RESULT_MOCK_OAUTH}"
 _check "check-auth-integration"   "${RESULT_AUTH_INTEGRATION}"
 _check "check-flow-insights-equivalence" "${RESULT_FLOW_INSIGHTS}"
+_check "check-mock-providers"            "${RESULT_MOCK_PROVIDERS}"
 
 if [[ "${failed}" == "true" ]]; then
   exit 1

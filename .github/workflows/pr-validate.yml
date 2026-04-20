@@ -38,6 +38,7 @@ jobs:
       run_mock_oauth_containers: ${{ steps.detect.outputs.run_mock_oauth_containers }}
       run_auth_integration: ${{ steps.detect.outputs.run_auth_integration }}
       run_flow_insights_equivalence: ${{ steps.detect.outputs.run_flow_insights_equivalence }}
+      run_mock_providers: ${{ steps.detect.outputs.run_mock_providers }}
       run_backstage_tools: ${{ steps.detect.outputs.run_backstage_tools }}
     steps:
       - name: Checkout
@@ -99,6 +100,7 @@ jobs:
           echo "run_mock_oauth_containers=${{ steps.detect.outputs.run_mock_oauth_containers }}"
           echo "run_auth_integration=${{ steps.detect.outputs.run_auth_integration }}"
           echo "run_flow_insights_equivalence=${{ steps.detect.outputs.run_flow_insights_equivalence }}"
+          echo "run_mock_providers=${{ steps.detect.outputs.run_mock_providers }}"
           echo "run_backstage_tools=${{ steps.detect.outputs.run_backstage_tools }}"
 
       - name: Save proto and moon cache
@@ -323,7 +325,7 @@ jobs:
       - name: Check PR author team membership
         id: author-check
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.IDP_TRIAGE_TOKEN }}
           ORG: ${{ github.repository_owner }}
           USERNAME: ${{ github.event.pull_request.user.login }}
           TEAM_SLUGS: idp-admin,idp-maintain
@@ -702,6 +704,52 @@ jobs:
             ~/.cache/go-build
           key: go-${{ runner.os }}-${{ hashFiles('.prototools', 'stacks/go/net-http/rest/go.mod', 'stacks/go/net-http/rest/go.sum') }}
 
+  check-mock-providers:
+    name: Check Mock Providers
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_mock_providers == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Install Node.js BFF dependencies
+        run: npm install --prefix stacks/nodejs/react-fastify/rest
+
+      - name: Run mock providers CI-safe checks
+        run: moon run mock-providers:check-ci
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Save npm cache
+        if: always()
+        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+        continue-on-error: true
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+
   pr-validation-result:
     name: PR Validation Result
     runs-on: ubuntu-latest
@@ -717,6 +765,7 @@ jobs:
       - check-mock-oauth-build
       - check-auth-integration
       - check-flow-insights-equivalence
+      - check-mock-providers
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -732,4 +781,5 @@ jobs:
           RESULT_MOCK_OAUTH: ${{ needs.check-mock-oauth-build.result }}
           RESULT_AUTH_INTEGRATION: ${{ needs.check-auth-integration.result }}
           RESULT_FLOW_INSIGHTS: ${{ needs.check-flow-insights-equivalence.result }}
+          RESULT_MOCK_PROVIDERS: ${{ needs.check-mock-providers.result }}
         run: bash scripts/ci/check-pr-validation-result.sh
