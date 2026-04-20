@@ -325,7 +325,7 @@ jobs:
       - name: Check PR author team membership
         id: author-check
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.IDP_TRIAGE_TOKEN }}
           ORG: ${{ github.repository_owner }}
           USERNAME: ${{ github.event.pull_request.user.login }}
           TEAM_SLUGS: idp-admin,idp-maintain
