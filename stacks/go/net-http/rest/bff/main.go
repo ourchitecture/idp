@@ -293,6 +293,7 @@ func main() {
 	mux.HandleFunc("/readiness", handleReadiness)
 	mux.HandleFunc("/api/portal/summary", handlePortalSummary)
 	mux.Handle("/api/flow/insights", inference.NewHandler())
+	mux.Handle("/api/flow/insights/", inference.NewDetailHandler())
 	registerAuthRoutes(mux)
 
 	payload, err := json.Marshal(startupLog{

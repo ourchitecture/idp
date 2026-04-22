@@ -25,7 +25,7 @@ import * as path from "path";
 // use require with a narrow inline type to avoid adding a dev dependency.
 // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-explicit-any
 const yaml = require("js-yaml") as { load: (input: string) => unknown };
-import { post } from "../http";
+import { post, request } from "../http";
 import { ensureServiceAvailable } from "../runtime";
 import type { ContractContext, TestCase } from "../types";
 
@@ -45,6 +45,51 @@ type FlowSignal = {
 
 type FlowInsightsResponse = {
   signals: FlowSignal[];
+};
+
+type FlowInsightSummary = {
+  insightId: string;
+  signalId: string;
+  title: string;
+  severity?: string;
+  confidence?: string;
+  provider: string;
+  repository: {
+    full_name: string;
+  };
+  scope?: {
+    service?: string;
+    team?: string;
+    stage?: string;
+  };
+  services: string[];
+  teams: string[];
+  actors: string[];
+  summary: string;
+  observedAt?: string;
+};
+
+type FlowInsightsListResponse = {
+  generatedAt: string;
+  filters: Record<string, string>;
+  total: number;
+  insights: FlowInsightSummary[];
+};
+
+type FlowInsightDetail = FlowInsightSummary & {
+  explanation?: string;
+  recommendedNextAction?: string;
+  relatedEntities?: unknown[];
+  source?: {
+    fixtureId?: string;
+    scenario?: string;
+    description?: string;
+  };
+};
+
+type FlowInsightDetailResponse = {
+  generatedAt: string;
+  insight: FlowInsightDetail;
 };
 
 function isFlowInsightsEnabled(context: ContractContext): boolean {
@@ -89,6 +134,81 @@ async function postFixture(
   }
 
   return parsed as FlowInsightsResponse;
+}
+
+async function getInsights(
+  bffBaseUrl: URL,
+  params?: Record<string, string>,
+): Promise<FlowInsightsListResponse> {
+  const url = new URL(FLOW_INSIGHTS_ENDPOINT, bffBaseUrl);
+  for (const [key, value] of Object.entries(params ?? {})) {
+    if (value && value.length > 0) {
+      url.searchParams.set(key, value);
+    }
+  }
+
+  const response = await request(url);
+  if (response.status < 200 || response.status >= 300) {
+    throw new Error(
+      `GET ${url.pathname} returned ${response.status}: ${response.body}`,
+    );
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(response.body);
+  } catch {
+    throw new Error(
+      `GET ${url.pathname} response is not valid JSON: ${response.body}`,
+    );
+  }
+
+  if (
+    typeof parsed !== "object" ||
+    parsed === null ||
+    !Array.isArray((parsed as FlowInsightsListResponse).insights)
+  ) {
+    throw new Error(
+      `GET ${url.pathname} response must contain an 'insights' array`,
+    );
+  }
+
+  return parsed as FlowInsightsListResponse;
+}
+
+async function getInsightDetail(
+  bffBaseUrl: URL,
+  insightId: string,
+  audience?: string,
+): Promise<FlowInsightDetail> {
+  const url = new URL(`${FLOW_INSIGHTS_ENDPOINT}/${insightId}`, bffBaseUrl);
+  if (audience) {
+    url.searchParams.set("audience", audience);
+  }
+
+  const response = await request(url);
+  if (response.status === 404) {
+    throw new Error(`GET ${url.pathname} returned 404 (insight not found)`);
+  }
+  if (response.status < 200 || response.status >= 300) {
+    throw new Error(`GET ${url.pathname} returned ${response.status}`);
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(response.body);
+  } catch {
+    throw new Error(
+      `GET ${url.pathname} response is not valid JSON: ${response.body}`,
+    );
+  }
+
+  const insight = (parsed as FlowInsightDetailResponse).insight;
+  if (!insight || typeof insight !== "object") {
+    throw new Error(`GET ${url.pathname} response must contain 'insight'`);
+  }
+
+  return insight as FlowInsightDetail;
 }
 
 function assertSignalPresent(
@@ -146,6 +266,108 @@ export function createFlowInsightsTests(context: ContractContext): TestCase[] {
             `Flow insights endpoint ${FLOW_INSIGHTS_ENDPOINT} returned ${response.status}. ` +
             `Stacks must expose the endpoint before enabling capabilities.flowInsights.`,
           );
+        }
+      },
+    },
+
+    // ── HTTP surface checks ────────────────────────────────────────────────
+
+    {
+      name: "flow-insights:list endpoint returns provider-neutral summaries",
+      run: async () => {
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+        const list = await getInsights(bffBaseUrl);
+        if (list.insights.length === 0) {
+          throw new Error("GET /api/flow/insights returned no insights");
+        }
+
+        for (const summary of list.insights) {
+          if (!summary.insightId || !summary.signalId) {
+            throw new Error("Each insight must have insightId and signalId");
+          }
+          if (!summary.title || summary.title.trim() === "") {
+            throw new Error(`Insight ${summary.insightId} must include a title`);
+          }
+          if (!summary.summary || summary.summary.trim() === "") {
+            throw new Error(`Insight ${summary.insightId} must include a summary`);
+          }
+          if (!summary.repository?.full_name) {
+            throw new Error(`Insight ${summary.insightId} must include repository.full_name`);
+          }
+        }
+      },
+    },
+    {
+      name: "flow-insights:list filters by provider and service",
+      run: async () => {
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+        const githubList = await getInsights(bffBaseUrl, { provider: "github" });
+        if (githubList.insights.length === 0) {
+          throw new Error("Expected GitHub insights when filtering by provider=github");
+        }
+        if (githubList.insights.some((item) => item.provider !== "github")) {
+          throw new Error("provider=github filter must only return GitHub insights");
+        }
+
+        const serviceFiltered = await getInsights(bffBaseUrl, { service: "payments" });
+        if (serviceFiltered.insights.length === 0) {
+          throw new Error("Expected at least one payments-related insight");
+        }
+        if (
+          serviceFiltered.insights.some(
+            (item) => !item.services.some((service) => service.toLowerCase().includes("payments")),
+          )
+        ) {
+          throw new Error("service filter must constrain insights to matching services");
+        }
+      },
+    },
+    {
+      name: "flow-insights:GitHub and GitLab blocked-on-review shapes stay aligned",
+      run: async () => {
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+        const githubList = await getInsights(bffBaseUrl, { provider: "github" });
+        const gitlabList = await getInsights(bffBaseUrl, { provider: "gitlab" });
+
+        const ghBlocked = githubList.insights.find((item) => item.signalId === "blocked_on_review");
+        const glBlocked = gitlabList.insights.find((item) => item.signalId === "blocked_on_review");
+
+        if (!ghBlocked || !glBlocked) {
+          throw new Error("Blocked on review must be present for both providers");
+        }
+
+        if (ghBlocked.severity !== glBlocked.severity) {
+          throw new Error(
+            `Severity must align across providers: github=${ghBlocked.severity} gitlab=${glBlocked.severity}`,
+          );
+        }
+
+        if (ghBlocked.confidence !== glBlocked.confidence) {
+          throw new Error(
+            `Confidence must align across providers: github=${ghBlocked.confidence} gitlab=${glBlocked.confidence}`,
+          );
+        }
+      },
+    },
+    {
+      name: "flow-insights:detail endpoint returns explanations and role-aware summary",
+      run: async () => {
+        await ensureServiceAvailable("BFF server", bffBaseUrl);
+        const list = await getInsights(bffBaseUrl, { provider: "github" });
+        const candidate = list.insights[0];
+        if (!candidate) {
+          throw new Error("No insights available to fetch details");
+        }
+
+        const detail = await getInsightDetail(bffBaseUrl, candidate.insightId, "owner");
+        assertNonEmpty(detail.explanation, "explanation", candidate.insightId);
+        assertNonEmpty(
+          detail.recommendedNextAction,
+          "recommendedNextAction",
+          candidate.insightId,
+        );
+        if (!detail.summary.toLowerCase().includes("owner")) {
+          throw new Error("Role-aware summary must reflect the requested audience");
         }
       },
     },
