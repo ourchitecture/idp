@@ -17,7 +17,7 @@
 
 ## Structure
 
-```
+```text
 .specify/
 ├── README.md                              ← this file
 └── evaluation/

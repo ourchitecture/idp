@@ -26,7 +26,7 @@ implementation loops.
 
 ### Artifact layout
 
-```
+```text
 .specify/
 ├── memory/constitution.md     # project governing principles
 ├── specs/NNN-feature/

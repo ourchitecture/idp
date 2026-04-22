@@ -46,7 +46,7 @@ install in CI.
 
 ## Artifact Layout
 
-```
+```text
 .specify/
 ├── memory/
 │   └── constitution.md       # project governing principles
