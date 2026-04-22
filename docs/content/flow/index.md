@@ -23,6 +23,7 @@ Flow insights define the smallest shared language for understanding how work mov
 - Read the [adapter contract](./adapter-contract) to understand the normalized types that provider adapters must produce.
 - Use the [scope guardrails](./scope) to keep provider-specific or workflow-shaped concerns out of the core.
 - Explore the [intent scenarios](./intent-scenarios) to see the Gherkin statements that anchor the MVP.
+- Reference the [HTTP API contract](./api) for the list and detail endpoints that expose flow insights to clients.
 
 ### Understanding the MVP boundaries and strategy
 
