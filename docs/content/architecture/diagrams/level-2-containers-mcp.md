@@ -37,6 +37,7 @@ C4Container
 
 - User-first Level 2 view lives at [Level 2: User Capability Containers](./level-2-user-capabilities).
 - The MCP server is located at `tools/mcp/` and is stack-independent.
-- It exposes `get_portal_summary` and `check_health` as MCP tools.
+- It exposes `get_portal_summary`, `check_health`, and flow insight read tools
+  (`list_flow_insights`, `get_flow_insight`, `list_my_blockers`, `list_service_risk_signals`).
 - Default HTTP port is `8080`; stdio mode is also supported for local clients.
 - The MCP server declares the `mcp-profile` conformance profile.
