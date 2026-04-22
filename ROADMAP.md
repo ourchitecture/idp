@@ -163,6 +163,22 @@ See [PLUGINS.md](PLUGINS.md) for the full high-level design.
 
 ---
 
+## 12. Agent Tooling and Spec-Driven Development Evaluation
+
+Evaluate and selectively adopt external agent tooling that improves
+developer and platform-engineering workflows.
+
+- **spec-kit MVP evaluation** (three-axis, decision-grade): assessed
+  spec-kit as a candidate for dev-flow automation, architectural decision
+  capture, and Layer 1 contract specification. Evaluation artifacts and
+  verdicts recorded in ADR-0015.
+- Future agent tooling evaluations follow the same three-axis
+  `docs/content/architecture/evaluations/` format.
+- Any Adopt or Adopt-Hybrid outcome requires a scoped follow-up
+  deliverable rather than wholesale replacement of existing patterns.
+
+---
+
 ## Summary
 
 An enterprise platform is not defined by infrastructure or deployment patterns, but by its ability to:

@@ -65,3 +65,4 @@ Routing rule: Create an ADR when at least 3 gates are true and one is Gate 2 or 
 | [0012](./moon-python-uv-toolchain-integration-constraint) | Moon Python/uv Toolchain Integration Constraint | accepted | 2026-04-01 |
 | [0013](./oauth-plugin-architecture) | Optional OAuth Plug-In Architecture | proposed | 2026-04-07 |
 | [0014](./mvp-flow-observation-technical-foundations) | MVP Flow Observation Technical Foundations | proposed | 2026-04-12 |
+| [0015](./spec-kit-evaluation) | spec-kit Three-Axis Evaluation | proposed | 2026-04-22 |
