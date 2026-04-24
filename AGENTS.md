@@ -804,8 +804,11 @@ an update to generated assets in `docs/static/diagrams/` in the same change.
 
 ## Editor Rules (Cursor/Copilot)
 
-- No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md` found in this repo.
-- If these files appear later, include their guidance here.
+- `.github/copilot-instructions.md` provides GitHub Copilot with repository context
+  and points to this file as the authoritative operating manual. It includes references
+  to agent skills in `.agents/skills/` including the `review-*` pattern for future
+  review-focused skills.
+- No `.cursor/rules/` or `.cursorrules` found in this repo.
 - `CLAUDE.md` exists at the repo root for Claude Code context. It is intentionally
   brief — full standards and maintenance instructions live here in `AGENTS.md`, not
   in `CLAUDE.md`. Do not duplicate content between the two files.
