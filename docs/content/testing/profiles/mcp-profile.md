@@ -58,7 +58,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call get_portal_summary returns a portal status result
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -68,7 +68,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call check_health returns BFF health and readiness
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -79,7 +79,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call list_flow_insights returns insight list payload
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -89,7 +89,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call get_flow_insight returns detailed payload
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -100,7 +100,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call list_my_blockers filters blocker signals for an actor
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -110,7 +110,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call list_service_risk_signals returns risk aggregation signals
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -142,17 +142,17 @@ Stacks that expose an MCP server must declare both the profile and the capabilit
 
 ## Environment variables
 
-| Variable      | Default                 | Description                        |
-| ------------- | ----------------------- | ---------------------------------- |
-| `IDP_MCP_URL` | `http://localhost:8080` | Base URL for the MCP server        |
-| `IDP_BFF_URL` | `http://localhost:8000` | BFF URL the MCP server connects to |
+| Variable          | Default                 | Description                        |
+| ----------------- | ----------------------- | ---------------------------------- |
+| `IDP_MCP_URL`     | `http://localhost:8080` | Base URL for the MCP server        |
+| `OUR_IDP_BFF_URL` | `http://localhost:8000` | BFF URL the MCP server connects to |
 
 ## Running the profile
 
 ```sh
 # Start the BFF for a stack, then the MCP server, then run contract tests:
 IDP_MCP_URL=http://localhost:8080 \
-IDP_BFF_URL=http://localhost:8000 \
+OUR_IDP_BFF_URL=http://localhost:8000 \
 IDP_STACK_PATH=tools/mcp \
 npm run test:contract
 ```
