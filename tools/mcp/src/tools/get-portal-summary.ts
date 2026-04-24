@@ -1,7 +1,6 @@
-import http from "node:http";
-import https from "node:https";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { fetchText, resolveBffUrl } from "../http-client.js";
 
 export const GET_PORTAL_SUMMARY_TOOL_NAME = "get_portal_summary";
 export const GET_PORTAL_SUMMARY_TOOL_DESCRIPTION =
@@ -27,28 +26,6 @@ const portalSummarySchema = z.object({
     observedAt: z.string(),
   })).min(1),
 });
-
-function resolveBffUrl(): URL {
-  const raw = process.env.OUR_IDP_BFF_URL ?? "http://localhost:8000";
-  return new URL(raw);
-}
-
-function fetchText(url: URL): Promise<string> {
-  const client = url.protocol === "https:" ? https : http;
-
-  return new Promise((resolve, reject) => {
-    const req = client.request(url, { method: "GET" }, (res) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk) => {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string));
-      });
-      res.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
-      res.on("error", reject);
-    });
-    req.on("error", reject);
-    req.end();
-  });
-}
 
 export async function runGetPortalSummaryTool(): Promise<{
   content: Array<{ type: "text"; text: string }>;

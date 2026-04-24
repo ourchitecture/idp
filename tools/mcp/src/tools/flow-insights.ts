@@ -1,7 +1,6 @@
-import http from "node:http";
-import https from "node:https";
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { fetchText, resolveBffUrl, applyQuery } from "../http-client.js";
 
 export const LIST_FLOW_INSIGHTS_TOOL_NAME = "list_flow_insights";
 export const LIST_FLOW_INSIGHTS_TOOL_DESCRIPTION =
@@ -91,7 +90,10 @@ const listFlowInsightsInputSchema = z.object({
 });
 
 const getFlowInsightInputSchema = z.object({
-  insightId: z.string().min(1),
+  insightId: z.string().min(1).refine(
+    (id) => !id.includes('/') && !id.includes('..'),
+    { message: "insightId must not contain path separators or parent directory references" }
+  ),
   audience: audienceSchema.optional(),
 });
 
@@ -112,40 +114,6 @@ const listServiceRiskSignalsInputSchema = z.object({
 const BLOCKER_SIGNAL_IDS = new Set(["blocked_on_review", "waiting_on_evidence", "aging_implementation"]);
 const RISK_SIGNAL_ID = "risk_aggregation";
 
-function resolveBffUrl(): URL {
-  const raw = process.env.OUR_IDP_BFF_URL ?? "http://localhost:8000";
-  return new URL(raw);
-}
-
-function fetchText(url: URL): Promise<string> {
-  const client = url.protocol === "https:" ? https : http;
-
-  return new Promise((resolve, reject) => {
-    const req = client.request(url, { method: "GET" }, (res) => {
-      const chunks: Buffer[] = [];
-      res.on("data", (chunk) => {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string));
-      });
-      res.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
-      res.on("error", reject);
-    });
-    req.on("error", reject);
-    req.end();
-  });
-}
-
-function applyQuery(
-  url: URL,
-  params: Record<string, string | undefined>
-): URL {
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && `${value}`.trim().length > 0) {
-      url.searchParams.set(key, `${value}`.trim());
-    }
-  }
-  return url;
-}
-
 async function fetchList(filters: Partial<z.infer<typeof listFlowInsightsInputSchema>>) {
   const bffUrl = resolveBffUrl();
   const url = applyQuery(new URL("/api/flow/insights", bffUrl), filters as Record<string, string | undefined>);
@@ -155,7 +123,8 @@ async function fetchList(filters: Partial<z.infer<typeof listFlowInsightsInputSc
 
 async function fetchDetail(insightId: string, audience?: z.infer<typeof audienceSchema>) {
   const bffUrl = resolveBffUrl();
-  const url = applyQuery(new URL(`/api/flow/insights/${insightId}`, bffUrl), { audience });
+  const encodedInsightId = encodeURIComponent(insightId);
+  const url = applyQuery(new URL(`/api/flow/insights/${encodedInsightId}`, bffUrl), { audience });
   const body = await fetchText(url);
   return detailResponseSchema.parse(JSON.parse(body) as unknown);
 }
