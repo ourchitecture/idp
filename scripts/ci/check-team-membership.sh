@@ -21,6 +21,19 @@ fi
 is_team_member="false"
 matched_team=""
 
+# If no token is present (e.g. Dependabot PRs where Actions secrets are withheld),
+# skip the API entirely and treat the author as a non-member. This is safe because
+# automated bots already produce conventional commit titles.
+if [[ -z "${GH_TOKEN:-}" ]]; then
+  echo "::notice::GH_TOKEN is not set; skipping team membership check (defaulting to is_team_member=false)."
+  echo "Author '${USERNAME}' is team member: false"
+  if [[ -n "${OUTPUT_FILE}" ]]; then
+    printf "is_team_member=false\n" >> "${OUTPUT_FILE}"
+    printf "matched_team=\n" >> "${OUTPUT_FILE}"
+  fi
+  exit 0
+fi
+
 # Preflight: confirm the token can reach the API and, for classic PATs, has read:org.
 # Fine-grained PATs and GitHub App tokens omit X-OAuth-Scopes; the scope check is skipped for them.
 preflight_resp="$(mktemp)"
