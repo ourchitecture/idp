@@ -34,26 +34,43 @@ if [[ -z "${GH_TOKEN:-}" ]]; then
   exit 0
 fi
 
-# Preflight: confirm the token can reach the API and, for classic PATs, has read:org.
-# Fine-grained PATs and GitHub App tokens omit X-OAuth-Scopes; the scope check is skipped for them.
+# Preflight: probe the API and, for classic PATs, verify read:org is present.
+# Any failure here is non-fatal — we warn and default to is_team_member=false so
+# the PR is never blocked by a bad/expired/scoped-down token.
 preflight_resp="$(mktemp)"
 preflight_err="$(mktemp)"
-if ! gh api --include user >"${preflight_resp}" 2>"${preflight_err}"; then
-  echo "::error::GitHub API is unreachable or GH_TOKEN is invalid." \
-       " Check network connectivity and the GH_TOKEN value." >&2
+preflight_ok=false
+if gh api --include user >"${preflight_resp}" 2>"${preflight_err}"; then
+  preflight_ok=true
+fi
+
+if [[ "${preflight_ok}" == "false" ]]; then
+  echo "::warning::GitHub API preflight failed (token may be invalid or unreachable)." \
+       " Skipping team membership check and defaulting to is_team_member=false." >&2
   [[ -s "${preflight_err}" ]] && sed 's/^/  /' "${preflight_err}" >&2
   rm -f "${preflight_resp}" "${preflight_err}"
-  exit 1
+  echo "Author '${USERNAME}' is team member: false"
+  if [[ -n "${OUTPUT_FILE}" ]]; then
+    printf "is_team_member=false\n" >> "${OUTPUT_FILE}"
+    printf "matched_team=\n" >> "${OUTPUT_FILE}"
+  fi
+  exit 0
 fi
+
 oauth_scopes="$(grep -i '^x-oauth-scopes:' "${preflight_resp}" | head -1 | cut -d: -f2- | tr -d ' \r')"
 rm -f "${preflight_resp}" "${preflight_err}"
 
 if [[ -n "${oauth_scopes}" ]]; then
   echo "Token scopes: ${oauth_scopes}"
   if ! echo "${oauth_scopes}" | grep -qE '(^|,\s*)read:org($|,|\s*$)'; then
-    echo "::error::GH_TOKEN is missing 'read:org' scope (found: '${oauth_scopes}')." \
-         " Team membership checks require a classic PAT with read:org." >&2
-    exit 1
+    echo "::warning::GH_TOKEN is missing 'read:org' scope (found: '${oauth_scopes}')." \
+         " Skipping team membership check and defaulting to is_team_member=false." >&2
+    echo "Author '${USERNAME}' is team member: false"
+    if [[ -n "${OUTPUT_FILE}" ]]; then
+      printf "is_team_member=false\n" >> "${OUTPUT_FILE}"
+      printf "matched_team=\n" >> "${OUTPUT_FILE}"
+    fi
+    exit 0
   fi
 else
   echo "Token scopes: <not disclosed> (fine-grained PAT or GitHub App token)"
@@ -124,20 +141,21 @@ for team in "${teams[@]}"; do
       # With read:org scope a 404 is definitive: user is not in this team.
       ;;
     401|403)
-      # Auth failure — the token is missing read:org scope or is invalid.
-      # Emit a hard error so this is never silently misreported as non-membership.
-      echo "::error::GitHub token rejected with HTTP ${http_code} for team '${team}'." \
-           " Ensure GH_TOKEN has 'read:org' scope." >&2
+      # Auth failure — token lacks read:org scope or is invalid.
+      # Treat as non-member (warning, not error) so PRs are never blocked by a
+      # misconfigured token; the conventional commit title check still runs.
+      echo "::warning::GitHub token rejected with HTTP ${http_code} for team '${team}'." \
+           " Ensure GH_TOKEN has 'read:org' scope. Defaulting to is_team_member=false." >&2
       [[ -s "${err_file}" ]] && sed 's/^/  /' "${err_file}" >&2
       rm -f "${resp_file}" "${err_file}"
-      exit 1
+      break 2
       ;;
     "")
-      echo "::error::No HTTP response received for team '${team}' after ${MAX_RETRIES} retries." \
-           " Check network connectivity and the GH_TOKEN value." >&2
+      echo "::warning::No HTTP response received for team '${team}' after ${MAX_RETRIES} retries." \
+           " Defaulting to is_team_member=false." >&2
       [[ -s "${err_file}" ]] && sed 's/^/  /' "${err_file}" >&2
       rm -f "${resp_file}" "${err_file}"
-      exit 1
+      break 2
       ;;
     *)
       echo "::warning::Unexpected HTTP ${http_code} checking team '${team}'." >&2
