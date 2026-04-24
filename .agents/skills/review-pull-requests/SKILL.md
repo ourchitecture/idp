@@ -217,24 +217,78 @@ gh pr checks <pr_number>
 
 ## Step 7: Review Existing PR Comments and Reviews
 
-Use GitHub MCP `pull_request_read` with `method: get_reviews` and
-`method: get_review_comments` to fetch existing reviews.
+Use GitHub MCP `pull_request_read` with `method: get_reviews`,
+`method: get_review_comments`, and `method: get_comments` to fetch
+existing reviews and comments.
 
 Check:
 
-1. **Unresolved conversations**: If review threads exist and are not
-   resolved, flag this as a blocker to merge.
+1. **Unresolved review comment threads**: If review comment threads
+   exist and are not resolved, flag this as a high-severity blocker to
+   merge. Each unresolved thread must be addressed by either:
+   - Making the requested code change and resolving the thread
+   - Replying with clarification and resolving if the reviewer accepts
+   - Discussing and reaching consensus before resolving
+
 2. **Review status**:
-   - Count approvals, rejections, and comment-only reviews.
+   - Count approvals (`APPROVED`), rejections (`CHANGES_REQUESTED`),
+     and comment-only reviews (`COMMENTED`).
    - Verify that at least one CODEOWNERS-designated reviewer has
      approved if repository rulesets require it.
+   - If any reviewer has requested changes, flag as high-severity until
+     those changes are addressed and the reviewer re-reviews.
+
 3. **Stale reviews**: If reviews are older than the latest commit,
-   suggest re-requesting review.
+   suggest re-requesting review (medium severity).
+
+4. **General PR comments**: Review general issue comments on the PR
+   (not code review comments) for guidance, questions, or blockers.
+   These comments do not have the same authority as code review
+   comments but may contain important context:
+   - Flag unanswered questions from maintainers as medium severity.
+   - Note any blockers or dependencies mentioned in comments.
+   - Treat general comments as advisory unless they come from
+     CODEOWNERS or contain explicit blocking language.
 
 Fallback:
 
 ```bash
-gh pr view <pr_number> --json reviews --jq '.reviews[] | {author: .author.login, state: .state, submittedAt: .submittedAt}'
+gh pr view <pr_number> --json reviews,comments --jq '.reviews[] | {author: .author.login, state: .state, submittedAt: .submittedAt}'
+```
+
+## Step 7a: Check Merge Conflicts and Branch Status
+
+Use GitHub MCP `pull_request_read` with `method: get_status` or `gh`
+CLI to check:
+
+1. **Merge conflicts**: Verify the PR branch can be cleanly merged into
+   the base branch. If conflicts exist, flag as high-severity blocker.
+
+   ```bash
+   gh pr view <pr_number> --json mergeable,mergeStateStatus
+   ```
+
+   - `mergeable: CONFLICTING` indicates merge conflicts
+   - `mergeStateStatus: DIRTY` indicates conflicts or other issues
+
+2. **Branch update needed**: Check if the base branch has advanced past
+   the PR head and the PR branch needs updates:
+   - Compare base branch HEAD with the merge base of the PR
+   - If the PR is behind the base branch and repository policy requires
+     up-to-date branches, flag as medium severity
+   - Recommend updating the branch via merge or rebase
+
+3. **Branch protection compliance**: Verify the PR satisfies all branch
+   protection rules:
+   - Required status checks passing
+   - Required reviews obtained
+   - No unresolved conversations (if required by ruleset)
+   - Linear history requirement (squash merge ready)
+
+Fallback:
+
+```bash
+gh pr view <pr_number> --json mergeable,mergeStateStatus,statusCheckRollup
 ```
 
 ## Step 8: Score and Classify Findings
@@ -242,13 +296,15 @@ gh pr view <pr_number> --json reviews --jq '.reviews[] | {author: .author.login,
 Assign severity to each finding:
 
 - **High**: Missing linked issue (when required), CI checks failing,
-  secrets in diff, unresolved review threads, breaking changes without
+  secrets in diff, unresolved review threads, merge conflicts,
+  changes requested by reviewers, breaking changes without
   documentation.
 - **Medium**: Non-conventional commit messages, missing tests (when
   required), missing documentation updates, large diffs without
-  justification, draft PR not marked ready.
-- **Low**: Minor title/body formatting issues, missing labels, stale
-  reviews.
+  justification, draft PR not marked ready, branch needs update,
+  unanswered maintainer questions in comments, stale reviews.
+- **Low**: Minor title/body formatting issues, missing labels,
+  advisory comments from non-reviewers.
 
 Calculate a quality score starting from 100:
 
@@ -272,6 +328,9 @@ Set `merge_ready`:
   - PR is not a draft
   - At least one approving review exists (if required by rulesets)
   - No unresolved review conversations
+  - No merge conflicts
+  - No reviewers have requested changes
+  - Branch is up to date with base (if required by repository policy)
 
 ## Step 9: Generate Review Report
 
@@ -281,7 +340,9 @@ Produce a structured report:
    - PR number, title, author, branch
    - State, draft status, linked issues
    - CI check status
-   - Review status (approvals, rejections, unresolved threads)
+   - Merge status (conflicts, branch up to date)
+   - Review status (approvals, changes requested, unresolved threads)
+   - Comment resolution status (resolved vs unresolved review comments)
    - Overall status and score
 
 2. **Findings**: Each finding with severity, category, description, and

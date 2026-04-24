@@ -124,7 +124,7 @@ For each issue, extract and validate:
 
 4. **Labels**:
    - If `require_priority` is true, verify presence of a priority label
-     (`p1-critical`, `p2-medium`, `p3-low`).
+     (`p0-critical`, `p1-high`, `p2-medium`, `p3-low`).
    - If `require_domain` is true, verify presence of a domain label
      (`security`, `ai`, `mcp`, `infrastructure`, `plugin`, `api`, `ui`,
      `devops`, `docs`).
@@ -146,8 +146,9 @@ Flag issues with these patterns:
 
 1. **Duplicate or near-duplicate** of another open issue (heuristic
    title similarity check).
-2. **Stale issues**: Open for extended period (e.g., 90+ days) with no
-   recent activity and no `blocked` or `backlog` label.
+2. **Stale issues**: Open past the repository's configured stale
+   workflow threshold (currently 45 days) with no recent activity and
+   no `blocked` or `backlog` label.
 3. **Missing context**: Issue body is a single line or fewer than 20
    characters.
 4. **Overly broad scope**: Issue description suggests multiple unrelated
