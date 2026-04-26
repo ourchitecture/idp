@@ -81,7 +81,7 @@ make check-lint-workflows
 
 1. Start from a GitHub Issue -- no untracked work.
 2. Create a feature branch: `<type>/<short-description>`.
-3. Make atomic commits using Conventional Commits format.
+3. Make atomic commits. Conventional Commits format is encouraged but not required.
 4. Include issue references: `Refs #N` or `Closes #N`.
 5. Open a pull request against `main`.
 6. Ensure PR validation checks pass.
