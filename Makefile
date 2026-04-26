@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-title check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs
+.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -23,7 +23,6 @@ help:
 	@printf "  check-flow-insights-equivalence Run cross-stack equivalence check for /api/flow/insights\n"
 	@printf "  check-stack   Run full checks for STACK\n"
 	@printf "  check-team-membership Check org team authorization\n"
-	@printf "  check-pr-title Validate PR title policy\n"
 	@printf "  check-pr-changes Detect path-based PR validation plan\n"
 	@printf "  issue-number  Resolve issue number from trigger context\n"
 	@printf "  issue-triage  Apply issue triage labels and comments\n"
@@ -123,13 +122,6 @@ check-team-membership:
 		"$(MOON_BIN)" run repo:check-team-membership; \
 	else \
 		"bash" "./$(CI_SCRIPTS_DIR)/check-team-membership.sh"; \
-	fi
-
-check-pr-title:
-	@if [ -x "$(MOON_BIN)" ]; then \
-		"$(MOON_BIN)" run repo:check-pr-title; \
-	else \
-		"bash" "./$(CI_SCRIPTS_DIR)/check-pr-title.sh"; \
 	fi
 
 check-pr-changes:
