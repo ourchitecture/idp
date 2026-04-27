@@ -730,7 +730,8 @@ Agents must validate that requested changes actually took effect and report evid
 
 ## Git Standards
 
-- Conventional Commits are required for maintainers.
+- AI agents must use Conventional Commits format for all commits.
+- Human contributors are encouraged but not required to use Conventional Commits.
 - Include issue references: `Refs #N` or `Closes #N`.
 - Keep commits atomic and scoped to one logical change. See
   [Iterative Small Commits](#iterative-small-commits-required) — prefer

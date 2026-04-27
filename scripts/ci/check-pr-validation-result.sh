@@ -5,7 +5,6 @@
 #
 # Required environment variables (GitHub Actions job result strings):
 #   RESULT_DETECT          — detect-changes job result
-#   RESULT_COMMIT          — validate-commit-message job result
 #   RESULT_LINT_MD         — check-lint-md job result
 #   RESULT_WORKFLOWS       — check-workflow-files job result
 #   RESULT_STACK           — check-stack-matrix job result
@@ -22,7 +21,6 @@
 set -euo pipefail
 
 : "${RESULT_DETECT:?RESULT_DETECT is required}"
-: "${RESULT_COMMIT:?RESULT_COMMIT is required}"
 : "${RESULT_LINT_MD:?RESULT_LINT_MD is required}"
 : "${RESULT_WORKFLOWS:?RESULT_WORKFLOWS is required}"
 : "${RESULT_STACK:?RESULT_STACK is required}"
@@ -54,7 +52,6 @@ _check() {
 }
 
 _check "detect-changes"           "${RESULT_DETECT}"           true
-_check "validate-commit-message"  "${RESULT_COMMIT}"           true
 _check "check-lint-md"            "${RESULT_LINT_MD}"
 _check "check-workflow-files"     "${RESULT_WORKFLOWS}"
 _check "check-stack-matrix"       "${RESULT_STACK}"

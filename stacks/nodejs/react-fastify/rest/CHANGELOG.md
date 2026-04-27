@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.6.1-alpha.0...nodejs-react-fastify-rest-v1.6.2-alpha.0) (2026-04-27)
+
+
+### Bug Fixes
+
+* **nodejs-bff:** start gracefully when flow fixture dir is missing ([#318](https://github.com/ourchitecture/idp/issues/318)) ([0402482](https://github.com/ourchitecture/idp/commit/0402482b9ea7419ca58ed693a48a2f884ac462b9))
+
 ## [1.6.1-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.6.0-alpha.0...nodejs-react-fastify-rest-v1.6.1-alpha.0) (2026-04-18)
 
 
