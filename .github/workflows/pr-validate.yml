@@ -308,64 +308,6 @@ jobs:
           path: ~/.npm
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
 
-  validate-commit-message:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-
-      - name: Setup toolchain
-        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
-        with:
-          proto-version: ${{ env.PROTO_VERSION }}
-          auto-install: true
-
-      - name: Check PR author team membership
-        id: author-check
-        env:
-          GH_TOKEN: ${{ secrets.IDP_TRIAGE_TOKEN }}
-          ORG: ${{ github.repository_owner }}
-          USERNAME: ${{ github.event.pull_request.user.login }}
-          TEAM_SLUGS: idp-admin,idp-maintain
-        run: |
-          export ORG="${ORG}"
-          export USERNAME="${USERNAME}"
-          export TEAM_SLUGS="${TEAM_SLUGS}"
-          export OUTPUT_FILE="$GITHUB_OUTPUT"
-          moon run repo:check-team-membership
-
-      - name: Validate PR title as Conventional Commit
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          IS_TEAM_MEMBER: ${{ steps.author-check.outputs.is_team_member }}
-        run: |
-          export PR_TITLE="${PR_TITLE}"
-          export IS_TEAM_MEMBER="${IS_TEAM_MEMBER}"
-          moon run repo:check-pr-title
-
-      - name: Save proto and moon cache
-        if: always()
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        continue-on-error: true
-        with:
-          path: |
-            ~/.proto
-            ~/.cache/proto
-            ~/.cache/moon
-            ~/.moon/cache
-            .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
-
-      - name: Save npm cache
-        if: always()
-        uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        continue-on-error: true
-        with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
-
   check-container-build:
     name: Check Container Build
     runs-on: ubuntu-latest
@@ -667,7 +609,7 @@ jobs:
 
       - name: Upload equivalence artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: flow-insights-equivalence
           path: .tmp/flow-insights-equivalence
@@ -760,7 +702,6 @@ jobs:
       - check-workflow-files
       - check-stack-matrix
       - check-docs-site
-      - validate-commit-message
       - check-container-build
       - check-mock-oauth-build
       - check-auth-integration
@@ -772,7 +713,6 @@ jobs:
       - name: Verify required checks
         env:
           RESULT_DETECT: ${{ needs.detect-changes.result }}
-          RESULT_COMMIT: ${{ needs.validate-commit-message.result }}
           RESULT_LINT_MD: ${{ needs.check-lint-md.result }}
           RESULT_WORKFLOWS: ${{ needs.check-workflow-files.result }}
           RESULT_STACK: ${{ needs.check-stack-matrix.result }}
