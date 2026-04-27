@@ -79,18 +79,23 @@ export interface InsightFilters {
   audience?: InsightAudience;
 }
 
-const FIXTURE_DIR = path.resolve(
-  __dirname,
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "..",
-  "schema/fixtures/provider-adapter-input",
-);
+// __dirname is 7 segments deep below the repo root:
+//   <repo>/stacks/nodejs/react-fastify/rest/bff/{src,dist}/flow
+// Allow OUR_IDP_FLOW_FIXTURE_DIR to override, e.g. when fixtures are mounted
+// into a container at a non-default location.
+const FIXTURE_DIR =
+  process.env.OUR_IDP_FLOW_FIXTURE_DIR ??
+  path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "..",
+    "schema/fixtures/provider-adapter-input",
+  );
 
 function loadFixtureFile(fileName: string): AdapterFixture | null {
   const raw = fs.readFileSync(path.join(FIXTURE_DIR, fileName), "utf-8");
@@ -169,7 +174,19 @@ function summarizeForAudience(signal: FlowSignal, audience?: InsightAudience): s
 }
 
 function buildCatalog(): FlowInsightRecord[] {
-  const files = fs.readdirSync(FIXTURE_DIR).filter((file) => file.endsWith(".yaml"));
+  // The fixture directory is optional: container images and some deployment
+  // contexts do not ship the schema fixtures. Mirror the Go BFF behaviour
+  // and treat a missing directory as an empty catalog rather than crashing
+  // the server at startup.
+  let files: string[];
+  try {
+    files = fs.readdirSync(FIXTURE_DIR).filter((file) => file.endsWith(".yaml"));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
   const records: FlowInsightRecord[] = [];
 
   for (const file of files) {

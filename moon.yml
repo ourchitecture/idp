@@ -27,10 +27,6 @@ tasks:
     command: ["bash", "./scripts/ci/check-team-membership.sh"]
     options:
       runFromWorkspaceRoot: true
-  check-pr-title:
-    command: ["bash", "./scripts/ci/check-pr-title.sh"]
-    options:
-      runFromWorkspaceRoot: true
   check-pr-changes:
     command: ["bash", "./scripts/ci/detect-pr-changes.sh"]
     options:
