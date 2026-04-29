@@ -14,6 +14,21 @@ import {
   registerGetPortalSummary,
   runGetPortalSummaryTool,
 } from "./tools/get-portal-summary.js";
+import {
+  GET_FLOW_INSIGHT_TOOL_DESCRIPTION,
+  GET_FLOW_INSIGHT_TOOL_NAME,
+  LIST_FLOW_INSIGHTS_TOOL_DESCRIPTION,
+  LIST_FLOW_INSIGHTS_TOOL_NAME,
+  LIST_MY_BLOCKERS_TOOL_DESCRIPTION,
+  LIST_MY_BLOCKERS_TOOL_NAME,
+  LIST_SERVICE_RISK_SIGNALS_TOOL_DESCRIPTION,
+  LIST_SERVICE_RISK_SIGNALS_TOOL_NAME,
+  registerFlowInsightsTools,
+  runGetFlowInsightTool,
+  runListFlowInsightsTool,
+  runListMyBlockersTool,
+  runListServiceRiskSignalsTool,
+} from "./tools/flow-insights.js";
 
 const SERVER_NAME = "stemix-idp";
 const SERVER_VERSION = "0.1.0";
@@ -34,6 +49,7 @@ function buildMcpServer(): McpServer {
 
   registerGetPortalSummary(server);
   registerCheckHealth(server);
+  registerFlowInsightsTools(server);
 
   return server;
 }
@@ -168,6 +184,65 @@ async function startHttpMode(port: number): Promise<void> {
                 description: CHECK_HEALTH_TOOL_DESCRIPTION,
                 inputSchema: { type: "object", properties: {}, additionalProperties: false },
               },
+              {
+                name: LIST_FLOW_INSIGHTS_TOOL_NAME,
+                description: LIST_FLOW_INSIGHTS_TOOL_DESCRIPTION,
+                inputSchema: {
+                  type: "object",
+                  properties: {
+                    provider: { type: "string" },
+                    repo: { type: "string" },
+                    team: { type: "string" },
+                    service: { type: "string" },
+                    actor: { type: "string" },
+                    audience: { type: "string", enum: ["owner", "actor", "reviewer"] },
+                  },
+                  additionalProperties: false,
+                },
+              },
+              {
+                name: GET_FLOW_INSIGHT_TOOL_NAME,
+                description: GET_FLOW_INSIGHT_TOOL_DESCRIPTION,
+                inputSchema: {
+                  type: "object",
+                  properties: {
+                    insightId: { type: "string" },
+                    audience: { type: "string", enum: ["owner", "actor", "reviewer"] },
+                  },
+                  required: ["insightId"],
+                  additionalProperties: false,
+                },
+              },
+              {
+                name: LIST_MY_BLOCKERS_TOOL_NAME,
+                description: LIST_MY_BLOCKERS_TOOL_DESCRIPTION,
+                inputSchema: {
+                  type: "object",
+                  properties: {
+                    actor: { type: "string" },
+                    provider: { type: "string" },
+                    repo: { type: "string" },
+                    team: { type: "string" },
+                    service: { type: "string" },
+                  },
+                  required: ["actor"],
+                  additionalProperties: false,
+                },
+              },
+              {
+                name: LIST_SERVICE_RISK_SIGNALS_TOOL_NAME,
+                description: LIST_SERVICE_RISK_SIGNALS_TOOL_DESCRIPTION,
+                inputSchema: {
+                  type: "object",
+                  properties: {
+                    service: { type: "string" },
+                    provider: { type: "string" },
+                    team: { type: "string" },
+                  },
+                  required: ["service"],
+                  additionalProperties: false,
+                },
+              },
             ],
           },
         });
@@ -176,6 +251,7 @@ async function startHttpMode(port: number): Promise<void> {
 
       if (method === "tools/call") {
         const toolName = payload.params?.name;
+        const toolArgs = payload.params?.arguments as unknown;
         if (toolName === GET_PORTAL_SUMMARY_TOOL_NAME) {
           writeJson(res, 200, {
             jsonrpc: "2.0",
@@ -190,6 +266,42 @@ async function startHttpMode(port: number): Promise<void> {
             jsonrpc: "2.0",
             id: payload.id ?? null,
             result: await runCheckHealthTool(),
+          });
+          return;
+        }
+
+        if (toolName === LIST_FLOW_INSIGHTS_TOOL_NAME) {
+          writeJson(res, 200, {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: await runListFlowInsightsTool(toolArgs),
+          });
+          return;
+        }
+
+        if (toolName === GET_FLOW_INSIGHT_TOOL_NAME) {
+          writeJson(res, 200, {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: await runGetFlowInsightTool(toolArgs),
+          });
+          return;
+        }
+
+        if (toolName === LIST_MY_BLOCKERS_TOOL_NAME) {
+          writeJson(res, 200, {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: await runListMyBlockersTool(toolArgs),
+          });
+          return;
+        }
+
+        if (toolName === LIST_SERVICE_RISK_SIGNALS_TOOL_NAME) {
+          writeJson(res, 200, {
+            jsonrpc: "2.0",
+            id: payload.id ?? null,
+            result: await runListServiceRiskSignalsTool(toolArgs),
           });
           return;
         }

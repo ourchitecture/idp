@@ -29,7 +29,7 @@ These capabilities are implemented and usable right now:
 | Container-first delivery | Multi-stage Dockerfiles, distroless base images, published to GHCR |
 | IETF-conformant health endpoints | `/health` and `/ready` endpoints per IETF draft spec |
 | Contract test harness | 4 profiles: `core`, `operational`, `ui-profile`, `mcp-profile` |
-| MCP server | Initial tools: `get_portal_summary`, `check_health` |
+| MCP server | Tools: `get_portal_summary`, `check_health`, flow insights (`list_flow_insights`, `get_flow_insight`, `list_my_blockers`, `list_service_risk_signals`) |
 | Privacy and secret scanning | `gitleaks` + `semgrep` via `make check-privacy` |
 | Documentation site | Docusaurus site at [stemix.dev](https://stemix.dev) |
 
