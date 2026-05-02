@@ -47,6 +47,12 @@ _curl_check() {
   curl "${args[@]}" "${URL}" || true
 }
 
+_dump_container_logs() {
+  echo "--- container logs (${IMAGE}) ---"
+  docker logs "${CID}" 2>&1 || true
+  echo "--- end container logs ---"
+}
+
 STATUS="000"
 if [[ "${POLL_ATTEMPTS}" -gt 0 ]]; then
   attempt=0
@@ -57,14 +63,16 @@ if [[ "${POLL_ATTEMPTS}" -gt 0 ]]; then
     attempt=$((attempt + 1))
   done
   if [[ "${STATUS}" != "200" ]]; then
-    echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS}"
+    _dump_container_logs
+    echo "::error::Smoke test failed after ${attempt} attempts: HTTP ${STATUS} — ${URL}"
     exit 1
   fi
 else
   sleep "${SLEEP_SECONDS}"
   STATUS=$(_curl_check)
   if [[ "${STATUS}" != "200" ]]; then
-    echo "::error::Smoke test failed: HTTP ${STATUS}"
+    _dump_container_logs
+    echo "::error::Smoke test failed: HTTP ${STATUS} — ${URL}"
     exit 1
   fi
 fi

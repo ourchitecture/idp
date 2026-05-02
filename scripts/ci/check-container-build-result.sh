@@ -30,6 +30,7 @@ set -euo pipefail
 : "${RESULT_DEV_TOOLS:?RESULT_DEV_TOOLS is required}"
 
 failed=false
+summary_rows=""
 
 for name_result in \
   "detect-changes:${RESULT_DETECT}" \
@@ -43,11 +44,36 @@ for name_result in \
   "build-dev-tools:${RESULT_DEV_TOOLS}"; do
   name="${name_result%%:*}"
   result="${name_result#*:}"
+
+  emoji=""
+  case "${result}" in
+    success) emoji="✅" ;;
+    skipped) emoji="⏭️" ;;
+    *)       emoji="❌" ;;
+  esac
+  summary_rows+="| \`${name}\` | ${emoji} \`${result}\` |"$'\n'
+
   if [[ "${result}" != "success" && "${result}" != "skipped" ]]; then
     echo "::error::${name} failed (${result})"
     failed=true
   fi
 done
+
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## Container Build Result"
+    echo ""
+    echo "| Build | Result |"
+    echo "|-------|--------|"
+    printf "%s" "${summary_rows}"
+    echo ""
+    if [[ "${failed}" == "true" ]]; then
+      echo "**One or more container builds failed.** See the ❌ rows above and the individual job logs for details."
+    else
+      echo "**All container builds completed successfully.**"
+    fi
+  } >> "${GITHUB_STEP_SUMMARY}"
+fi
 
 if [[ "${failed}" == "true" ]]; then
   echo "::error::One or more container builds failed"
