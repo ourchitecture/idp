@@ -91,7 +91,7 @@ wait_for_ready() {
   while true; do
     # Use curl if available; fall back to wget; bail out if neither present.
     if command -v curl >/dev/null 2>&1; then
-      http_status=$(curl -s -o /dev/null -w "%{http_code}" --max-time 2 "${url}" 2>/dev/null || echo "000")
+      http_status=$(curl --silent --output /dev/null --write-out "%{http_code}" --max-time 2 "${url}" 2>/dev/null || echo "000")
     elif command -v wget >/dev/null 2>&1; then
       http_status=$(wget -q --timeout=2 --server-response -O /dev/null "${url}" 2>&1 \
         | awk '/^  HTTP/{print $2}' | tail -1 || echo "000")

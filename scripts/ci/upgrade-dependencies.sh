@@ -64,10 +64,10 @@ run_uv_upgrade() {
   )
 }
 
-mapfile -t pnpm_lockfiles < <(git ls-files | grep -E '(^|/)pnpm-lock\.yaml$' | sort)
+mapfile -t pnpm_lockfiles < <(git ls-files | grep --extended-regexp '(^|/)pnpm-lock\.yaml$' | sort)
 mapfile -t backstage_npm_lockfiles < <(git ls-files tools/backstage/package-lock.json | sort)
-mapfile -t go_modfiles < <(git ls-files | grep -E '(^|/)go\.mod$' | sort)
-mapfile -t uv_lockfiles < <(git ls-files | grep -E '(^|/)uv\.lock$' | sort)
+mapfile -t go_modfiles < <(git ls-files | grep --extended-regexp '(^|/)go\.mod$' | sort)
+mapfile -t uv_lockfiles < <(git ls-files | grep --extended-regexp '(^|/)uv\.lock$' | sort)
 
 if [[ ${#pnpm_lockfiles[@]} -eq 0 && ${#backstage_npm_lockfiles[@]} -eq 0 && ${#go_modfiles[@]} -eq 0 && ${#uv_lockfiles[@]} -eq 0 ]]; then
   echo "No dependency lock or module files found."
