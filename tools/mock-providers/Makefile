@@ -1,4 +1,4 @@
-.PHONY: help all install clean check-lint check-test check-ci check test run-github run-gitlab
+.PHONY: help all install check-lint check-test check-ci check test run-github run-gitlab
 
 ROOT_DIR := ../..
 TOOL_PATH := tools/mock-providers
@@ -11,7 +11,6 @@ help:
 	@printf "Targets:\n"
 	@printf "  all             Run full tool verification flow\n"
 	@printf "  install         Install dependencies\n"
-	@printf "  clean           Remove build artifacts\n"
 	@printf "  check-lint      Run lint checks (typecheck)\n"
 	@printf "  check-test      Run adapter integration tests\n"
 	@printf "  check-ci        Run CI-safe validation checks\n"
@@ -35,28 +34,21 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mock-providers:install; \
 	else \
-		npm install; \
-	fi
-
-clean:
-	@if [ -x "$(MOON_BIN)" ]; then \
-		"$(MOON_BIN)" run mock-providers:clean; \
-	else \
-		echo "No build artifacts to clean"; \
+		pnpm -C "$(ROOT_DIR)" install; \
 	fi
 
 check-lint:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mock-providers:check-lint; \
 	else \
-		npm run typecheck; \
+		pnpm run typecheck; \
 	fi
 
 check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mock-providers:check-test; \
 	else \
-		npm test; \
+		pnpm test; \
 	fi
 
 test: check-test
@@ -79,12 +71,12 @@ run-github:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mock-providers:run-github; \
 	else \
-		OUR_IDP_GITHUB_MOCK_PORT="$(GITHUB_MOCK_PORT)" npm run start:github; \
+		OUR_IDP_GITHUB_MOCK_PORT="$(GITHUB_MOCK_PORT)" pnpm run start:github; \
 	fi
 
 run-gitlab:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mock-providers:run-gitlab; \
 	else \
-		OUR_IDP_GITLAB_MOCK_PORT="$(GITLAB_MOCK_PORT)" npm run start:gitlab; \
+		OUR_IDP_GITLAB_MOCK_PORT="$(GITLAB_MOCK_PORT)" pnpm run start:gitlab; \
 	fi
