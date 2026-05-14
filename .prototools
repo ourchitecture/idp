@@ -1,15 +1,17 @@
-proto = "0.55.4"
-moon = "2.1.3"
-go = "1.25.0"
-node = "24.14.1"
+# See https://github.com/moonrepo/proto/releases
+proto = "0.57.0"
+# See https://github.com/moonrepo/moon/releases
+moon = "2.2.4"
+# See https://go.dev/doc/devel/release
+go = "1.26.0"
+# See https://nodejs.org/en/download
+node = "24.15.0"
 npm = "bundled"
-python = "3.12.11"
-uv = "0.9.11"
+# See https://www.python.org/downloads/
+python = "3.14.5"
+# See https://github.com/astral-sh/uv/releases
+uv = "0.11.14"
 
 [settings]
 detect-strategy = "prefer-prototools"
 auto-install = true
-
-[plugins.tools]
-unstable_python = "https://github.com/moonrepo/plugins/releases/download/python_tool-v0.14.6/python_tool.wasm"
-unstable_uv = "https://github.com/moonrepo/plugins/releases/download/python_uv_tool-v0.3.2/python_uv_tool.wasm"

@@ -1,6 +1,7 @@
 # Local AI assistant settings
 .claude/settings.json
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Repo-local agent worktrees
 .agents/worktrees/
