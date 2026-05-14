@@ -60,7 +60,7 @@ implementation loops.
 | AI coding agent | one of 30+ integrations |
 
 **Toolchain conflict**: spec-kit requires `uv tool install` as a global
-install. This repo pins Python via `proto` / `unstable_python` and `unstable_uv`
+install. This repo pins Python via `proto` / `python` and `uv`
 per ADR-0007 and ADR-0012. A proto plugin or container wrapper would be needed
 for reproducible CI installation.
 

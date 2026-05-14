@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs
+.PHONY: help all ci install upgrade build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -16,6 +16,7 @@ help:
 	@printf "  all           Bootstrap toolchain and validate all detected stacks\n"
 	@printf "  ci            Run CI-safe checks for all stacks via moon ci (affected-aware)\n"
 	@printf "  install       Install dependencies for selected stack\n"
+	@printf "  upgrade       Upgrade tracked dependency locks across the repository\n"
 	@printf "  build         Build selected stack artifacts\n"
 	@printf "  clean         Clean selected stack artifacts\n"
 	@printf "  reset         Reset (full clean) the project\n"
@@ -194,6 +195,13 @@ audit-worktrees:
 
 install:
 	@"$(MAKE)" -C "$(STACK)" install
+
+upgrade:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:upgrade; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/upgrade-dependencies.sh"; \
+	fi
 
 build:
 	@"$(MAKE)" -C "$(STACK)" build

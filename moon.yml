@@ -23,6 +23,10 @@ tasks:
     command: ["bash", "./scripts/ci/check-privacy.sh"]
     options:
       runFromWorkspaceRoot: true
+  upgrade:
+    command: ["bash", "./scripts/ci/upgrade-dependencies.sh"]
+    options:
+      runFromWorkspaceRoot: true
   check-team-membership:
     command: ["bash", "./scripts/ci/check-team-membership.sh"]
     options:

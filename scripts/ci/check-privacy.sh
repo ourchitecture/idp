@@ -39,8 +39,8 @@ run_gitleaks() {
 }
 
 run_semgrep() {
-  if command -v moon >/dev/null 2>&1 && moon bin unstable_uv >/dev/null 2>&1; then
-    "$(moon bin unstable_uv)" tool run --from "semgrep==${SEMGREP_VERSION}" semgrep "$@"
+  if command -v moon >/dev/null 2>&1 && moon bin uv >/dev/null 2>&1; then
+    "$(moon bin uv)" tool run --from "semgrep==${SEMGREP_VERSION}" semgrep "$@"
     return 0
   fi
 

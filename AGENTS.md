@@ -39,8 +39,8 @@ Current high-signal ADRs agents must respect:
 - `0011` IETF health endpoint contract (`/health` and `/readiness` paths,
   `application/health+json` media type, `pass`/`fail`/`warn` status values
   per `draft-inadarei-api-health-check-06`; applies to all hosted services).
-- `0012` moon/proto Python-uv integration constraint (use `unstable_python` and
-  `unstable_uv` moon toolchains mapped via `.prototools [plugins.tools]`;
+- `0012` moon/proto Python-uv integration constraint (use `python` and
+  `uv` moon toolchains mapped via `.prototools [plugins.tools]`;
   avoid unsupported direct `python`/`uv` moon toolchain IDs).
 
 When proposing a new ADR, include a short rationale for why the decision is

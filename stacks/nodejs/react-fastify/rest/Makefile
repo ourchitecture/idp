@@ -147,6 +147,10 @@ run-bff:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:run-bff; \
 	else \
+		OUR_IDP_OAUTH_PROVIDER="$${OUR_IDP_OAUTH_PROVIDER:-mock}" \
+		OUR_IDP_OAUTH_CLIENT_ID="$${OUR_IDP_OAUTH_CLIENT_ID:-mock-client-id}" \
+		OUR_IDP_OAUTH_CLIENT_SECRET="$${OUR_IDP_OAUTH_CLIENT_SECRET:-mock-client-secret}" \
+		OUR_IDP_OAUTH_REDIRECT_URL="$${OUR_IDP_OAUTH_REDIRECT_URL:-http://127.0.0.1:$${OUR_IDP_API_PORT:-8000}/auth/callback}" \
 		npm run start:bff; \
 	fi
 

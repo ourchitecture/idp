@@ -110,11 +110,11 @@ Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS,
 The fastest path to a running local stack:
 
 ```bash
-# Install Node.js dependencies
-npm install
-
 # (Optional) Pin and install the full toolchain via proto
 proto install
+
+# Install Node.js dependencies and repo-local CLIs
+npm install
 
 # Start the default stack (web + BFF)
 make dev
@@ -135,6 +135,12 @@ See all available `make` targets:
 make help
 ```
 
+Run the repo-local Pi coding agent after `npm install`:
+
+```bash
+npm run pi -- --help
+```
+
 ### Tooling Policy
 
 This project standardizes workflows around `moon` while keeping language tooling
@@ -143,19 +149,27 @@ flexible for contributors.
 - `moon` is required for maintainer and CI orchestration.
 - `proto` is recommended for consistent pinned toolchain setup, but contributors
   may use system-installed Go/Node directly.
+- `npm install` installs repository-local developer CLIs such as `opencode`
+  and `pi`; run Pi with `npm run pi -- <args>`.
 - GNU Make targets are supported as convenient local shortcuts and CI
   compatibility wrappers; use them whenever `moon` is not installed.
 
 For Python-based security tooling, this repository uses `uv` with isolated
 ephemeral environments (`uv tool run`) instead of ad-hoc global pip installs.
 When `proto` is installed, both `python` and `uv` versions are pinned via
-`.prototools`. Moon integrates this via `unstable_python` and `unstable_uv`
+`.prototools`. Moon integrates this via `python` and `uv`
 toolchain IDs mapped through `.prototools [plugins.tools]`.
 
 Install and pin tooling with proto (recommended):
 
 ```bash
 proto install
+```
+
+Install Node.js dependencies and local developer CLIs:
+
+```bash
+npm install
 ```
 
 Run common checks with moon (or use the equivalent `make` targets below):

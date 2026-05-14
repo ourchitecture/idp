@@ -64,6 +64,11 @@ tasks:
       runInCI: false
   run-bff:
     command: ["go", "run", "./bff"]
+    env:
+      OUR_IDP_OAUTH_PROVIDER: "mock"
+      OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
+      OUR_IDP_OAUTH_CLIENT_SECRET: "mock-client-secret"
+      OUR_IDP_OAUTH_REDIRECT_URL: "http://127.0.0.1:8000/auth/callback"
     options:
       persistent: true
       runInCI: false

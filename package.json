@@ -7,6 +7,7 @@
   "scripts": {
     "oc": "opencode",
     "opencode": "opencode",
+    "pi": "pi",
     "lint:md": "markdownlint-cli2",
     "start:web": "make -C \"stacks/go/net-http/rest\" run-web",
     "start:bff": "make -C \"stacks/go/net-http/rest\" run-bff",
@@ -14,6 +15,7 @@
     "test:contract:watch": "tsx watch tests/src/index.ts"
   },
   "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.74.0",
     "@types/node": "25.6.2",
     "markdownlint-cli2": "0.22.1",
     "opencode-ai": "^1.14.50",

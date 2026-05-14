@@ -244,8 +244,8 @@ If you prefer to run the services manually:
 # Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the Go BFF with mock provider
-OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
+# Terminal 2 – start the Go BFF; run-bff defaults to the mock provider locally
+make -C stacks/go/net-http/rest run-bff
 
 # Terminal 3 – run only the auth-profile contract tests
 OUR_IDP_OAUTH_PROVIDER=mock \
@@ -261,8 +261,7 @@ npm run test:contract
 # Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the Node.js BFF with mock provider
-OUR_IDP_OAUTH_PROVIDER=mock \
+# Terminal 2 – start the Node.js BFF; run-bff defaults to the mock provider locally
 OUR_IDP_OAUTH_MOCK_PORT=9000 \
 OUR_IDP_OAUTH_REDIRECT_URL=http://localhost:8400/auth/callback \
 make -C stacks/nodejs/react-fastify/rest run-bff

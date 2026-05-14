@@ -189,6 +189,10 @@ run-bff:
 		"$(MOON_BIN)" run go-net-http-rest:run-bff; \
 	else \
 		"$(MAKE)" build-bff; \
+		OUR_IDP_OAUTH_PROVIDER="$${OUR_IDP_OAUTH_PROVIDER:-mock}" \
+		OUR_IDP_OAUTH_CLIENT_ID="$${OUR_IDP_OAUTH_CLIENT_ID:-mock-client-id}" \
+		OUR_IDP_OAUTH_CLIENT_SECRET="$${OUR_IDP_OAUTH_CLIENT_SECRET:-mock-client-secret}" \
+		OUR_IDP_OAUTH_REDIRECT_URL="$${OUR_IDP_OAUTH_REDIRECT_URL:-http://127.0.0.1:$${OUR_IDP_API_PORT:-8000}/auth/callback}" \
 		env -- "$(BFF_BIN)"; \
 	fi
 
