@@ -4,6 +4,7 @@
   "private": true,
   "description": "Intent-Driven Portal (IDP)",
   "license": "MIT",
+  "packageManager": "pnpm@11.1.2",
   "scripts": {
     "oc": "opencode",
     "opencode": "opencode",
@@ -18,7 +19,7 @@
     "@earendil-works/pi-coding-agent": "0.74.0",
     "@types/node": "25.6.2",
     "markdownlint-cli2": "0.22.1",
-    "opencode-ai": "^1.14.50",
+    "opencode-ai": "1.14.48",
     "puppeteer": "^24.43.1",
     "ts-node": "10.9.2",
     "tsx": "4.21.0",

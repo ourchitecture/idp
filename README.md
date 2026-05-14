@@ -91,17 +91,17 @@ tools/      Developer tooling, MCP adapters, and the static status publisher
 
 ### Weekly onboarding validation
 
-Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS, and Windows. They exercise the documented quickstart (npm install, optional proto install, stack builds, and contributor linting). On GitHub-hosted Windows runners, Docker runs in Windows-container mode and cannot pull Linux-only images like `rhysd/actionlint`; the workflow uses the Go-based fallback instead. Local Windows users with WSL + Rancher/Podman Desktop can run Linux containers, but that setup cannot be reproduced on GitHub-hosted Windows runners today.
+Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS, and Windows. They exercise the documented quickstart (`pnpm install`, optional proto install, stack builds, and contributor linting). On GitHub-hosted Windows runners, Docker runs in Windows-container mode and cannot pull Linux-only images like `rhysd/actionlint`; the workflow uses the Go-based fallback instead. Local Windows users with WSL + Rancher/Podman Desktop can run Linux containers, but that setup cannot be reproduced on GitHub-hosted Windows runners today.
 
 > This project is in early development. Setup instructions will be added as the platform takes shape.
 
 ### Prerequisites
 
 - Access to the [ourchitecture](https://github.com/ourchitecture) GitHub organization
-- proto `0.55.4` (recommended for pinned toolchain installs)
-- Go `1.25.0` (managed by proto)
-- Node.js `24.0.0` with npm bundled (managed by proto)
-- Python `3.12.11` + `uv 0.9.11` (managed by proto for privacy scanning)
+- proto `0.57.0` (recommended for pinned toolchain installs)
+- Go `1.26.0` (managed by proto)
+- Node.js `24.15.0` with pnpm `11.1.2` (managed by proto)
+- Python `3.14.5` + `uv 0.11.14` (managed by proto for privacy scanning)
 - Docker (optional -- only required for container builds; Rancher Desktop with
   `dockerd (moby)` engine is the recommended FOSS alternative)
 
@@ -113,8 +113,8 @@ The fastest path to a running local stack:
 # (Optional) Pin and install the full toolchain via proto
 proto install
 
-# Install Node.js dependencies and repo-local CLIs
-npm install
+# Install workspace dependencies and repo-local CLIs
+pnpm install
 
 # Start the default stack (web + BFF)
 make dev
@@ -135,10 +135,10 @@ See all available `make` targets:
 make help
 ```
 
-Run the repo-local Pi coding agent after `npm install`:
+Run the repo-local Pi coding agent after `pnpm install`:
 
 ```bash
-npm run pi -- --help
+pnpm run pi -- --help
 ```
 
 ### Tooling Policy
@@ -149,8 +149,10 @@ flexible for contributors.
 - `moon` is required for maintainer and CI orchestration.
 - `proto` is recommended for consistent pinned toolchain setup, but contributors
   may use system-installed Go/Node directly.
-- `npm install` installs repository-local developer CLIs such as `opencode`
-  and `pi`; run Pi with `npm run pi -- <args>`.
+- `pnpm install` installs workspace dependencies and repository-local developer
+  CLIs such as `opencode` and `pi`; run Pi with `pnpm run pi -- <args>`.
+- `tools/backstage` remains an npm-managed package-manager island until a
+  separate Backstage/Yarn migration is designed.
 - GNU Make targets are supported as convenient local shortcuts and CI
   compatibility wrappers; use them whenever `moon` is not installed.
 
@@ -166,10 +168,10 @@ Install and pin tooling with proto (recommended):
 proto install
 ```
 
-Install Node.js dependencies and local developer CLIs:
+Install workspace dependencies and local developer CLIs:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Run common checks with moon (or use the equivalent `make` targets below):

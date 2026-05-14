@@ -13,9 +13,9 @@ This guide covers both non-technical and technical contribution paths.
 
 ### Prerequisites
 
-- **Node.js** 18+ and **npm** (required for all stacks)
-- **Go** 1.25+ (for the Go reference stack)
-- **GNU Make** (optional convenience wrapper -- direct npm/moon commands work
+- **Node.js** 24+ and **pnpm** (managed by proto for the main workspace)
+- **Go** 1.26+ (for the Go reference stack)
+- **GNU Make** (optional convenience wrapper -- direct pnpm/moon commands work
   too)
 - **Docker** (optional -- only needed for container builds)
   - Rancher Desktop with `dockerd (moby)` engine is the recommended FOSS
@@ -26,7 +26,7 @@ This guide covers both non-technical and technical contribution paths.
 ```bash
 git clone https://github.com/ourchitecture/idp.git
 cd idp
-npm install
+pnpm install
 ```
 
 ### Running a Stack Locally
@@ -121,5 +121,6 @@ operations, or interfaces change. See the documentation requirements in
 ## Security
 
 - Never commit secrets, credentials, or environment-specific configs.
-- Run `npm audit --audit-level=high` before submitting changes.
+- Run `pnpm audit` before submitting changes. Backstage remains npm-managed
+  for now, so use `npm --prefix tools/backstage audit` for that package island.
 - Report security vulnerabilities privately via GitHub Security Advisories.

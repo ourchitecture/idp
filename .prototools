@@ -7,6 +7,8 @@ go = "1.26.0"
 # See https://nodejs.org/en/download
 node = "24.15.0"
 npm = "bundled"
+# See https://github.com/pnpm/pnpm/releases
+pnpm = "11.1.2"
 # See https://www.python.org/downloads/
 python = "3.14.5"
 # See https://github.com/astral-sh/uv/releases

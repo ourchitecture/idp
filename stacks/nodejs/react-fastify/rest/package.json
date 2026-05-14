@@ -10,9 +10,9 @@
     "build:web": "vite build --config web/vite.config.ts",
     "typecheck:web": "tsc --project web/tsconfig.json --noEmit",
     "typecheck:bff": "tsc --project bff/tsconfig.json --noEmit",
-    "typecheck:stack": "npm run typecheck:web && npm run typecheck:bff",
+    "typecheck:stack": "pnpm run typecheck:web && pnpm run typecheck:bff",
     "test:bff": "node --import tsx --test \"bff/src/**/*.test.ts\"",
-    "test:stack": "npm run typecheck:stack && npm run test:bff"
+    "test:stack": "pnpm run typecheck:stack && pnpm run test:bff"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

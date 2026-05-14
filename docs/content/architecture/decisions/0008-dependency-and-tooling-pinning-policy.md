@@ -70,11 +70,15 @@ is a separate vector for silent breakage or supply-chain compromise.
 - The `.prototools` file is the single authoritative source for these
   versions. See [ADR-0007](0007-moon-required-proto-enhanced-toolchain-policy.md).
 
-#### Node.js / npm packages
+#### Node.js / pnpm packages
 
-- Every project that depends on an npm package must declare that package in
+- Every project that depends on a Node package must declare that package in
   its own `package.json` at an exact version or a tightly bounded range
-  (e.g., `~` patch-only for tooling) and commit its own `package-lock.json`.
+  (e.g., `~` patch-only for tooling) and commit the root `pnpm-lock.yaml`.
+- The primary repository workspace uses pnpm workspaces. The root
+  `pnpm-workspace.yaml` is the authoritative package-manager boundary.
+- `tools/backstage` is intentionally excluded from the pnpm workspace and keeps
+  its own npm lockfile until a Backstage-specific migration is designed.
 - Projects must not rely on a parent workspace's `node_modules` to provide
   a binary or package that is not declared in their own `package.json`. If a
   tool is used in a project's scripts or Makefile, it must appear in that
@@ -83,12 +87,12 @@ is a separate vector for silent breakage or supply-chain compromise.
   every project that invokes it, not assumed to be present from a parent
   install. This is the only reliable way to guarantee the right version is
   available regardless of which projects have been installed.
-- The root `package.json` is not a shared tooling provider for sub-projects.
-  It declares its own dependencies for its own tasks only.
+- The root `package.json` declares root tasks and repo-local developer CLIs.
+  Workspace projects still declare the tools they invoke directly.
 - Use exact versions (`"markdownlint-cli2": "0.21.0"`) for CLI tooling
   installed via `devDependencies`, since these are not API contracts subject
   to semantic-versioning consumer constraints.
-- `npm ci` (not `npm install`) must be used in CI environments to enforce
+- `pnpm install --frozen-lockfile` must be used in CI environments to enforce
   the lockfile.
 
 #### Go modules
@@ -141,7 +145,7 @@ is a separate vector for silent breakage or supply-chain compromise.
 ### Confirmation
 
 - `.prototools` exists with exact versions for all runtimes
-- Every npm project that invokes a CLI tool has that tool in its own
+- Every pnpm workspace project that invokes a CLI tool has that tool in its own
   `devDependencies` at an exact or patch-bounded version, with a committed
   lockfile
 - No project's Makefile or script calls a binary from a parent or sibling
@@ -149,7 +153,8 @@ is a separate vector for silent breakage or supply-chain compromise.
 - All `uses:` in GitHub Actions workflows reference pinned minor-version tags
   or commit SHAs — no bare major-version tags
 - Container image references include a digest pin
-- CI uses `npm ci` where a lockfile is present
+- CI uses `pnpm install --frozen-lockfile` for the pnpm workspace; Backstage
+  keeps its npm flow while it remains excluded
 
 ## Pros and Cons of the Options
 

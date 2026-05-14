@@ -107,7 +107,7 @@ export async function renderDomOrThrow(
 
     throw new Error(
       "Unable to render the UI in a headless Chromium browser. " +
-        "Puppeteer should install Chrome for Testing during npm install; " +
+        "Puppeteer should install Chrome for Testing during pnpm install; " +
         "set OUR_IDP_UI_BROWSER_PATH or PUPPETEER_EXECUTABLE_PATH only to override it." +
         detail
     );

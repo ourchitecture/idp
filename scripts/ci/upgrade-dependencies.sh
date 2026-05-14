@@ -20,10 +20,20 @@ case "${ALLOW_MAJOR}" in
     ;;
 esac
 
-run_npm_upgrade() {
-  local project_dir="$1"
+run_pnpm_upgrade() {
+  echo "Upgrading pnpm workspace dependencies"
+  pnpm update --recursive
+  pnpm audit
+}
 
-  echo "Upgrading npm dependencies in ${project_dir}"
+run_backstage_npm_upgrade() {
+  local project_dir="tools/backstage"
+
+  if [[ ! -f "${project_dir}/package-lock.json" ]]; then
+    return 0
+  fi
+
+  echo "Upgrading Backstage npm dependencies in ${project_dir}"
   npm --prefix "${project_dir}" update
 
   if [[ "${ALLOW_MAJOR}" == "true" ]]; then
@@ -54,18 +64,21 @@ run_uv_upgrade() {
   )
 }
 
-mapfile -t npm_lockfiles < <(git ls-files | grep -E '(^|/)package-lock\.json$' | sort)
+mapfile -t pnpm_lockfiles < <(git ls-files | grep -E '(^|/)pnpm-lock\.yaml$' | sort)
+mapfile -t backstage_npm_lockfiles < <(git ls-files tools/backstage/package-lock.json | sort)
 mapfile -t go_modfiles < <(git ls-files | grep -E '(^|/)go\.mod$' | sort)
 mapfile -t uv_lockfiles < <(git ls-files | grep -E '(^|/)uv\.lock$' | sort)
 
-if [[ ${#npm_lockfiles[@]} -eq 0 && ${#go_modfiles[@]} -eq 0 && ${#uv_lockfiles[@]} -eq 0 ]]; then
+if [[ ${#pnpm_lockfiles[@]} -eq 0 && ${#backstage_npm_lockfiles[@]} -eq 0 && ${#go_modfiles[@]} -eq 0 && ${#uv_lockfiles[@]} -eq 0 ]]; then
   echo "No dependency lock or module files found."
   exit 0
 fi
 
-for lockfile in "${npm_lockfiles[@]}"; do
-  run_npm_upgrade "$(dirname "${lockfile}")"
-done
+if [[ ${#pnpm_lockfiles[@]} -gt 0 ]]; then
+  run_pnpm_upgrade
+fi
+
+run_backstage_npm_upgrade
 
 for modfile in "${go_modfiles[@]}"; do
   run_go_upgrade "$(dirname "${modfile}")"

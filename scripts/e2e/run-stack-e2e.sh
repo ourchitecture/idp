@@ -21,7 +21,7 @@
 #   OUR_IDP_BFF_START_CMD     Shell command to start the BFF server (runs in background)
 #   OUR_IDP_WEB_URL           Full base URL for the web server readiness check
 #   OUR_IDP_BFF_URL           Full base URL for the BFF server readiness check
-#   OUR_IDP_ROOT_DIR          Repo root directory (used for npm --prefix)
+#   OUR_IDP_ROOT_DIR          Repo root directory (used for pnpm -C)
 #
 # Optional environment variables:
 #   OUR_IDP_CONTRACT_PROFILES Comma-separated contract profile names (overrides stack.json default)
@@ -170,7 +170,7 @@ if [[ -n "${CONTRACT_PROFILES}" ]]; then
   contract_env+=("OUR_IDP_CONTRACT_PROFILES=${CONTRACT_PROFILES}")
 fi
 
-env "${contract_env[@]}" npm --prefix "${ROOT_DIR}" run test:contract
+env "${contract_env[@]}" pnpm -C "${ROOT_DIR}" run test:contract
 RESULT=$?
 
 # --- Report ------------------------------------------------------------------

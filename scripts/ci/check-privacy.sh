@@ -111,7 +111,7 @@ if [[ -n "${CLARITY_INIT_HITS}" ]]; then
   exit 1
 fi
 
-CLARITY_IMPORT_HITS="$(git grep -n '@microsoft/clarity' -- . ':!docs/src/analytics/clarity.ts' ':!docs/package.json' ':!docs/package-lock.json' || true)"
+CLARITY_IMPORT_HITS="$(git grep -n '@microsoft/clarity' -- . ':!docs/src/analytics/clarity.ts' ':!docs/package.json' ':!pnpm-lock.yaml' || true)"
 if [[ -n "${CLARITY_IMPORT_HITS}" ]]; then
   echo "ERROR: unexpected Microsoft Clarity import outside allowed files:" >&2
   echo "${CLARITY_IMPORT_HITS}" >&2

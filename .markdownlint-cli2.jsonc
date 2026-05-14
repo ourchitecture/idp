@@ -9,6 +9,7 @@
     "stacks/nodejs/react-fastify/rest/node_modules",
     "tools/backstage/node_modules",
     "tools/mcp/node_modules",
+    "tools/mock-providers/node_modules",
     "tools/vscode-extension/node_modules",
     // Release Please generates CHANGELOG.md files with two consecutive blank
     // lines after each version header. Ignore them so the release workflow

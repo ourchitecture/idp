@@ -136,11 +136,11 @@ GNU Make (compatibility):
 
 ### Native Tooling Shortcuts
 
-- `npm run typecheck:stack:react-fastify`
-- `npm run build:web:react-fastify`
-- `npm run start:web:react-fastify`
-- `npm run start:bff:react-fastify`
-- `npm run lint:md` (local markdownlint-cli2 -- run from this directory)
+- `pnpm run typecheck:stack`
+- `pnpm run build:web`
+- `pnpm run start:web`
+- `pnpm run start:bff`
+- `pnpm run lint:md` (local markdownlint-cli2 -- run from this directory)
 
 ## Container Images
 

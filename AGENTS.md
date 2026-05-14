@@ -408,7 +408,7 @@ metadata, or code inspection.
 ## CI/CD and Make Reuse (Required)
 
 - The authoritative call hierarchy is: `make target` -> `moon run project:task`
-  -> real tool command (`go`, `npm`, `mvnw`, `docker`, etc.). Moon tasks carry
+  -> real tool command (`go`, `pnpm`, `npm`, `mvnw`, `docker`, etc.). Moon tasks carry
   the real commands; Makefile recipes are thin wrappers that delegate to moon
   when available and fall back to direct commands for contributors without moon.
 - No `moon.yml` task should contain `command: ["make", "..."]`. Moon is the
@@ -417,8 +417,9 @@ metadata, or code inspection.
 - `proto` should be used to provide pinned, reproducible maintainer/CI toolchain
   installs, but contributors may use system-installed language toolchains.
 - GNU Make targets are **optional convenience wrappers** for common local
-  workflows. Contributors are not required to use them; direct `moon`, `npm`,
-  or language-toolchain commands are equally valid. Make targets must stay in
+  workflows. Contributors are not required to use them; direct `moon`, `pnpm`,
+  `npm` for the Backstage carve-out, or language-toolchain commands are equally
+  valid. Make targets must stay in
   sync with their `moon`/script equivalents and must not duplicate logic that
   diverges from the canonical command.
 
@@ -534,11 +535,11 @@ For each runnable stack, child project, or major component, document:
 ## Build, Lint, Test Commands
 
 This repo defines reusable GNU Make targets as **optional convenience wrappers**
-for common local workflows, alongside canonical `moon` and `npm` commands.
+for common local workflows, alongside canonical `moon` and `pnpm` commands.
 Contributors may use any of the following interchangeably; `make` targets are
 not required but are always kept in sync with their `moon`/script equivalents.
 
-- Install deps: `npm install`
+- Install deps: `pnpm install`
 - Install pinned toolchain (recommended): `proto install`
 - Run privacy and secret scanning (moon canonical): `moon run repo:check-privacy`
 - Run privacy and secret scanning (make shortcut): `make check-privacy`
@@ -556,19 +557,19 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Audit repo-local issue worktrees (make shortcut): `make audit-worktrees`
 - Compute PR change-based validation plan:
   `BASE_SHA=<sha> HEAD_SHA=<sha> make check-pr-changes`
-- Run Go web server (npm): `npm run start:web`
+- Run Go web server (pnpm): `pnpm run start:web`
 - Run Go web server (make shortcut): `make run-web`
-- Run Go BFF server (npm): `npm run start:bff`
+- Run Go BFF server (pnpm): `pnpm run start:bff`
 - Run Go BFF server (make shortcut): `make run-bff`
-- Run React web server (npm): `npm run start:web:react-fastify`
-- Run React BFF server (npm): `npm run start:bff:react-fastify`
-- Run contract tests (npm): `npm run test:contract`
+- Run React web server (pnpm): `pnpm -C stacks/nodejs/react-fastify/rest run start:web`
+- Run React BFF server (pnpm): `pnpm -C stacks/nodejs/react-fastify/rest run start:bff`
+- Run contract tests (pnpm): `pnpm run test:contract`
 - Start default stack web + BFF (make shortcut): `make dev`
 - Test running system (make shortcut): `make test`
 - Run full build/test verification for all detected stacks (make shortcut): `make all`
 - Run CI-safe affected-aware checks for all stacks (make shortcut): `make ci`
 - Run CI-safe checks via moon directly (moon canonical): `moon ci go-net-http-rest:check-ci nodejs-react-fastify-rest:check-ci docs-site:check-ci`
-- Install npm deps explicitly (moon canonical): `moon run repo:install`
+- Install pnpm workspace deps explicitly (moon canonical): `moon run repo:install`
 - Run docs site dev server (moon canonical): `moon run docs-site:run-dev`
 - Build docs site (make shortcut): `make -C docs build`
 - Run full docs site validation (make shortcut): `make docs-site`
@@ -581,8 +582,8 @@ not required but are always kept in sync with their `moon`/script equivalents.
 - Build MCP server container (make shortcut): `make -C tools/mcp build-container`
 - Run MCP server contract tests (make shortcut): `make -C tools/mcp check-contract`
 
-> **Docs install note**: The docs `npm ci` skips puppeteer's bundled Chrome
-> download (`PUPPETEER_SKIP_DOWNLOAD=true` is set in `docs/Makefile`). The
+> **Docs install note**: The docs install flow can skip puppeteer's bundled
+> Chrome download (`PUPPETEER_SKIP_DOWNLOAD=true` is set in `docs/Makefile`). The
 > `check-diagrams` target auto-detects the system Chrome at runtime via
 > `PUPPETEER_EXECUTABLE_PATH` or standard binary names (`google-chrome-stable`,
 > `chromium`, etc.). If diagram generation fails locally, set

@@ -11,29 +11,30 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check"]
   install:
-    command: ["bash", "-c", "npm --prefix ../../../.. install && npm install"]
+    command: ["bash", "-c", "true"]
+    deps: ["repo:install"]
   build:
-    command: ["npm", "run", "build:web"]
+    command: ["pnpm", "run", "build:web"]
     deps: ["install"]
   clean:
     command: ["bash", "-c", "rm -rf web/dist"]
   check-lint:
-    command: ["npm", "run", "lint:md"]
+    command: ["pnpm", "run", "lint:md"]
     deps: ["install"]
   check-test:
-    command: ["npm", "run", "test:stack"]
+    command: ["pnpm", "run", "test:stack"]
     deps: ["install"]
   check-contract:
     command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build", "check-test", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 npm run start:web"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 pnpm run start:web"
       OUR_IDP_BFF_START_CMD: >-
         OUR_IDP_API_HOST=127.0.0.1
         OUR_IDP_API_PORT=8400
         OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400
-        npm run start:bff
+        pnpm run start:bff
       OUR_IDP_OAUTH_PROVIDER: "mock"
       OUR_IDP_OAUTH_MOCK_PORT: "9000"
       OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
@@ -63,19 +64,19 @@ tasks:
     command: ["bash", "../../../../scripts/e2e/run-stack-e2e.sh"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 npm run start:web"
-      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm run start:bff"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 pnpm run start:web"
+      OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 pnpm run start:bff"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
       OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
       OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
       OUR_IDP_ROOT_DIR: "../../../.."
   run-web:
-    command: ["npm", "run", "start:web"]
+    command: ["pnpm", "run", "start:web"]
     options:
       persistent: true
       runInCI: false
   run-bff:
-    command: ["npm", "run", "start:bff"]
+    command: ["pnpm", "run", "start:bff"]
     env:
       OUR_IDP_OAUTH_PROVIDER: "mock"
       OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
@@ -93,7 +94,7 @@ tasks:
     deps: ["build", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 npm run start:web"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 pnpm run start:web"
       OUR_IDP_BFF_START_CMD: >-
         OUR_IDP_API_HOST=127.0.0.1
         OUR_IDP_API_PORT=8400
@@ -103,7 +104,7 @@ tasks:
         OUR_IDP_OAUTH_CLIENT_ID=mock-client-id
         OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret
         OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8400/auth/callback
-        npm run start:bff
+        pnpm run start:bff
       OUR_IDP_OAUTH_PROVIDER: "mock"
       OUR_IDP_OAUTH_MOCK_PORT: "9000"
       OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"

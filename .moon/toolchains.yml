@@ -5,13 +5,16 @@ go:
   versionFromPrototools: true
 
 javascript:
-  packageManager: "npm"
+  packageManager: "pnpm"
   installDependencies: true
 
 node:
   versionFromPrototools: true
 
 npm:
+  versionFromPrototools: true
+
+pnpm:
   versionFromPrototools: true
 
 # IMPORTANT: moon currently requires "unstable_" prefix.

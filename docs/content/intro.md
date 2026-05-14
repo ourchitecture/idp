@@ -66,8 +66,8 @@ The fastest path to a running local stack:
 # (Recommended) Pin and install the full toolchain via proto
 proto install
 
-# Install Node.js dependencies and repo-local CLIs
-npm install
+# Install workspace dependencies and repo-local CLIs
+pnpm install
 
 # Start the default stack (web + BFF)
 make dev
@@ -81,10 +81,10 @@ Run all checks before opening a PR:
 make check
 ```
 
-Run the repo-local Pi coding agent after `npm install`:
+Run the repo-local Pi coding agent after `pnpm install`:
 
 ```bash
-npm run pi -- --help
+pnpm run pi -- --help
 ```
 
 ## Project Structure
@@ -101,9 +101,11 @@ tools/      Developer tooling, scripts, and MCP server definitions
 ## Toolchain Baseline
 
 - Managed with `proto` + `.prototools` for reproducible local and CI tooling.
-- Pinned runtimes include Go, Node.js/npm, Python, and `uv`.
-- `npm install` installs repository-local developer CLIs such as `opencode`
-  and `pi`; run Pi with `npm run pi -- <args>`.
+- Pinned runtimes include Go, Node.js, pnpm, Python, and `uv`.
+- `pnpm install` installs workspace dependencies and repository-local developer
+  CLIs such as `opencode` and `pi`; run Pi with `pnpm run pi -- <args>`.
+- `tools/backstage` remains separate on npm while Backstage-specific package
+  manager requirements are handled in a future migration.
 - Python-based security scanning uses `uv tool run` for isolated ephemeral
   environments instead of global pip installs.
 

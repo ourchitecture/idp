@@ -53,9 +53,9 @@ Agent workflow skills are defined in `.agents/skills/`. Each skill is a director
 
 The repository uses `moon` as the canonical task runner with GNU Make as optional convenience wrappers:
 
-- Install deps: `npm install`
+- Install deps: `pnpm install`
 - Lint Markdown: `moon run repo:check-lint-md` or `make check-lint-md`
-- Run contract tests: `npm run test:contract`
+- Run contract tests: `pnpm run test:contract`
 - Full validation: `make ci`
 
 See AGENTS.md for complete command reference.

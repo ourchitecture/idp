@@ -252,7 +252,7 @@ OUR_IDP_OAUTH_PROVIDER=mock \
 IDP_BFF_URL=http://localhost:8300 \
 IDP_STACK_PATH=stacks/go/net-http/rest \
 IDP_CONTRACT_PROFILE=auth-profile \
-npm run test:contract
+pnpm run test:contract
 ```
 
 #### Node.js stack manual
@@ -271,7 +271,7 @@ OUR_IDP_OAUTH_PROVIDER=mock \
 IDP_BFF_URL=http://localhost:8400 \
 IDP_STACK_PATH=stacks/nodejs/react-fastify/rest \
 IDP_CONTRACT_PROFILE=auth-profile \
-npm run test:contract
+pnpm run test:contract
 ```
 
 The contract test harness performs the full OAuth round-trip programmatically —
@@ -326,7 +326,7 @@ OAuth flow.
 After granting access, GitHub redirects to the callback URL and the BFF
 completes the code exchange.
 
-> **Note:** The contract test harness (`npm run test:contract`) cannot exercise
+> **Note:** The contract test harness (`pnpm run test:contract`) cannot exercise
 > the real GitHub OAuth path end-to-end because the authorization code is
 > issued by GitHub's servers in response to a human login action. Use a browser
 > or a manual `curl` sequence for exploratory testing of this path.
