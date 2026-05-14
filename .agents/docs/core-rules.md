@@ -43,10 +43,17 @@ repository root.
 
 ## Output conciseness
 
-- Lead with the result; put supporting detail after, not before.
-- Omit preamble ("I will now...", "Let me...") and trailing summaries that
-  restate what was just done.
-- Prefer a table or bullet list over prose paragraphs for structured data.
-- When returning structured outputs (JSON, findings arrays), return only the
-  structure — do not narrate it.
-- For multi-step skills, report each step's outcome in one line.
+Agent-to-user communication (summaries, status, progress, to-do lists,
+findings) must use minimal language — nouns and verbs only, no filler.
+This rule does **not** apply to file content: docs, commit messages, PR
+bodies, issue comments, and code must still use correct, complete prose.
+
+- Lead with result. Detail after, never before.
+- No preamble. Drop "I will now…", "Let me…", "Sure,…".
+- No trailing restatement. If diff is visible, don't narrate it.
+- Prefer bullet or table over prose paragraph for structured data.
+- Return structured outputs (JSON, findings) bare — no narration.
+- One line per step outcome in multi-step skills.
+- Use imperative fragments: "Stage files." not "I am going to stage the files."
+- Strip filler: "in order to" → "to"; "is able to" → "can"; "at this point
+  in time" → "now"; "due to the fact that" → "because".
