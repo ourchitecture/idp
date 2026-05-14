@@ -8,11 +8,48 @@ project:
 
 tasks:
   install:
-    command: ["npm", "install"]
+    command: ["pnpm", "install"]
     options:
       runFromWorkspaceRoot: true
   check-lint-md:
-    command: ["npm", "run", "lint:md"]
+    command: ["pnpm", "run", "lint:md"]
+    options:
+      runFromWorkspaceRoot: true
+  clean:
+    command:
+      - "bash"
+      - "-c"
+      - >-
+        moon run go-net-http-rest:clean
+          nodejs-react-fastify-rest:clean
+          docs-site:clean
+          mcp-tools:clean
+          mock-oauth:clean
+          vscode-extension:clean
+          backstage-tools:clean
+          gitlab-harness:down
+          gitlab-harness:clean &&
+        if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
+          docker image prune -f --filter "label=org.opencontainers.image.created-by=moon" 2>/dev/null || true;
+        fi
+    options:
+      runFromWorkspaceRoot: true
+  reset:
+    command:
+      - "bash"
+      - "-c"
+      - >-
+        moon run repo:clean &&
+        rm -rf .venv/ .pnpm-store/
+          node_modules/
+          docs/node_modules/
+          stacks/go/net-http/rest/node_modules/
+          stacks/nodejs/react-fastify/rest/node_modules/
+          tools/vscode-extension/node_modules/
+          tools/backstage/node_modules/
+          tools/mcp/node_modules/
+          tools/mock-providers/node_modules/
+          tools/mock-oauth/target/
     options:
       runFromWorkspaceRoot: true
   check-lint-workflows:
