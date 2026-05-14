@@ -1,413 +1,186 @@
 ---
 name: review-pull-requests
-version: 1.0.0
+version: 1.1.0
 description: >
-  Reviews GitHub pull requests for completeness, quality, and readiness
-  to merge. Validates PR metadata, commit history, linked issues, CI
-  status, code changes, test coverage, and documentation updates.
-  Ensures PRs follow repository conventions before human review and
-  merge. Use this skill to perform comprehensive PR review validation.
+  Reviews PRs for completeness, quality, and merge readiness. Validates
+  metadata, commits, linked issues, CI status, code changes, tests, docs,
+  and merge state.
 author: "@idp-maintain"
 domain: devops
-tags:
-  - github
-  - pull-request
-  - review
-  - quality
-  - validation
-  - automation
+tags: [github, pull-request, review, quality, validation, automation]
 depends_on: []
 inputs:
   - name: pr_number
     type: number
     required: true
-    description: Pull request number to review.
+    description: PR to review.
   - name: check_ci_status
     type: boolean
     required: false
     default: true
-    description: >
-      If true, verify that required CI checks have passed before
-      approving the PR for merge.
+    description: Verify required CI checks have passed.
   - name: require_linked_issue
     type: boolean
     required: false
     default: true
-    description: >
-      If true, flag PRs that do not reference at least one issue.
+    description: Flag PRs without an issue reference.
   - name: require_conventional_commits
     type: boolean
     required: false
     default: true
-    description: >
-      If true, validate that PR title and commits follow Conventional
-      Commits format.
+    description: Validate PR title and commits against Conventional Commits.
   - name: require_tests
     type: boolean
     required: false
     default: false
-    description: >
-      If true, flag PRs that modify source code without adding or
-      updating tests.
+    description: Flag source-code changes without test additions/updates.
   - name: post_review
     type: boolean
     required: false
     default: false
-    description: >
-      If true, post findings as a PR review comment.
+    description: Post findings as a PR review.
 outputs:
   - name: findings
     type: array
-    description: >
-      List of PR review findings with severity, category, and
-      recommendations.
+    description: Findings with severity, category, recommendations.
   - name: overall_status
     type: string
-    description: Overall review result: pass, warn, or fail.
+    description: pass | warn | fail.
   - name: merge_ready
     type: boolean
-    description: >
-      Whether the PR passes all checks and is ready to merge.
+    description: All gates passed and ready to merge.
   - name: score
     type: number
-    description: PR quality score from 0 to 100.
+    description: PR quality score 0–100.
 ---
 
 # Review Pull Requests
 
-Reviews GitHub pull requests for completeness, quality, and merge
-readiness according to repository conventions.
+GitHub API access: [../../docs/shared/github-api.md](../../docs/shared/github-api.md).
+Commit/PR-title format: [../../docs/shared/commit-format.md](../../docs/shared/commit-format.md).
+Branch protection rules: [../../docs/git-standards.md](../../docs/git-standards.md).
 
-## Step 1: Fetch PR Metadata
+## 1. Fetch PR metadata
 
-Use GitHub MCP `pull_request_read` with `method: get` to retrieve:
+MCP `pull_request_read` (`method: get`) → number, title, body, author,
+assignees, reviewers, state, draft, base/head, labels, linked issues
+(`closingIssuesReferences` or parsed), timestamps.
 
-- PR number, title, body
-- Author, assignees, reviewers
-- State (open, closed, merged), draft status
-- Base and head branches
-- Labels
-- Linked issues (from `closingIssuesReferences` or parsed from body)
-- Created and updated timestamps
-
-Fallback command if MCP is unavailable:
+CLI fallback:
 
 ```bash
-gh pr view <pr_number> --json number,title,body,state,isDraft,headRefName,baseRefName,author,assignees,labels,commits,reviews,additions,deletions,changedFiles,url,createdAt,updatedAt
+gh pr view <n> --json number,title,body,state,isDraft,headRefName,baseRefName,author,assignees,labels,commits,reviews,additions,deletions,changedFiles,url,createdAt,updatedAt
 ```
 
-If the PR is not found, stop and report an error.
+Stop if not found.
+
+## 2. Validate metadata
 
-## Step 2: Validate PR Metadata
+- **Title** (if `require_conventional_commits`): matches
+  `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security|revert)(\(.+\))?!?: .+$`,
+  ≤72 chars, lowercase after colon, no trailing period.
+- **Body**: clear description; if `require_linked_issue`, at least one
+  `Closes/Fixes/Resolves/Refs #N`; if breaking, `BREAKING CHANGE:` footer
+  or `!` in title.
+- **Labels**: appropriate (`bug`, `enhancement`, `documentation`, `chore`).
+- **Draft**: note status — full review continues but merge defers.
 
-Check PR title and body:
+## 3. Validate linked issues
 
-1. **Title**: Verify it follows Conventional Commits format if
-   `require_conventional_commits` is true:
-   - Pattern: `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|security|revert)(\(.+\))?!?: .+$`
-   - Max 72 characters
-   - Lowercase first word after colon
-   - No trailing period
+If `require_linked_issue`: parse references, verify each issue exists and
+is `open` (or closed by this PR), has `ready` (not `needs-triage`/`blocked`),
+and scope aligns. No links → **high**. Multiple links → confirm related.
 
-2. **Body**: Verify it contains:
-   - A clear description of what changed and why.
-   - If `require_linked_issue` is true, at least one issue reference
-     (`Closes #N`, `Fixes #N`, `Resolves #N`, or `Refs #N`).
-   - If the change is breaking, a `BREAKING CHANGE:` footer or `!` in
-     the title.
+## 4. Review commit history
 
-3. **Labels**: Check that the PR has appropriate labels (e.g., `bug`,
-   `enhancement`, `documentation`, `chore`).
+MCP `pull_request_read` → commits. Fallback:
+`gh pr view <n> --json commits --jq '.commits[].messageHeadline'`.
 
-4. **Draft Status**: If the PR is still a draft, note this in the
-   report. Full review continues but recommendations defer to "mark
-   ready for review" before merging.
+If `require_conventional_commits`, every commit matches the pattern; flag
+generic messages ("fix", "update", "wip"). Flag merge commits (squash
+preferred), unexplained reverts, add-and-remove churn. Recommend squashing
+fixup commits.
 
-## Step 3: Validate Linked Issues
+## 5. Review changed files
 
-If `require_linked_issue` is true:
+MCP `get_files` or `gh pr diff <n> --name-only`.
 
-1. Parse issue references from the PR body and title.
-2. For each referenced issue:
-   - Verify the issue exists and is open (or recently closed if the PR
-     was the closing action).
-   - Check that the issue has the `ready` label (not `needs-triage` or
-     `blocked`).
-   - Verify that the PR scope aligns with the issue description.
+- **Source**: if `require_tests`, test files must be added/updated.
+  Flag large single-file diffs (500+ lines) without justification.
+- **Docs**: if source/APIs/config changed, related docs must be updated
+  (README, AGENTS index, `.agents/docs/`, `docs/`).
+- **Config/infra**: `Makefile`, `moon.yml`, `.github/workflows`,
+  `Dockerfile`, `package.json` — intentional and documented.
+- **Sensitive files**: flag changes to `.env`, secret managers, credential
+  storage; verify no committed secrets.
 
-3. If no issues are linked, add a high-severity finding.
-4. If multiple issues are linked, verify they are related and the PR
-   scope is appropriate.
+## 6. CI status (conditional)
 
-## Step 4: Review Commit History
+If `check_ci_status`: MCP `pull_request_read` (`method: get_check_runs`).
+Required checks must conclude `success`. Flag `failure`, `cancelled`,
+`timed_out`, `action_required`, `stale`, `startup_failure`. Defer merge
+if any required check is pending/in-progress. CLI: `gh pr checks <n>`.
 
-Use GitHub MCP `pull_request_read` with `method: get` to retrieve commit
-list, or use fallback:
+If a check fails, ask for log lines — MCP cannot fetch raw logs (see
+[../../docs/shared/github-api.md](../../docs/shared/github-api.md)).
 
-```bash
-gh pr view <pr_number> --json commits --jq '.commits[].messageHeadline'
-```
+## 7. Reviews, comments, merge state
 
-Validate commits:
-
-1. If `require_conventional_commits` is true:
-   - Check that each commit message follows Conventional Commits format.
-   - Flag commits with unclear or generic messages ("fix", "update",
-     "wip").
+MCP `get_reviews`, `get_review_comments`, `get_comments`.
 
-2. Check for:
-   - Merge commits (should be rare; squash merges are preferred).
-   - Revert commits without explanation.
-   - Commits that add and then immediately remove the same code (churn).
+- **Unresolved review threads** → **High** blocker until resolved by code
+  change, accepted reply, or consensus.
+- **Review status**: count `APPROVED` / `CHANGES_REQUESTED` / `COMMENTED`.
+  CODEOWNERS approval required by rulesets. Any `CHANGES_REQUESTED` →
+  **High** until re-reviewed.
+- **Stale reviews** (older than latest commit) → **Medium**; request
+  re-review.
+- **General comments**: unanswered maintainer questions → **Medium**;
+  flag blockers/dependencies. Advisory unless from CODEOWNERS or
+  explicitly blocking.
 
-3. Recommend squashing fixup commits or clarifying commit intent if the
-   history is confusing.
+Merge state: `gh pr view <n> --json mergeable,mergeStateStatus,statusCheckRollup`.
 
-## Step 5: Review Changed Files
+- `mergeable: CONFLICTING` or `mergeStateStatus: DIRTY` → **High**.
+- Behind base when policy requires up-to-date → **Medium**; recommend
+  merge/rebase from base.
+- Verify ruleset compliance: required checks, required reviews,
+  conversations resolved, linear history (squash-ready).
 
-Use GitHub MCP `pull_request_read` with `method: get_files` to list all
-changed files, or use fallback:
+## 8. Score, status, merge-ready
 
-```bash
-gh pr diff <pr_number> --name-only
-```
+Severity: **High** = missing linked issue (when required), failing CI,
+secrets in diff, unresolved review threads, merge conflicts,
+`CHANGES_REQUESTED`, breaking changes without docs. **Medium** =
+non-conventional commits, missing tests/docs (when required), large
+unjustified diffs, draft not marked ready, branch needs update,
+unanswered maintainer questions, stale reviews. **Low** = minor
+title/body formatting, missing labels, advisory non-reviewer comments.
 
-Validate changes:
+Score from 100: high `-25` (max `-75`), medium `-12` (max `-36`),
+low `-5` (max `-20`). Clamp `[0,100]`.
 
-1. **Source code changes**:
-   - If `require_tests` is true and source code was modified, verify
-     that test files were also added or updated.
-   - Flag large diffs (e.g., 500+ lines changed in a single file)
-     without clear justification.
+- `fail` if any high; `warn` if only med/low; `pass` if none.
 
-2. **Documentation changes**:
-   - If source code, APIs, or configuration changed, verify that
-     corresponding documentation was updated.
-   - Check that README, AGENTS.md, or docs/ files reflect the changes.
+`merge_ready=true` only when: `overall_status=pass`, all required checks
+passed, PR not draft, ≥1 approving CODEOWNERS review (if required), no
+unresolved threads, no conflicts, no `CHANGES_REQUESTED`, branch
+up-to-date when policy requires it.
 
-3. **Configuration or infrastructure changes**:
-   - If `Makefile`, `moon.yml`, `.github/workflows`, `Dockerfile`, or
-     `package.json` changed, verify the changes are intentional and
-     documented.
+## 9. Report
 
-4. **Sensitive files**:
-   - Flag changes to `.env` files, secret managers, or credential
-     storage.
-   - Verify no secrets or credentials are committed in the diff.
+Summary (number/title/author/branch, state/draft, linked issues, CI,
+merge status, review status, comment resolution, overall status/score).
+Return findings as `{severity, category, message, suggestion}` objects.
+Merge recommendation: "ready to merge" or list of blockers.
 
-## Step 6: Check CI Status (conditional)
+## 10. Post review (optional)
 
-If `check_ci_status` is true:
+If `post_review`: MCP `pull_request_review_write` (`method: create`,
+`event: COMMENT`). If `merge_ready` and no high/medium findings,
+`event: APPROVE` instead. Fallback: `gh pr comment <n> --body "<report>"`.
 
-1. Use GitHub MCP `pull_request_read` with `method: get_check_runs` to
-   list all CI checks.
-2. Verify that all required checks have passed:
-   - Conclusion must be `success` for required checks.
-   - Flag checks with `failure`, `cancelled`, `timed_out`,
-     `action_required`, `stale`, or `startup_failure`.
-
-3. If any required checks are still pending or in progress, note this in
-   the report and defer merge recommendation until checks complete.
+## 11. Return
 
-Fallback command:
-
-```bash
-gh pr checks <pr_number>
-```
-
-## Step 7: Review Existing PR Comments and Reviews
-
-Use GitHub MCP `pull_request_read` with `method: get_reviews`,
-`method: get_review_comments`, and `method: get_comments` to fetch
-existing reviews and comments.
-
-Check:
-
-1. **Unresolved review comment threads**: If review comment threads
-   exist and are not resolved, flag this as a high-severity blocker to
-   merge. Each unresolved thread must be addressed by either:
-   - Making the requested code change and resolving the thread
-   - Replying with clarification and resolving if the reviewer accepts
-   - Discussing and reaching consensus before resolving
-
-2. **Review status**:
-   - Count approvals (`APPROVED`), rejections (`CHANGES_REQUESTED`),
-     and comment-only reviews (`COMMENTED`).
-   - Verify that at least one CODEOWNERS-designated reviewer has
-     approved if repository rulesets require it.
-   - If any reviewer has requested changes, flag as high-severity until
-     those changes are addressed and the reviewer re-reviews.
-
-3. **Stale reviews**: If reviews are older than the latest commit,
-   suggest re-requesting review (medium severity).
-
-4. **General PR comments**: Review general issue comments on the PR
-   (not code review comments) for guidance, questions, or blockers.
-   These comments do not have the same authority as code review
-   comments but may contain important context:
-   - Flag unanswered questions from maintainers as medium severity.
-   - Note any blockers or dependencies mentioned in comments.
-   - Treat general comments as advisory unless they come from
-     CODEOWNERS or contain explicit blocking language.
-
-Fallback:
-
-```bash
-gh pr view <pr_number> --json reviews,comments --jq '.reviews[] | {author: .author.login, state: .state, submittedAt: .submittedAt}'
-```
-
-## Step 7a: Check Merge Conflicts and Branch Status
-
-Use GitHub MCP `pull_request_read` with `method: get_status` or `gh`
-CLI to check:
-
-1. **Merge conflicts**: Verify the PR branch can be cleanly merged into
-   the base branch. If conflicts exist, flag as high-severity blocker.
-
-   ```bash
-   gh pr view <pr_number> --json mergeable,mergeStateStatus
-   ```
-
-   - `mergeable: CONFLICTING` indicates merge conflicts
-   - `mergeStateStatus: DIRTY` indicates conflicts or other issues
-
-2. **Branch update needed**: Check if the base branch has advanced past
-   the PR head and the PR branch needs updates:
-   - Compare base branch HEAD with the merge base of the PR
-   - If the PR is behind the base branch and repository policy requires
-     up-to-date branches, flag as medium severity
-   - Recommend updating the branch via merge or rebase
-
-3. **Branch protection compliance**: Verify the PR satisfies all branch
-   protection rules:
-   - Required status checks passing
-   - Required reviews obtained
-   - No unresolved conversations (if required by ruleset)
-   - Linear history requirement (squash merge ready)
-
-Fallback:
-
-```bash
-gh pr view <pr_number> --json mergeable,mergeStateStatus,statusCheckRollup
-```
-
-## Step 8: Score and Classify Findings
-
-Assign severity to each finding:
-
-- **High**: Missing linked issue (when required), CI checks failing,
-  secrets in diff, unresolved review threads, merge conflicts,
-  changes requested by reviewers, breaking changes without
-  documentation.
-- **Medium**: Non-conventional commit messages, missing tests (when
-  required), missing documentation updates, large diffs without
-  justification, draft PR not marked ready, branch needs update,
-  unanswered maintainer questions in comments, stale reviews.
-- **Low**: Minor title/body formatting issues, missing labels,
-  advisory comments from non-reviewers.
-
-Calculate a quality score starting from 100:
-
-- High: `-25` each (max penalty 75)
-- Medium: `-12` each (max penalty 36)
-- Low: `-5` each (max penalty 20)
-
-Clamp to `[0, 100]`.
-
-Set `overall_status`:
-
-- `fail` if any high-severity finding exists
-- `warn` if no high findings but medium/low findings exist
-- `pass` if no findings exist
-
-Set `merge_ready`:
-
-- `true` only if:
-  - `overall_status` is `pass`
-  - All required CI checks have passed
-  - PR is not a draft
-  - At least one approving review exists (if required by rulesets)
-  - No unresolved review conversations
-  - No merge conflicts
-  - No reviewers have requested changes
-  - Branch is up to date with base (if required by repository policy)
-
-## Step 9: Generate Review Report
-
-Produce a structured report:
-
-1. **Summary**:
-   - PR number, title, author, branch
-   - State, draft status, linked issues
-   - CI check status
-   - Merge status (conflicts, branch up to date)
-   - Review status (approvals, changes requested, unresolved threads)
-   - Comment resolution status (resolved vs unresolved review comments)
-   - Overall status and score
-
-2. **Findings**: Each finding with severity, category, description, and
-   recommended action.
-
-3. **Merge Recommendation**:
-   - If `merge_ready` is true: "PR is ready to merge."
-   - Otherwise: List blockers and recommended next steps.
-
-Example finding structure:
-
-```json
-{
-  "severity": "high",
-  "category": "linked-issue",
-  "message": "PR does not reference any GitHub issue",
-  "suggestion": "Add 'Closes #N' or 'Refs #N' to the PR body"
-}
-```
-
-## Step 10: Post PR Review Comment (conditional)
-
-If `post_review` is true:
-
-1. Format the review report as GitHub-flavored Markdown.
-2. Use GitHub MCP `pull_request_review_write` with `method: create` and
-   `event: COMMENT` to post the review.
-
-Fallback:
-
-```bash
-gh pr comment <pr_number> --body "<review_report_markdown>"
-```
-
-The comment should start with:
-
-```markdown
-## 🤖 Pull Request Review
-
-> Posted by AI agent. Review findings below.
-```
-
-If `merge_ready` is true and no high/medium findings exist, post an
-approving review with `event: APPROVE`. Otherwise, post as a comment
-only.
-
-## Step 11: Return Outputs
-
-Return:
-
-- `findings` array
-- `overall_status`
-- `merge_ready`
-- `score`
-
-If the PR passes all checks, return `merge_ready: true` with a score of
-100 and an explicit passing statement.
-
-## Definition of Done
-
-This skill is complete when:
-
-1. The PR has been fully reviewed across metadata, commits, changes,
-   tests, docs, and CI status.
-2. Findings are categorized by severity with actionable guidance.
-3. A merge-readiness determination has been made.
-4. If `post_review` was true, the review was successfully posted to the
-   PR.
+`findings`, `overall_status`, `merge_ready`, `score`. Clean PR →
+`merge_ready=true` and score 100 with explicit passing statement.
