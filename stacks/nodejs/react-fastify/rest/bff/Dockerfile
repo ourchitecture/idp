@@ -14,16 +14,25 @@ ARG NODE_VERSION=24.14.1
 FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS builder
 
 WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
 # Install dependencies from stack workspace.
-COPY stacks/nodejs/react-fastify/rest/package.json stacks/nodejs/react-fastify/rest/package-lock.json ./
-RUN npm ci --ignore-scripts
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY stacks/nodejs/react-fastify/rest/package.json ./stacks/nodejs/react-fastify/rest/package.json
+COPY docs/package.json ./docs/package.json
+COPY tools/mcp/package.json ./tools/mcp/package.json
+COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
+COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
+RUN pnpm install --frozen-lockfile --filter nodejs-react-fastify-rest...
 
 # Copy BFF source and its tsconfig.
-COPY stacks/nodejs/react-fastify/rest/bff/ ./bff/
+COPY stacks/nodejs/react-fastify/rest/bff/ ./stacks/nodejs/react-fastify/rest/bff/
 
 # Compile TypeScript. outDir is "dist" relative to the bff/ directory per tsconfig.
-RUN npx tsc --project bff/tsconfig.json
+RUN pnpm -C stacks/nodejs/react-fastify/rest exec tsc --project bff/tsconfig.json
 
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — lean Node.js image with compiled output only
@@ -31,13 +40,22 @@ RUN npx tsc --project bff/tsconfig.json
 FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS runtime
 
 WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
 # Install production dependencies only.
-COPY stacks/nodejs/react-fastify/rest/package.json stacks/nodejs/react-fastify/rest/package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY stacks/nodejs/react-fastify/rest/package.json ./stacks/nodejs/react-fastify/rest/package.json
+COPY docs/package.json ./docs/package.json
+COPY tools/mcp/package.json ./tools/mcp/package.json
+COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
+COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
+RUN pnpm install --prod --frozen-lockfile --filter nodejs-react-fastify-rest...
 
 # Copy compiled output from builder.
-COPY --from=builder /app/bff/dist/ ./bff/dist/
+COPY --from=builder /app/stacks/nodejs/react-fastify/rest/bff/dist/ ./bff/dist/
 
 # Override loopback default (ADR-0006) for container context.
 ENV OUR_IDP_API_HOST=0.0.0.0
@@ -60,4 +78,5 @@ LABEL org.opencontainers.image.source="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.vendor="Ourchitecture"
 LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.created-by="moon"
 CMD ["node", "bff/dist/server.js"]
