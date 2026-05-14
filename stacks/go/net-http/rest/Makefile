@@ -59,7 +59,7 @@ all:
 	else \
 		"$(MAKE)" install build check; \
 	fi
-	@if command -v docker >/dev/null 2>&1; then "$(MAKE)" build-containers; fi
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then "$(MAKE)" build-containers; fi
 
 install:
 	@if [ -x "$(MOON_BIN)" ]; then \
@@ -125,7 +125,7 @@ check-contract:
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
-		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+		uv run python "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi
 
 test-contract: check-contract
@@ -236,5 +236,5 @@ check-contract-auth:
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
 		OUR_IDP_CONTRACT_PROFILES=auth-profile \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
-		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+		uv run python "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi

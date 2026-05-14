@@ -11,7 +11,7 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check"]
   install:
-    command: ["bash", "-c", "npm --prefix ../../../.. install && npm ci"]
+    command: ["bash", "-c", "npm --prefix ../../../.. install && npm install"]
   build:
     command: ["npm", "run", "build:web"]
     deps: ["install"]
@@ -24,8 +24,8 @@ tasks:
     command: ["npm", "run", "test:stack"]
     deps: ["install"]
   check-contract:
-    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
-    deps: ["build-mock-oauth"]
+    command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
+    deps: ["build", "check-test", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
       OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm run start:web"
@@ -84,7 +84,7 @@ tasks:
     deps:
       - "mock-oauth:build"
   check-contract-auth:
-    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"

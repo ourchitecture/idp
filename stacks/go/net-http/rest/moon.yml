@@ -34,7 +34,7 @@ tasks:
   check-test:
     command: ["go", "test", "./..."]
   check-contract:
-    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build"]
     env:
       OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"
@@ -94,7 +94,7 @@ tasks:
       - "check-java"
       - "mock-oauth:build"
   check-contract-auth:
-    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"

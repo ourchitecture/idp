@@ -11,7 +11,15 @@ npm = "bundled"
 python = "3.14.5"
 # See https://github.com/astral-sh/uv/releases
 uv = "0.11.14"
+# See https://github.com/jqlang/jq/releases
+jq = "1.8.1"
+# See https://adoptium.net/temurin/releases
+openjdk = "25.0.3+9"
 
 [settings]
 detect-strategy = "prefer-prototools"
 auto-install = true
+
+[plugins.tools]
+jq = "https://raw.githubusercontent.com/appthrust/proto-toml-plugins/main/jq/plugin.toml"
+openjdk = "github://eplightning/openjdk-adoptium-proto-plugin"

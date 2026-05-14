@@ -52,7 +52,7 @@ install:
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:install; \
 	else \
 		npm --prefix "$(ROOT_DIR)" install; \
-		npm ci; \
+		npm install; \
 	fi
 
 build:
@@ -115,7 +115,7 @@ check-contract:
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
 		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
-		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+		uv run python "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi
 
 test-contract: check-contract
@@ -200,5 +200,5 @@ check-contract-auth:
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
 		OUR_IDP_CONTRACT_PROFILES=auth-profile \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
-		python3 "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
+		uv run python "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi

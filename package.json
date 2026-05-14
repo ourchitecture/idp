@@ -5,16 +5,19 @@
   "description": "Intent-Driven Portal (IDP)",
   "license": "MIT",
   "scripts": {
+    "oc": "opencode",
+    "opencode": "opencode",
     "lint:md": "markdownlint-cli2",
     "start:web": "make -C \"stacks/go/net-http/rest\" run-web",
     "start:bff": "make -C \"stacks/go/net-http/rest\" run-bff",
     "test:contract": "tsx tests/src/index.ts",
     "test:contract:watch": "tsx watch tests/src/index.ts"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/node": "25.6.2",
     "markdownlint-cli2": "0.22.1",
+    "opencode-ai": "^1.14.50",
+    "puppeteer-core": "^24.43.1",
     "ts-node": "10.9.2",
     "tsx": "4.21.0",
     "typescript": "6.0.3"

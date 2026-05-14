@@ -3,7 +3,25 @@ import { ensureServiceAvailable } from "../runtime";
 import type { ContractContext, TestCase } from "../types";
 
 function isAuthEnabled(context: ContractContext): boolean {
-  return context.stackMetadata?.capabilities?.auth?.enabled === true;
+  if (context.stackMetadata?.capabilities?.auth?.enabled !== true) {
+    return false;
+  }
+
+  const provider = process.env.OUR_IDP_OAUTH_PROVIDER?.trim().toLowerCase();
+  if (provider === undefined || provider === "" || provider === "none") {
+    return false;
+  }
+
+  if (provider === "mock" || provider === "github") {
+    const clientId = process.env.OUR_IDP_OAUTH_CLIENT_ID?.trim();
+    const clientSecret = process.env.OUR_IDP_OAUTH_CLIENT_SECRET?.trim();
+    const redirectUrl = process.env.OUR_IDP_OAUTH_REDIRECT_URL?.trim();
+    if (!clientId || !clientSecret || !redirectUrl) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 function resolveExpectedAuthorizationUrl(): URL {
