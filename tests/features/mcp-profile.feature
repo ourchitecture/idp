@@ -27,6 +27,10 @@ Feature: MCP profile — Model Context Protocol interface contract
     And each tool has a non-empty "name", "description", and an "inputSchema" object
     And the tools array includes a tool named "get_portal_summary"
     And the tools array includes a tool named "check_health"
+    And the tools array includes a tool named "list_flow_insights"
+    And the tools array includes a tool named "get_flow_insight"
+    And the tools array includes a tool named "list_my_blockers"
+    And the tools array includes a tool named "list_service_risk_signals"
 
   Scenario: tools/call get_portal_summary returns a portal status result
     When the client calls the MCP tool "get_portal_summary" with no arguments
@@ -44,3 +48,39 @@ Feature: MCP profile — Model Context Protocol interface contract
     And content item 0 has type "text" and a non-empty text field
     And the text is valid JSON containing "health" and "readiness" fields
     And the "health" object contains a "status" field
+
+  Scenario: tools/call list_flow_insights returns an insight list
+    When the client calls the MCP tool "list_flow_insights" with no arguments
+    Then the response status code is in the 2xx range
+    And the JSON-RPC response contains a result field
+    And the result content is a non-empty array of content items
+    And content item 0 has type "text" and a non-empty text field
+    And the text is valid JSON containing "generatedAt", "total", and an "insights" array with at least one entry
+
+  Scenario: tools/call get_flow_insight returns a detailed insight
+    Given the client retrieved a valid insightId from the "list_flow_insights" tool
+    When the client calls the MCP tool "get_flow_insight" with that insightId
+    Then the response status code is in the 2xx range
+    And the JSON-RPC response contains a result field
+    And the result content is a non-empty array of content items
+    And content item 0 has type "text" and a non-empty text field
+    And the text is valid JSON containing an "insight" object with the matching "insightId"
+
+  Scenario: tools/call list_my_blockers returns blocker signals for an actor
+    Given the client selected an actor from a blocked_on_review insight
+    When the client calls the MCP tool "list_my_blockers" with that actor
+    Then the response status code is in the 2xx range
+    And the JSON-RPC response contains a result field
+    And the result content is a non-empty array of content items
+    And content item 0 has type "text" and a non-empty text field
+    And the text is valid JSON containing only blocker signal IDs in the "insights" array
+    And at least one returned insight lists the requested actor
+
+  Scenario: tools/call list_service_risk_signals returns aggregated risk signals
+    Given the client selected a service from a risk_aggregation insight
+    When the client calls the MCP tool "list_service_risk_signals" with that service
+    Then the response status code is in the 2xx range
+    And the JSON-RPC response contains a result field
+    And the result content is a non-empty array of content items
+    And content item 0 has type "text" and a non-empty text field
+    And the text is valid JSON containing only "risk_aggregation" signals for that service

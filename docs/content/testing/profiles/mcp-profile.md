@@ -27,7 +27,7 @@ The profile is skipped automatically when either declaration is absent.
 
 Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/idp/blob/main/tests/features/mcp-profile.feature)
 
-## Scenarios (4 total)
+## Scenarios (8 total)
 
 ### MCP server responds to initialize with server info and capabilities
 
@@ -51,10 +51,14 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 - Each tool has a non-empty `name`, `description`, and an `inputSchema` object
 - The list includes `get_portal_summary`
 - The list includes `check_health`
+- The list includes `list_flow_insights`
+- The list includes `get_flow_insight`
+- The list includes `list_my_blockers`
+- The list includes `list_service_risk_signals`
 
 ### tools/call get_portal_summary returns a portal status result
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -64,7 +68,7 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 
 ### tools/call check_health returns BFF health and readiness
 
-**Precondition:** The MCP server is running and can reach the BFF at `IDP_BFF_URL`.
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
 
 **Assertions:**
 
@@ -72,6 +76,47 @@ Source: [`tests/features/mcp-profile.feature`](https://github.com/ourchitecture/
 - `result.content[0].type` is `"text"`
 - `result.content[0].text` is valid JSON with `health` and `readiness` fields
 - `health.status` is present
+
+### tools/call list_flow_insights returns insight list payload
+
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
+
+**Assertions:**
+
+- `tools/call list_flow_insights` returns HTTP 2xx
+- `result.content[0].text` parses to JSON with `generatedAt`, `total`, and an `insights` array
+- At least one insight is returned
+
+### tools/call get_flow_insight returns detailed payload
+
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
+
+**Assertions:**
+
+- `tools/call get_flow_insight` returns HTTP 2xx
+- `result.content[0].text` parses to JSON with an `insight` object
+- `insight.insightId` matches the requested ID
+- Optional `explanation` and `recommendedNextAction` fields are strings when present
+
+### tools/call list_my_blockers filters blocker signals for an actor
+
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
+
+**Assertions:**
+
+- `tools/call list_my_blockers` returns HTTP 2xx
+- Response JSON contains only blocker signal IDs: `blocked_on_review`, `waiting_on_evidence`, or `aging_implementation`
+- At least one returned insight includes the requested actor in `actors`
+
+### tools/call list_service_risk_signals returns risk aggregation signals
+
+**Precondition:** The MCP server is running and can reach the BFF at `OUR_IDP_BFF_URL`.
+
+**Assertions:**
+
+- `tools/call list_service_risk_signals` returns HTTP 2xx
+- Response JSON contains only `risk_aggregation` signals
+- Each returned insight includes the requested `service` in its `services` array
 
 ## Layer 2 harness
 
@@ -97,17 +142,17 @@ Stacks that expose an MCP server must declare both the profile and the capabilit
 
 ## Environment variables
 
-| Variable      | Default                 | Description                        |
-| ------------- | ----------------------- | ---------------------------------- |
-| `IDP_MCP_URL` | `http://localhost:8080` | Base URL for the MCP server        |
-| `IDP_BFF_URL` | `http://localhost:8000` | BFF URL the MCP server connects to |
+| Variable          | Default                 | Description                        |
+| ----------------- | ----------------------- | ---------------------------------- |
+| `IDP_MCP_URL`     | `http://localhost:8080` | Base URL for the MCP server        |
+| `OUR_IDP_BFF_URL` | `http://localhost:8000` | BFF URL the MCP server connects to |
 
 ## Running the profile
 
 ```sh
 # Start the BFF for a stack, then the MCP server, then run contract tests:
 IDP_MCP_URL=http://localhost:8080 \
-IDP_BFF_URL=http://localhost:8000 \
+OUR_IDP_BFF_URL=http://localhost:8000 \
 IDP_STACK_PATH=tools/mcp \
 npm run test:contract
 ```

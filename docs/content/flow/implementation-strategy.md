@@ -150,9 +150,10 @@ Example HTTP API routes (illustrative; actual routes may vary by stack):
 
 Example MCP tools (illustrative; actual tools may vary by stack):
 
-- `flow_list_signals` — list all active signals
-- `flow_get_signal` — get signal details by ID
-- `flow_list_repository_signals` — list signals scoped to a repository
+- `list_flow_insights` — list insights with optional provider/service/repo/team/actor filters
+- `get_flow_insight` — get a single insight by `insightId`
+- `list_my_blockers` — list blocker signals for a specific actor
+- `list_service_risk_signals` — list aggregated risk signals for a service scope
 
 See [ADR-0014: MVP Flow Observation Technical Foundations](../architecture/decisions/mvp-flow-observation-technical-foundations) for the technical decision on transport ownership and equivalence.
 
