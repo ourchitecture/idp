@@ -14,7 +14,7 @@ This sub-project provides a skeleton Backstage application that:
 ## Prerequisites
 
 - Node.js 20+ (pinned via `.prototools` at root: currently Node 24.0.0)
-- Yarn package manager (installed automatically with Backstage)
+- npm package manager (pinned with Node via proto)
 - GNU Make (optional convenience wrapper)
 - Moon task runner (optional but recommended for maintainers)
 
@@ -25,7 +25,7 @@ This sub-project provides a skeleton Backstage application that:
 ```bash
 make install
 # or
-yarn install
+npm install
 ```
 
 ### Build the Application
@@ -33,7 +33,7 @@ yarn install
 ```bash
 make build
 # or
-yarn build:all
+npm run build:all
 ```
 
 ### Start Development Servers
@@ -41,7 +41,7 @@ yarn build:all
 ```bash
 make dev
 # or
-yarn dev
+npm run dev
 ```
 
 This starts both the frontend (port 3000) and backend (port 7007) in development mode.
@@ -54,7 +54,7 @@ This starts both the frontend (port 3000) and backend (port 7007) in development
 ```bash
 make check-test
 # or
-yarn typecheck
+npm run typecheck
 ```
 
 ### Run CI Checks
@@ -153,12 +153,13 @@ proto install
 proto use
 ```
 
-### Yarn Not Found
+### npm Not Found
 
-Backstage uses Yarn. Install globally or let Backstage's `@backstage/cli` handle it:
+This harness uses npm workspaces so it follows the same proto-pinned Node.js toolchain as the rest of the repository:
 
 ```bash
-npm install -g yarn
+proto install
+npm --version
 ```
 
 ### Port Already in Use

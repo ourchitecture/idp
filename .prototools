@@ -15,11 +15,17 @@ uv = "0.11.14"
 jq = "1.8.1"
 # See https://adoptium.net/temurin/releases
 openjdk = "25.0.3+9"
+# See https://github.com/gitleaks/gitleaks/releases
+gitleaks = "8.30.1"
+# See https://github.com/aquasecurity/trivy/releases
+trivy = "0.70.0"
 
 [settings]
 detect-strategy = "prefer-prototools"
 auto-install = true
 
 [plugins.tools]
+gitleaks = "github://muuvmuuv/proto-plugins/gitleaks_tool"
 jq = "https://raw.githubusercontent.com/appthrust/proto-toml-plugins/main/jq/plugin.toml"
 openjdk = "github://eplightning/openjdk-adoptium-proto-plugin"
+trivy = "https://raw.githubusercontent.com/ageha734/proto-plugins/refs/heads/master/toml/trivy.toml"

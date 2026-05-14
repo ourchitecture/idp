@@ -11,7 +11,7 @@ if [[ ! -d "${ROOT_DIR}/.git" ]]; then
 fi
 
 GITLEAKS_VERSION="v8.30.1"
-SEMGREP_VERSION="1.157.0"
+SEMGREP_VERSION="1.162.0"
 
 TARGET_PATH="${ROOT_DIR}"
 

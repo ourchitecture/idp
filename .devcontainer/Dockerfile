@@ -20,13 +20,23 @@ ARG TRIVY_VERSION=0.56.2
 # ARG for Trivy apt package version (what's available in the apt repository)
 ARG TRIVY_APT_VERSION=0.70.0
 
-FROM ubuntu:24.04@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b AS base
+FROM ubuntu:26.04@sha256:f3d28607ddd78734bb7f71f117f3c6706c666b8b76cbff7c9ff6e5718d46ff64 AS base
 
 # Avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Make apt repository fetches retry transient network failures and fail clearly
+# when the build container cannot resolve package mirrors.
+ARG APT_RETRIES=5
+ARG APT_HTTP_TIMEOUT=30
+
 # Install system packages and dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get \
+    -o "Acquire::Retries=${APT_RETRIES}" \
+    -o "Acquire::http::Timeout=${APT_HTTP_TIMEOUT}" \
+    -o "APT::Update::Error-Mode=any" \
+    update \
+    && apt-get install -y \
     git \
     make \
     curl \
@@ -48,19 +58,16 @@ RUN install -m 0755 -d /etc/apt/keyrings \
     && chmod a+r /etc/apt/keyrings/docker.asc \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    && apt-get update \
+    && apt-get \
+    -o "Acquire::Retries=${APT_RETRIES}" \
+    -o "Acquire::http::Timeout=${APT_HTTP_TIMEOUT}" \
+    -o "APT::Update::Error-Mode=any" \
+    update \
     && apt-get install -y docker-ce-cli docker-compose-plugin \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Eclipse Temurin JDK 21 (required for tools/mock-oauth)
-RUN wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc \
-    && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-    && apt-get update \
-    && apt-get install -y temurin-21-jdk maven \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Proto at pinned version 0.55.4
-ARG PROTO_VERSION=0.55.4
+# Install Proto at pinned version 0.57.0
+ARG PROTO_VERSION=0.57.0
 ENV PROTO_HOME=/opt/proto
 ENV PATH="${PROTO_HOME}/shims:${PROTO_HOME}/bin:${PATH}"
 
@@ -75,22 +82,8 @@ COPY .prototools ./
 # Install all pinned tools via proto
 RUN proto install
 
-# Install gitleaks at pinned version (matching scripts/ci/check-privacy.sh)
-ARG GITLEAKS_VERSION=v8.30.1
-RUN proto run go -- install "github.com/zricethezav/gitleaks/v8@${GITLEAKS_VERSION}"
-
-# Install Trivy CLI at available apt version (for developer use in container)
-# Scanner stage uses official container image at pinned version
-# Re-declare global ARG to use in this stage
-ARG TRIVY_APT_VERSION
-RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor -o /usr/share/keyrings/trivy.gpg \
-    && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | tee /etc/apt/sources.list.d/trivy.list \
-    && apt-get update \
-    && apt-get install -y trivy=${TRIVY_APT_VERSION} \
-    && rm -rf /var/lib/apt/lists/*
-
 # Install semgrep at pinned version (matching scripts/ci/check-privacy.sh)
-ARG SEMGREP_VERSION=1.157.0
+ARG SEMGREP_VERSION=1.162.0
 RUN proto run uv -- tool install --force "semgrep==${SEMGREP_VERSION}"
 
 # Copy package files for npm dependencies

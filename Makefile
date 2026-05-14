@@ -8,6 +8,8 @@ CI_SCRIPTS_DIR := scripts/ci
 
 PROTO_HOME ?= $(HOME)/.proto
 MOON_BIN := $(PROTO_HOME)/shims/moon
+OUR_IDP_DOCKER_BUILD_NETWORK ?= default
+OUR_IDP_DEV_TOOLS_DOCKER_BUILD_ARGS ?=
 
 help:
 	@printf "Targets:\n"
@@ -41,9 +43,12 @@ help:
 	@printf "  dev           Bootstrap toolchain and start selected stack (web + BFF)\n"
 	@printf "  docs-site     Build and validate the Stemix documentation site\n"
 	@printf "  build-containers Build all container images for all stacks (opt-in, requires docker)\n"
+	@printf "  build-container-dev-tools Build the dev-tools container image\n"
 	@printf "\n"
 	@printf "Variables:\n"
 	@printf "  STACK  Override stack path (default: %s)\n" "$(DEFAULT_STACK)"
+	@printf "  OUR_IDP_DOCKER_BUILD_NETWORK  Docker build network mode for dev-tools (default: %s)\n" "$(OUR_IDP_DOCKER_BUILD_NETWORK)"
+	@printf "  OUR_IDP_DEV_TOOLS_DOCKER_BUILD_ARGS     Extra docker build args for dev-tools\n"
 	@printf "\n"
 	@printf "Detected stacks:\n"
 	@for stack in $(STACKS); do printf "  - %s\n" "$$stack"; done
@@ -63,11 +68,11 @@ all:
 	"$(MAKE)" -C tools/vscode-extension all; \
 	printf "Running full build/test validation for tools/backstage\n"; \
 	"$(MAKE)" -C tools/backstage all
-	@if command -v docker >/dev/null 2>&1; then \
-		printf "Docker detected — building container images\n"; \
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		printf "Docker daemon reachable -- building container images\n"; \
 		"$(MAKE)" build-containers; \
 	else \
-		printf "Docker not found — skipping container builds (opt-in only)\n"; \
+		printf "Docker daemon not reachable -- skipping container builds (opt-in only)\n"; \
 	fi
 
 ci:
@@ -83,11 +88,11 @@ ci:
 		"$(MAKE)" -C tools/vscode-extension check-ci; \
 		"$(MAKE)" -C tools/backstage check-ci; \
 	fi
-	@if command -v docker >/dev/null 2>&1; then \
-		printf "Docker detected — building container images\n"; \
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		printf "Docker daemon reachable -- building container images\n"; \
 		"$(MAKE)" build-containers; \
 	else \
-		printf "Docker not found — skipping container builds (opt-in only)\n"; \
+		printf "Docker daemon not reachable -- skipping container builds (opt-in only)\n"; \
 	fi
 
 check-lint-md:
@@ -266,7 +271,7 @@ build-containers:
 	"$(MAKE)" build-container-dev-tools
 
 build-container-dev-tools:
-	docker build -t localhost/ourchitecture/idp/stemix-dev-tools:dev -f .devcontainer/Dockerfile .
+	docker build --network="$(OUR_IDP_DOCKER_BUILD_NETWORK)" $(OUR_IDP_DEV_TOOLS_DOCKER_BUILD_ARGS) -t localhost/ourchitecture/idp/stemix-dev-tools:dev -f .devcontainer/Dockerfile .
 
 gitlab-harness-up:
 	@"$(MAKE)" -C tools/gitlab-harness up

@@ -59,7 +59,11 @@ all:
 	else \
 		"$(MAKE)" install build check; \
 	fi
-	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then "$(MAKE)" build-containers; fi
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		"$(MAKE)" build-containers; \
+	else \
+		printf "Docker daemon not reachable -- skipping container builds (opt-in only)\n"; \
+	fi
 
 install:
 	@if [ -x "$(MOON_BIN)" ]; then \

@@ -1,6 +1,6 @@
 .PHONY: help all install build clean check-lint check-test check-ci check test dev run
 
-# Backstage workspace root - ensure yarn commands execute in the workspace context
+# Backstage workspace root - ensure npm commands execute in the workspace context
 BACKSTAGE_ROOT := $(shell pwd)
 ROOT_DIR := ../..
 TOOL_PATH := tools/backstage
@@ -32,14 +32,14 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:install; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn install; \
+		cd "$(BACKSTAGE_ROOT)" && npm install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:build; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn build:all; \
+		cd "$(BACKSTAGE_ROOT)" && npm run build:all; \
 	fi
 
 clean:
@@ -60,7 +60,7 @@ check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-test; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn typecheck; \
+		cd "$(BACKSTAGE_ROOT)" && npm run typecheck; \
 	fi
 
 test: check-test
@@ -83,7 +83,7 @@ dev:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:dev; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn dev; \
+		cd "$(BACKSTAGE_ROOT)" && npm run dev; \
 	fi
 
 run: dev

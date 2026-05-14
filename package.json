@@ -17,7 +17,7 @@
     "@types/node": "25.6.2",
     "markdownlint-cli2": "0.22.1",
     "opencode-ai": "^1.14.50",
-    "puppeteer-core": "^24.43.1",
+    "puppeteer": "^24.43.1",
     "ts-node": "10.9.2",
     "tsx": "4.21.0",
     "typescript": "6.0.3"

@@ -28,7 +28,7 @@ tasks:
     deps: ["build", "check-test", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm run start:web"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 npm run start:web"
       OUR_IDP_BFF_START_CMD: >-
         OUR_IDP_API_HOST=127.0.0.1
         OUR_IDP_API_PORT=8400
@@ -63,7 +63,7 @@ tasks:
     command: ["bash", "../../../../scripts/e2e/run-stack-e2e.sh"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm run start:web"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 npm run start:web"
       OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 npm run start:bff"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
       OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
@@ -88,7 +88,7 @@ tasks:
     deps: ["build", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/nodejs/react-fastify/rest"
-      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 npm run start:web"
+      OUR_IDP_WEB_START_CMD: "OUR_IDP_WEB_HOST=127.0.0.1 OUR_IDP_PORT=3400 OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 npm run start:web"
       OUR_IDP_BFF_START_CMD: >-
         OUR_IDP_API_HOST=127.0.0.1
         OUR_IDP_API_PORT=8400

@@ -11,11 +11,11 @@
   },
   "scripts": {
     "build": "echo 'Backstage build placeholder'",
-    "build:backend": "yarn workspace backend build",
+    "build:backend": "npm --workspace backend run build",
     "build:all": "echo 'Backstage build:all placeholder'",
     "dev": "echo 'Backstage dev placeholder'",
-    "start": "yarn workspace app start",
-    "start-backend": "yarn workspace backend start",
+    "start": "npm --workspace app run start",
+    "start-backend": "npm --workspace backend run start",
     "typecheck": "echo 'Backstage typecheck placeholder'"
   },
   "devDependencies": {
