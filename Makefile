@@ -18,8 +18,8 @@ help:
 	@printf "  install       Install dependencies for selected stack\n"
 	@printf "  upgrade       Upgrade tracked dependency locks across the repository\n"
 	@printf "  build         Build selected stack artifacts\n"
-	@printf "  clean         Clean selected stack artifacts\n"
-	@printf "  reset         Reset (full clean) the project\n"
+	@printf "  clean         Clean all project artifacts (build, test, analyze caches)\n"
+	@printf "  reset         Full reset: clean + remove all dependency caches\n"
 	@printf "  check-lint-md Lint all Markdown files\n"
 	@printf "  check-lint-workflows Lint GitHub workflow definitions\n"
 	@printf "  check-privacy Run privacy and secret scanning\n"
@@ -100,7 +100,7 @@ check-lint-md:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run repo:check-lint-md; \
 	else \
-		npm run lint:md; \
+		pnpm run lint:md; \
 	fi
 
 check-lint-workflows:
@@ -207,11 +207,37 @@ build:
 	@"$(MAKE)" -C "$(STACK)" build
 
 clean:
-	@"$(MAKE)" -C "$(STACK)" clean
-	@rm -rf ./.tmp/ ./docs/.docusaurus/ ./docs/build/
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:clean; \
+	else \
+		set -e; \
+		for stack in $(STACKS); do \
+			"$(MAKE)" -C "$$stack" clean; \
+		done; \
+		"$(MAKE)" -C docs clean; \
+		"$(MAKE)" -C tools/mcp clean; \
+		"$(MAKE)" -C tools/mock-oauth clean; \
+		"$(MAKE)" -C tools/vscode-extension clean; \
+		"$(MAKE)" -C tools/backstage clean; \
+		"$(MAKE)" -C tools/gitlab-harness down; \
+		rm -rf tools/gitlab-harness/data; \
+	fi
 
-reset: clean
-	@rm -rf ./.venv/ ./node_modules/ ./docs/node_modules/
+reset:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:reset; \
+	else \
+		"$(MAKE)" clean; \
+		rm -rf .venv/ .pnpm-store/ node_modules/ \
+			docs/node_modules/ \
+			stacks/go/net-http/rest/node_modules/ \
+			stacks/nodejs/react-fastify/rest/node_modules/ \
+			tools/vscode-extension/node_modules/ \
+			tools/backstage/node_modules/ \
+			tools/mcp/node_modules/ \
+			tools/mock-providers/node_modules/ \
+			tools/mock-oauth/target/; \
+	fi
 
 lint: check-lint
 
