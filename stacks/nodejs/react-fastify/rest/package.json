@@ -34,6 +34,6 @@
     "markdownlint-cli2": "0.22.1",
     "tsx": "^4.20.6",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10"
+    "vite": "^8.0.13"
   }
 }
