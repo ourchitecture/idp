@@ -71,6 +71,9 @@ jobs:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
 
+      - name: Verify .claude/skills is in sync with .agents/skills
+        run: make check-skills-sync
+
       - name: Detect intelligent validation plan
         id: detect
         env:

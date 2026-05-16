@@ -53,6 +53,14 @@ direction in user-facing copy.
 - [adr-guardrails.md](.agents/docs/adr-guardrails.md) — current ADR list,
   intake threshold, long-lived doc reference rule.
 
+## Skills
+
+Agent skills live in `.agents/skills/<name>/SKILL.md`. `.claude/skills/` is an
+auto-generated copy used by Claude Code for native skill discovery — edit only
+`.agents/skills/`; run `make sync-skills` to regenerate (the pre-commit hook
+does this automatically when `.agents/skills/` files are staged). Run
+`make setup-hooks` once after cloning to enable the hook.
+
 ## Shared rule blocks (referenced by docs and skills)
 
 - [shared/github-api.md](.agents/docs/shared/github-api.md) — access

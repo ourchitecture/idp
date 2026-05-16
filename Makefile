@@ -1,4 +1,4 @@
-.PHONY: help all ci install upgrade build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs verify-tool-pins
+.PHONY: help all ci install upgrade build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs verify-tool-pins setup-hooks sync-skills check-skills-sync
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -46,6 +46,9 @@ help:
 	@printf "  build-containers Build all container images for all stacks (opt-in, requires docker)\n"
 	@printf "  build-container-dev-tools Build the dev-tools container image\n"
 	@printf "  verify-tool-pins Assert pnpm version in .prototools matches package.json packageManager\n"
+	@printf "  setup-hooks   Configure git to use .githooks/ (run once after clone)\n"
+	@printf "  sync-skills   Copy .agents/skills → .claude/skills for Claude Code discovery\n"
+	@printf "  check-skills-sync Assert .claude/skills matches .agents/skills (used by CI)\n"
 	@printf "\n"
 	@printf "Variables:\n"
 	@printf "  STACK  Override stack path (default: %s)\n" "$(DEFAULT_STACK)"
@@ -54,6 +57,18 @@ help:
 	@printf "\n"
 	@printf "Detected stacks:\n"
 	@for stack in $(STACKS); do printf "  - %s\n" "$$stack"; done
+
+setup-hooks:
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+	@printf "setup-hooks: git will now use .githooks/ for pre-commit enforcement\n"
+
+sync-skills:
+	@bash .agents/scripts/sync-skills.sh
+
+check-skills-sync:
+	@bash .agents/scripts/sync-skills.sh
+	@git diff --exit-code .claude/skills/ || { printf "ERROR: .claude/skills/ is out of sync with .agents/skills/ -- run: make sync-skills\n" >&2; exit 1; }
 
 verify-tool-pins:
 	@proto_pnpm=$$(grep '^pnpm\s*=' .prototools | sed 's/.*=\s*"\?\([^"]*\)"\?.*/\1/' | tr -d '[:space:]'); \
