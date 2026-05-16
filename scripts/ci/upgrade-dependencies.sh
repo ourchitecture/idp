@@ -26,21 +26,24 @@ run_pnpm_upgrade() {
   pnpm audit
 }
 
-run_backstage_npm_upgrade() {
+run_backstage_yarn_upgrade() {
   local project_dir="tools/backstage"
 
-  if [[ ! -f "${project_dir}/package-lock.json" ]]; then
+  if [[ ! -f "${project_dir}/yarn.lock" ]]; then
     return 0
   fi
 
-  echo "Upgrading Backstage npm dependencies in ${project_dir}"
-  npm --prefix "${project_dir}" update
-
-  if [[ "${ALLOW_MAJOR}" == "true" ]]; then
-    npm --prefix "${project_dir}" audit fix --force
-  else
-    npm --prefix "${project_dir}" audit fix
-  fi
+  echo "Upgrading Backstage Yarn dependencies in ${project_dir}"
+  (
+    cd "${project_dir}"
+    corepack enable
+    yarn up -R
+    if [[ "${ALLOW_MAJOR}" == "true" ]]; then
+      yarn npm audit --all --recursive
+    else
+      yarn npm audit
+    fi
+  )
 }
 
 run_go_upgrade() {
@@ -65,11 +68,11 @@ run_uv_upgrade() {
 }
 
 mapfile -t pnpm_lockfiles < <(git ls-files | grep --extended-regexp '(^|/)pnpm-lock\.yaml$' | sort)
-mapfile -t backstage_npm_lockfiles < <(git ls-files tools/backstage/package-lock.json | sort)
+mapfile -t backstage_yarn_lockfiles < <(git ls-files tools/backstage/yarn.lock | sort)
 mapfile -t go_modfiles < <(git ls-files | grep --extended-regexp '(^|/)go\.mod$' | sort)
 mapfile -t uv_lockfiles < <(git ls-files | grep --extended-regexp '(^|/)uv\.lock$' | sort)
 
-if [[ ${#pnpm_lockfiles[@]} -eq 0 && ${#backstage_npm_lockfiles[@]} -eq 0 && ${#go_modfiles[@]} -eq 0 && ${#uv_lockfiles[@]} -eq 0 ]]; then
+if [[ ${#pnpm_lockfiles[@]} -eq 0 && ${#backstage_yarn_lockfiles[@]} -eq 0 && ${#go_modfiles[@]} -eq 0 && ${#uv_lockfiles[@]} -eq 0 ]]; then
   echo "No dependency lock or module files found."
   exit 0
 fi
@@ -78,7 +81,7 @@ if [[ ${#pnpm_lockfiles[@]} -gt 0 ]]; then
   run_pnpm_upgrade
 fi
 
-run_backstage_npm_upgrade
+run_backstage_yarn_upgrade
 
 for modfile in "${go_modfiles[@]}"; do
   run_go_upgrade "$(dirname "${modfile}")"
