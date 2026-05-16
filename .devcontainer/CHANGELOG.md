@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1-alpha.0](https://github.com/ourchitecture/idp/compare/dev-tools-v0.1.0-alpha.0...dev-tools-v0.1.1-alpha.0) (2026-05-16)
+
+
+### Bug Fixes
+
+* backstage instance ([976d42a](https://github.com/ourchitecture/idp/commit/976d42a3a55b36393bf7265f4072168fb3d81ccb))
+* build and test issues ([d6f43f9](https://github.com/ourchitecture/idp/commit/d6f43f995e75299e1e3ebf2ef631f2472d297acc))
+
 ## [0.1.0-alpha.0](https://github.com/ourchitecture/idp/compare/dev-tools-v0.0.0...dev-tools-v0.1.0-alpha.0) (UNRELEASED)
 
 ### Features
