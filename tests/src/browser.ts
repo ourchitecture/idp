@@ -1,125 +1,117 @@
-import { spawn } from "node:child_process";
+import puppeteer, {
+  type Browser,
+  type ConsoleMessage,
+  type HTTPResponse,
+} from "puppeteer";
 
 const BROWSER_RENDER_TIMEOUT_MS = 15_000;
+const BROWSER_RENDER_RETRY_MS = 500;
 
-const WINDOWS_BROWSER_PATHS = [
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-  "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-  "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-];
-
-const MACOS_BROWSER_PATHS = [
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-];
-
-const LINUX_BROWSER_PATHS = [
-  "google-chrome",
-  "google-chrome-stable",
-  "chromium",
-  "chromium-browser",
-  "microsoft-edge",
-  "msedge",
-];
-
-function getBrowserCandidates(): string[] {
-  const envCandidates = [
-    process.env.OUR_IDP_UI_BROWSER_PATH?.trim(),
-    process.env.PUPPETEER_EXECUTABLE_PATH?.trim(),
-  ].filter((value): value is string => value !== undefined && value.length > 0);
-
-  const platformCandidates =
-    process.platform === "win32"
-      ? WINDOWS_BROWSER_PATHS
-      : process.platform === "darwin"
-        ? MACOS_BROWSER_PATHS
-        : LINUX_BROWSER_PATHS;
-
-  return [...envCandidates, ...platformCandidates];
-}
-
-function runDumpDom(browserPath: string, url: URL): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      browserPath,
-      [
-        "--headless",
-        "--disable-gpu",
-        "--no-first-run",
-        "--no-default-browser-check",
-        "--virtual-time-budget=10000",
-        "--dump-dom",
-        url.toString(),
-      ],
-      {
-        stdio: ["ignore", "pipe", "pipe"],
-      }
-    );
-
-    const timeoutId = setTimeout(() => {
-      child.kill();
-      reject(new Error(`Browser render timed out after ${BROWSER_RENDER_TIMEOUT_MS}ms`));
-    }, BROWSER_RENDER_TIMEOUT_MS);
-
-    const stdoutChunks: Buffer[] = [];
-    const stderrChunks: Buffer[] = [];
-
-    child.stdout.on("data", (chunk) => {
-      stdoutChunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string));
-    });
-
-    child.stderr.on("data", (chunk) => {
-      stderrChunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string));
-    });
-
-    child.once("error", (error) => {
-      clearTimeout(timeoutId);
-      reject(error);
-    });
-
-    child.once("close", (code) => {
-      clearTimeout(timeoutId);
-
-      if (code !== 0) {
-        const stderr = Buffer.concat(stderrChunks).toString("utf-8").trim();
-        reject(new Error(stderr.length > 0 ? stderr : `Browser exited with code ${code ?? -1}`));
-        return;
-      }
-
-      resolve(Buffer.concat(stdoutChunks).toString("utf-8"));
-    });
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
   });
 }
 
-export async function renderDomOrThrow(url: URL): Promise<string> {
-  const candidates = getBrowserCandidates();
-  let lastError: Error | null = null;
+function findMissingText(dom: string, expectedText: readonly string[]): string[] {
+  return expectedText.filter((text) => !dom.includes(text));
+}
 
-  for (const candidate of candidates) {
-    try {
-      return await runDumpDom(candidate, url);
-    } catch (error) {
-      if (
-        error instanceof Error &&
-        ((error as NodeJS.ErrnoException).code === "ENOENT" ||
-          (error as NodeJS.ErrnoException).code === "EINVAL")
-      ) {
-        lastError = error;
-        continue;
+function summarizeDom(dom: string): string {
+  return dom.replace(/\s+/g, " ").trim().slice(0, 500);
+}
+
+function summarizeConsole(messages: ConsoleMessage[]): string {
+  return messages
+    .filter((message) => message.type() === "error" || message.type() === "warning")
+    .slice(-5)
+    .map((message) => `${message.type()}: ${message.text()}`)
+    .join(" | ");
+}
+
+function resolveExecutablePath(): string | undefined {
+  const explicitPath =
+    process.env.OUR_IDP_UI_BROWSER_PATH?.trim() ??
+    process.env.PUPPETEER_EXECUTABLE_PATH?.trim();
+
+  return explicitPath !== undefined && explicitPath.length > 0
+    ? explicitPath
+    : undefined;
+}
+
+export async function renderDomOrThrow(
+  url: URL,
+  expectedText: readonly string[] = []
+): Promise<string> {
+  let browser: Browser | null = null;
+
+  try {
+    browser = await puppeteer.launch({
+      executablePath: resolveExecutablePath(),
+      headless: true,
+      args: [
+        "--disable-background-networking",
+        "--disable-gpu",
+        "--disable-extensions",
+        "--no-first-run",
+        "--no-default-browser-check",
+      ],
+    });
+
+    const page = await browser.newPage();
+    const consoleMessages: ConsoleMessage[] = [];
+    let pageError: Error | null = null;
+
+    page.on("console", (message) => {
+      consoleMessages.push(message);
+    });
+    page.on("pageerror", (error) => {
+      pageError = error;
+    });
+
+    const response: HTTPResponse | null = await page.goto(url.toString(), {
+      waitUntil: "domcontentloaded",
+      timeout: BROWSER_RENDER_TIMEOUT_MS,
+    });
+
+    if (response !== null && !response.ok()) {
+      throw new Error(`Page returned HTTP ${response.status()} for ${url.toString()}`);
+    }
+
+    const deadline = Date.now() + BROWSER_RENDER_TIMEOUT_MS;
+    let dom = await page.content();
+    let missingText = findMissingText(dom, expectedText);
+
+    while (missingText.length > 0 && Date.now() <= deadline) {
+      if (pageError !== null) {
+        throw pageError;
       }
 
-      lastError = error instanceof Error ? error : new Error(String(error));
-      continue;
+      await sleep(BROWSER_RENDER_RETRY_MS);
+      dom = await page.content();
+      missingText = findMissingText(dom, expectedText);
     }
+
+    if (missingText.length > 0) {
+      const consoleDetail = summarizeConsole(consoleMessages);
+      throw new Error(
+        `Rendered DOM did not include expected text: ${missingText.join(", ")}. ` +
+          `DOM excerpt: ${summarizeDom(dom)}` +
+          (consoleDetail.length > 0 ? ` Console: ${consoleDetail}` : "")
+      );
+    }
+
+    return dom;
+  } catch (error) {
+    const detail = error instanceof Error ? ` Last error: ${error.message}` : "";
+
+    throw new Error(
+      "Unable to render the UI in a headless Chromium browser. " +
+        "Puppeteer should install Chrome for Testing during pnpm install; " +
+        "set OUR_IDP_UI_BROWSER_PATH or PUPPETEER_EXECUTABLE_PATH only to override it." +
+        detail
+    );
+  } finally {
+    await browser?.close();
   }
-
-  const detail =
-    lastError instanceof Error ? ` Last error: ${lastError.message}` : "";
-
-  throw new Error(
-    "Unable to render the UI in a headless Chromium browser. " +
-      "Set OUR_IDP_UI_BROWSER_PATH to a local Chrome or Edge executable if auto-detection fails." +
-      detail
-  );
 }

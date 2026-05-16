@@ -6,6 +6,7 @@ import (
 	"idp-go-net-http-rest/bff/flow/fixtures"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -34,7 +35,11 @@ type AdapterFixture struct {
 	Scenario    string `yaml:"scenario"`
 	Provider    string `yaml:"provider"`
 	Description string `yaml:"description"`
-	flow.ProviderAdapterInput
+	// yaml:",inline" is required for gopkg.in/yaml.v3 to promote the embedded
+	// struct's fields to the top level of the YAML document. Without this tag,
+	// yaml.v3 does not auto-inline fields from embedded structs in external
+	// packages, which would leave Repository, Changes, etc. unpopulated.
+	flow.ProviderAdapterInput `yaml:",inline"`
 }
 
 type FlowInsightRecord struct {
@@ -259,6 +264,21 @@ func matchesFilter(value string, filter string) bool {
 	return strings.Contains(strings.ToLower(value), strings.ToLower(filter))
 }
 
+// confidenceRank maps confidence strings to a numeric rank for sorting.
+// Higher values sort first (descending confidence).
+func confidenceRank(c flow.FlowSignalConfidence) int {
+	switch c {
+	case "high":
+		return 3
+	case "medium":
+		return 2
+	case "low":
+		return 1
+	default:
+		return 0
+	}
+}
+
 func ListFlowInsights(filters InsightFilters) []FlowInsightSummary {
 	audience := filters.Audience
 
@@ -327,6 +347,13 @@ func ListFlowInsights(filters InsightFilters) []FlowInsightSummary {
 
 		result = append(result, summary)
 	}
+
+	// Sort by confidence descending (high > medium > low) so that canonical,
+	// fully-observed signals surface before partial-data edge-case signals when
+	// callers use find() or take the first result.
+	sort.SliceStable(result, func(i, j int) bool {
+		return confidenceRank(result[i].Confidence) > confidenceRank(result[j].Confidence)
+	})
 
 	return result
 }

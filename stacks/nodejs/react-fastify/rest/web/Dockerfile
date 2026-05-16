@@ -21,16 +21,25 @@ ARG NODE_VERSION=24.14.1
 FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS builder
 
 WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
 # Install dependencies from stack workspace.
-COPY stacks/nodejs/react-fastify/rest/package.json stacks/nodejs/react-fastify/rest/package-lock.json ./
-RUN npm ci --ignore-scripts
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY stacks/nodejs/react-fastify/rest/package.json ./stacks/nodejs/react-fastify/rest/package.json
+COPY docs/package.json ./docs/package.json
+COPY tools/mcp/package.json ./tools/mcp/package.json
+COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
+COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
+RUN pnpm install --frozen-lockfile --filter nodejs-react-fastify-rest...
 
 # Copy web source files needed for the build.
-COPY stacks/nodejs/react-fastify/rest/web/ ./web/
+COPY stacks/nodejs/react-fastify/rest/web/ ./stacks/nodejs/react-fastify/rest/web/
 
 # Run Vite production build.
-RUN npx vite build --config web/vite.config.ts
+RUN pnpm -C stacks/nodejs/react-fastify/rest exec vite build --config web/vite.config.ts
 
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — nginx serving the static build with SPA routing + API proxy
@@ -47,7 +56,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY stacks/nodejs/react-fastify/rest/web/nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy Vite build output.
-COPY --from=builder /app/web/dist/ /usr/share/nginx/html/
+COPY --from=builder /app/stacks/nodejs/react-fastify/rest/web/dist/ /usr/share/nginx/html/
 
 # BFF_URL is required at runtime for /api/* proxy.
 # Default points to host machine port 8000 for local docker run convenience.
@@ -74,4 +83,5 @@ LABEL org.opencontainers.image.source="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.vendor="Ourchitecture"
 LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.created-by="moon"
 CMD ["nginx", "-g", "daemon off;"]

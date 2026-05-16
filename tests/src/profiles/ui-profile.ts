@@ -57,7 +57,11 @@ export function createUiProfileTests(context: ContractContext): TestCase[] {
         await ensureServiceAvailable("web server", webBaseUrl);
         await ensureServiceAvailable("BFF server", bffBaseUrl);
 
-        const renderedDom = await renderDomOrThrow(new URL("/", webBaseUrl));
+        const renderedDom = await renderDomOrThrow(new URL("/", webBaseUrl), [
+          "System Status",
+          "Observed Components",
+          "IDP BFF",
+        ]);
 
         assert(
           renderedDom.includes("System Status"),
@@ -79,7 +83,12 @@ export function createUiProfileTests(context: ContractContext): TestCase[] {
         await ensureServiceAvailable("web server", webBaseUrl);
         await ensureServiceAvailable("BFF server", bffBaseUrl);
 
-        const renderedDom = await renderDomOrThrow(new URL("/status", webBaseUrl));
+        const renderedDom = await renderDomOrThrow(new URL("/status", webBaseUrl), [
+          "Detailed IDP status",
+          "Observed Components",
+          "Publication Path",
+          "IDP BFF",
+        ]);
 
         assert(
           renderedDom.includes("Detailed IDP status"),

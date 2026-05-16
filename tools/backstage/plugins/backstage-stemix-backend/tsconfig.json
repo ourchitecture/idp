@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "dist",
+    "dist-types",
+    "node_modules"
+  ],
+  "compilerOptions": {
+    "outDir": "../../dist-types/plugins/backstage-stemix-backend",
+    "rootDir": "."
+  }
+}

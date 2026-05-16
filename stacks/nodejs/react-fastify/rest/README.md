@@ -41,6 +41,8 @@ The `auth-profile` contract is opt-in and requires a configured OAuth provider
 The BFF implements the shared OAuth-based `auth-profile`. Auth routes are
 registered only when `OUR_IDP_OAUTH_PROVIDER` is set to a supported provider.
 The default (`none`) keeps auth disabled and preserves existing behaviour.
+Developer `run-bff` targets set `mock` and local mock credentials, so local auth
+routes are available without repeating the same environment variables.
 
 ### Providers
 
@@ -134,11 +136,11 @@ GNU Make (compatibility):
 
 ### Native Tooling Shortcuts
 
-- `npm run typecheck:stack:react-fastify`
-- `npm run build:web:react-fastify`
-- `npm run start:web:react-fastify`
-- `npm run start:bff:react-fastify`
-- `npm run lint:md` (local markdownlint-cli2 -- run from this directory)
+- `pnpm run typecheck:stack`
+- `pnpm run build:web`
+- `pnpm run start:web`
+- `pnpm run start:bff`
+- `pnpm run lint:md` (local markdownlint-cli2 -- run from this directory)
 
 ## Container Images
 

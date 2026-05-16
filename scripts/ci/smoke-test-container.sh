@@ -3,7 +3,7 @@
 #
 # Required environment variables:
 #   IMAGE        — Docker image to run (e.g. ghcr.io/org/image:tag)
-#   PORT         — Host:container port mapping passed to docker run -p (e.g. 3300:3000)
+#   PORT         — Host:container port mapping passed to docker run --publish (e.g. 3300:3000)
 #   URL          — URL to check for HTTP 200 (e.g. http://localhost:3300/)
 #
 # Optional environment variables:
@@ -36,11 +36,11 @@ POLL_ATTEMPTS="${POLL_ATTEMPTS:-0}"
 SLEEP_SECONDS="${SLEEP_SECONDS:-2}"
 
 # shellcheck disable=SC2086  # intentional word-splitting for DOCKER_ARGS
-CID=$(docker run -d -p "${PORT}" ${DOCKER_ARGS} "${IMAGE}")
+CID=$(docker run --detach --publish "${PORT}" ${DOCKER_ARGS} "${IMAGE}")
 trap 'docker stop "${CID}" >/dev/null 2>&1 || true' EXIT
 
 _curl_check() {
-  local args=(-s -o /dev/null -w "%{http_code}" -X "${CURL_METHOD}")
+  local args=(--silent --output /dev/null --write-out "%{http_code}" --request "${CURL_METHOD}")
   [[ -n "${CURL_CONTENT_TYPE}" ]] && args+=(-H "Content-Type: ${CURL_CONTENT_TYPE}")
   [[ -n "${CURL_ACCEPT}" ]]       && args+=(-H "Accept: ${CURL_ACCEPT}")
   [[ -n "${CURL_DATA}" ]]         && args+=(--data-raw "${CURL_DATA}")
