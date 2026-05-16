@@ -54,7 +54,7 @@ third-party system status remain out of scope for `status-profile`.
 ## Run
 
 ```bash
-npm run test:contract
+pnpm run test:contract
 ```
 
 Via moon project task:
@@ -69,20 +69,20 @@ or run `make dev`.
 Example with overrides:
 
 ```bash
-OUR_IDP_WEB_URL="http://localhost:3001" OUR_IDP_BFF_URL="http://localhost:8001" npm run test:contract
+OUR_IDP_WEB_URL="http://localhost:3001" OUR_IDP_BFF_URL="http://localhost:8001" pnpm run test:contract
 ```
 
 Example for a specific stack and explicit profile set:
 
 ```bash
-OUR_IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" npm run test:contract
+OUR_IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" pnpm run test:contract
 ```
 
 Example for the auth profile against the current Go auth-capable stack with the
 mock provider:
 
 ```bash
-OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_STACK_PATH="stacks/go/net-http/rest" OUR_IDP_CONTRACT_PROFILE="auth-profile" npm run test:contract
+OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_STACK_PATH="stacks/go/net-http/rest" OUR_IDP_CONTRACT_PROFILE="auth-profile" pnpm run test:contract
 ```
 
 ## Container Image

@@ -52,7 +52,7 @@ All five gates are true. Intake threshold is met.
 
 - Add `python`/`uv` directly as moon built-ins in `.moon/toolchains.yml`.
 - Configure moon with explicit custom plugin locators for Python/uv.
-- Use moon unstable toolchains (`unstable_python`, `unstable_uv`) mapped to
+- Use moon unstable toolchains (`python`, `uv`) mapped to
   proto plugin locators in `.prototools`.
 - Avoid moon toolchain integration and run only `proto run` from scripts.
 
@@ -63,15 +63,15 @@ Chosen option: **Use moon unstable toolchains with proto plugin mappings**.
 ### Implementation Contract
 
 - `.moon/toolchains.yml` configures:
-  - `unstable_python` with `versionFromPrototools: "python"`
-  - `unstable_uv` with `versionFromPrototools: "uv"`
+  - `python` with `versionFromPrototools: "python"`
+  - `uv` with `versionFromPrototools: "uv"`
 - `.prototools` pins canonical versions:
   - `python = "3.12.11"`
   - `uv = "0.9.11"`
 - `.prototools` registers proto plugin locators:
-  - `unstable_python` -> `python_tool` wasm
-  - `unstable_uv` -> `python_uv_tool` wasm
-- `scripts/ci/check-privacy.sh` prefers `moon bin unstable_uv` when available,
+  - `python` -> `python_tool` wasm
+  - `uv` -> `python_uv_tool` wasm
+- `scripts/ci/check-privacy.sh` prefers `moon bin uv` when available,
   then falls back to `proto run uv`, then local `uv/semgrep` binaries.
 
 ### Why this is cleanest now

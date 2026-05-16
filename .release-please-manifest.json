@@ -3,5 +3,6 @@
   "stacks/nodejs/react-fastify/rest": "1.6.2-alpha.0",
   "tests": "1.6.0-alpha.0",
   "tools/mcp": "0.4.1-alpha.0",
+  "tools/backstage": "0.1.0-alpha.0",
   ".devcontainer": "0.1.0-alpha.0"
 }
