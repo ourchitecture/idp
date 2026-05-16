@@ -27,6 +27,7 @@ tasks:
 
   check-lint:
     command: ["bash", "-lc", "yarn run fix:check"]
+    deps: ["install"]
 
   check-test:
     command: ["bash", "-lc", "yarn run typecheck && yarn run test:stemix"]
