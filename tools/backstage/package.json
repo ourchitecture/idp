@@ -6,29 +6,41 @@
   "license": "MIT",
   "workspaces": {
     "packages": [
-      "packages/*"
+      "packages/*",
+      "plugins/*"
     ]
   },
   "scripts": {
-    "build": "echo 'Backstage build placeholder'",
-    "build:backend": "yarn workspace backend build",
-    "build:all": "echo 'Backstage build:all placeholder'",
-    "dev": "echo 'Backstage dev placeholder'",
+    "dev": "concurrently \"yarn dev:app\" \"yarn dev:backend\"",
+    "dev:app": "yarn workspace app start",
+    "dev:backend": "yarn workspace backend start",
+    "build": "yarn workspaces foreach -A run build",
+    "build:all": "yarn run build",
+    "build:stemix": "yarn workspace @ourchitecture/backstage-plugin-stemix build && yarn workspace @ourchitecture/backstage-plugin-stemix-backend build",
     "start": "yarn workspace app start",
     "start-backend": "yarn workspace backend start",
-    "typecheck": "echo 'Backstage typecheck placeholder'"
+    "typecheck": "yarn workspaces foreach -A run typecheck",
+    "typecheck:stemix": "yarn workspace @ourchitecture/backstage-plugin-stemix typecheck && yarn workspace @ourchitecture/backstage-plugin-stemix-backend typecheck",
+    "test:stemix": "yarn workspace @ourchitecture/backstage-plugin-stemix test && yarn workspace @ourchitecture/backstage-plugin-stemix-backend test",
+    "check:stemix": "yarn run build:stemix && yarn run typecheck:stemix && yarn run test:stemix",
+    "fix": "yarn run clean && yarn workspaces foreach -A run lint",
+    "fix:check": "yarn run fix",
+    "clean": "yarn workspaces foreach -A run clean"
   },
   "devDependencies": {
-    "concurrently": "^8.0.0",
-    "prettier": "^3.3.0",
-    "typescript": "~5.4.0"
+    "@backstage/cli": "^0.34.6",
+    "@backstage/cli-common": "^0.2.1",
+    "concurrently": "^8.2.2",
+    "tsx": "^4.20.6",
+    "typescript": "~5.4.5"
   },
   "resolutions": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
   },
   "prettier": {},
   "engines": {
-    "node": ">=20"
-  }
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@11.1.2"
 }

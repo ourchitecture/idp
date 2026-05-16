@@ -81,7 +81,7 @@ builder stage.
 
 ```text
 Stage 1 (builder): node:<version>-alpine
-  - npm ci (from repo root context)
+  - pnpm install --frozen-lockfile --filter <package>... (from repo root context)
   - tsc --project bff/tsconfig.json
 
 Stage 2 (runtime): node:<version>-alpine
@@ -94,7 +94,7 @@ Stage 2 (runtime): node:<version>-alpine
 
 ```text
 Stage 1 (builder): node:<version>-alpine
-  - npm ci (from repo root context)
+  - pnpm install --frozen-lockfile --filter <package>... (from repo root context)
   - vite build
 
 Stage 2 (runtime): nginx:alpine
@@ -113,11 +113,11 @@ resolves against the web server origin.
 
 ```text
 Stage 1: node:<version>-alpine
-  - npm ci
+  - pnpm install --frozen-lockfile
   - COPY tests/src tests/features
   - ENV IDP_WEB_URL (required at runtime)
   - ENV IDP_BFF_URL (required at runtime)
-  - CMD ["npm", "run", "test:contract"]
+  - CMD ["pnpm", "run", "test:contract"]
 ```
 
 ### 4. Container HEALTHCHECK instructions

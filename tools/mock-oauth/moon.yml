@@ -11,15 +11,15 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["check"]
   install:
-    command: ["./mvnw", "dependency:resolve", "-q", "-B"]
+    command: ["bash", "-c", "./mvnw dependency:resolve -q -B"]
   build:
-    command: ["./mvnw", "package", "-q", "-DskipTests"]
+    command: ["bash", "-c", "./mvnw package -q -DskipTests"]
   clean:
-    command: ["./mvnw", "clean", "-q"]
+    command: ["bash", "-c", "./mvnw clean -q"]
   check-lint:
     command: ["bash", "-c", "echo 'No additional lint configured for mock-oauth'"]
   check-test:
-    command: ["./mvnw", "verify", "-q"]
+    command: ["bash", "-c", "./mvnw verify -q"]
   check-ci:
     command: ["bash", "-c", "true"]
     deps: ["check-test"]

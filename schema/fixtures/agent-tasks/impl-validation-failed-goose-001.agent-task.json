@@ -1,0 +1,17 @@
+{
+  "task_id": "goose-001",
+  "issue_number": 371,
+  "state": "impl-validation-failed",
+  "slug": "issue-371-agent-work-insights",
+  "worktree_path": ".agents/worktrees/issue-371-agent-work-insights",
+  "heartbeat": {
+    "state": "impl-validation-failed",
+    "updated_at": "2026-05-16T10:00:00Z"
+  },
+  "model": null,
+  "tokens": null,
+  "cost": null,
+  "observation": "make check failed on iteration 2 of 3. TypeScript compiler reported 2 errors in stacks/nodejs/react-fastify/rest/bff/src/routes/agent-work.ts: type mismatch on AgentTask.state field.",
+  "why_it_matters": "The autonomous task exhausted its implementation retries. Without a human resolving the type error, this work slice is stuck. The insight surfaces before the worktree goes stale.",
+  "what_to_do": "Open the worktree at .agents/worktrees/issue-371-agent-work-insights, inspect the TypeScript error, fix the type annotation, and re-invoke with skip_to=implement."
+}

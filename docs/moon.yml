@@ -11,28 +11,29 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check"]
   install:
-    command: ["bash", "-c", "PUPPETEER_SKIP_DOWNLOAD=true npm ci"]
+    command: ["bash", "-c", "true"]
+    deps: ["repo:install"]
   build:
-    command: ["npm", "run", "build"]
+    command: ["pnpm", "run", "build"]
     deps: ["install"]
   clean:
     command: ["bash", "-c", "rm -rf build .docusaurus"]
   generate-diagrams:
-    command: ["npm", "run", "generate:diagrams"]
+    command: ["pnpm", "run", "generate:diagrams"]
   install-ci-browsers:
-    command: ["bash", "-c", "node_modules/.bin/puppeteer browsers install chrome"]
+    command: ["pnpm", "exec", "puppeteer", "browsers", "install", "chrome"]
     deps: ["install"]
   check-diagrams:
-    command: ["npm", "run", "check:diagrams"]
+    command: ["pnpm", "run", "check:diagrams"]
     deps: ["install"]
   check-diagrams-ci:
-    command: ["npm", "run", "check:diagrams"]
+    command: ["pnpm", "run", "check:diagrams"]
     deps: ["install-ci-browsers"]
   check-lint:
-    command: ["npm", "run", "lint:md"]
+    command: ["pnpm", "run", "lint:md"]
     deps: ["install"]
   check-test:
-    command: ["npm", "run", "typecheck"]
+    command: ["pnpm", "run", "typecheck"]
     deps: ["install"]
   check-ci:
     command: ["bash", "-c", "true"]
@@ -43,12 +44,12 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["check-diagrams", "check-lint", "check-test"]
   run-dev:
-    command: ["npm", "run", "start"]
+    command: ["pnpm", "run", "start"]
     options:
       persistent: true
       runInCI: false
   run-serve:
-    command: ["npm", "run", "serve"]
+    command: ["pnpm", "run", "serve"]
     options:
       persistent: true
       runInCI: false
