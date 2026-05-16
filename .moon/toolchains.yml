@@ -1,11 +1,11 @@
 proto:
-  version: "0.57.0"
+  version: "0.57.1"
 
 go:
   versionFromPrototools: true
 
 javascript:
-  packageManager: "npm"
+  packageManager: "pnpm"
   installDependencies: true
 
 node:
@@ -14,10 +14,17 @@ node:
 npm:
   versionFromPrototools: true
 
+pnpm:
+  versionFromPrototools: true
+
+# IMPORTANT: moon currently requires "unstable_" prefix.
+# See <https://moonrepo.dev/docs/config/toolchain#python>
 unstable_python:
-  versionFromPrototools: "python"
   packageManager: "uv"
   venvName: ".venv"
+  versionFromPrototools: "python"
 
+# IMPORTANT: moon currently requires "unstable_" prefix.
+# See <https://moonrepo.dev/docs/config/toolchain#python>
 unstable_uv:
   versionFromPrototools: "uv"

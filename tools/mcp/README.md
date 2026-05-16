@@ -27,13 +27,13 @@ AI agents through a stable, discoverable protocol. This server is the MCP interf
 ## Install dependencies
 
 ```sh
-npm install
+pnpm install
 ```
 
 ## Build
 
 ```sh
-npm run build
+pnpm run build
 # or
 make build
 ```
@@ -68,7 +68,7 @@ make check-contract
 
 # Or manually from repo root:
 OUR_IDP_MCP_PORT=8580 OUR_IDP_BFF_URL=http://localhost:8000 node tools/mcp/dist/server.js &
-OUR_IDP_MCP_URL=http://localhost:8580 OUR_IDP_STACK_PATH=tools/mcp npm run test:contract
+OUR_IDP_MCP_URL=http://localhost:8580 OUR_IDP_STACK_PATH=tools/mcp pnpm run test:contract
 ```
 
 ## Container

@@ -14,14 +14,14 @@ USER_TYPE="${1:-user}"
 
 cd "$REPO_ROOT"
 
-# Step 1: npm install (required for all users)
+# Step 1: pnpm install (required for all users)
 echo ""
-echo "==> Step 1: Installing Node.js dependencies (npm install)"
-if ! npm install; then
-  echo "ERROR: npm install failed"
+echo "==> Step 1: Installing Node.js dependencies (pnpm install)"
+if ! pnpm install; then
+  echo "ERROR: pnpm install failed"
   exit 1
 fi
-echo "SUCCESS: npm install completed"
+echo "SUCCESS: pnpm install completed"
 
 # Step 2: proto install (optional but recommended)
 echo ""

@@ -28,6 +28,24 @@
       "include-component-in-tag": true,
       "changelog-path": "CHANGELOG.md"
     },
+    "tools/backstage": {
+      "release-type": "node",
+      "component": "backstage-tools",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "tools/backstage/plugins/backstage-stemix/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "tools/backstage/plugins/backstage-stemix-backend/package.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
     ".devcontainer": {
       "release-type": "simple",
       "component": "dev-tools",

@@ -27,6 +27,9 @@ export function HomePage() {
           <Link className="portal-action" to="/status">
             View detailed status
           </Link>
+          <Link className="portal-action portal-action--secondary" to="/agent-work">
+            View agent work
+          </Link>
         </div>
       </header>
 

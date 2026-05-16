@@ -18,6 +18,7 @@
 
 # Node.js
 node_modules/
+.pnpm-store/
 
 # Java/Maven build artifacts
 target/
@@ -37,6 +38,7 @@ stacks/go/net-http/rest/go-web.log
 stacks/go/net-http/rest/go-bff.log
 go-web.log
 go-bff.log
+proto-*-install.log
 
 # Docs site build artifacts
 docs/build/
