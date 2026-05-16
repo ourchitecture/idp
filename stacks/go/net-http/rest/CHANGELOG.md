@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.3-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.4.2-alpha.0...go-net-http-rest-v1.4.3-alpha.0) (2026-05-16)
+
+
+### Bug Fixes
+
+* build and test issues ([d6f43f9](https://github.com/ourchitecture/idp/commit/d6f43f995e75299e1e3ebf2ef631f2472d297acc))
+* **ci:** resolve three persistent PR check failures ([#379](https://github.com/ourchitecture/idp/issues/379)) ([3b2f6c9](https://github.com/ourchitecture/idp/commit/3b2f6c939a73bd2f9f2bd4ca340e2f11f26df84f))
+* cross-platform tests with known chrome issue ([ee3427f](https://github.com/ourchitecture/idp/commit/ee3427fc70a51acabece0fe6853cf3cf1cf195b0))
+
 ## [1.4.2-alpha.0](https://github.com/ourchitecture/idp/compare/go-net-http-rest-v1.4.1-alpha.0...go-net-http-rest-v1.4.2-alpha.0) (2026-04-18)
 
 
