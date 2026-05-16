@@ -6,7 +6,8 @@
 
 - Backstage demo app in `tools/backstage/packages/app`
 - Backstage backend in `tools/backstage/packages/backend`
-- Standalone Stemix plugin packages in `tools/backstage/plugins/backstage-stemix*`
+- Public Stemix bundle package in `tools/backstage/packages/stemix`
+- Private inline Stemix runtime packages in `tools/backstage/plugins/backstage-stemix*`
 
 ## Local commands
 
@@ -32,5 +33,24 @@ yarn run dev
 
 - PRs touching `tools/backstage/*` trigger the existing `backstage-tools` validation path in `.github/workflows/pr-validate.yml`
 - `release-please` versions `tools/backstage/CHANGELOG.md`
-- Plugin package versions are synchronized from the `tools/backstage` release
-- When Backstage changes are released from `main`, GitHub Actions publishes `@ourchitecture/backstage-plugin-stemix` and `@ourchitecture/backstage-plugin-stemix-backend` to GitHub Packages
+- Stemix package versions are synchronized from the `tools/backstage` release
+- When Backstage changes are released from `main`, GitHub Actions publishes `@ourchitecture/backstage-plugin-stemix` to GitHub Packages
+
+## Install contract
+
+Install one package:
+
+```bash
+yarn add @ourchitecture/backstage-plugin-stemix
+```
+
+Use the frontend API from the package root and the backend feature from the
+`./backend` subpath:
+
+```ts
+import { StemixPage } from '@ourchitecture/backstage-plugin-stemix';
+```
+
+```ts
+backend.add(import('@ourchitecture/backstage-plugin-stemix/backend'));
+```

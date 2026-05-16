@@ -1,6 +1,6 @@
 {
   "name": "nodejs-react-fastify-rest",
-  "version": "1.6.2-alpha.0",
+  "version": "1.7.0-alpha.0",
   "private": true,
   "description": "React + Fastify TypeScript reference stack for IDP.",
   "scripts": {
@@ -34,6 +34,6 @@
     "markdownlint-cli2": "0.22.1",
     "tsx": "^4.22.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10"
+    "vite": "^8.0.13"
   }
 }
