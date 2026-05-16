@@ -57,4 +57,5 @@ LABEL org.opencontainers.image.source="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.vendor="Ourchitecture"
 LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.created-by="moon"
 ENTRYPOINT ["/app/service"]

@@ -45,7 +45,7 @@ land with different verdicts.
   1:1 to Layer 2 TypeScript assertions, with an authoritative tiebreaker when
   spec and harness disagree.
 - All tooling must be installable reproducibly via the repo's `proto` /
-  `unstable_python` / `unstable_uv` toolchain (ADR-0007, ADR-0012) or via a
+  `python` / `uv` toolchain (ADR-0007, ADR-0012) or via a
   documented container/proto-plugin path.
 
 ## MVP Evaluation Artifacts

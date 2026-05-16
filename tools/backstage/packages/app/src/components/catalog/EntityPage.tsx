@@ -1,5 +1,5 @@
 import React from 'react';
-import { EntitySwitch, isComponentType, isKind } from '@backstage/plugin-catalog';
+import { EntitySwitch, isKind } from '@backstage/plugin-catalog';
 import {
   EntityAboutCard,
   EntityLinksCard,

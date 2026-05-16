@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Pre-commit: keep .claude/skills in sync with .agents/skills.
+# Runs only when .agents/skills files are staged; no-ops otherwise.
+set -euo pipefail
+
+if git diff --cached --name-only | grep -q '^\.agents/skills/'; then
+  bash "$(git rev-parse --show-toplevel)/.agents/scripts/sync-skills.sh"
+  git add "$(git rev-parse --show-toplevel)/.claude/skills/"
+fi
