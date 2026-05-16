@@ -1,5 +1,5 @@
 # See https://github.com/moonrepo/proto/releases
-proto = "0.57.0"
+proto = "0.57.1"
 # See https://github.com/moonrepo/moon/releases
 moon = "2.2.4"
 # See https://go.dev/doc/devel/release
@@ -7,7 +7,8 @@ go = "1.26.0"
 # See https://nodejs.org/en/download
 node = "24.15.0"
 npm = "bundled"
-yarn = "4.5.1"
+# See https://github.com/yarnpkg/berry/releases
+yarn = "4.14.1"
 # See https://github.com/pnpm/pnpm/releases
 pnpm = "11.1.2"
 # See https://www.python.org/downloads/

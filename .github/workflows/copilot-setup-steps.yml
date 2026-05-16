@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PROTO_VERSION: "0.55.4"
+  PROTO_VERSION: "0.57.1"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
 
 jobs:
@@ -48,7 +48,7 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
@@ -76,4 +76,4 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
