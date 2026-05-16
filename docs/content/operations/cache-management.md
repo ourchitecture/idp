@@ -9,7 +9,8 @@ Stemix CI caches common toolchains to keep validation fast while still degrading
 
 - **Tooling bootstrap**: `~/.proto`, moon caches.
 - **Node.js**: repo-local `.pnpm-store` keyed by the root `pnpm-lock.yaml`.
-  `tools/backstage` remains a separate npm-managed island for now.
+- **Backstage Yarn workspace**: `tools/backstage/node_modules` and the local
+  Yarn cache are rebuilt on demand from `tools/backstage/yarn.lock`.
 - **Go**: `~/go/pkg/mod`, `~/.cache/go-build` keyed by `.prototools` and the Go module files in `stacks/go/net-http/rest/`.
 - **Python (uv/pip)**: `~/.cache/uv`, `~/.cache/pip` keyed by `.prototools` and `scripts/ci/check-privacy.sh`.
 - **Maven**: `~/.m2/repository`, `~/.m2/wrapper` keyed by `tools/mock-oauth` Maven wrapper metadata.
