@@ -2,6 +2,7 @@
   "globs": ["**/*.md"],
   "ignores": [
     "node_modules",
+    ".agents/worktrees",
     ".venv",
     "docs/node_modules",
     "docs/build",
