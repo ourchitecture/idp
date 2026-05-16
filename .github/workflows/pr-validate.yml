@@ -311,12 +311,12 @@ jobs:
           path: .pnpm-store
           key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
-  check-container-build:
-    name: Check Container Build
+  check-container-go-web:
+    name: Check Container (go-web)
     runs-on: ubuntu-latest
     needs: [detect-changes]
     if: >
-      needs.detect-changes.outputs.run_any_containers == 'true'
+      needs.detect-changes.outputs.run_go_containers == 'true'
       && github.event.pull_request.draft == false
     steps:
       - name: Checkout
@@ -326,7 +326,6 @@ jobs:
         uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       - name: Build Go web container
-        if: needs.detect-changes.outputs.run_go_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
@@ -338,15 +337,27 @@ jobs:
           cache-to: type=gha,scope=go-net-http-rest-web,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke Go web container
-        if: needs.detect-changes.outputs.run_go_containers == 'true'
         env:
           IMAGE: stemix-go-net-http-rest-web:pr-check
           PORT: "3300:3000"
           URL: http://localhost:3300/
         run: bash scripts/ci/smoke-test-container.sh
 
+  check-container-go-bff:
+    name: Check Container (go-bff)
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_go_containers == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build Go BFF container
-        if: needs.detect-changes.outputs.run_go_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: stacks/go/net-http/rest
@@ -358,15 +369,27 @@ jobs:
           cache-to: type=gha,scope=go-net-http-rest-bff,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke Go BFF container
-        if: needs.detect-changes.outputs.run_go_containers == 'true'
         env:
           IMAGE: stemix-go-net-http-rest-bff:pr-check
           PORT: "8300:8000"
           URL: http://localhost:8300/health
         run: bash scripts/ci/smoke-test-container.sh
 
+  check-container-node-web:
+    name: Check Container (nodejs-web)
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_node_containers == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build Node.js web container
-        if: needs.detect-changes.outputs.run_node_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
@@ -377,7 +400,6 @@ jobs:
           cache-to: type=gha,scope=nodejs-react-fastify-rest-web,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke Node.js web container
-        if: needs.detect-changes.outputs.run_node_containers == 'true'
         env:
           IMAGE: stemix-nodejs-react-fastify-rest-web:pr-check
           PORT: "3400:3000"
@@ -385,8 +407,21 @@ jobs:
           DOCKER_ARGS: -e BFF_URL=http://localhost:8400
         run: bash scripts/ci/smoke-test-container.sh
 
+  check-container-node-bff:
+    name: Check Container (nodejs-bff)
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_node_containers == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build Node.js BFF container
-        if: needs.detect-changes.outputs.run_node_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
@@ -397,15 +432,27 @@ jobs:
           cache-to: type=gha,scope=nodejs-react-fastify-rest-bff,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke Node.js BFF container
-        if: needs.detect-changes.outputs.run_node_containers == 'true'
         env:
           IMAGE: stemix-nodejs-react-fastify-rest-bff:pr-check
           PORT: "8400:8000"
           URL: http://localhost:8400/health
         run: bash scripts/ci/smoke-test-container.sh
 
+  check-container-tests:
+    name: Check Container (contract-tests)
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_tests_container == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build contract tests container
-        if: needs.detect-changes.outputs.run_tests_container == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
@@ -415,8 +462,21 @@ jobs:
           cache-from: type=gha,scope=contract-tests,timeout=10m
           cache-to: type=gha,scope=contract-tests,mode=max,ignore-error=true,timeout=10m
 
+  check-container-mcp:
+    name: Check Container (mcp)
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_mcp_containers == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build MCP server container
-        if: needs.detect-changes.outputs.run_mcp_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: .
@@ -427,7 +487,6 @@ jobs:
           cache-to: type=gha,scope=mcp-tools,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke MCP server container
-        if: needs.detect-changes.outputs.run_mcp_containers == 'true'
         env:
           IMAGE: stemix-mcp-server:pr-check
           PORT: "8580:8080"
@@ -438,8 +497,21 @@ jobs:
           CURL_DATA: '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"smoke-test","version":"0.0.1"}}}'
         run: bash scripts/ci/smoke-test-container.sh
 
+  check-container-mock-oauth:
+    name: Check Container (mock-oauth)
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    if: >
+      needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
+      && github.event.pull_request.draft == false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
+
       - name: Build mock-oauth container
-        if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
           context: tools/mock-oauth
@@ -450,13 +522,40 @@ jobs:
           cache-to: type=gha,scope=mock-oauth,mode=max,ignore-error=true,timeout=10m
 
       - name: Smoke mock-oauth container
-        if: needs.detect-changes.outputs.run_mock_oauth_containers == 'true'
         env:
           IMAGE: stemix-mock-oauth:pr-check
           PORT: "9900:9000"
           URL: http://localhost:9900/health
           POLL_ATTEMPTS: "10"
         run: bash scripts/ci/smoke-test-container.sh
+
+  check-container-build:
+    name: Check Container Build
+    runs-on: ubuntu-latest
+    if: always()
+    needs:
+      - detect-changes
+      - check-container-go-web
+      - check-container-go-bff
+      - check-container-node-web
+      - check-container-node-bff
+      - check-container-tests
+      - check-container-mcp
+      - check-container-mock-oauth
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Verify container build results
+        env:
+          RESULT_GO_WEB: ${{ needs.check-container-go-web.result }}
+          RESULT_GO_BFF: ${{ needs.check-container-go-bff.result }}
+          RESULT_NODE_WEB: ${{ needs.check-container-node-web.result }}
+          RESULT_NODE_BFF: ${{ needs.check-container-node-bff.result }}
+          RESULT_TESTS: ${{ needs.check-container-tests.result }}
+          RESULT_MCP: ${{ needs.check-container-mcp.result }}
+          RESULT_MOCK_OAUTH: ${{ needs.check-container-mock-oauth.result }}
+        run: bash scripts/ci/check-pr-container-build-result.sh
 
   check-mock-oauth-build:
     name: Check Mock OAuth Build
@@ -699,6 +798,13 @@ jobs:
       - check-workflow-files
       - check-stack-matrix
       - check-docs-site
+      - check-container-go-web
+      - check-container-go-bff
+      - check-container-node-web
+      - check-container-node-bff
+      - check-container-tests
+      - check-container-mcp
+      - check-container-mock-oauth
       - check-container-build
       - check-mock-oauth-build
       - check-auth-integration

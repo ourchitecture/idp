@@ -36,12 +36,17 @@
       "extra-files": [
         {
           "type": "json",
-          "path": "tools/backstage/plugins/backstage-stemix/package.json",
+          "path": "tools/backstage/packages/stemix/package.json",
           "jsonpath": "$.version"
         },
         {
           "type": "json",
           "path": "tools/backstage/plugins/backstage-stemix-backend/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "tools/backstage/plugins/backstage-stemix/package.json",
           "jsonpath": "$.version"
         }
       ]
