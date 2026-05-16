@@ -152,7 +152,7 @@ flexible for contributors.
 - `pnpm install` installs workspace dependencies and repository-local developer
   CLIs such as `opencode` and `pi`; run Pi with `pnpm run pi -- <args>`.
 - `tools/backstage` remains an npm-managed package-manager island until a
-  separate Backstage/Yarn migration is designed.
+  `tools/backstage` is the exception: it is an isolated Yarn 4 workspace for local Backstage plugin development and packaging.
 - GNU Make targets are supported as convenient local shortcuts and CI
   compatibility wrappers; use them whenever `moon` is not installed.
 

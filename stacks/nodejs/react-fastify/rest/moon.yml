@@ -44,7 +44,7 @@ tasks:
       OUR_IDP_MOCK_OAUTH_URL: "http://127.0.0.1:9000"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
       OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
-      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile,agent-work"
       OUR_IDP_ROOT_DIR: "../../../.."
   check-ci:
     command: ["bash", "-c", "true"]
@@ -68,7 +68,7 @@ tasks:
       OUR_IDP_BFF_START_CMD: "OUR_IDP_API_HOST=127.0.0.1 OUR_IDP_API_PORT=8400 OUR_IDP_STATUS_WEB_URL=http://127.0.0.1:3400 pnpm run start:bff"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3400"
       OUR_IDP_BFF_URL: "http://127.0.0.1:8400"
-      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile"
+      OUR_IDP_CONTRACT_PROFILES: "core,operational,status-profile,ui-profile,agent-work"
       OUR_IDP_ROOT_DIR: "../../../.."
   run-web:
     command: ["pnpm", "run", "start:web"]

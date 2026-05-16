@@ -27,18 +27,19 @@ tasks:
     deps: ["install"]
 
   clean:
-    command: ["bash", "-c", "rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules"]
+    command: ["bash", "-c", "rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules plugins/*/dist plugins/*/dist-types plugins/*/node_modules"]
 
   check-lint:
-    command: ["bash", "-c", "echo 'No additional lint configured for backstage-tools'"]
+    command: ["bash", "-lc", "yarn run fix:check"]
+    deps: ["install"]
 
   check-test:
-    command: ["bash", "-lc", "yarn run typecheck"]
+    command: ["bash", "-lc", "yarn run typecheck && yarn run test:stemix"]
     deps: ["install"]
 
   check-ci:
     command: ["bash", "-c", "true"]
-    deps: ["install", "build-stemix", "check-test"]
+    deps: ["install", "build-stemix", "check-lint", "check-test"]
     options:
       runInCI: true
 
@@ -61,3 +62,7 @@ tasks:
     options:
       persistent: true
       runInCI: false
+
+  check-stemix:
+    command: ["bash", "-lc", "yarn run check:stemix"]
+    deps: ["install"]

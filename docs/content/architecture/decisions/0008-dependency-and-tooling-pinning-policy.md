@@ -78,7 +78,7 @@ is a separate vector for silent breakage or supply-chain compromise.
 - The primary repository workspace uses pnpm workspaces. The root
   `pnpm-workspace.yaml` is the authoritative package-manager boundary.
 - `tools/backstage` is intentionally excluded from the pnpm workspace and keeps
-  its own npm lockfile until a Backstage-specific migration is designed.
+  its own Yarn lockfile because Backstage runs as a standalone workspace under `tools/backstage`.
 - Projects must not rely on a parent workspace's `node_modules` to provide
   a binary or package that is not declared in their own `package.json`. If a
   tool is used in a project's scripts or Makefile, it must appear in that
