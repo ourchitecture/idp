@@ -13,11 +13,11 @@ inputs:
   - name: profile
     type: string
     required: false
-    description: Single profile name to analyze (e.g., "core"). Default: all.
+    description: 'Single profile name to analyze (e.g., "core"). Default: all.'
   - name: stack_path
     type: string
     required: false
-    description: Single stack directory. Default: all `stacks/`.
+    description: "Single stack directory. Default: all `stacks/`."
   - name: auto_fix
     type: boolean
     required: false

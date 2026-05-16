@@ -30,7 +30,7 @@ outputs:
     description: 1 (heavily used) to 10 (unique and available).
   - name: recommendation
     type: string
-    description: "strongly-recommend" | "recommend-with-caveats" | "try-again".
+    description: '"strongly-recommend" | "recommend-with-caveats" | "try-again".'
 ---
 
 # Research Name Availability

@@ -13,7 +13,7 @@ inputs:
   - name: issue_number
     type: number
     required: false
-    description: Specific issue. Default: all matching open issues.
+    description: "Specific issue. Default: all matching open issues."
   - name: state
     type: string
     required: false

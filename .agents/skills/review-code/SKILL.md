@@ -12,7 +12,7 @@ inputs:
   - name: paths
     type: array
     required: false
-    description: Specific paths to review. Default: working-tree changes.
+    description: "Specific paths to review. Default: working-tree changes."
   - name: pr_number
     type: number
     required: false
