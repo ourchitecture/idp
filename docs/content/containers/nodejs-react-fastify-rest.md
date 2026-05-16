@@ -61,4 +61,4 @@ Browser --> nginx:3400 --> /api/* proxy_pass --> BFF_URL
 - BFF: `stacks/nodejs/react-fastify/rest/bff/Dockerfile`
 
 Both Dockerfiles require the **repo root** as build context because
-`package.json` and `package-lock.json` live at root.
+the pnpm workspace metadata and `pnpm-lock.yaml` live at root.

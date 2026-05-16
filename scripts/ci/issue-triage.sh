@@ -73,7 +73,7 @@ if [[ -n "${task_type}" ]]; then
   echo "Applied task type: ${task_type}"
 fi
 
-if grep -qiE '\[[xX]\].*suitable for autonomous AI agent' <<< "${ISSUE_BODY}"; then
+if grep --quiet --ignore-case --extended-regexp '\[[xX]\].*suitable for autonomous AI agent' <<< "${ISSUE_BODY}"; then
   agent_checked="true"
 else
   agent_checked="false"

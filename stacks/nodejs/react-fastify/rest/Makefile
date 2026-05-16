@@ -53,15 +53,14 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:install; \
 	else \
-		npm --prefix "$(ROOT_DIR)" install; \
-		npm install; \
+		pnpm -C "$(ROOT_DIR)" install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:build; \
 	else \
-		npm run build:web; \
+		pnpm run build:web; \
 	fi
 
 clean:
@@ -77,14 +76,14 @@ check-lint:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-lint; \
 	else \
-		npm run lint:md; \
+		pnpm run lint:md; \
 	fi
 
 check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:check-test; \
 	else \
-		npm run test:stack; \
+		pnpm run test:stack; \
 	fi
 
 test: check-test
@@ -109,13 +108,13 @@ check-contract:
 	else \
 		"$(MAKE)" -C "$(MOCK_OAUTH_DIR)" build; \
 		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
-		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm run start:web' \
-		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" OUR_IDP_OAUTH_CLIENT_ID=mock-client-id OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" npm run start:bff' \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" pnpm run start:web' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" OUR_IDP_OAUTH_CLIENT_ID=mock-client-id OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" pnpm run start:bff' \
 		OUR_IDP_MOCK_OAUTH_START_CMD='java -jar "$(abspath $(MOCK_OAUTH_JAR))"' \
 		OUR_IDP_MOCK_OAUTH_URL="http://127.0.0.1:$(OUR_IDP_OAUTH_MOCK_PORT)" \
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile,agent-work" \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		uv run python "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi
@@ -127,11 +126,11 @@ e2e:
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:e2e; \
 	else \
 		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
-		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm run start:web' \
-		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" npm run start:bff' \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" pnpm run start:web' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" pnpm run start:bff' \
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile,agent-work" \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"; \
 	fi
@@ -140,14 +139,18 @@ run-web:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:run-web; \
 	else \
-		npm run start:web; \
+		pnpm run start:web; \
 	fi
 
 run-bff:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run nodejs-react-fastify-rest:run-bff; \
 	else \
-		npm run start:bff; \
+		OUR_IDP_OAUTH_PROVIDER="$${OUR_IDP_OAUTH_PROVIDER:-mock}" \
+		OUR_IDP_OAUTH_CLIENT_ID="$${OUR_IDP_OAUTH_CLIENT_ID:-mock-client-id}" \
+		OUR_IDP_OAUTH_CLIENT_SECRET="$${OUR_IDP_OAUTH_CLIENT_SECRET:-mock-client-secret}" \
+		OUR_IDP_OAUTH_REDIRECT_URL="$${OUR_IDP_OAUTH_REDIRECT_URL:-http://127.0.0.1:$${OUR_IDP_API_PORT:-8000}/auth/callback}" \
+		pnpm run start:bff; \
 	fi
 
 build-container-web:
@@ -194,8 +197,8 @@ check-contract-auth:
 	else \
 		"$(MAKE)" build-mock-oauth; \
 		OUR_IDP_STACK_PATH="$(STACK_PATH)" \
-		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" npm run start:web' \
-		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" OUR_IDP_OAUTH_CLIENT_ID=mock-client-id OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" npm run start:bff' \
+		OUR_IDP_WEB_START_CMD='OUR_IDP_WEB_HOST="$(WEB_TEST_HOST)" OUR_IDP_PORT="$(WEB_TEST_PORT)" OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" pnpm run start:web' \
+		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" OUR_IDP_OAUTH_PROVIDER=mock OUR_IDP_OAUTH_MOCK_PORT="$(OUR_IDP_OAUTH_MOCK_PORT)" OUR_IDP_OAUTH_CLIENT_ID=mock-client-id OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret OUR_IDP_OAUTH_REDIRECT_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)/auth/callback" pnpm run start:bff' \
 		OUR_IDP_MOCK_OAUTH_START_CMD='java -jar "$(abspath $(MOCK_OAUTH_JAR))"' \
 		OUR_IDP_MOCK_OAUTH_URL="http://127.0.0.1:$(OUR_IDP_OAUTH_MOCK_PORT)" \
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
