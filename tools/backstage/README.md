@@ -1,6 +1,6 @@
 # Backstage Test Harness for Stemix IDP
 
-This is a minimal Backstage instance used for testing future Backstage plug-in integrations with the Stemix Intent-Driven Portal (IDP).
+This is a minimal Backstage instance used to develop and validate local Stemix Backstage plugins against the Stemix Intent-Driven Portal (IDP).
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This sub-project provides a skeleton Backstage application that:
 ## Prerequisites
 
 - Node.js 20+ (pinned via `.prototools` at root: currently Node 24.0.0)
-- npm package manager (pinned with Node via proto)
+- Corepack-enabled Yarn 4 for the Backstage workspace
 - GNU Make (optional convenience wrapper)
 - Moon task runner (optional but recommended for maintainers)
 
@@ -25,7 +25,8 @@ This sub-project provides a skeleton Backstage application that:
 ```bash
 make install
 # or
-npm install
+corepack enable
+yarn install
 ```
 
 ### Build the Application
@@ -33,7 +34,7 @@ npm install
 ```bash
 make build
 # or
-npm run build:all
+yarn run build:all
 ```
 
 ### Start Development Servers
@@ -41,7 +42,7 @@ npm run build:all
 ```bash
 make dev
 # or
-npm run dev
+yarn run dev
 ```
 
 This starts both the frontend (port 3000) and backend (port 7007) in development mode.
@@ -54,7 +55,15 @@ This starts both the frontend (port 3000) and backend (port 7007) in development
 ```bash
 make check-test
 # or
-npm run typecheck
+yarn run typecheck
+```
+
+### Validate the Standalone Plugin Packages
+
+```bash
+make check-stemix
+# or
+yarn run check:stemix
 ```
 
 ### Run CI Checks
@@ -84,6 +93,9 @@ tools/backstage/
 │   │   └── public/
 │   └── backend/          # Backend services
 │       └── src/
+├── plugins/
+│   ├── backstage-stemix/
+│   └── backstage-stemix-backend/
 ├── app-config.yaml       # Backstage configuration
 ├── package.json          # Workspace root
 ├── moon.yml              # Moon task definitions
@@ -98,6 +110,7 @@ This Backstage instance is wired into the IDP build system:
 - **Moon project ID**: `backstage-tools`
 - **Registered in**: `.moon/workspace.yml`
 - **CI validation**: Triggered automatically when `tools/backstage/*` files change
+- **Release automation**: `release-please` versions `tools/backstage`, syncs plugin package versions, and publishes the plugin packages to GitHub Packages on `main`
 - **Root `make all`**: Includes Backstage build and checks
 
 ## Available Make Targets
@@ -106,9 +119,11 @@ This Backstage instance is wired into the IDP build system:
 - `make all` - Run full verification (install, build, check)
 - `make install` - Install dependencies
 - `make build` - Build the application
+- `make build-stemix` - Build the standalone Stemix plugin packages
 - `make clean` - Remove build artifacts
 - `make check-lint` - Run linting (placeholder)
 - `make check-test` - Run type checks
+- `make check-stemix` - Run standalone Stemix plugin checks
 - `make check-ci` - Run CI-safe validation
 - `make check` - Run lint and tests
 - `make test` - Alias for check-test
@@ -119,12 +134,10 @@ This Backstage instance is wired into the IDP build system:
 
 When adding a Backstage plug-in for IDP integration:
 
-1. Add plug-in dependencies to the appropriate `package.json`:
-   - Frontend plug-ins → `packages/app/package.json`
-   - Backend plug-ins → `packages/backend/package.json`
-2. Register plug-in in `packages/app/src/App.tsx` (frontend) or `packages/backend/src/index.ts` (backend)
-3. Update configuration in `app-config.yaml` if needed
-4. Re-run `make install` and `make build`
+1. Create paired plugin workspaces under `plugins/`
+2. Reference them from `packages/app/package.json` and `packages/backend/package.json` using `workspace:*`
+3. Register routes in `packages/app/src/App.tsx` and backend features in `packages/backend/src/index.ts`
+4. Re-run `make install`, `make build-stemix`, and `make check-stemix`
 5. Test locally with `make dev`
 
 ## Known Limitations
@@ -153,13 +166,14 @@ proto install
 proto use
 ```
 
-### npm Not Found
+### Yarn Not Found
 
-This harness uses npm workspaces so it follows the same proto-pinned Node.js toolchain as the rest of the repository:
+This harness uses a standalone Yarn workspace inside `tools/backstage` while the rest of the monorepo stays on pnpm:
 
 ```bash
 proto install
-npm --version
+corepack enable
+yarn --version
 ```
 
 ### Port Already in Use

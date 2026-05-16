@@ -172,7 +172,7 @@ for file in "${changed_files[@]}"; do
     Makefile|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|.npmrc|tests/*)
       run_reference_all="true"
       ;;
-    tools/backstage/package-lock.json)
+    tools/backstage/yarn.lock)
       run_backstage_tools="true"
       ;;
     *.md|.github/*)
