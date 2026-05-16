@@ -11,7 +11,7 @@
     "start:gitlab": "tsx src/gitlab/index.ts"
   },
   "devDependencies": {
-    "@types/node": "25.6.0",
+    "@types/node": "25.8.0",
     "tsx": "^4.22.0",
     "typescript": "^6.0.3",
     "yaml": "^2.7.0"
