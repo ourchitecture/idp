@@ -6,15 +6,34 @@
     "role": "backend"
   },
   "scripts": {
-    "build": "echo 'Backstage backend build placeholder'",
-    "clean": "echo 'Backstage backend clean placeholder'",
-    "start": "echo 'Backstage backend start placeholder'"
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "lint": "yarn run typecheck",
+    "clean": "rm -rf dist node_modules",
+    "typecheck": "tsc"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "@backstage/backend-defaults": "^0.14.2",
+    "@backstage/backend-plugin-api": "^1.9.0",
+    "@backstage/plugin-app-backend": "^0.5.6",
+    "@backstage/plugin-auth-backend": "^0.28.0",
+    "@backstage/plugin-auth-backend-module-guest-provider": "^0.2.10",
+    "@backstage/plugin-catalog-backend": "^3.6.1",
+    "@backstage/plugin-catalog-backend-module-scaffolder-entity-model": "^0.2.15",
+    "@backstage/plugin-permission-backend": "^0.7.2",
+    "@backstage/plugin-permission-backend-module-allow-all-policy": "^0.2.18",
+    "@backstage/plugin-proxy-backend": "^0.6.6",
+    "@backstage/plugin-scaffolder-backend": "^3.0.3",
+    "@backstage/plugin-search-backend": "^2.1.1",
+    "@backstage/plugin-techdocs-backend": "^2.1.7",
+    "@ourchitecture/backstage-plugin-stemix-backend": "workspace:*",
+    "better-sqlite3": "^12.0.0",
+    "express": "^4.18.2",
+    "luxon": "^3.4.4"
   },
   "devDependencies": {
-    "@types/express": "*",
-    "typescript": "~5.4.0"
+    "@types/express": "^4.17.21",
+    "@types/luxon": "^3.4.2",
+    "typescript": "~5.4.5"
   }
 }

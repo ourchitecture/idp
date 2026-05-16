@@ -34,7 +34,7 @@ tasks:
   check-test:
     command: ["go", "test", "./..."]
   check-contract:
-    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build"]
     env:
       OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"
@@ -64,6 +64,11 @@ tasks:
       runInCI: false
   run-bff:
     command: ["go", "run", "./bff"]
+    env:
+      OUR_IDP_OAUTH_PROVIDER: "mock"
+      OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
+      OUR_IDP_OAUTH_CLIENT_SECRET: "mock-client-secret"
+      OUR_IDP_OAUTH_REDIRECT_URL: "http://127.0.0.1:8000/auth/callback"
     options:
       persistent: true
       runInCI: false
@@ -94,7 +99,7 @@ tasks:
       - "check-java"
       - "mock-oauth:build"
   check-contract-auth:
-    command: ["python3", "../../../../scripts/ci/run-contract-check.py"]
+    command: ["uv", "run", "python", "../../../../scripts/ci/run-contract-check.py"]
     deps: ["build", "build-mock-oauth"]
     env:
       OUR_IDP_STACK_PATH: "stacks/go/net-http/rest"
@@ -109,6 +114,11 @@ tasks:
         OUR_IDP_OAUTH_CLIENT_SECRET=mock-client-secret
         OUR_IDP_OAUTH_REDIRECT_URL=http://127.0.0.1:8300/auth/callback
         env -- .bin/idp-go-bff
+      OUR_IDP_OAUTH_PROVIDER: "mock"
+      OUR_IDP_OAUTH_MOCK_PORT: "9000"
+      OUR_IDP_OAUTH_CLIENT_ID: "mock-client-id"
+      OUR_IDP_OAUTH_CLIENT_SECRET: "mock-client-secret"
+      OUR_IDP_OAUTH_REDIRECT_URL: "http://127.0.0.1:8300/auth/callback"
       OUR_IDP_MOCK_OAUTH_START_CMD: "java -jar ../../../../tools/mock-oauth/target/mock-oauth.jar"
       OUR_IDP_MOCK_OAUTH_URL: "http://127.0.0.1:9000"
       OUR_IDP_WEB_URL: "http://127.0.0.1:3300"

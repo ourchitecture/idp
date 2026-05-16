@@ -29,14 +29,14 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:install; \
 	else \
-		PUPPETEER_SKIP_DOWNLOAD=true npm ci; \
+		PUPPETEER_SKIP_DOWNLOAD=true pnpm install --frozen-lockfile; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:build; \
 	else \
-		npm run build; \
+		pnpm run build; \
 	fi
 
 clean:
@@ -50,28 +50,28 @@ generate-diagrams:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:generate-diagrams; \
 	else \
-		npm run generate:diagrams; \
+		pnpm run generate:diagrams; \
 	fi
 
 check-diagrams:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:check-diagrams; \
 	else \
-		npm run check:diagrams; \
+		pnpm run check:diagrams; \
 	fi
 
 check-lint:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:check-lint; \
 	else \
-		npm run lint:md; \
+		pnpm run lint:md; \
 	fi
 
 check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:check-test; \
 	else \
-		npm run typecheck; \
+		pnpm run typecheck; \
 	fi
 
 check-ci:
@@ -92,12 +92,12 @@ run-dev:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:run-dev; \
 	else \
-		npm run start; \
+		pnpm run start; \
 	fi
 
 run-serve:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run docs-site:run-serve; \
 	else \
-		npm run serve; \
+		pnpm run serve; \
 	fi

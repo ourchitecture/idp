@@ -1,15 +1,35 @@
-proto = "0.55.4"
-moon = "2.1.3"
-go = "1.25.0"
-node = "24.14.1"
+# See https://github.com/moonrepo/proto/releases
+proto = "0.57.1"
+# See https://github.com/moonrepo/moon/releases
+moon = "2.2.4"
+# See https://go.dev/doc/devel/release
+go = "1.26.0"
+# See https://nodejs.org/en/download
+node = "24.15.0"
 npm = "bundled"
-python = "3.12.11"
-uv = "0.9.11"
+# See https://github.com/yarnpkg/berry/releases
+yarn = "4.14.1"
+# See https://github.com/pnpm/pnpm/releases
+pnpm = "11.1.2"
+# See https://www.python.org/downloads/
+python = "3.14.5"
+# See https://github.com/astral-sh/uv/releases
+uv = "0.11.14"
+# See https://github.com/jqlang/jq/releases
+jq = "1.8.1"
+# See https://adoptium.net/temurin/releases
+openjdk = "25.0.3+9"
+# See https://github.com/gitleaks/gitleaks/releases
+gitleaks = "8.30.1"
+# See https://github.com/aquasecurity/trivy/releases
+trivy = "0.70.0"
 
 [settings]
 detect-strategy = "prefer-prototools"
 auto-install = true
 
 [plugins.tools]
-unstable_python = "https://github.com/moonrepo/plugins/releases/download/python_tool-v0.14.6/python_tool.wasm"
-unstable_uv = "https://github.com/moonrepo/plugins/releases/download/python_uv_tool-v0.3.2/python_uv_tool.wasm"
+gitleaks = "github://muuvmuuv/proto-plugins/gitleaks_tool"
+jq = "https://raw.githubusercontent.com/appthrust/proto-toml-plugins/main/jq/plugin.toml"
+openjdk = "github://eplightning/openjdk-adoptium-proto-plugin"
+trivy = "https://raw.githubusercontent.com/ageha734/proto-plugins/refs/heads/master/toml/trivy.toml"
