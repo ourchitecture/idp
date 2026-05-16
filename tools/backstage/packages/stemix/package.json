@@ -1,12 +1,10 @@
 {
-  "name": "@ourchitecture-internal/backstage-plugin-stemix-frontend",
+  "name": "@ourchitecture/backstage-plugin-stemix",
   "version": "0.1.0",
-  "private": true,
-  "description": "Stemix greeting frontend plugin for the local Backstage harness.",
+  "description": "Stemix Backstage plugin bundle with frontend root exports and backend subpath exports.",
   "license": "MIT",
   "backstage": {
-    "role": "frontend-plugin",
-    "inline": true,
+    "role": "common-library",
     "pluginId": "stemix",
     "pluginPackages": [
       "@ourchitecture/backstage-plugin-stemix",
@@ -14,18 +12,29 @@
       "@ourchitecture-internal/backstage-plugin-stemix-backend"
     ]
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  },
   "exports": {
     ".": "./src/index.ts",
+    "./backend": "./src/backend.ts",
     "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "backend": [
+        "src/backend.ts"
+      ]
+    }
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "files": [
     "dist",
-    "src"
+    "README.md"
   ],
   "scripts": {
-    "start": "backstage-cli package start",
     "build": "tsc --project tsconfig.json && backstage-cli package build",
     "lint": "yarn run typecheck",
     "test": "tsx --test \"src/**/*.test.ts\"",
@@ -35,9 +44,13 @@
     "postpack": "backstage-cli package postpack"
   },
   "dependencies": {
+    "@backstage/backend-plugin-api": "^1.9.0",
     "@backstage/core-components": "^0.18.9",
     "@backstage/core-plugin-api": "^1.9.0",
     "@material-ui/core": "^4.12.4",
+    "@ourchitecture-internal/backstage-plugin-stemix-backend": "workspace:*",
+    "@ourchitecture-internal/backstage-plugin-stemix-frontend": "workspace:*",
+    "express": "^4.18.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0"
@@ -46,6 +59,7 @@
     "@backstage/cli": "^0.34.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "tsx": "^4.20.6",
     "typescript": "~5.4.5"
   },
   "peerDependencies": {
