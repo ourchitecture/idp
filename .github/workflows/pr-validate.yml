@@ -478,7 +478,7 @@ jobs:
           auto-install: true
 
       - name: Set JAVA_HOME from proto openjdk
-        run: echo "JAVA_HOME=$(java -XshowSettings:property -version 2>&1 | grep 'java.home' | awk -F' = ' '{print $2}')" >> $GITHUB_ENV
+        run: echo "JAVA_HOME=$(java -XshowSettings:property -version 2>&1 | grep 'java.home' | awk -F' = ' '{print $2}')" >> "$GITHUB_ENV"
 
       - name: Build and test mock OAuth
         run: moon run mock-oauth:check-ci
@@ -534,7 +534,7 @@ jobs:
           auto-install: true
 
       - name: Set JAVA_HOME from proto openjdk
-        run: echo "JAVA_HOME=$(java -XshowSettings:property -version 2>&1 | grep 'java.home' | awk -F' = ' '{print $2}')" >> $GITHUB_ENV
+        run: echo "JAVA_HOME=$(java -XshowSettings:property -version 2>&1 | grep 'java.home' | awk -F' = ' '{print $2}')" >> "$GITHUB_ENV"
 
       - name: Install pnpm dependencies
         run: pnpm install --frozen-lockfile
