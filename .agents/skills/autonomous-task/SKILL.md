@@ -1,6 +1,6 @@
 ---
 name: autonomous-task
-version: 0.2.0
+version: 0.3.0
 description: >
   Orchestrates autonomous plan → review → implement → validate loops for a
   development task. Each phase runs inside an isolated git worktree. Supports
@@ -89,6 +89,64 @@ OpenCode's ~10K) runs 2–3× faster on the same model — useful for `fast`-pro
 tasks or lightweight validation steps. Run `pnpm pi` instead of `pnpm oc` to
 compare execution speed and cost on any given task.
 
+## PR-aware task guidance
+
+When the task involves fixing or unblocking pull requests (e.g. "fix CI failures
+on PR #N", "all PRs should pass status checks"), the agent must track two
+distinct health signals for every PR under scope:
+
+1. **Merge conflict state** — a PR with `mergeable: CONFLICTING` cannot have its
+   CI results acted on, and CI may not trigger at all. Conflicts must be resolved
+   before any other work counts.
+2. **Status check results** — every required check must reach a terminal
+   `SUCCESS` conclusion. Queued or in-progress checks are not done.
+
+### Checking a PR's current state
+
+```bash
+gh pr view <PR_NUMBER> \
+  --json number,title,mergeable,mergeStateStatus,statusCheckRollup
+```
+
+Key fields:
+
+| Field | Meaning |
+|---|---|
+| `mergeable` | `MERGEABLE` \| `CONFLICTING` \| `UNKNOWN` |
+| `mergeStateStatus` | `CLEAN` (ready to merge) \| `BLOCKED` \| `BEHIND` \| `UNSTABLE` \| `DIRTY` (conflicts) |
+| `statusCheckRollup[].status` | `QUEUED` \| `IN_PROGRESS` \| `COMPLETED` |
+| `statusCheckRollup[].conclusion` | `SUCCESS` \| `FAILURE` \| `TIMED_OUT` \| `CANCELLED` \| `""` (pending) |
+
+### Conflict resolution protocol
+
+If `mergeable: CONFLICTING`:
+
+1. Rebase or merge the target branch into the task branch inside the worktree:
+   ```bash
+   git -C <worktree_path> fetch upstream main
+   git -C <worktree_path> merge upstream/main --no-edit
+   ```
+2. Fix any conflict markers, then stage and commit:
+   ```bash
+   git -C <worktree_path> add <conflicted-file>
+   git -C <worktree_path> commit -m "chore: merge main, resolve <scope> conflict"
+   ```
+3. Push and re-query until `mergeable: MERGEABLE` before continuing.
+
+### Status check protocol
+
+After each push, wait for all required checks to reach `COMPLETED` status before
+marking a step done. Failed checks must be diagnosed and fixed — do not advance
+until all required checks report `SUCCESS`. Use:
+
+```bash
+gh pr checks <PR_NUMBER>
+```
+
+to list check names, status, and URLs for failing runs.
+
+---
+
 ## Running multiple sessions in parallel
 
 Each agent session works entirely inside its own worktree, so N sessions can
@@ -135,6 +193,17 @@ gh issue view <issue_number> --json number,title,body,labels,assignees,state
 
 If closed, stop and report. If `blocked`, stop and surface the blocker.
 Derive `task_description` from the issue body and acceptance criteria.
+
+If the issue references PRs or the `task_description` mentions CI failures or
+PR status checks, query each referenced PR immediately:
+
+```bash
+gh pr view <PR_NUMBER> \
+  --json number,title,mergeable,mergeStateStatus,statusCheckRollup
+```
+
+Record which PRs have conflicts (`mergeable: CONFLICTING`) and which have
+failing checks — these are the primary work items before any implementation.
 
 **From free-form description:** use `task_description` as-is; generate a slug
 for worktree naming: lowercase, spaces → hyphens, max 40 chars.
@@ -289,8 +358,26 @@ COMPOSE_PROJECT_NAME=<TASK_SLUG> \
 during this validation are unique to this agent session. Never omit it when
 running `make check` from inside a worktree.
 
-If checks pass, update the heartbeat (`step: impl-validated`) and proceed to
-step 4.
+**After each push to the remote branch:**
+
+1. Confirm the PR is no longer conflicting:
+   ```bash
+   gh pr view <PR_NUMBER> --json mergeable,mergeStateStatus
+   # expect: mergeable=MERGEABLE
+   ```
+   If still `CONFLICTING`, resolve conflicts before proceeding (see
+   [PR-aware task guidance](#pr-aware-task-guidance)).
+
+2. Wait for all required status checks to reach `COMPLETED`:
+   ```bash
+   gh pr checks <PR_NUMBER>
+   ```
+   Do not advance until every required check shows `SUCCESS`. For checks that
+   are `FAILURE` or `TIMED_OUT`, read the log URL from the output and diagnose
+   the root cause before returning to step 3a.
+
+If local and remote checks pass, update the heartbeat (`step: impl-validated`)
+and proceed to step 4.
 
 If checks fail:
 
@@ -388,9 +475,11 @@ Before exiting on error at any step:
 
 1. Implementation passes `make check` without errors.
 2. All acceptance criteria from the task/issue are met.
-3. PR is squash-merged to `main`.
-4. No orphaned worktrees remain (`make audit-worktrees`).
-5. Lock file is removed. `in-progress` label is removed (if issue-backed).
+3. PR has `mergeable: MERGEABLE` — no conflict markers remain.
+4. All required PR status checks report `SUCCESS` (`gh pr checks <PR_NUMBER>`).
+5. PR is squash-merged to `main`.
+6. No orphaned worktrees remain (`make audit-worktrees`).
+7. Lock file is removed. `in-progress` label is removed (if issue-backed).
 
 **`local_only=true`:**
 
