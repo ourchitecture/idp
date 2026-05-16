@@ -1,4 +1,4 @@
-.PHONY: help all install build clean check-lint check-test check-ci check test dev run
+.PHONY: help all install build build-stemix clean check-lint check-test check-stemix check-ci check test dev run
 
 # Backstage workspace root - ensure npm commands execute in the workspace context
 BACKSTAGE_ROOT := $(shell pwd)
@@ -12,9 +12,11 @@ help:
 	@printf "  all           Run full tool verification flow\n"
 	@printf "  install       Install dependencies\n"
 	@printf "  build         Build Backstage app\n"
+	@printf "  build-stemix  Build the standalone Stemix plugin packages\n"
 	@printf "  clean         Remove build artifacts\n"
 	@printf "  check-lint    Run lint checks\n"
 	@printf "  check-test    Run type checks\n"
+	@printf "  check-stemix  Run standalone Stemix plugin validation\n"
 	@printf "  check-ci      Run CI-safe validation checks\n"
 	@printf "  check         Run lint and tests\n"
 	@printf "  test          Alias for check-test\n"
@@ -32,14 +34,21 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:install; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && npm install; \
+		cd "$(BACKSTAGE_ROOT)" && yarn install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:build; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && npm run build:all; \
+		cd "$(BACKSTAGE_ROOT)" && yarn run build:all; \
+	fi
+
+build-stemix:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run backstage-tools:build-stemix; \
+	else \
+		cd "$(BACKSTAGE_ROOT)" && yarn run build:stemix; \
 	fi
 
 clean:
@@ -53,14 +62,21 @@ check-lint:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-lint; \
 	else \
-		echo "No additional lint configured for backstage-tools"; \
+		cd "$(BACKSTAGE_ROOT)" && yarn run fix:check; \
 	fi
 
 check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-test; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && npm run typecheck; \
+		cd "$(BACKSTAGE_ROOT)" && yarn run typecheck && yarn run test:stemix; \
+	fi
+
+check-stemix:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run backstage-tools:check-stemix; \
+	else \
+		cd "$(BACKSTAGE_ROOT)" && yarn run check:stemix; \
 	fi
 
 test: check-test
@@ -69,7 +85,7 @@ check-ci:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-ci; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && "$(MAKE)" install build check-test; \
+		cd "$(BACKSTAGE_ROOT)" && "$(MAKE)" install build check-lint check-test; \
 	fi
 
 check:
@@ -83,7 +99,7 @@ dev:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:dev; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && npm run dev; \
+		cd "$(BACKSTAGE_ROOT)" && yarn run dev; \
 	fi
 
 run: dev
