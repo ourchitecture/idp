@@ -387,6 +387,90 @@ body {
   }
 }
 
+.agent-task-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.agent-task-card {
+  padding: 1.25rem;
+}
+
+.agent-task-card--degraded {
+  border-color: rgba(185, 87, 45, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(185, 87, 45, 0.15), var(--shadow);
+}
+
+.agent-task-card--healthy {
+  border-color: rgba(10, 123, 97, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(10, 123, 97, 0.15), var(--shadow);
+}
+
+.agent-task-card__header h2 {
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-size: 1.05rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.agent-task-card__badge {
+  font-size: 0.62rem;
+}
+
+.agent-task-card__badge--degraded {
+  background: var(--warn);
+}
+
+.agent-task-card__badge--healthy {
+  background: var(--ok);
+}
+
+.agent-task-card__issue {
+  margin-top: 0.4rem;
+}
+
+.agent-task-card__insight {
+  margin: 1rem 0 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.agent-task-card__insight dt {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.agent-task-card__insight dd {
+  margin: 0 0 0.5rem;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.agent-task-card__footer {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(31, 42, 55, 0.08);
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.agent-task-card__footer code {
+  font-size: 0.78rem;
+}
+
+.agent-task-card__metrics {
+  margin: 0;
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 700px) {
   .portal-shell {
     padding: 1rem 0.75rem 1.75rem;

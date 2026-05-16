@@ -115,3 +115,76 @@ export function fetchPortalSummary(): Promise<PortalSummary> {
 export function fetchBffHealth(): Promise<BffHealth> {
   return fetchJson<BffHealth>("/health").then(assertHealthPayload);
 }
+
+export type AgentTaskState =
+  | "worktree-claimed"
+  | "planning"
+  | "planning-review"
+  | "implementing"
+  | "impl-validation-failed"
+  | "impl-validated"
+  | "validating"
+  | "ship"
+  | "complete-local"
+  | "failed"
+  | "blocked";
+
+export type AgentTaskHeartbeat = {
+  state: AgentTaskState;
+  updated_at: string;
+};
+
+export type AgentTask = {
+  task_id: string;
+  issue_number: number | null;
+  state: AgentTaskState;
+  slug: string;
+  worktree_path: string;
+  heartbeat: AgentTaskHeartbeat;
+  model: string | null;
+  tokens: number | null;
+  cost: number | null;
+  observation: string;
+  why_it_matters: string;
+  what_to_do: string;
+};
+
+export type AgentTaskList = {
+  generatedAt: string;
+  filters: Record<string, string>;
+  total: number;
+  tasks: AgentTask[];
+};
+
+export type AgentTaskDetail = {
+  generatedAt: string;
+  task: AgentTask;
+};
+
+export type AgentTaskFilters = {
+  state?: string;
+  slug?: string;
+};
+
+function buildAgentTaskQuery(filters?: AgentTaskFilters): string {
+  if (!filters) return "";
+  const params = new URLSearchParams();
+  if (filters.state) params.set("state", filters.state);
+  if (filters.slug) params.set("slug", filters.slug);
+  const qs = params.toString();
+  return qs.length > 0 ? `?${qs}` : "";
+}
+
+export function fetchAgentTasks(
+  filters?: AgentTaskFilters,
+): Promise<AgentTaskList> {
+  return fetchJson<AgentTaskList>(
+    `/api/agent-work/tasks${buildAgentTaskQuery(filters)}`,
+  );
+}
+
+export function fetchAgentTask(taskId: string): Promise<AgentTaskDetail> {
+  return fetchJson<AgentTaskDetail>(
+    `/api/agent-work/tasks/${encodeURIComponent(taskId)}`,
+  );
+}
