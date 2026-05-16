@@ -16,21 +16,21 @@ tasks:
     deps: ["install", "build", "check"]
 
   install:
-    command: ["bash", "-lc", "yarn install"]
+    command: ["bash", "-lc", "corepack enable && yarn install"]
 
   build:
-    command: ["bash", "-lc", "yarn run build:all"]
+    command: ["bash", "-lc", "corepack enable && yarn run build:all"]
     deps: ["install"]
 
   clean:
     command: ["bash", "-c", "rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules plugins/*/dist plugins/*/dist-types plugins/*/node_modules"]
 
   check-lint:
-    command: ["bash", "-lc", "yarn run fix:check"]
+    command: ["bash", "-lc", "corepack enable && yarn run fix:check"]
     deps: ["install"]
 
   check-test:
-    command: ["bash", "-lc", "yarn run typecheck && yarn run test:stemix"]
+    command: ["bash", "-lc", "corepack enable && yarn run typecheck && yarn run test:stemix"]
     deps: ["install"]
 
   check-ci:
@@ -48,21 +48,21 @@ tasks:
     deps: ["check-test"]
 
   dev:
-    command: ["bash", "-lc", "yarn run dev"]
+    command: ["bash", "-lc", "corepack enable && yarn run dev"]
     options:
       persistent: true
       runInCI: false
 
   run:
-    command: ["bash", "-lc", "yarn run dev"]
+    command: ["bash", "-lc", "corepack enable && yarn run dev"]
     options:
       persistent: true
       runInCI: false
 
   build-stemix:
-    command: ["bash", "-lc", "yarn run build:stemix"]
+    command: ["bash", "-lc", "corepack enable && yarn run build:stemix"]
     deps: ["install"]
 
   check-stemix:
-    command: ["bash", "-lc", "yarn run check:stemix"]
+    command: ["bash", "-lc", "corepack enable && yarn run check:stemix"]
     deps: ["install"]

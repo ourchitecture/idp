@@ -1,6 +1,6 @@
 # Backstage Test Harness for Stemix IDP
 
-This is a minimal Backstage instance used to develop and validate local Stemix Backstage plugins against the Stemix Intent-Driven Portal (IDP).
+This is a minimal Backstage instance used to develop and validate the bundled Stemix Backstage plugin against the Stemix Intent-Driven Portal (IDP).
 
 ## Purpose
 
@@ -58,7 +58,7 @@ make check-test
 yarn run typecheck
 ```
 
-### Validate the Standalone Plugin Packages
+### Validate the Stemix Bundle
 
 ```bash
 make check-stemix
@@ -91,11 +91,12 @@ tools/backstage/
 │   ├── app/              # Frontend application
 │   │   ├── src/
 │   │   └── public/
-│   └── backend/          # Backend services
+│   ├── backend/          # Backend services
 │       └── src/
+│   └── stemix/           # Public plugin bundle package
 ├── plugins/
-│   ├── backstage-stemix/
-│   └── backstage-stemix-backend/
+│   ├── backstage-stemix/         # Private inline frontend plugin
+│   └── backstage-stemix-backend/ # Private inline backend plugin
 ├── app-config.yaml       # Backstage configuration
 ├── package.json          # Workspace root
 ├── moon.yml              # Moon task definitions
@@ -110,7 +111,7 @@ This Backstage instance is wired into the IDP build system:
 - **Moon project ID**: `backstage-tools`
 - **Registered in**: `.moon/workspace.yml`
 - **CI validation**: Triggered automatically when `tools/backstage/*` files change
-- **Release automation**: `release-please` versions `tools/backstage`, syncs plugin package versions, and publishes the plugin packages to GitHub Packages on `main`
+- **Release automation**: `release-please` versions `tools/backstage`, syncs the public wrapper and internal package versions, and publishes `@ourchitecture/backstage-plugin-stemix` to GitHub Packages on `main`
 - **Root `make all`**: Includes Backstage build and checks
 
 ## Available Make Targets
@@ -119,11 +120,11 @@ This Backstage instance is wired into the IDP build system:
 - `make all` - Run full verification (install, build, check)
 - `make install` - Install dependencies
 - `make build` - Build the application
-- `make build-stemix` - Build the standalone Stemix plugin packages
+- `make build-stemix` - Build the public Stemix bundle and internal plugin packages
 - `make clean` - Remove build artifacts
 - `make check-lint` - Run linting (placeholder)
 - `make check-test` - Run type checks
-- `make check-stemix` - Run standalone Stemix plugin checks
+- `make check-stemix` - Run Stemix bundle checks
 - `make check-ci` - Run CI-safe validation
 - `make check` - Run lint and tests
 - `make test` - Alias for check-test
@@ -135,10 +136,11 @@ This Backstage instance is wired into the IDP build system:
 When adding a Backstage plug-in for IDP integration:
 
 1. Create paired plugin workspaces under `plugins/`
-2. Reference them from `packages/app/package.json` and `packages/backend/package.json` using `workspace:*`
-3. Register routes in `packages/app/src/App.tsx` and backend features in `packages/backend/src/index.ts`
-4. Re-run `make install`, `make build-stemix`, and `make check-stemix`
-5. Test locally with `make dev`
+2. Add or update a public wrapper package under `packages/` when the plugin should ship as one install target
+3. Reference the public package from `packages/app/package.json` and `packages/backend/package.json` using `workspace:*`
+4. Register routes in `packages/app/src/App.tsx` and backend features in `packages/backend/src/index.ts`
+5. Re-run `make install`, `make build-stemix`, and `make check-stemix`
+6. Test locally with `make dev`
 
 ## Known Limitations
 
@@ -168,7 +170,7 @@ proto use
 
 ### Yarn Not Found
 
-This harness uses a standalone Yarn workspace inside `tools/backstage` while the rest of the monorepo stays on pnpm:
+This harness uses a standalone Yarn workspace inside `tools/backstage` while the rest of the monorepo stays on pnpm. The Backstage workspace declares `yarn@4.14.1` in its local `packageManager` field, so Corepack can provision the correct Yarn release for this subproject:
 
 ```bash
 proto install
