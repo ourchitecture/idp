@@ -6,17 +6,18 @@ ROOT_DIR := ../..
 TOOL_PATH := tools/backstage
 PROTO_HOME ?= $(HOME)/.proto
 MOON_BIN := $(PROTO_HOME)/shims/moon
+COREPACK_YARN := corepack enable && yarn
 
 help:
 	@printf "Targets:\n"
 	@printf "  all           Run full tool verification flow\n"
 	@printf "  install       Install dependencies\n"
 	@printf "  build         Build Backstage app\n"
-	@printf "  build-stemix  Build the standalone Stemix plugin packages\n"
+	@printf "  build-stemix  Build the Stemix bundle and internal plugin packages\n"
 	@printf "  clean         Remove build artifacts\n"
 	@printf "  check-lint    Run lint checks\n"
 	@printf "  check-test    Run type checks\n"
-	@printf "  check-stemix  Run standalone Stemix plugin validation\n"
+	@printf "  check-stemix  Run Stemix bundle validation\n"
 	@printf "  check-ci      Run CI-safe validation checks\n"
 	@printf "  check         Run lint and tests\n"
 	@printf "  test          Alias for check-test\n"
@@ -34,49 +35,49 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:install; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn install; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:build; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn run build:all; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) run build:all; \
 	fi
 
 build-stemix:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:build-stemix; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn run build:stemix; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) run build:stemix; \
 	fi
 
 clean:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:clean; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules; \
+		cd "$(BACKSTAGE_ROOT)" && rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules plugins/*/dist plugins/*/dist-types plugins/*/node_modules; \
 	fi
 
 check-lint:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-lint; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn run fix:check; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) run fix:check; \
 	fi
 
 check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-test; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn run typecheck && yarn run test:stemix; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) run typecheck && $(COREPACK_YARN) run test:stemix; \
 	fi
 
 check-stemix:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:check-stemix; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn run check:stemix; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) run check:stemix; \
 	fi
 
 test: check-test
@@ -99,7 +100,7 @@ dev:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run backstage-tools:dev; \
 	else \
-		cd "$(BACKSTAGE_ROOT)" && yarn run dev; \
+		cd "$(BACKSTAGE_ROOT)" && $(COREPACK_YARN) run dev; \
 	fi
 
 run: dev
