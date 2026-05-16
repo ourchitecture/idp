@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.7.0-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.6.2-alpha.0...nodejs-react-fastify-rest-v1.7.0-alpha.0) (2026-05-16)
+
+
+### Features
+
+* **#370:** next slices — contract tests, goose launcher, impl-validated fixture ([4ed0670](https://github.com/ourchitecture/idp/commit/4ed0670efaee96321eaf02f907ae22579f169b3e))
+* add fixture-backed agent work insight ([#374](https://github.com/ourchitecture/idp/issues/374)) ([eb2f07d](https://github.com/ourchitecture/idp/commit/eb2f07d8b232b3834af41c5354575b8cf88df1d6))
+
+
+### Bug Fixes
+
+* build and test issues ([d6f43f9](https://github.com/ourchitecture/idp/commit/d6f43f995e75299e1e3ebf2ef631f2472d297acc))
+* cross-platform tests with known chrome issue ([ee3427f](https://github.com/ourchitecture/idp/commit/ee3427fc70a51acabece0fe6853cf3cf1cf195b0))
+
 ## [1.6.2-alpha.0](https://github.com/ourchitecture/idp/compare/nodejs-react-fastify-rest-v1.6.1-alpha.0...nodejs-react-fastify-rest-v1.6.2-alpha.0) (2026-04-27)
 
 
