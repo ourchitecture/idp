@@ -216,6 +216,6 @@ operations, or interfaces change. See the documentation requirements in
 ## Security
 
 - Never commit secrets, credentials, or environment-specific configs.
-- Run `pnpm audit` before submitting changes. Backstage remains npm-managed
+- Run `pnpm audit` before submitting changes. For `tools/backstage`, use `corepack enable && yarn npm audit`
   for now, so use `npm --prefix tools/backstage audit` for that package island.
 - Report security vulnerabilities privately via GitHub Security Advisories.

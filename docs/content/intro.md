@@ -104,7 +104,7 @@ tools/      Developer tooling, scripts, and MCP server definitions
 - Pinned runtimes include Go, Node.js, pnpm, Python, and `uv`.
 - `pnpm install` installs workspace dependencies and repository-local developer
   CLIs such as `opencode` and `pi`; run Pi with `pnpm run pi -- <args>`.
-- `tools/backstage` remains separate on npm while Backstage-specific package
+- `tools/backstage` remains separate as a Yarn 4 workspace while Backstage-specific package
   manager requirements are handled in a future migration.
 - Python-based security scanning uses `uv tool run` for isolated ephemeral
   environments instead of global pip installs.
