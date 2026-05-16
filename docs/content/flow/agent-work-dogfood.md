@@ -88,14 +88,14 @@ there is no file watcher.
 node -e "JSON.parse(require('fs').readFileSync('schema/fixtures/agent-tasks/impl-validation-failed-goose-001.agent-task.json','utf8'))"
 
 # Start the BFF
-pnpm --dir stacks/nodejs/react-fastify/rest/bff dev
+pnpm --dir stacks/nodejs/react-fastify/rest run start:bff
 
 # Probe the endpoints
-curl -s http://localhost:3000/api/agent-work/tasks | jq '.total, .tasks[0].state'
-curl -s http://localhost:3000/api/agent-work/tasks/goose-001 | jq '.task.what_to_do'
+curl -s http://localhost:8000/api/agent-work/tasks | jq '.total, .tasks[0].state'
+curl -s http://localhost:8000/api/agent-work/tasks/goose-001 | jq '.task.what_to_do'
 
 # Start the web app and navigate to /agent-work
-pnpm --dir stacks/nodejs/react-fastify/rest/web dev
+pnpm --dir stacks/nodejs/react-fastify/rest run start:web
 ```
 
 ## Environment overrides

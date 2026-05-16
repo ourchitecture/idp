@@ -37,7 +37,7 @@ pnpm pi
 
 ### Example invocation inputs
 
-```
+```text
 task_description: "Add a CONTRIBUTING.md with project setup and PR guidelines"
 task_type: docs
 model_profile: fast
@@ -96,10 +96,10 @@ required for fully offline parallel runs.
 
 Each agent writes two files inside its worktree:
 
-| File | Content |
-|------|---------|
-| `.agent-lock` | Session ID, start time, task slug, PID |
-| `.agent-heartbeat` | Last completed step name + ISO timestamp |
+| File                 | Content                                         |
+| -------------------- | ----------------------------------------------- |
+| `.agent-lock`        | Session ID, start time, task slug, PID          |
+| `.agent-heartbeat`   | Last completed step name + ISO timestamp        |
 
 Check status of all running agents at any time:
 
@@ -113,6 +113,7 @@ make audit-worktrees
 ```
 
 If a session disappears silently:
+
 1. Its lock file remains; `audit-work-integrity` will flag it as a Medium finding.
 2. Manually release: `rm .agents/worktrees/<slug>/.agent-lock`
 3. Resume: re-invoke `autonomous-task` with the same `task_description` and
@@ -120,11 +121,11 @@ If a session disappears silently:
 
 ## Tool selection rationale
 
-| Tool | Role in experiment | Key capability used |
-|------|-------------------|---------------------|
-| OpenCode v1.14.x | Primary harness | First-party git worktree support; 75+ LLM providers; native `.agents/skills/` discovery |
-| Pi v0.74.x | Speed comparison | Minimal system prompt (~1K tokens); same skill discovery path |
-| Goose | Excluded (v1) | Worktree support in-progress ([aaif-goose/goose#3557](https://github.com/aaif-goose/goose/issues/3557)); revisit when GA |
+| Tool             | Role in experiment | Key capability used                                                                                                          |
+| ---------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| OpenCode v1.14.x | Primary harness    | First-party git worktree support; 75+ LLM providers; native `.agents/skills/` discovery                                      |
+| Pi v0.74.x       | Speed comparison   | Minimal system prompt (~1K tokens); same skill discovery path                                                                |
+| Goose            | Excluded (v1)      | Worktree support in-progress ([aaif-goose/goose#3557](https://github.com/aaif-goose/goose/issues/3557)); revisit when GA     |
 
 ## Known limitations
 

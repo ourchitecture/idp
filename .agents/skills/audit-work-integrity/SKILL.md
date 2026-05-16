@@ -104,6 +104,7 @@ For each path under `.agents/worktrees/`:
      worktree branch has no PR and no recent commit within `stale_days`.
 
 Report each stale or abandoned worktree with:
+
 - Path, lock session ID and start time (if available)
 - Last heartbeat step and timestamp (if available)
 - Recommended action: investigate the session, manually release the lock
