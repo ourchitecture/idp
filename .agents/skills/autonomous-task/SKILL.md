@@ -111,7 +111,7 @@ gh pr view <PR_NUMBER> \
 Key fields:
 
 | Field | Meaning |
-|---|---|
+| --- | --- |
 | `mergeable` | `MERGEABLE` \| `CONFLICTING` \| `UNKNOWN` |
 | `mergeStateStatus` | `CLEAN` (ready to merge) \| `BLOCKED` \| `BEHIND` \| `UNSTABLE` \| `DIRTY` (conflicts) |
 | `statusCheckRollup[].status` | `QUEUED` \| `IN_PROGRESS` \| `COMPLETED` |
@@ -122,15 +122,19 @@ Key fields:
 If `mergeable: CONFLICTING`:
 
 1. Rebase or merge the target branch into the task branch inside the worktree:
+
    ```bash
    git -C <worktree_path> fetch upstream main
    git -C <worktree_path> merge upstream/main --no-edit
    ```
+
 2. Fix any conflict markers, then stage and commit:
+
    ```bash
    git -C <worktree_path> add <conflicted-file>
    git -C <worktree_path> commit -m "chore: merge main, resolve <scope> conflict"
    ```
+
 3. Push and re-query until `mergeable: MERGEABLE` before continuing.
 
 ### Status check protocol
@@ -361,17 +365,21 @@ running `make check` from inside a worktree.
 **After each push to the remote branch:**
 
 1. Confirm the PR is no longer conflicting:
+
    ```bash
    gh pr view <PR_NUMBER> --json mergeable,mergeStateStatus
    # expect: mergeable=MERGEABLE
    ```
+
    If still `CONFLICTING`, resolve conflicts before proceeding (see
    [PR-aware task guidance](#pr-aware-task-guidance)).
 
 2. Wait for all required status checks to reach `COMPLETED`:
+
    ```bash
    gh pr checks <PR_NUMBER>
    ```
+
    Do not advance until every required check shows `SUCCESS`. For checks that
    are `FAILURE` or `TIMED_OUT`, read the log URL from the output and diagnose
    the root cause before returning to step 3a.

@@ -1,11 +1,11 @@
 # backstage-stemix
 
-Standalone frontend plugin package for the local Stemix Backstage harness.
+Private inline frontend plugin package for the Stemix Backstage bundle.
 
 ## Local commands
 
 ```bash
-yarn workspace @ourchitecture/backstage-plugin-stemix build
-yarn workspace @ourchitecture/backstage-plugin-stemix typecheck
-yarn workspace @ourchitecture/backstage-plugin-stemix test
+yarn workspace @ourchitecture-internal/backstage-plugin-stemix-frontend build
+yarn workspace @ourchitecture-internal/backstage-plugin-stemix-frontend typecheck
+yarn workspace @ourchitecture-internal/backstage-plugin-stemix-frontend test
 ```
