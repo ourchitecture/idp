@@ -145,10 +145,10 @@ manually. No PR is created.
 
 ### Review modes
 
-| `review_mode` | Behaviour |
-|---------------|-----------|
-| `human` (default) | Agent posts the plan and halts. Re-invoke with `skip_to=implement` to proceed after you approve. |
-| `auto` | A second agent instance reviews the plan automatically. Enables fully unattended runs. |
+| `review_mode`     | Behaviour                                                                                              |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| `human` (default) | Agent posts the plan and halts. Re-invoke with `skip_to=implement` to proceed after you approve.       |
+| `auto`            | A second agent instance reviews the plan automatically. Enables fully unattended runs.                 |
 
 ### Model profiles
 
@@ -169,11 +169,11 @@ roles (`plan`, `implement`, `validate`, `review`) to a provider and model.
 Each session operates in its own worktree, so you can run N sessions
 concurrently on a single machine. Three launchers work out of the box:
 
-| Launcher | Command |
-|----------|---------|
-| OpenCode Ensemble | `pnpm opencode-ensemble "task A" "task B" "task C"` |
-| Pi side-agents (tmux) | `pnpm pi --extension @pasky/pi-side-agents` |
-| Manual tmux splits | Split panes; run `pnpm oc` or `pnpm pi` in each with a different `task_description` |
+| Launcher              | Command                                                                                       |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| OpenCode Ensemble     | `pnpm opencode-ensemble "task A" "task B" "task C"`                                           |
+| Pi side-agents (tmux) | `pnpm pi --extension @pasky/pi-side-agents`                                                   |
+| Manual tmux splits    | Split panes; run `pnpm oc` or `pnpm pi` in each with a different `task_description`           |
 
 All three are compatible with `local_only=true`.
 

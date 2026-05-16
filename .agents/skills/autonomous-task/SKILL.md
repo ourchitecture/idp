@@ -106,11 +106,11 @@ task/issue. Two mechanisms make this safe:
 
 **Recommended launchers for parallel sessions:**
 
-| Tool | How |
-|------|-----|
-| OpenCode Ensemble | `opencode-ensemble` plugin — each agent automatically gets its own worktree |
-| Pi side-agents | `@pasky/pi-side-agents` — one tmux window per agent, each in an isolated worktree |
-| Manual tmux | Split panes; run `pnpm oc` or `pnpm pi` in each; provide a different `task_description` per pane |
+| Tool              | How                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------- |
+| OpenCode Ensemble | `opencode-ensemble` plugin — each agent automatically gets its own worktree                       |
+| Pi side-agents    | `@pasky/pi-side-agents` — one tmux window per agent, each in an isolated worktree                 |
+| Manual tmux       | Split panes; run `pnpm oc` or `pnpm pi` in each; provide a different `task_description` per pane  |
 
 All three approaches are compatible with `local_only=true` for fully offline
 multi-agent runs.
@@ -123,13 +123,16 @@ If `skip_to=implement`, jump directly to step 3 (skip lock/heartbeat
 initialisation; they should already exist from the original run).
 
 Derive `TASK_SLUG` for use in worktree paths, lock files, and docker namespacing:
+
 - If `issue_number` provided: `issue-<number>-<title-slug>` (title words lowercased, spaces → hyphens, max 40 chars total).
 - If `task_description` only: first 8 words of description, lowercased, spaces → hyphens.
 
 **From issue:**
+
 ```bash
 gh issue view <issue_number> --json number,title,body,labels,assignees,state
 ```
+
 If closed, stop and report. If `blocked`, stop and surface the blocker.
 Derive `task_description` from the issue body and acceptance criteria.
 
@@ -137,9 +140,11 @@ Derive `task_description` from the issue body and acceptance criteria.
 for worktree naming: lowercase, spaces → hyphens, max 40 chars.
 
 Claim the issue if `issue_number` is provided:
+
 ```bash
 gh issue edit <issue_number> --add-label "in-progress"
 ```
+
 If labeling fails, stop and report.
 
 ---
@@ -158,6 +163,7 @@ git worktree add .agents/worktrees/<TASK_SLUG> -b task/<TASK_SLUG>
 ```
 
 Resolve the absolute worktree path:
+
 ```bash
 make worktree-path ISSUE_NUMBER=<issue_number>   # or derive manually
 ```
@@ -176,7 +182,8 @@ the developer confirms the previous session has ended (or the heartbeat shows
 it is stale).
 
 Write the lock file with a session identifier:
-```
+
+```text
 session: <random 8-char hex or tool-provided session ID>
 started: <ISO 8601 timestamp>
 task: <TASK_SLUG>
@@ -186,7 +193,8 @@ pid: <process ID if available>
 ### Heartbeat — initial
 
 Write `<worktree_path>/.agent-heartbeat`:
-```
+
+```text
 step: worktree-claimed
 timestamp: <ISO 8601>
 ```
@@ -203,6 +211,7 @@ role in the active profile (see [../../agent-models.yml](../../agent-models.yml)
 ### 2a. Explore (inside worktree)
 
 From `worktree_path`:
+
 1. Read files relevant to the task — check existing patterns, tests, docs.
 2. Identify files to create or modify.
 3. Note reusable utilities and patterns.
@@ -217,20 +226,26 @@ Structure: **Summary** (1 paragraph) · **Files to create/modify** ·
 ### 2c. Review gate
 
 **`review_mode=human`:**
+
 - If `issue_number` provided: post plan as issue comment starting with
   `## Implementation Plan` and a note that approval is required.
+
   ```bash
   gh issue comment <issue_number> --body "<plan markdown>"
   ```
+
   Set `plan_comment_url` output. Replace `in-progress` with `needs-review`:
+
   ```bash
   gh issue edit <issue_number> --remove-label "in-progress" --add-label "needs-review"
   ```
+
 - If no issue: print the plan to stdout.
 - **Halt.** Inform the developer to re-invoke with `skip_to=implement` after
   approving the plan. Do not proceed.
 
 **`review_mode=auto`:**
+
 - Invoke a second agent instance (review role model from the active profile).
   Provide: original task requirements + the plan. Ask: does the plan
   completely and safely satisfy the requirements? Respond APPROVED or
@@ -253,6 +268,7 @@ role in the active profile.
 ### 3a. Implement (inside worktree)
 
 Working strictly inside `worktree_path`:
+
 1. Follow the approved plan step by step.
 2. Stage and commit each logical slice — never `git add .`.
    See [../../docs/shared/iterative-commits.md](../../docs/shared/iterative-commits.md).
@@ -277,6 +293,7 @@ If checks pass, update the heartbeat (`step: impl-validated`) and proceed to
 step 4.
 
 If checks fail:
+
 - Capture the full error output.
 - Update heartbeat (`step: impl-validation-failed`).
 - Increment iteration counter.
@@ -291,6 +308,7 @@ If checks fail:
 Load the model defined for the `validate` role in the active profile.
 
 The validation agent reviews the final state of the worktree:
+
 1. Does the implementation satisfy all acceptance criteria from the task?
 2. Are tests added or updated?
 3. Are docs updated (if user-facing behavior changed)?
@@ -308,6 +326,7 @@ Update heartbeat: `step: ship`.
 ### If `local_only=true`
 
 Stop here. Do **not** invoke `ship-changes`. Print a completion summary:
+
 - Worktree path
 - Branch name
 - Last commit SHA and message
@@ -328,14 +347,19 @@ worktree cleanup.
 Set `pr_url` output from the result of `ship-changes`.
 
 After successful merge:
+
 - Remove `in-progress` label (if present):
+
   ```bash
   gh issue edit <issue_number> --remove-label "in-progress"
   ```
+
 - Confirm worktree cleanup:
+
   ```bash
   make worktree-cleanup ISSUE_NUMBER=<issue_number>
   ```
+
 - Release the lock file: `rm <worktree_path>/.agent-lock`
 
 ---
@@ -343,13 +367,16 @@ After successful merge:
 ## On any unrecoverable failure
 
 Before exiting on error at any step:
+
 1. Update heartbeat: `step: failed — <step-name>`.
 2. Release the lock file: `rm <worktree_path>/.agent-lock`.
 3. If `issue_number` provided, remove `in-progress` and add `blocked`:
+
    ```bash
    gh issue edit <issue_number> \
      --remove-label "in-progress" --add-label "blocked"
    ```
+
 4. Report the failure with the last heartbeat step and full error context so a
    developer or a future agent session can resume from the right point.
 
@@ -358,6 +385,7 @@ Before exiting on error at any step:
 ## Definition of done
 
 **`local_only=false`:**
+
 1. Implementation passes `make check` without errors.
 2. All acceptance criteria from the task/issue are met.
 3. PR is squash-merged to `main`.
@@ -365,6 +393,7 @@ Before exiting on error at any step:
 5. Lock file is removed. `in-progress` label is removed (if issue-backed).
 
 **`local_only=true`:**
+
 1. Implementation passes `make check` without errors.
 2. All acceptance criteria from the task/issue are met.
 3. Worktree is left clean and ready for developer review.

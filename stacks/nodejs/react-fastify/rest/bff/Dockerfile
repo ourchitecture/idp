@@ -54,8 +54,12 @@ COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
 COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
 RUN pnpm install --prod --frozen-lockfile --filter nodejs-react-fastify-rest...
 
-# Copy compiled output from builder.
-COPY --from=builder /app/stacks/nodejs/react-fastify/rest/bff/dist/ ./bff/dist/
+# Copy compiled output from builder — must mirror the source tree so Node.js
+# module resolution can find node_modules at stacks/nodejs/react-fastify/rest/.
+COPY --from=builder /app/stacks/nodejs/react-fastify/rest/bff/dist/ ./stacks/nodejs/react-fastify/rest/bff/dist/
+
+# Copy agent-task fixture data (read by agentTaskCatalog at runtime).
+COPY schema/fixtures/agent-tasks/ ./schema/fixtures/agent-tasks/
 
 # Override loopback default (ADR-0006) for container context.
 ENV OUR_IDP_API_HOST=0.0.0.0
@@ -79,4 +83,4 @@ LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.vendor="Ourchitecture"
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.created-by="moon"
-CMD ["node", "bff/dist/server.js"]
+CMD ["node", "stacks/nodejs/react-fastify/rest/bff/dist/server.js"]
