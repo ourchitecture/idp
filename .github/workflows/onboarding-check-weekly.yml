@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PROTO_VERSION: "0.55.4"
+  PROTO_VERSION: "0.57.1"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
 
 jobs:
@@ -37,14 +37,14 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Restore Go cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -75,15 +75,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -114,14 +114,14 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Restore Go cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -152,15 +152,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -191,14 +191,14 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Restore Go cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -229,15 +229,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -268,14 +268,14 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Restore Go cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -306,15 +306,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -345,14 +345,14 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Restore Go cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -383,15 +383,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -422,14 +422,14 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Restore Go cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
@@ -460,15 +460,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()

@@ -28,6 +28,14 @@ A VS Code extension providing IDE integration for the Stemix Intent-Driven Porta
 
 **Local Testing**: See `tools/vscode-extension/README.md` for instructions on running and testing the extension locally.
 
+### Backstage Harness
+
+The Backstage harness is a standalone Yarn workspace used to develop and validate local Backstage integrations and published plugin packages without changing the root pnpm workspace.
+
+**Location**: `tools/backstage/`
+
+**Documentation**: [Backstage Harness](./backstage.md)
+
 ## Future Integration Targets
 
 The IDP roadmap includes integration with additional developer tools and platforms to provide consistent capability exposure across different interaction modes. See [ROADMAP.md](https://github.com/ourchitecture/idp/blob/main/ROADMAP.md) for the full capability direction.

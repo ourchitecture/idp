@@ -21,7 +21,7 @@ Required environment variables:
     OUR_IDP_BFF_START_CMD     Shell command to start the BFF server
     OUR_IDP_WEB_URL           Full base URL for the web server
     OUR_IDP_BFF_URL           Full base URL for the BFF server
-    OUR_IDP_ROOT_DIR          Repo root directory (used for npm --prefix)
+    OUR_IDP_ROOT_DIR          Repo root directory (used for pnpm -C)
 
 Optional environment variables:
     OUR_IDP_MOCK_OAUTH_START_CMD  Shell command to start a mock OAuth server.
@@ -99,7 +99,7 @@ def _terminate(proc: subprocess.Popen, label: str) -> None:
         return
     try:
         if sys.platform == "win32":
-            # Kill the full process tree so npm/go child processes do not leak.
+            # Kill the full process tree so package-manager/go child processes do not leak.
             subprocess.call(
                 ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
                 stdout=subprocess.DEVNULL,
@@ -364,7 +364,7 @@ def main() -> int:
                 test_env["OUR_IDP_OAUTH_MOCK_PORT"] = str(parsed.port)
 
     result = subprocess.run(
-        ["npm", "--prefix", ROOT_DIR, "run", "test:contract"],
+        ["pnpm", "-C", ROOT_DIR, "run", "test:contract"],
         env=test_env,
     )
 

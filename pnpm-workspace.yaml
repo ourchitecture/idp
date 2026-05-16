@@ -1,0 +1,39 @@
+packages:
+  - "."
+  - "docs"
+  - "tools/mcp"
+  - "tools/mock-providers"
+  - "tools/vscode-extension"
+  - "stacks/nodejs/react-fastify/rest"
+
+overrides:
+  lodash: "4.18.1"
+  lodash-es: "4.18.1"
+  magic-string: "^0.30.0"
+  serialize-javascript: "7.0.5"
+  "webpackbar@^6.0.1": "7.0.0"
+
+allowBuilds:
+  '@google/genai': true
+  '@vscode/vsce-sign': true
+  core-js: true
+  esbuild: true
+  keytar: true
+  koffi: true
+  opencode-ai: true
+  protobufjs: true
+  puppeteer: true
+
+# 24 hours
+minimumReleaseAge: 1440
+
+onlyBuiltDependencies:
+  - "@google/genai"
+  - "@vscode/vsce-sign"
+  - "core-js"
+  - "esbuild"
+  - "keytar"
+  - "koffi"
+  - "opencode-ai"
+  - "protobufjs"
+  - "puppeteer"

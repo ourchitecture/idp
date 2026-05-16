@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { test, before, after } from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import YAML from "yaml";
 import { createGitLabMockServer } from "../gitlab/server.js";
 import type { GitLabScenario } from "../gitlab/scenarios.js";
@@ -24,7 +24,7 @@ const adapterPath = path.join(
   "stacks/nodejs/react-fastify/rest/bff/src/flow/gitlab/adapter.ts",
 );
 
-const { buildGitLabProviderInput } = (await import(adapterPath)) as {
+const { buildGitLabProviderInput } = (await import(pathToFileURL(adapterPath).href)) as {
   buildGitLabProviderInput: (source: unknown) => unknown;
 };
 
