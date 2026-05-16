@@ -1,0 +1,17 @@
+{
+  "task_id": "goose-002",
+  "issue_number": 370,
+  "state": "impl-validated",
+  "slug": "issue-370-agent-work-insights",
+  "worktree_path": ".agents/worktrees/issue-370-agent-work-insights",
+  "heartbeat": {
+    "state": "impl-validated",
+    "updated_at": "2026-05-16T11:30:00Z"
+  },
+  "model": null,
+  "tokens": null,
+  "cost": null,
+  "observation": "make check passed on iteration 1 of 3. All contract, unit, and type-check steps completed without errors.",
+  "why_it_matters": "The implementation is ready for the ship gate. No validation failures remain and no human retries are needed. Review the diff and approve the PR to close this slice.",
+  "what_to_do": "Review the changes in .agents/worktrees/issue-370-agent-work-insights, then push the branch and open a pull request. Run make worktree-cleanup ISSUE_NUMBER=370 after merge."
+}

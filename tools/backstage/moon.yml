@@ -7,7 +7,7 @@ project:
   description: "Backstage test harness for Stemix IDP plug-in integration."
 
 tasks:
-  # Override moon's inherited npm install to prevent interference with yarn workspace
+  # Override moon's inherited install task; this tool manages its own Yarn workspace.
   node-install-deps:
     command: ["bash", "-c", "true"]
 
@@ -16,26 +16,30 @@ tasks:
     deps: ["install", "build", "check"]
 
   install:
-    # Execute yarn install in the backstage directory context to respect workspace
-    command: ["bash", "-c", "cd $MOON_PROJECT_ROOT && yarn install"]
+    command: ["bash", "-lc", "yarn install"]
 
   build:
-    command: ["bash", "-c", "cd $MOON_PROJECT_ROOT && yarn build:all"]
+    command: ["bash", "-lc", "yarn run build:all"]
+    deps: ["install"]
+
+  build-stemix:
+    command: ["bash", "-lc", "yarn run build:stemix"]
     deps: ["install"]
 
   clean:
-    command: ["bash", "-c", "cd $MOON_PROJECT_ROOT && rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules"]
+    command: ["bash", "-c", "rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules plugins/*/dist plugins/*/dist-types plugins/*/node_modules"]
 
   check-lint:
-    command: ["bash", "-c", "echo 'No additional lint configured for backstage-tools'"]
+    command: ["bash", "-lc", "yarn run fix:check"]
+    deps: ["install"]
 
   check-test:
-    command: ["bash", "-c", "cd $MOON_PROJECT_ROOT && yarn typecheck"]
+    command: ["bash", "-lc", "yarn run typecheck && yarn run test:stemix"]
     deps: ["install"]
 
   check-ci:
     command: ["bash", "-c", "true"]
-    deps: ["install", "build", "check-test"]
+    deps: ["install", "build-stemix", "check-lint", "check-test"]
     options:
       runInCI: true
 
@@ -48,13 +52,17 @@ tasks:
     deps: ["check-test"]
 
   dev:
-    command: ["bash", "-c", "cd $MOON_PROJECT_ROOT && yarn dev"]
+    command: ["bash", "-lc", "yarn run dev"]
     options:
       persistent: true
       runInCI: false
 
   run:
-    command: ["bash", "-c", "cd $MOON_PROJECT_ROOT && yarn dev"]
+    command: ["bash", "-lc", "yarn run dev"]
     options:
       persistent: true
       runInCI: false
+
+  check-stemix:
+    command: ["bash", "-lc", "yarn run check:stemix"]
+    deps: ["install"]

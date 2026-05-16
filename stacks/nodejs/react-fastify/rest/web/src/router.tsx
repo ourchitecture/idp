@@ -13,6 +13,11 @@ const StatusPage = lazy(async () => {
   return { default: module.StatusPage };
 });
 
+const AgentWorkPage = lazy(async () => {
+  const module = await import("./routes/agent-work-page");
+  return { default: module.AgentWorkPage };
+});
+
 function HomeRoute() {
   return (
     <Suspense fallback={<RouteLoading />}>
@@ -25,6 +30,14 @@ function StatusRoute() {
   return (
     <Suspense fallback={<RouteLoading />}>
       <StatusPage />
+    </Suspense>
+  );
+}
+
+function AgentWorkRoute() {
+  return (
+    <Suspense fallback={<RouteLoading />}>
+      <AgentWorkPage />
     </Suspense>
   );
 }
@@ -42,6 +55,11 @@ export const router = createBrowserRouter([
   {
     path: "/status",
     element: <StatusRoute />,
+    errorElement: <RootErrorBoundary />,
+  },
+  {
+    path: "/agent-work",
+    element: <AgentWorkRoute />,
     errorElement: <RootErrorBoundary />,
   },
 ]);

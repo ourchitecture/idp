@@ -18,7 +18,7 @@ This is a VS Code extension for the Stemix Intent-Driven Portal (IDP). It provid
 Install dependencies:
 
 ```bash
-npm install
+pnpm install
 ```
 
 Or using moon:
@@ -32,7 +32,7 @@ moon run vscode-extension:install
 Build the extension:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Or using moon:
@@ -63,7 +63,7 @@ make build
 1. Build and package the extension:
 
    ```bash
-   npm run package
+   pnpm run package
    ```
 
 2. Install the generated `.vsix` file:
@@ -95,11 +95,11 @@ This extension is integrated into the IDP monorepo build system:
 
 ## Build Commands
 
-- `npm install` or `make install` - Install dependencies
-- `npm run build` or `make build` - Build TypeScript
-- `npm run typecheck` or `make check-test` - Run type checking
-- `npm run watch` - Watch mode for development
-- `npm run package` - Package as VSIX
+- `pnpm install` or `make install` - Install dependencies
+- `pnpm run build` or `make build` - Build TypeScript
+- `pnpm run typecheck` or `make check-test` - Run type checking
+- `pnpm run watch` - Watch mode for development
+- `pnpm run package` - Package as VSIX
 
 ## Future Enhancements
 

@@ -57,12 +57,12 @@ if [[ "${preflight_ok}" == "false" ]]; then
   exit 0
 fi
 
-oauth_scopes="$(grep -i '^x-oauth-scopes:' "${preflight_resp}" | head -1 | cut -d: -f2- | tr -d ' \r')"
+oauth_scopes="$(grep --ignore-case '^x-oauth-scopes:' "${preflight_resp}" | head -1 | cut -d: -f2- | tr -d ' \r')"
 rm -f "${preflight_resp}" "${preflight_err}"
 
 if [[ -n "${oauth_scopes}" ]]; then
   echo "Token scopes: ${oauth_scopes}"
-  if ! echo "${oauth_scopes}" | grep -qE '(^|,\s*)read:org($|,|\s*$)'; then
+  if ! echo "${oauth_scopes}" | grep --quiet --extended-regexp '(^|,\s*)read:org($|,|\s*$)'; then
     echo "::warning::GH_TOKEN is missing 'read:org' scope (found: '${oauth_scopes}')." \
          " Skipping team membership check and defaulting to is_team_member=false." >&2
     echo "Author '${USERNAME}' is team member: false"
@@ -129,8 +129,8 @@ for team in "${teams[@]}"; do
   case "${http_code}" in
     200)
       # Only count active membership, not pending invitations.
-      if grep -q '"state":"active"' "${resp_file}" 2>/dev/null || \
-         grep -q '"state": "active"' "${resp_file}" 2>/dev/null; then
+      if grep --quiet '"state":"active"' "${resp_file}" 2>/dev/null || \
+         grep --quiet '"state": "active"' "${resp_file}" 2>/dev/null; then
         is_team_member="true"
         matched_team="${team}"
         rm -f "${resp_file}" "${err_file}"
