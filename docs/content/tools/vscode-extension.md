@@ -32,7 +32,7 @@ Install dependencies:
 
 ```bash
 cd tools/vscode-extension
-npm install
+pnpm install
 ```
 
 Or using moon:
@@ -47,7 +47,7 @@ Build the extension:
 
 ```bash
 cd tools/vscode-extension
-npm run build
+pnpm run build
 ```
 
 Or using moon:
@@ -79,7 +79,7 @@ make build
 1. Package the extension:
 
    ```bash
-   npm run package
+   pnpm run package
    ```
 
 2. Install the generated `.vsix` file:
@@ -111,11 +111,11 @@ The extension is fully integrated into the IDP build system:
 
 ### Build Commands
 
-- `npm install` or `make install` - Install dependencies
-- `npm run build` or `make build` - Build TypeScript
-- `npm run typecheck` or `make check-test` - Run type checking
-- `npm run watch` - Watch mode for development
-- `npm run package` or `make package` - Package as VSIX
+- `pnpm install` or `make install` - Install dependencies
+- `pnpm run build` or `make build` - Build TypeScript
+- `pnpm run typecheck` or `make check-test` - Run type checking
+- `pnpm run watch` - Watch mode for development
+- `pnpm run package` or `make package` - Package as VSIX
 
 ### Moon Tasks
 

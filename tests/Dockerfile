@@ -24,10 +24,19 @@ ARG NODE_VERSION=24.14.1
 FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS base
 
 WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
 # Install dependencies from root workspace.
-COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY docs/package.json ./docs/package.json
+COPY tools/mcp/package.json ./tools/mcp/package.json
+COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
+COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
+COPY stacks/nodejs/react-fastify/rest/package.json ./stacks/nodejs/react-fastify/rest/package.json
+RUN pnpm install --frozen-lockfile --filter idp...
 
 # Copy contract test sources and Gherkin feature specs.
 COPY tests/ ./tests/
@@ -55,4 +64,5 @@ LABEL org.opencontainers.image.source="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.vendor="Ourchitecture"
 LABEL org.opencontainers.image.licenses="MIT"
-CMD ["npm", "run", "test:contract"]
+LABEL org.opencontainers.image.created-by="moon"
+CMD ["pnpm", "run", "test:contract"]

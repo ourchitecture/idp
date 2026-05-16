@@ -169,8 +169,11 @@ for file in "${changed_files[@]}"; do
       run_auth_integration="true"
       run_reference_all="true"
       ;;
-    Makefile|package.json|package-lock.json|tests/*)
+    Makefile|package.json|pnpm-lock.yaml|pnpm-workspace.yaml|.npmrc|tests/*)
       run_reference_all="true"
+      ;;
+    tools/backstage/yarn.lock)
+      run_backstage_tools="true"
       ;;
     *.md|.github/*)
       ;;

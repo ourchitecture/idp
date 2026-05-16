@@ -244,15 +244,15 @@ If you prefer to run the services manually:
 # Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the Go BFF with mock provider
-OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
+# Terminal 2 – start the Go BFF; run-bff defaults to the mock provider locally
+make -C stacks/go/net-http/rest run-bff
 
 # Terminal 3 – run only the auth-profile contract tests
 OUR_IDP_OAUTH_PROVIDER=mock \
 IDP_BFF_URL=http://localhost:8300 \
 IDP_STACK_PATH=stacks/go/net-http/rest \
 IDP_CONTRACT_PROFILE=auth-profile \
-npm run test:contract
+pnpm run test:contract
 ```
 
 #### Node.js stack manual
@@ -261,8 +261,7 @@ npm run test:contract
 # Terminal 1 – start the mock OAuth service (requires Java 21)
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the Node.js BFF with mock provider
-OUR_IDP_OAUTH_PROVIDER=mock \
+# Terminal 2 – start the Node.js BFF; run-bff defaults to the mock provider locally
 OUR_IDP_OAUTH_MOCK_PORT=9000 \
 OUR_IDP_OAUTH_REDIRECT_URL=http://localhost:8400/auth/callback \
 make -C stacks/nodejs/react-fastify/rest run-bff
@@ -272,7 +271,7 @@ OUR_IDP_OAUTH_PROVIDER=mock \
 IDP_BFF_URL=http://localhost:8400 \
 IDP_STACK_PATH=stacks/nodejs/react-fastify/rest \
 IDP_CONTRACT_PROFILE=auth-profile \
-npm run test:contract
+pnpm run test:contract
 ```
 
 The contract test harness performs the full OAuth round-trip programmatically —
@@ -327,7 +326,7 @@ OAuth flow.
 After granting access, GitHub redirects to the callback URL and the BFF
 completes the code exchange.
 
-> **Note:** The contract test harness (`npm run test:contract`) cannot exercise
+> **Note:** The contract test harness (`pnpm run test:contract`) cannot exercise
 > the real GitHub OAuth path end-to-end because the authorization code is
 > issued by GitHub's servers in response to a human login action. Use a browser
 > or a manual `curl` sequence for exploratory testing of this path.
