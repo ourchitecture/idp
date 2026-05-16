@@ -2,6 +2,14 @@ language: "typescript"
 layer: "tool"
 stack: "backend"
 
+# Keep Backstage isolated from the repo-root pnpm workspace bootstrap.
+toolchains:
+  default: "system"
+  javascript: false
+  node: false
+  npm: false
+  pnpm: false
+
 project:
   title: "backstage-tools"
   description: "Backstage test harness for Stemix IDP plug-in integration."
@@ -23,7 +31,7 @@ tasks:
     deps: ["install"]
 
   build-stemix:
-    command: ["bash", "-lc", "yarn run build:stemix"]
+    command: ["bash", "-lc", "corepack enable && yarn run build:stemix"]
     deps: ["install"]
 
   clean:
