@@ -1,5 +1,6 @@
 import cors from "@fastify/cors";
 import Fastify, { type FastifyInstance } from "fastify";
+import { agentWorkRoutes } from "./routes/agent-work";
 import { authRoutes } from "./routes/auth";
 import { flowInsightsRoutes } from "./routes/flow-insights";
 import { healthRoutes } from "./routes/health";
@@ -26,6 +27,7 @@ export async function createApp(): Promise<FastifyInstance> {
   await app.register(readinessRoutes);
   await app.register(portalSummaryRoutes);
   await app.register(flowInsightsRoutes);
+  await app.register(agentWorkRoutes);
 
   return app;
 }

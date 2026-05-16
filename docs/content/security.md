@@ -28,7 +28,7 @@ Pinned security-tooling prerequisites:
 - `go` for `gitleaks` execution via `proto run go -- run ...`
 - `python` and `uv` for `semgrep` execution via `uv tool run`
 
-Moon-facing Python integration uses `unstable_python` and `unstable_uv`
+Moon-facing Python integration uses `python` and `uv`
 toolchains, backed by `.prototools [plugins.tools]` mappings.
 
 No global `pip install` step is required.

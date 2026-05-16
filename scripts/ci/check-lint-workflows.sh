@@ -15,7 +15,7 @@ fi
 if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
   # Prefer Docker only when the daemon is running Linux containers; Windows runners
   # using Windows containers cannot pull the Linux-only actionlint image.
-  if docker info --format '{{.OSType}}' 2>/dev/null | grep -iq "linux"; then
+  if docker info --format '{{.OSType}}' 2>/dev/null | grep --ignore-case --quiet "linux"; then
     host_path="$(pwd)"
 
     case "$(uname -s 2>/dev/null || true)" in
@@ -23,10 +23,10 @@ if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
         host_path="$(pwd -W 2>/dev/null || pwd)"
         host_path="${host_path//\\//}"
         MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' \
-          docker run --rm -v "${host_path}:/repo" -w "/repo" rhysd/actionlint:1.7.8
+          docker run --rm --volume "${host_path}:/repo" --workdir "/repo" rhysd/actionlint:1.7.8
         ;;
       *)
-        docker run --rm -v "${host_path}:/repo" -w "/repo" rhysd/actionlint:1.7.8
+        docker run --rm --volume "${host_path}:/repo" --workdir "/repo" rhysd/actionlint:1.7.8
         ;;
     esac
 

@@ -8,11 +8,11 @@ project:
 
 tasks:
   check-contract:
-    command: ["npm", "run", "test:contract"]
+    command: ["pnpm", "run", "test:contract"]
     options:
       runFromWorkspaceRoot: true
   test-contract:
-    command: ["npm", "run", "test:contract"]
+    command: ["pnpm", "run", "test:contract"]
     options:
       runFromWorkspaceRoot: true
   build-container:

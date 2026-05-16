@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  PROTO_VERSION: "0.55.4"
+  PROTO_VERSION: "0.57.1"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
 
 jobs:
@@ -56,20 +56,23 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Restore npm cache
+      - name: Restore pnpm cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
+
+      - name: Verify .claude/skills is in sync with .agents/skills
+        run: make check-skills-sync
 
       - name: Detect intelligent validation plan
         id: detect
@@ -114,15 +117,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
   check-lint-md:
     name: Check Lint Markdown
@@ -155,15 +158,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
   check-workflow-files:
     name: Check Workflow Files
@@ -196,15 +199,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
   check-stack-matrix:
     name: Check Stack (${{ matrix.label }})
@@ -243,15 +246,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -298,15 +301,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
   check-container-build:
     name: Check Container Build
@@ -416,7 +419,7 @@ jobs:
         if: needs.detect-changes.outputs.run_mcp_containers == 'true'
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
         with:
-          context: tools/mcp
+          context: .
           file: tools/mcp/Dockerfile
           load: true
           tags: stemix-mcp-server:pr-check
@@ -474,11 +477,8 @@ jobs:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
 
-      - name: Setup Java 21
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+      - name: Set JAVA_HOME from proto openjdk
+        run: echo "JAVA_HOME=$(java -XshowSettings:property -version 2>&1 | grep 'java.home' | awk -F' = ' '{print $2}')" >> "$GITHUB_ENV"
 
       - name: Build and test mock OAuth
         run: moon run mock-oauth:check-ci
@@ -494,15 +494,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Maven cache
         if: always()
@@ -533,14 +533,11 @@ jobs:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
 
-      - name: Setup Java 21
-        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
-        with:
-          java-version: '21'
-          distribution: 'temurin'
+      - name: Set JAVA_HOME from proto openjdk
+        run: echo "JAVA_HOME=$(java -XshowSettings:property -version 2>&1 | grep 'java.home' | awk -F' = ' '{print $2}')" >> "$GITHUB_ENV"
 
-      - name: Install npm dependencies
-        run: npm install
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run Go auth integration contract tests
         run: make -C stacks/go/net-http/rest check-contract-auth
@@ -559,15 +556,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -598,11 +595,11 @@ jobs:
           proto-version: ${{ env.PROTO_VERSION }}
           auto-install: true
 
-      - name: Install npm dependencies
-        run: npm install
+      - name: Install pnpm dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Install Node.js BFF dependencies
-        run: npm install --prefix stacks/nodejs/react-fastify/rest
+        run: pnpm install --frozen-lockfile
 
       - name: Run cross-stack flow insights equivalence
         run: make check-flow-insights-equivalence
@@ -626,15 +623,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
       - name: Save Go cache
         if: always()
@@ -666,7 +663,7 @@ jobs:
           auto-install: true
 
       - name: Install Node.js BFF dependencies
-        run: npm install --prefix stacks/nodejs/react-fastify/rest
+        run: pnpm install --frozen-lockfile
 
       - name: Run mock providers CI-safe checks
         run: moon run mock-providers:check-ci
@@ -682,15 +679,15 @@ jobs:
             ~/.cache/moon
             ~/.moon/cache
             .moon/cache
-          key: proto-moon-${{ runner.os }}-${{ hashFiles('.prototools') }}
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
 
-      - name: Save npm cache
+      - name: Save pnpm cache
         if: always()
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         continue-on-error: true
         with:
-          path: ~/.npm
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'docs/package-lock.json', 'tools/mcp/package-lock.json', 'stacks/nodejs/react-fastify/rest/package-lock.json') }}
+          path: .pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
 
   pr-validation-result:
     name: PR Validation Result

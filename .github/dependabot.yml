@@ -14,19 +14,7 @@ updates:
     schedule:
       interval: "weekly"
   - package-ecosystem: "npm"
-    directory: "/docs"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/tools/mcp"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/tools/vscode-extension"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/stacks/nodejs/react-fastify/rest"
+    directory: "/tools/backstage"
     schedule:
       interval: "weekly"
   - package-ecosystem: "gomod"
