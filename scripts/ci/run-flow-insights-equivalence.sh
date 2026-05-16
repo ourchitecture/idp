@@ -90,7 +90,7 @@ log "Starting Node.js BFF on ${NODE_BFF_URL}"
   export OUR_IDP_API_PORT="${NODE_BFF_PORT}"
   export OUR_IDP_STATUS_WEB_URL="http://${NODE_BFF_HOST}:3400"
   cd stacks/nodejs/react-fastify/rest
-  exec npm run --silent start:bff
+  exec pnpm run --silent start:bff
 ) >"${RESULTS_DIR}/node-bff.log" 2>&1 &
 NODE_BFF_PID=$!
 
@@ -98,16 +98,16 @@ wait_for_ready "Go BFF" "${GO_BFF_URL}"
 wait_for_ready "Node.js BFF" "${NODE_BFF_URL}"
 
 log "Capturing Go BFF signal summary"
-npx --no-install tsx tests/src/tools/flow-insights-equivalence.ts \
+pnpm exec tsx tests/src/tools/flow-insights-equivalence.ts \
   capture "${GO_BFF_URL}" "${RESULTS_DIR}/go.json"
 
 log "Capturing Node.js BFF signal summary"
-npx --no-install tsx tests/src/tools/flow-insights-equivalence.ts \
+pnpm exec tsx tests/src/tools/flow-insights-equivalence.ts \
   capture "${NODE_BFF_URL}" "${RESULTS_DIR}/node.json"
 
 log "Running cross-stack diff"
 set +e
-npx --no-install tsx tests/src/tools/flow-insights-equivalence.ts \
+pnpm exec tsx tests/src/tools/flow-insights-equivalence.ts \
   diff "${RESULTS_DIR}/go.json" "${RESULTS_DIR}/node.json" \
   --out-json "${RESULTS_DIR}/diff.json" \
   --out-md "${RESULTS_DIR}/diff.md"

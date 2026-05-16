@@ -52,6 +52,11 @@ still loaded from the configured userinfo endpoint.
 | `mock` | Connects to the local `tools/mock-oauth` service (port 9000 by default). Useful for local development and contract testing. |
 | `github` | GitHub OAuth 2.0. Requires `OUR_IDP_OAUTH_CLIENT_ID`, `OUR_IDP_OAUTH_CLIENT_SECRET`, and `OUR_IDP_OAUTH_REDIRECT_URL`. |
 
+The application default remains `none` when the BFF process is started
+directly. Developer `run-bff` targets set `mock` and local mock credentials, so
+local auth routes are available without repeating the same environment
+variables.
+
 ### Routes (registered only when provider ≠ none)
 
 | Method | Path | Description |
@@ -82,8 +87,8 @@ still loaded from the configured userinfo endpoint.
 # Terminal 1 – start the mock OAuth service
 cd tools/mock-oauth && ./mvnw spring-boot:run -q
 
-# Terminal 2 – start the BFF with mock provider
-OUR_IDP_OAUTH_PROVIDER=mock make -C stacks/go/net-http/rest run-bff
+# Terminal 2 – start the BFF; run-bff defaults to the mock provider locally
+make -C stacks/go/net-http/rest run-bff
 
 # Initiate login (follow redirects: /auth/login → mock /oauth/authorize → /auth/callback → /)
 # Use a cookie jar so the session cookie is saved automatically.

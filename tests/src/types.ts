@@ -5,7 +5,8 @@ export type ProfileName =
   | "ui-profile"
   | "mcp-profile"
   | "auth-profile"
-  | "flow-insights";
+  | "flow-insights"
+  | "agent-work";
 
 export type UiMode = "spa" | "ssr" | "server-rendered";
 
@@ -29,6 +30,9 @@ export type StackMetadata = {
       enabled?: boolean;
     };
     flowInsights?: {
+      enabled?: boolean;
+    };
+    agentWork?: {
       enabled?: boolean;
     };
   };

@@ -11,7 +11,7 @@ if [[ ! -d "${ROOT_DIR}/.git" ]]; then
 fi
 
 GITLEAKS_VERSION="v8.30.1"
-SEMGREP_VERSION="1.157.0"
+SEMGREP_VERSION="1.162.0"
 
 TARGET_PATH="${ROOT_DIR}"
 
@@ -39,8 +39,8 @@ run_gitleaks() {
 }
 
 run_semgrep() {
-  if command -v moon >/dev/null 2>&1 && moon bin unstable_uv >/dev/null 2>&1; then
-    "$(moon bin unstable_uv)" tool run --from "semgrep==${SEMGREP_VERSION}" semgrep "$@"
+  if command -v moon >/dev/null 2>&1 && moon bin uv >/dev/null 2>&1; then
+    "$(moon bin uv)" tool run --from "semgrep==${SEMGREP_VERSION}" semgrep "$@"
     return 0
   fi
 
@@ -96,7 +96,7 @@ SEMGREP_SEND_METRICS=off run_semgrep scan \
   "${TARGET_PATH}"
 
 echo "Checking for potential sensitive data logging..."
-SENSITIVE_LOG_HITS="$(git grep -n -E 'console\.(log|info|debug|warn|error).*(password|passwd|secret|token|authorization|cookie|session|email|phone|ssn)' -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.go' || true)"
+SENSITIVE_LOG_HITS="$(git grep --line-number --extended-regexp 'console\.(log|info|debug|warn|error).*(password|passwd|secret|token|authorization|cookie|session|email|phone|ssn)' -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.go' || true)"
 if [[ -n "${SENSITIVE_LOG_HITS}" ]]; then
   echo "ERROR: possible sensitive data logging detected:" >&2
   echo "${SENSITIVE_LOG_HITS}" >&2
@@ -104,14 +104,14 @@ if [[ -n "${SENSITIVE_LOG_HITS}" ]]; then
 fi
 
 echo "Checking analytics initialization boundaries..."
-CLARITY_INIT_HITS="$(git grep -n 'Clarity.init(' -- . ':!docs/src/analytics/clarity.ts' || true)"
+CLARITY_INIT_HITS="$(git grep --line-number 'Clarity.init(' -- . ':!docs/src/analytics/clarity.ts' || true)"
 if [[ -n "${CLARITY_INIT_HITS}" ]]; then
   echo "ERROR: unexpected Clarity initialization outside consent wrapper:" >&2
   echo "${CLARITY_INIT_HITS}" >&2
   exit 1
 fi
 
-CLARITY_IMPORT_HITS="$(git grep -n '@microsoft/clarity' -- . ':!docs/src/analytics/clarity.ts' ':!docs/package.json' ':!docs/package-lock.json' || true)"
+CLARITY_IMPORT_HITS="$(git grep --line-number '@microsoft/clarity' -- . ':!docs/src/analytics/clarity.ts' ':!docs/package.json' ':!pnpm-lock.yaml' || true)"
 if [[ -n "${CLARITY_IMPORT_HITS}" ]]; then
   echo "ERROR: unexpected Microsoft Clarity import outside allowed files:" >&2
   echo "${CLARITY_IMPORT_HITS}" >&2

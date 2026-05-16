@@ -1,6 +1,7 @@
 {
   "files.associations": {
-    "**/.agents/skills/**/SKILL.md": "markdown"
+    "**/.agents/skills/**/SKILL.md": "markdown",
+    ".prototools": "toml"
   },
   "yaml.schemas": {
     "./.agents/skills/skill-frontmatter.schema.json": [

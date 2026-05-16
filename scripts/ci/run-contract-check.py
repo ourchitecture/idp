@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """run-contract-check.py - Cross-platform contract test runner.
 
 Starts the stack's web and BFF servers, polls until the BFF is ready,
@@ -13,7 +13,7 @@ Usage (called from a stack Makefile via `make check-contract`):
     OUR_IDP_BFF_URL=http://127.0.0.1:8300 \
     OUR_IDP_STACK_PATH=stacks/go/net-http/rest \
     OUR_IDP_ROOT_DIR=../../../.. \
-      python3 scripts/ci/run-contract-check.py
+      uv run python scripts/ci/run-contract-check.py
 
 Required environment variables:
     OUR_IDP_STACK_PATH        Relative path to the stack
@@ -21,7 +21,7 @@ Required environment variables:
     OUR_IDP_BFF_START_CMD     Shell command to start the BFF server
     OUR_IDP_WEB_URL           Full base URL for the web server
     OUR_IDP_BFF_URL           Full base URL for the BFF server
-    OUR_IDP_ROOT_DIR          Repo root directory (used for npm --prefix)
+    OUR_IDP_ROOT_DIR          Repo root directory (used for pnpm -C)
 
 Optional environment variables:
     OUR_IDP_MOCK_OAUTH_START_CMD  Shell command to start a mock OAuth server.
@@ -82,6 +82,7 @@ if MOCK_OAUTH_START_CMD and not MOCK_OAUTH_URL:
 
 READINESS_PATH = "/readiness"
 BFF_READY_URL = BFF_URL.rstrip("/") + READINESS_PATH
+WEB_READY_URL = WEB_URL.rstrip("/") + "/health"
 
 # ---------------------------------------------------------------------------
 # Process management
@@ -98,7 +99,7 @@ def _terminate(proc: subprocess.Popen, label: str) -> None:
         return
     try:
         if sys.platform == "win32":
-            # Kill the full process tree so npm/go child processes do not leak.
+            # Kill the full process tree so package-manager/go child processes do not leak.
             subprocess.call(
                 ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
                 stdout=subprocess.DEVNULL,
@@ -316,11 +317,20 @@ def main() -> int:
             )
             return 1
     bff_proc = start_server(BFF_START_CMD, "BFF server")
-    start_server(WEB_START_CMD, "Web server")
+    web_proc = start_server(WEB_START_CMD, "Web server")
 
     # --- Wait for readiness --------------------------------------------------
 
     log_section("Waiting for readiness")
+
+    if not wait_for_ready("Web readiness", WEB_READY_URL,
+                          READY_TIMEOUT, READY_INTERVAL, web_proc):
+        print(
+            f"[contract:{STACK_PATH}] FAIL: Web server did not become ready "
+            f"-- aborting test run",
+            file=sys.stderr,
+        )
+        return 1
 
     if not wait_for_ready("BFF readiness", BFF_READY_URL,
                           READY_TIMEOUT, READY_INTERVAL, bff_proc):
@@ -354,7 +364,7 @@ def main() -> int:
                 test_env["OUR_IDP_OAUTH_MOCK_PORT"] = str(parsed.port)
 
     result = subprocess.run(
-        ["npm", "--prefix", ROOT_DIR, "run", "test:contract"],
+        ["pnpm", "-C", ROOT_DIR, "run", "test:contract"],
         env=test_env,
     )
 

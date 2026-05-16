@@ -23,7 +23,7 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ ! -x "${MMDC_BIN}" ]]; then
-  echo "mmdc not found at ${MMDC_BIN}. Run 'npm install' in docs/." >&2
+  echo "mmdc not found at ${MMDC_BIN}. Run 'pnpm install' from the repository root." >&2
   exit 1
 fi
 

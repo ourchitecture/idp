@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 # Multi-stage build for the Stemix IDP MCP server.
-# Build context must be the tools/mcp directory.
+# Build context must be the repository root.
 #
-# Build example (from tools/mcp/):
-#   docker build -t localhost/stemix-mcp-server:dev .
+# Build example (from repo root):
+#   docker build -t localhost/stemix-mcp-server:dev -f tools/mcp/Dockerfile .
 
 ARG NODE_VERSION=24.14.1
 
@@ -13,14 +13,23 @@ ARG NODE_VERSION=24.14.1
 FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS builder
 
 WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
 
-COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
-COPY src/ ./src/
-COPY tsconfig.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY tools/mcp/package.json ./tools/mcp/package.json
+COPY docs/package.json ./docs/package.json
+COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
+COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
+COPY stacks/nodejs/react-fastify/rest/package.json ./stacks/nodejs/react-fastify/rest/package.json
+RUN pnpm install --frozen-lockfile --filter stemix-idp-mcp-server...
 
-RUN npm run build
+COPY tools/mcp/src/ ./tools/mcp/src/
+COPY tools/mcp/tsconfig.json ./tools/mcp/tsconfig.json
+
+RUN pnpm -C tools/mcp run build
 
 # ---------------------------------------------------------------------------
 # Stage 2: runtime — lean Node.js image with compiled output only
@@ -28,11 +37,20 @@ RUN npm run build
 FROM node:${NODE_VERSION}-alpine@sha256:5bc53106902596d90fb497746b74ea40e0625c1c8327681d6bff3ee6ad42a22b AS runtime
 
 WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="${PNPM_HOME}:${PATH}"
 
-COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev --ignore-scripts
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
-COPY --from=builder /app/dist/ ./dist/
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY tools/mcp/package.json ./tools/mcp/package.json
+COPY docs/package.json ./docs/package.json
+COPY tools/mock-providers/package.json ./tools/mock-providers/package.json
+COPY tools/vscode-extension/package.json ./tools/vscode-extension/package.json
+COPY stacks/nodejs/react-fastify/rest/package.json ./stacks/nodejs/react-fastify/rest/package.json
+RUN pnpm install --prod --frozen-lockfile --filter stemix-idp-mcp-server...
+
+COPY --from=builder /app/tools/mcp/dist/ ./tools/mcp/dist/
 
 # Default to Streamable HTTP mode when running in a container.
 # Override with OUR_IDP_MCP_PORT="" to use stdio (not useful in containers).
@@ -59,4 +77,5 @@ LABEL org.opencontainers.image.source="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.url="https://github.com/ourchitecture/idp"
 LABEL org.opencontainers.image.vendor="Ourchitecture"
 LABEL org.opencontainers.image.licenses="MIT"
-CMD ["node", "dist/server.js"]
+LABEL org.opencontainers.image.created-by="moon"
+CMD ["node", "tools/mcp/dist/server.js"]

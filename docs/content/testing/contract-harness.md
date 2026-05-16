@@ -37,11 +37,11 @@ This is Layer 2 of the three-layer architecture defined in
 The fastest way to see the harness in action:
 
 ```bash
-# 1. Install pinned toolchain (Go, Node.js/npm, Python, uv)
+# 1. Install pinned toolchain (Go, Node.js/pnpm, Python, uv)
 proto install
 
 # 2. Install Node.js dependencies
-npm install
+pnpm install
 
 # 3. Start the default stack (Go web + BFF servers)
 make dev
@@ -327,18 +327,18 @@ you explicitly need LAN, container, or remote-device access.
 # moon canonical
 moon run contract-tests:check-contract
 
-# npm script alias
-npm run test:contract
+# pnpm script alias
+pnpm run test:contract
 ```
 
 ### Against a running stack (custom URLs)
 
-Use the `npm` script when passing env var overrides directly on the command line:
+Use the `pnpm` script when passing env var overrides directly on the command line:
 
 ```bash
 IDP_WEB_URL="http://localhost:3001" \
   IDP_BFF_URL="http://localhost:8001" \
-  npm run test:contract
+  pnpm run test:contract
 ```
 
 ### For a specific stack with all profiles
@@ -346,13 +346,13 @@ IDP_WEB_URL="http://localhost:3001" \
 ```bash
 IDP_STACK_PATH="stacks/nodejs/react-fastify/rest" \
   IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
-  npm run test:contract
+  pnpm run test:contract
 ```
 
 ### A single profile only
 
 ```bash
-IDP_CONTRACT_PROFILE="core" npm run test:contract
+IDP_CONTRACT_PROFILE="core" pnpm run test:contract
 ```
 
 ### Automated via stack Makefile (recommended for CI)
@@ -617,7 +617,7 @@ check-contract:
     IDP_WEB_URL="http://127.0.0.1:$(WEB_TEST_PORT)" \
       IDP_BFF_URL="http://127.0.0.1:$(BFF_TEST_PORT)" \
       IDP_STACK_PATH="stacks/<language>/<framework>/rest" \
-      npm --prefix "$(ROOT_DIR)" run test:contract; \
+      pnpm -C "$(ROOT_DIR)" run test:contract; \
     EXIT_CODE=$$?; \
     exit $$EXIT_CODE
 
@@ -670,7 +670,7 @@ make run-bff &
 # Run with explicit stack path (moon canonical)
 IDP_STACK_PATH="stacks/<language>/<framework>/rest" \
   moon run contract-tests:check-contract
-# Or with moon: IDP_STACK_PATH="stacks/<language>/<framework>/rest" npm run test:contract
+# Or with moon: IDP_STACK_PATH="stacks/<language>/<framework>/rest" pnpm run test:contract
 
 # Or use the automated target
 make check-contract
