@@ -1,4 +1,4 @@
-.PHONY: help all ci install build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs
+.PHONY: help all ci install upgrade build clean reset lint check-lint-md check-lint-workflows check-privacy check-flow-insights-equivalence check-stack check-team-membership check-pr-changes issue-number issue-triage issue-signal-ready issue-setup-labels worktree-path worktree-ensure worktree-cleanup audit-worktrees agent-goose-task check-lint check-test check-contract check test test-contract dev docs-site build-containers build-container-dev-tools gitlab-harness-up gitlab-harness-down gitlab-harness-seed gitlab-harness-reset gitlab-harness-wait-healthy gitlab-harness-wait-init gitlab-harness-token gitlab-harness-logs verify-tool-pins setup-hooks sync-skills check-skills-sync
 
 DEFAULT_STACK := stacks/go/net-http/rest
 STACK ?= $(DEFAULT_STACK)
@@ -8,15 +8,18 @@ CI_SCRIPTS_DIR := scripts/ci
 
 PROTO_HOME ?= $(HOME)/.proto
 MOON_BIN := $(PROTO_HOME)/shims/moon
+OUR_IDP_DOCKER_BUILD_NETWORK ?= default
+OUR_IDP_DEV_TOOLS_DOCKER_BUILD_ARGS ?=
 
 help:
 	@printf "Targets:\n"
 	@printf "  all           Bootstrap toolchain and validate all detected stacks\n"
 	@printf "  ci            Run CI-safe checks for all stacks via moon ci (affected-aware)\n"
 	@printf "  install       Install dependencies for selected stack\n"
+	@printf "  upgrade       Upgrade tracked dependency locks across the repository\n"
 	@printf "  build         Build selected stack artifacts\n"
-	@printf "  clean         Clean selected stack artifacts\n"
-	@printf "  reset         Reset (full clean) the project\n"
+	@printf "  clean         Clean all project artifacts (build, test, analyze caches)\n"
+	@printf "  reset         Full reset: clean + remove all dependency caches\n"
 	@printf "  check-lint-md Lint all Markdown files\n"
 	@printf "  check-lint-workflows Lint GitHub workflow definitions\n"
 	@printf "  check-privacy Run privacy and secret scanning\n"
@@ -32,6 +35,7 @@ help:
 	@printf "  worktree-ensure Create or reuse the canonical issue worktree\n"
 	@printf "  worktree-cleanup Remove a clean issue worktree after merge confirmation\n"
 	@printf "  audit-worktrees Report stale or orphaned issue worktrees\n"
+	@printf "  agent-goose-task Create worktree + snapshot for a goose dogfood run\n"
 	@printf "  check-lint    Run selected stack lint checks\n"
 	@printf "  check-test    Run selected stack tests\n"
 	@printf "  check-contract Run selected stack contract checks\n"
@@ -41,14 +45,43 @@ help:
 	@printf "  dev           Bootstrap toolchain and start selected stack (web + BFF)\n"
 	@printf "  docs-site     Build and validate the Stemix documentation site\n"
 	@printf "  build-containers Build all container images for all stacks (opt-in, requires docker)\n"
+	@printf "  build-container-dev-tools Build the dev-tools container image\n"
+	@printf "  verify-tool-pins Assert pnpm version in .prototools matches package.json packageManager\n"
+	@printf "  setup-hooks   Configure git to use .githooks/ (run once after clone)\n"
+	@printf "  sync-skills   Copy .agents/skills → .claude/skills for Claude Code discovery\n"
+	@printf "  check-skills-sync Assert .claude/skills matches .agents/skills (used by CI)\n"
 	@printf "\n"
 	@printf "Variables:\n"
 	@printf "  STACK  Override stack path (default: %s)\n" "$(DEFAULT_STACK)"
+	@printf "  OUR_IDP_DOCKER_BUILD_NETWORK  Docker build network mode for dev-tools (default: %s)\n" "$(OUR_IDP_DOCKER_BUILD_NETWORK)"
+	@printf "  OUR_IDP_DEV_TOOLS_DOCKER_BUILD_ARGS     Extra docker build args for dev-tools\n"
 	@printf "\n"
 	@printf "Detected stacks:\n"
 	@for stack in $(STACKS); do printf "  - %s\n" "$$stack"; done
 
+setup-hooks:
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+	@printf "setup-hooks: git will now use .githooks/ for pre-commit enforcement\n"
+
+sync-skills:
+	@bash .agents/scripts/sync-skills.sh
+
+check-skills-sync:
+	@bash .agents/scripts/sync-skills.sh
+	@git diff --exit-code .claude/skills/ || { printf "ERROR: .claude/skills/ is out of sync with .agents/skills/ -- run: make sync-skills\n" >&2; exit 1; }
+
+verify-tool-pins:
+	@proto_pnpm=$$(grep '^pnpm\s*=' .prototools | sed 's/.*=\s*"\?\([^"]*\)"\?.*/\1/' | tr -d '[:space:]'); \
+	pkg_pnpm=$$(grep '"packageManager"' package.json | sed 's/.*pnpm@\([^"]*\)".*/\1/' | tr -d '[:space:]'); \
+	if [ "$$proto_pnpm" != "$$pkg_pnpm" ]; then \
+		printf "ERROR: pnpm version mismatch -- .prototools=%s, package.json packageManager=%s\n" "$$proto_pnpm" "$$pkg_pnpm" >&2; \
+		exit 1; \
+	fi; \
+	printf "verify-tool-pins: pnpm@%s matches across .prototools and package.json\n" "$$proto_pnpm"
+
 all:
+	@$(MAKE) verify-tool-pins
 	@if [ -x "$(PROTO_HOME)/bin/proto" ]; then \
 		"$(PROTO_HOME)/bin/proto" install; \
 	fi
@@ -63,11 +96,11 @@ all:
 	"$(MAKE)" -C tools/vscode-extension all; \
 	printf "Running full build/test validation for tools/backstage\n"; \
 	"$(MAKE)" -C tools/backstage all
-	@if command -v docker >/dev/null 2>&1; then \
-		printf "Docker detected — building container images\n"; \
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		printf "Docker daemon reachable -- building container images\n"; \
 		"$(MAKE)" build-containers; \
 	else \
-		printf "Docker not found — skipping container builds (opt-in only)\n"; \
+		printf "Docker daemon not reachable -- skipping container builds (opt-in only)\n"; \
 	fi
 
 ci:
@@ -83,18 +116,18 @@ ci:
 		"$(MAKE)" -C tools/vscode-extension check-ci; \
 		"$(MAKE)" -C tools/backstage check-ci; \
 	fi
-	@if command -v docker >/dev/null 2>&1; then \
-		printf "Docker detected — building container images\n"; \
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		printf "Docker daemon reachable -- building container images\n"; \
 		"$(MAKE)" build-containers; \
 	else \
-		printf "Docker not found — skipping container builds (opt-in only)\n"; \
+		printf "Docker daemon not reachable -- skipping container builds (opt-in only)\n"; \
 	fi
 
 check-lint-md:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run repo:check-lint-md; \
 	else \
-		npm run lint:md; \
+		pnpm run lint:md; \
 	fi
 
 check-lint-workflows:
@@ -187,18 +220,54 @@ audit-worktrees:
 		"bash" "./$(CI_SCRIPTS_DIR)/audit-worktrees.sh"; \
 	fi
 
+agent-goose-task:
+	@"bash" "./$(CI_SCRIPTS_DIR)/agent-goose-task.sh"
+
 install:
 	@"$(MAKE)" -C "$(STACK)" install
+
+upgrade:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:upgrade; \
+	else \
+		"bash" "./$(CI_SCRIPTS_DIR)/upgrade-dependencies.sh"; \
+	fi
 
 build:
 	@"$(MAKE)" -C "$(STACK)" build
 
 clean:
-	@"$(MAKE)" -C "$(STACK)" clean
-	@rm -rf ./.tmp/ ./docs/.docusaurus/ ./docs/build/
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:clean; \
+	else \
+		set -e; \
+		for stack in $(STACKS); do \
+			"$(MAKE)" -C "$$stack" clean; \
+		done; \
+		"$(MAKE)" -C docs clean; \
+		"$(MAKE)" -C tools/mcp clean; \
+		"$(MAKE)" -C tools/mock-oauth clean; \
+		"$(MAKE)" -C tools/vscode-extension clean; \
+		"$(MAKE)" -C tools/backstage clean; \
+		"$(MAKE)" -C tools/gitlab-harness down; \
+		rm -rf tools/gitlab-harness/data; \
+	fi
 
-reset: clean
-	@rm -rf ./.venv/ ./node_modules/ ./docs/node_modules/
+reset:
+	@if [ -x "$(MOON_BIN)" ]; then \
+		"$(MOON_BIN)" run repo:reset; \
+	else \
+		"$(MAKE)" clean; \
+		rm -rf .venv/ .pnpm-store/ node_modules/ \
+			docs/node_modules/ \
+			stacks/go/net-http/rest/node_modules/ \
+			stacks/nodejs/react-fastify/rest/node_modules/ \
+			tools/vscode-extension/node_modules/ \
+			tools/backstage/node_modules/ \
+			tools/mcp/node_modules/ \
+			tools/mock-providers/node_modules/ \
+			tools/mock-oauth/target/; \
+	fi
 
 lint: check-lint
 
@@ -266,7 +335,7 @@ build-containers:
 	"$(MAKE)" build-container-dev-tools
 
 build-container-dev-tools:
-	docker build -t localhost/ourchitecture/idp/stemix-dev-tools:dev -f .devcontainer/Dockerfile .
+	docker build --network="$(OUR_IDP_DOCKER_BUILD_NETWORK)" $(OUR_IDP_DEV_TOOLS_DOCKER_BUILD_ARGS) -t localhost/ourchitecture/idp/stemix-dev-tools:dev -f .devcontainer/Dockerfile .
 
 gitlab-harness-up:
 	@"$(MAKE)" -C tools/gitlab-harness up

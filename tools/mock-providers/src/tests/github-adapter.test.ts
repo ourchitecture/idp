@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { test, before, after } from "node:test";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import YAML from "yaml";
 import { createGitHubMockServer } from "../github/server.js";
 import type { GitHubScenario } from "../github/scenarios.js";
@@ -27,7 +27,7 @@ const adapterPath = path.join(
 );
 
 // Dynamic import with tsx support
-const { buildGitHubProviderInput } = (await import(adapterPath)) as {
+const { buildGitHubProviderInput } = (await import(pathToFileURL(adapterPath).href)) as {
   buildGitHubProviderInput: (source: unknown) => unknown;
 };
 

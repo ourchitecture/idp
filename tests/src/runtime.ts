@@ -26,7 +26,8 @@ function isProfileName(value: string): value is ProfileName {
     value === "ui-profile" ||
     value === "mcp-profile" ||
     value === "auth-profile" ||
-    value === "flow-insights"
+    value === "flow-insights" ||
+    value === "agent-work"
   );
 }
 

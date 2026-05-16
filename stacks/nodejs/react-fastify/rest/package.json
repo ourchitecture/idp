@@ -10,20 +10,20 @@
     "build:web": "vite build --config web/vite.config.ts",
     "typecheck:web": "tsc --project web/tsconfig.json --noEmit",
     "typecheck:bff": "tsc --project bff/tsconfig.json --noEmit",
-    "typecheck:stack": "npm run typecheck:web && npm run typecheck:bff",
+    "typecheck:stack": "pnpm run typecheck:web && pnpm run typecheck:bff",
     "test:bff": "node --import tsx --test \"bff/src/**/*.test.ts\"",
-    "test:stack": "npm run typecheck:stack && npm run test:bff"
+    "test:stack": "pnpm run typecheck:stack && pnpm run test:bff"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@fastify/cors": "^11.2.0",
-    "@tanstack/react-query": "^5.100.7",
+    "@tanstack/react-query": "^5.100.9",
     "fastify": "^5.8.5",
     "openid-client": "^6.8.4",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-router-dom": "^7.14.2",
-    "zod": "^4.4.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.15.0",
+    "zod": "^4.4.3",
     "yaml": "^2.7.0"
   },
   "devDependencies": {
@@ -32,7 +32,7 @@
     "@types/react-dom": "^19.2.2",
     "@vitejs/plugin-react": "^6.0.1",
     "markdownlint-cli2": "0.22.1",
-    "tsx": "^4.20.6",
+    "tsx": "^4.22.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.10"
   }

@@ -91,17 +91,17 @@ tools/      Developer tooling, MCP adapters, and the static status publisher
 
 ### Weekly onboarding validation
 
-Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS, and Windows. They exercise the documented quickstart (npm install, optional proto install, stack builds, and contributor linting). On GitHub-hosted Windows runners, Docker runs in Windows-container mode and cannot pull Linux-only images like `rhysd/actionlint`; the workflow uses the Go-based fallback instead. Local Windows users with WSL + Rancher/Podman Desktop can run Linux containers, but that setup cannot be reproduced on GitHub-hosted Windows runners today.
+Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS, and Windows. They exercise the documented quickstart (`pnpm install`, optional proto install, stack builds, and contributor linting). On GitHub-hosted Windows runners, Docker runs in Windows-container mode and cannot pull Linux-only images like `rhysd/actionlint`; the workflow uses the Go-based fallback instead. Local Windows users with WSL + Rancher/Podman Desktop can run Linux containers, but that setup cannot be reproduced on GitHub-hosted Windows runners today.
 
 > This project is in early development. Setup instructions will be added as the platform takes shape.
 
 ### Prerequisites
 
 - Access to the [ourchitecture](https://github.com/ourchitecture) GitHub organization
-- proto `0.55.4` (recommended for pinned toolchain installs)
-- Go `1.25.0` (managed by proto)
-- Node.js `24.0.0` with npm bundled (managed by proto)
-- Python `3.12.11` + `uv 0.9.11` (managed by proto for privacy scanning)
+- proto `0.57.0` (recommended for pinned toolchain installs)
+- Go `1.26.0` (managed by proto)
+- Node.js `24.15.0` with pnpm `11.1.2` (managed by proto)
+- Python `3.14.5` + `uv 0.11.14` (managed by proto for privacy scanning)
 - Docker (optional -- only required for container builds; Rancher Desktop with
   `dockerd (moby)` engine is the recommended FOSS alternative)
 
@@ -110,11 +110,11 @@ Automated onboarding checks run weekly (Mondays, 09:00 UTC) across Linux, macOS,
 The fastest path to a running local stack:
 
 ```bash
-# Install Node.js dependencies
-npm install
-
 # (Optional) Pin and install the full toolchain via proto
 proto install
+
+# Install workspace dependencies and repo-local CLIs
+pnpm install
 
 # Start the default stack (web + BFF)
 make dev
@@ -135,6 +135,12 @@ See all available `make` targets:
 make help
 ```
 
+Run the repo-local Pi coding agent after `pnpm install`:
+
+```bash
+pnpm run pi -- --help
+```
+
 ### Tooling Policy
 
 This project standardizes workflows around `moon` while keeping language tooling
@@ -143,19 +149,29 @@ flexible for contributors.
 - `moon` is required for maintainer and CI orchestration.
 - `proto` is recommended for consistent pinned toolchain setup, but contributors
   may use system-installed Go/Node directly.
+- `pnpm install` installs workspace dependencies and repository-local developer
+  CLIs such as `opencode` and `pi`; run Pi with `pnpm run pi -- <args>`.
+- `tools/backstage` remains an npm-managed package-manager island until a
+  `tools/backstage` is the exception: it is an isolated Yarn 4 workspace for local Backstage plugin development and packaging.
 - GNU Make targets are supported as convenient local shortcuts and CI
   compatibility wrappers; use them whenever `moon` is not installed.
 
 For Python-based security tooling, this repository uses `uv` with isolated
 ephemeral environments (`uv tool run`) instead of ad-hoc global pip installs.
 When `proto` is installed, both `python` and `uv` versions are pinned via
-`.prototools`. Moon integrates this via `unstable_python` and `unstable_uv`
+`.prototools`. Moon integrates this via `python` and `uv`
 toolchain IDs mapped through `.prototools [plugins.tools]`.
 
 Install and pin tooling with proto (recommended):
 
 ```bash
 proto install
+```
+
+Install workspace dependencies and local developer CLIs:
+
+```bash
+pnpm install
 ```
 
 Run common checks with moon (or use the equivalent `make` targets below):
@@ -177,6 +193,10 @@ Agent workflow skills are available in `/.agents/skills/`:
 - `/plan-work issue_number=<N>` to prepare an implementation plan.
 - `/ship-changes issue_number=<N>` to commit, open a PR, and merge.
 - `/audit-work-integrity` to enforce strict branch/PR/issue linkage hygiene.
+- `/autonomous-task` to run a full plan → implement → validate loop inside an
+  isolated git worktree. Supports local-only runs (no GitHub required),
+  parallel sessions on a single machine, and configurable AI model profiles.
+  See [CONTRIBUTING.md](CONTRIBUTING.md#autonomous-task-agents) for usage.
 
 ### Documentation Site
 

@@ -1,3 +1,4 @@
+import { createAgentWorkTests } from "./agent-work";
 import { createAuthProfileTests } from "./auth-profile";
 import { createCoreTests } from "./core";
 import { createFlowInsightsTests } from "./flow-insights";
@@ -30,6 +31,10 @@ export function buildTestsForProfile(profile: ProfileName, context: ContractCont
 
   if (profile === "flow-insights") {
     return createFlowInsightsTests(context);
+  }
+
+  if (profile === "agent-work") {
+    return createAgentWorkTests(context);
   }
 
   return createUiProfileTests(context);

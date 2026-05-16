@@ -42,14 +42,14 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mcp-tools:install; \
 	else \
-		npm install; \
+		pnpm -C "$(ROOT_DIR)" install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mcp-tools:build; \
 	else \
-		npm run build; \
+		pnpm run build; \
 	fi
 
 clean:
@@ -70,7 +70,7 @@ check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mcp-tools:check-test; \
 	else \
-		npm run typecheck; \
+		pnpm run typecheck; \
 	fi
 
 test: check-test
@@ -96,11 +96,11 @@ check-contract:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run mcp-tools:check-contract; \
 	else \
-		npm --prefix "$(ROOT_DIR)" install; \
+		pnpm -C "$(ROOT_DIR)" install; \
 		OUR_IDP_MCP_PORT="$(MCP_TEST_PORT)" IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" node dist/server.js >/dev/null 2>&1 & MCP_PID=$$!; \
 		trap 'kill $$MCP_PID >/dev/null 2>&1 || true' EXIT; \
 		sleep 2; \
-		IDP_MCP_URL="http://$(MCP_TEST_HOST):$(MCP_TEST_PORT)" IDP_STACK_PATH="$(TOOL_PATH)" IDP_CONTRACT_PROFILES="mcp-profile" npm --prefix "$(ROOT_DIR)" run test:contract; \
+		IDP_MCP_URL="http://$(MCP_TEST_HOST):$(MCP_TEST_PORT)" IDP_STACK_PATH="$(TOOL_PATH)" IDP_CONTRACT_PROFILES="mcp-profile" pnpm -C "$(ROOT_DIR)" run test:contract; \
 		STATUS=$$?; \
 		kill $$MCP_PID >/dev/null 2>&1 || true; \
 		wait $$MCP_PID 2>/dev/null || true; \
@@ -130,4 +130,5 @@ build-container:
 	fi
 	@docker build \
 		-t "$(CONTAINER_LOCAL_PREFIX)/$(CONTAINER_IMAGE_BASE):latest" \
-		.
+		-f "$(ROOT_DIR)/tools/mcp/Dockerfile" \
+		"$(ROOT_DIR)"

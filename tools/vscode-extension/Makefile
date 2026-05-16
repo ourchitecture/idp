@@ -30,14 +30,14 @@ install:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run vscode-extension:install; \
 	else \
-		npm install; \
+		pnpm -C "$(ROOT_DIR)" install; \
 	fi
 
 build:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run vscode-extension:build; \
 	else \
-		npm run build; \
+		pnpm run build; \
 	fi
 
 clean:
@@ -58,7 +58,7 @@ check-test:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run vscode-extension:check-test; \
 	else \
-		npm run typecheck; \
+		pnpm run typecheck; \
 	fi
 
 test: check-test
@@ -88,5 +88,5 @@ package:
 	@if [ -x "$(MOON_BIN)" ]; then \
 		"$(MOON_BIN)" run vscode-extension:package; \
 	else \
-		npm run package; \
+		pnpm run package; \
 	fi
