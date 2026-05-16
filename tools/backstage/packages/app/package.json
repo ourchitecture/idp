@@ -6,17 +6,42 @@
     "role": "frontend"
   },
   "scripts": {
-    "build": "echo 'Backstage app build placeholder'",
-    "clean": "echo 'Backstage app clean placeholder'",
-    "start": "echo 'Backstage app start placeholder'"
+    "start": "backstage-cli package start",
+    "build": "backstage-cli package build",
+    "clean": "rm -rf dist node_modules",
+    "typecheck": "tsc"
   },
   "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "@backstage/app-defaults": "^1.5.0",
+    "@backstage/core-app-api": "^1.15.0",
+    "@backstage/core-components": "^0.15.0",
+    "@backstage/core-plugin-api": "^1.9.0",
+    "@backstage/plugin-api-docs": "^0.12.0",
+    "@backstage/plugin-catalog": "^1.25.0",
+    "@backstage/plugin-catalog-common": "^1.1.0",
+    "@backstage/plugin-catalog-graph": "^0.4.0",
+    "@backstage/plugin-catalog-import": "^0.12.0",
+    "@backstage/plugin-catalog-react": "^1.13.0",
+    "@backstage/plugin-org": "^0.6.30",
+    "@backstage/plugin-permission-react": "^0.4.25",
+    "@backstage/plugin-scaffolder": "^1.26.0",
+    "@backstage/plugin-scaffolder-react": "^1.13.0",
+    "@backstage/plugin-search": "^1.4.0",
+    "@backstage/plugin-search-react": "^1.8.0",
+    "@backstage/plugin-techdocs": "^1.11.0",
+    "@backstage/plugin-techdocs-module-addons-contrib": "^1.1.0",
+    "@backstage/plugin-techdocs-react": "^1.2.0",
+    "@backstage/plugin-user-settings": "^0.8.0",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router": "^6.26.0",
+    "react-router-dom": "^6.26.0"
   },
   "devDependencies": {
-    "@types/react": "^19.2.2",
-    "@types/react-dom": "^19.2.2",
-    "typescript": "~5.4.0"
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "~5.4.5"
   }
 }

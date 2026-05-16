@@ -1,138 +1,82 @@
 ---
 name: privacy-scan
-version: 1.0.0
+version: 1.1.0
 description: >
-  Runs repository privacy and sensitive-data scanning for both personal and
-  organizational risk across docs, tests, and implementation stacks using FOSS
-  tools (gitleaks and semgrep) through canonical moon/make tasks. Produces a
-  triage report with findings, impact, and remediation actions.
+  Runs privacy/sensitive-data scanning (gitleaks + semgrep) via canonical
+  moon/make tasks. Produces a triage report with findings and remediation.
 author: "@idp-maintain"
 domain: security
-tags:
-  - privacy
-  - security
-  - secrets
-  - pii
-  - semgrep
-  - gitleaks
-  - moon
+tags: [privacy, security, secrets, pii, semgrep, gitleaks, moon]
 depends_on: []
 inputs:
   - name: issue_number
     type: number
     required: false
-    description: >
-      Optional GitHub Issue number to post the final privacy scan report as a
-      comment.
+    description: Optional GitHub Issue to post the report as a comment.
   - name: strict
     type: boolean
     required: false
     default: true
-    description: >
-      When true, treat any scanner finding as a blocking failure. When false,
-      include findings in the report without failing the workflow.
+    description: When true, any finding marks the report status `fail`.
   - name: include_history
     type: boolean
     required: false
     default: true
-    description: >
-      Whether to include git-history leakage analysis in addition to current
-      working-tree scanning.
+    description: Include git-history scanning in addition to working tree.
 outputs:
   - name: report
     type: object
-    description: >
-      Structured privacy scan summary including tooling status, finding counts,
-      severity, and remediation actions.
+    description: Privacy scan summary — tooling, counts, severity, actions.
   - name: findings
     type: array
-    description: Flattened list of findings with source tool, location, and severity.
+    description: Flattened findings with source tool, location, severity.
   - name: artifacts
     type: array
-    description: Generated report artifacts (SARIF/JSON) under .tmp/privacy-scan/.
+    description: Generated SARIF/JSON artifacts under .tmp/privacy-scan/.
 ---
 
 # Privacy Scan
 
-Run privacy-focused scanning for personal and organizational exposure using the
-repository's canonical tooling integration.
+GitHub API access (for the optional issue comment) follows
+[../../docs/shared/github-api.md](../../docs/shared/github-api.md).
 
-## Step 1: Prepare pinned toolchain
+## 1. Prepare pinned toolchain
 
-Install pinned tools from `.prototools`:
+`proto install` — needs `go` (gitleaks), `python` + `uv` (semgrep).
 
-```bash
-proto install
-```
+## 2. Run canonical scan
 
-Expected relevant toolchain components:
+`moon run repo:check-privacy` (fallback: `make check-privacy`). The scan runs:
 
-- `go` (for gitleaks execution)
-- `python` and `uv` (for semgrep execution with isolated environments)
+1. gitleaks filesystem scan.
+2. gitleaks git-history scan.
+3. semgrep `p/secrets` ruleset.
+4. Targeted checks for sensitive logging patterns.
+5. Targeted checks for analytics initialization boundaries.
 
-## Step 2: Run canonical privacy scan
+## 3. Collect artifacts
 
-Use the repo task (moon canonical):
-
-```bash
-moon run repo:check-privacy
-```
-
-Fallback:
-
-```bash
-make check-privacy
-```
-
-The canonical scan runs:
-
-1. gitleaks filesystem scan
-2. gitleaks git-history scan
-3. semgrep `p/secrets` ruleset
-4. targeted checks for sensitive logging patterns
-5. targeted checks for analytics initialization boundaries
-
-## Step 3: Collect generated artifacts
-
-Read scanner artifacts from `.tmp/privacy-scan/`:
+From `.tmp/privacy-scan/`:
 
 - `gitleaks-report.sarif`
 - `gitleaks-git-report.sarif`
 - `semgrep-secrets.json`
 
-If `include_history` is false, ignore history findings from
-`gitleaks-git-report.sarif` in the final classification.
+If `include_history=false`, drop history findings from
+`gitleaks-git-report.sarif` in the classification.
 
-## Step 4: Classify findings
+## 4. Classify
 
-Classify findings into privacy risk categories:
+Categories: **Secrets exposure** (keys/tokens/credentials), **PII exposure**
+(email/phone/session/auth/cookie in logs or persisted data), **Tracking
+governance drift** (analytics outside consent boundaries), **Operational
+privacy gaps** (telemetry/logging exposing sensitive data).
 
-1. **Secrets exposure**: API keys, tokens, credentials, private keys.
-2. **PII exposure**: logs or persisted data containing email, phone, session,
-   authorization, cookie, or other personal identifiers.
-3. **Tracking governance drift**: analytics initialization outside explicit
-   consent boundaries.
-4. **Operational privacy gaps**: telemetry/logging behavior that can expose
-   user or organizational sensitive data.
+Severity: `critical` active credential leak or broad PII; `high` historical
+leak or high-confidence sensitive log; `medium` likely privacy regression;
+`low` hardening recommendation without active evidence.
 
-Severity guidance:
-
-- `critical`: active credential leak or broad PII exposure.
-- `high`: historical credential leak or high-confidence sensitive log pattern.
-- `medium`: likely privacy regression needing code hardening.
-- `low`: hardening recommendation without active evidence.
-
-## Step 5: Produce report
-
-Return a structured report containing:
-
-- Scan timestamp and repository context
-- Toolchain versions used (go/python/uv/semgrep/gitleaks)
-- Findings grouped by severity and category
-- Affected file paths
-- Remediation actions and owner recommendations
-
-Use this report shape:
+## 5. Produce report
 
 ```markdown
 ## Privacy Scan Report
@@ -141,36 +85,18 @@ Use this report shape:
 **Tools**: gitleaks, semgrep, targeted checks
 **Artifacts**: <paths>
 
-### Critical
-- ...
-
-### High
-- ...
-
-### Medium
-- ...
-
-### Low
+### Critical / High / Medium / Low
 - ...
 ```
 
-If `strict=true` and any finding exists, mark status as `fail`.
+If `strict=true` and any finding exists, status is `fail`.
 
-## Step 6: Report to issue (optional)
+## 6. Report to issue (optional)
 
-If `issue_number` is provided, post the final report to the issue:
+If `issue_number` is provided:
+`gh issue comment <issue_number> --body "<report>"`.
 
-```bash
-gh issue comment <issue_number> --body "<privacy-scan-report>"
-```
+## 7. Return
 
-## Step 7: Output
-
-Return:
-
-- `report`
-- `findings`
-- `artifacts`
-
-If no findings exist, explicitly state that the repository passed privacy and
-sensitive-data scanning for both working tree and git history (when enabled).
+`report`, `findings`, `artifacts`. If no findings, explicitly state the repo
+passed scanning for the working tree (and history, when enabled).

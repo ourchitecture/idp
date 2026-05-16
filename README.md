@@ -193,6 +193,10 @@ Agent workflow skills are available in `/.agents/skills/`:
 - `/plan-work issue_number=<N>` to prepare an implementation plan.
 - `/ship-changes issue_number=<N>` to commit, open a PR, and merge.
 - `/audit-work-integrity` to enforce strict branch/PR/issue linkage hygiene.
+- `/autonomous-task` to run a full plan → implement → validate loop inside an
+  isolated git worktree. Supports local-only runs (no GitHub required),
+  parallel sessions on a single machine, and configurable AI model profiles.
+  See [CONTRIBUTING.md](CONTRIBUTING.md#autonomous-task-agents) for usage.
 
 ### Documentation Site
 

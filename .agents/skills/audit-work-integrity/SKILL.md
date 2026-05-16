@@ -1,287 +1,189 @@
 ---
 name: audit-work-integrity
-version: 1.0.0
+version: 1.1.0
 description: >
-  Audits repository work integrity by checking branch, pull request,
-  and issue relationships. Flags orphaned branches, PRs without linked
-  issues, in-progress issues without active PRs, and duplicate active
-  work paths. Uses GitHub MCP tools first and falls back to gh/gh api
-  commands when MCP tools are unavailable.
+  Audits branch/PR/issue relationships. Flags orphan branches, PRs without
+  linked issues, in-progress issues without active PRs, and duplicate active
+  work paths.
 author: "@idp-maintain"
 domain: devops
-tags:
-  - github
-  - workflow
-  - audit
-  - branch-hygiene
-  - pull-request
-  - issues
-  - automation
+tags: [github, workflow, audit, branch-hygiene, pull-request, issues]
 depends_on: []
 inputs:
   - name: base_branch
     type: string
     required: false
     default: main
-    description: Base branch that active PRs should target.
+    description: Base branch active PRs should target.
   - name: remote
     type: string
     required: false
     default: upstream
-    description: Remote used when branch details are fetched via git.
+    description: Remote used when fetching branch details via git.
   - name: strict_branch_pr
     type: boolean
     required: false
     default: true
-    description: >
-      If true, any non-exempt branch without an open PR is an immediate
-      high-severity finding.
+    description: If true, any non-exempt branch without an open PR is high-severity.
   - name: stale_days
     type: number
     required: false
     default: 14
-    description: >
-      Used only when strict_branch_pr is false. Branches newer than this
-      threshold are not flagged as orphaned.
+    description: Used when strict_branch_pr=false; newer branches aren't flagged.
   - name: exempt_branches
     type: array
     required: false
-    description: >
-      Exact branch names to ignore in addition to main/master/base_branch.
+    description: Exact branch names to ignore (beyond main/master/base_branch).
   - name: exempt_branch_prefixes
     type: array
     required: false
-    description: >
-      Branch prefixes to ignore, such as release/ or sandbox/.
+    description: Branch prefixes to ignore (e.g., release/, sandbox/).
   - name: include_closed
     type: boolean
     required: false
     default: false
+    description: Include recently closed PRs/issues for context notes.
+  - name: stale_agent_minutes
+    type: number
+    required: false
+    default: 30
     description: >
-      If true, include recently closed PRs and issues for context in the
-      final report notes.
+      Minutes since last heartbeat update before a worktree's agent session is
+      flagged as potentially hung or silently failed. Set to 0 to skip
+      heartbeat checks.
   - name: issue_number
     type: number
     required: false
-    description: >
-      If provided, post the final audit report as a comment on this
-      issue.
+    description: Optional issue to post the audit report to.
 outputs:
   - name: report
     type: object
-    description: Structured report with summary, findings, and actions.
+    description: Summary, findings, recommended actions.
   - name: overall_status
     type: string
-    description: Overall result category: pass, warn, or fail.
+    description: pass | warn | fail.
   - name: score
     type: number
-    description: Integrity score from 0 to 100.
+    description: Integrity score 0–100.
   - name: findings
     type: array
-    description: Flattened list of findings with severity and remediation.
+    description: Findings with severity and remediation.
 ---
 
 # Audit Work Integrity
 
-Audits branch, pull request, and issue relationships to detect workflow
-integrity gaps before they become drift.
+Strict by default: non-exempt branches without an open PR are flagged
+immediately; open PRs must link an issue; `in-progress` issues must have an
+active linked PR; canonical worktrees must not accumulate stale state.
 
-This skill is strict by default:
+GitHub API access: [../../docs/shared/github-api.md](../../docs/shared/github-api.md).
+Worktree rules: [../../docs/shared/worktree.md](../../docs/shared/worktree.md).
 
-- Any non-exempt branch without an open PR is flagged immediately.
-- Open PRs must link to at least one issue.
-- Open issues labeled `in-progress` must have an active linked PR.
-- Canonical repo-local issue worktrees should not accumulate stale,
-  orphaned, or duplicate state without being reported.
+## 1. Repo context and exemptions
 
-## Step 1: Resolve Repository Context
+Resolve owner/repo. Build exact-match exemptions: `main`, `master`,
+`base_branch`, plus `exempt_branches` input. Prefix exemptions from
+`exempt_branch_prefixes`. No other branch grace period applies when
+`strict_branch_pr=true`.
 
-Determine repository owner/name, base branch, and exemption sets.
+## 1b. Scan autonomous-task worktrees (when `stale_agent_minutes` > 0)
 
-1. Resolve owner and repo from current checkout.
-2. Build an exact-match branch exemption set:
-   - `main`
-   - `master`
-   - `base_branch` input
-   - any `exempt_branches` input values
-3. Build optional prefix exemptions from `exempt_branch_prefixes`.
+For each path under `.agents/worktrees/`:
 
-When `strict_branch_pr` is true, no other branch-level grace period is
-applied.
+1. Check for `.agent-lock` — records the active session ID and start time.
+2. Check for `.agent-heartbeat` — records the last completed step and its
+   timestamp.
+3. Classify:
+   - **Active:** lock exists AND heartbeat is newer than `stale_agent_minutes`.
+   - **Stale / possibly hung:** lock exists AND heartbeat is older than
+     `stale_agent_minutes`. → Medium finding.
+   - **Abandoned:** lock exists but NO heartbeat file, OR lock file is absent
+     but the branch has uncommitted changes and no recent commit. → Medium finding.
+   - **Clean / idle:** no lock file; worktree is either clean or pending
+     developer review (`local_only=true` run). → Low finding only if the
+     worktree branch has no PR and no recent commit within `stale_days`.
 
-## Step 2: Gather Data (MCP-first)
+Report each stale or abandoned worktree with:
+- Path, lock session ID and start time (if available)
+- Last heartbeat step and timestamp (if available)
+- Recommended action: investigate the session, manually release the lock
+  (`rm <path>/.agent-lock`), then re-invoke `autonomous-task` with `skip_to`
+  to resume, or abandon and run `make worktree-cleanup`.
 
-Collect branches, open PRs, open issues, and repo-local issue worktree
-state.
+## 2. Gather data (MCP-first)
 
-Use GitHub MCP tools first:
+MCP: `list_branches`, `list_pull_requests`, `list_issues`. Filter to
+`open`; prefer PRs targeting `base_branch`. Run the canonical worktree
+audit helper if available and merge findings.
 
-- `list_branches` for repository branches
-- `list_pull_requests` for open PRs
-- `list_issues` for open issues
-
-Filter to active work:
-
-- PR state: `open`
-- Issue state: `open`
-- Prefer PRs that target `base_branch`
-- If the repo defines a canonical worktree audit helper, run it and
-  incorporate its findings into the normalized audit context
-
-If `include_closed` is true, also fetch recently closed PRs/issues for
-context notes in the final report.
-
-Fallback commands if MCP is unavailable:
+CLI fallback:
 
 ```bash
 gh api "repos/<owner>/<repo>/branches?per_page=100" --paginate
-gh pr list --state open --base <base_branch> --json number,title,body,headRefName,baseRefName,isDraft,url,createdAt,updatedAt,author
-gh issue list --state open --json number,title,body,labels,url,createdAt,updatedAt,author,assignees
+gh pr list --state open --base <base_branch> \
+  --json number,title,body,headRefName,baseRefName,isDraft,url,createdAt,updatedAt,author
+gh issue list --state open \
+  --json number,title,body,labels,url,createdAt,updatedAt,author,assignees
 ```
 
-Optional closed-context fallback:
+If `include_closed=true`, also fetch recently closed PRs/issues.
+
+## 3. Normalize and link
+
+- **Branch→PR**: exact `headRefName` match.
+- **PR→Issue**: prefer `closingIssuesReferences`; else parse title/body for
+  `(?i)\b(closes|fixes|resolves|refs?)\s+#(\d+)\b`.
+- **Issue→PR**: reverse index.
+- **Branch→Issue hint**: regex `(?:^|[/-])(?:issue-)?(\d+)(?:[/-]|$)`.
+
+## 4. Findings
+
+**High:** orphan branch (non-exempt, no open PR); PR missing issue link;
+`in-progress` issue without active linked PR.
+
+**Medium:** duplicate PRs for one issue; multiple active branches per
+issue; branch name hints an issue but no PR; duplicate worktrees per
+issue; wrong checkout for an active issue; stale or abandoned autonomous
+agent session (lock present, heartbeat older than `stale_agent_minutes`).
+
+**Low:** ambiguous `#N` references in PR body without close/ref verbs;
+closed-context mismatch (only when `include_closed=true`); local worktree
+cleanup drift (clean worktree after remote branch gone, or path on disk
+not registered with `git worktree`).
+
+## 5. Score and status
+
+Start at `100`. Penalties: high `-25` each (max `-75`); medium `-10`
+(max `-30`); low `-3` (max `-15`). Clamp to `[0,100]`.
+
+- `fail` if any high finding.
+- `warn` if no high but any medium/low.
+- `pass` if no findings.
+
+## 6. Build the report
+
+1. **Summary** — counts of branches/PRs/issues/worktrees, findings by
+   severity, score and status.
+2. **Findings** — `id`, severity, entity type/id, evidence, action.
+3. **Recommended actions** — create PRs for orphans; add `Closes #N` /
+   `Refs #N` links; reconcile duplicate PRs; clear stale `in-progress`;
+   use canonical worktree helpers instead of ad hoc deletion.
+
+Example commands:
 
 ```bash
-gh pr list --state closed --base <base_branch> --limit 100 --json number,title,body,headRefName,mergedAt,closedAt,url
-gh issue list --state closed --limit 100 --json number,title,labels,url,closedAt
-```
-
-## Step 3: Normalize and Link Entities
-
-Create consistent maps before evaluating findings.
-
-1. **Branch to PR map**: match on exact `headRefName`.
-2. **PR to Issue map** in priority order:
-   - `closingIssuesReferences` from API payload when available.
-   - Explicit references in PR title/body using patterns like:
-     - `Closes #123`
-     - `Fixes #123`
-     - `Resolves #123`
-     - `Refs #123`
-3. **Issue to PR map**: reverse index of linked PRs.
-4. **Branch to Issue hint map** (heuristic only): parse issue numbers from
-   branch names like `feat/123-...`, `fix/issue-123-...`, or
-   `chore/foo-123`.
-
-Reference regexes:
-
-- Issue refs in text:
-  `(?i)\b(closes|fixes|resolves|refs?)\s+#(\d+)\b`
-- Issue hint in branch name:
-  `(?:^|[/-])(?:issue-)?(\d+)(?:[/-]|$)`
-
-## Step 4: Detect Integrity Findings
-
-Evaluate findings with deterministic rules.
-
-### High severity
-
-1. **Orphan branch**
-   - Condition: branch is non-exempt and has no open PR targeting
-     `base_branch`.
-   - Strict behavior: this is always high when `strict_branch_pr=true`.
-2. **PR missing issue link**
-   - Condition: open PR has zero linked issues.
-3. **In-progress issue without active PR**
-   - Condition: open issue has label `in-progress` and has no linked open
-     PR.
-
-### Medium severity
-
-1. **Duplicate PRs for one issue**
-   - Condition: one issue links to more than one open PR.
-2. **Multiple active branches for one issue**
-   - Condition: one issue appears tied to multiple active branches (via
-     linked PR heads and/or branch name hints).
-3. **Branch hints issue but no PR**
-   - Condition: branch name implies an issue number but branch has no open
-     PR.
-4. **Duplicate issue worktrees**
-   - Condition: more than one canonical worktree appears tied to the same
-     issue.
-5. **Wrong checkout for active issue**
-   - Condition: a canonical issue worktree exists, but active work is
-     still happening from another checkout.
-
-### Low severity
-
-1. **Issue has PR linkage ambiguity**
-   - Condition: PR body has free-form `#N` references without explicit
-     close/ref verbs.
-2. **Closed-context mismatch** (only when `include_closed=true`)
-   - Condition: branch still exists after merged PR where branch deletion
-     policy appears inconsistent. GitHub rulesets prevent deletion of
-     the `main` branch itself; feature branch auto-deletion after merge
-     is configured separately in repository settings.
-3. **Local worktree cleanup drift**
-   - Condition: a clean canonical issue worktree still exists after its
-     remote branch disappeared, or a worktree path exists on disk but is
-     no longer registered with `git worktree`.
-
-## Step 5: Score and Status
-
-Start from `100` and subtract penalties:
-
-- High: `-25` each (max high penalty `75`)
-- Medium: `-10` each (max medium penalty `30`)
-- Low: `-3` each (max low penalty `15`)
-
-Clamp final score to `[0, 100]`.
-
-Set `overall_status`:
-
-- `fail` if any high-severity finding exists
-- `warn` if no high findings but any medium/low findings exist
-- `pass` if no findings exist
-
-## Step 6: Build Actionable Report
-
-Return a structured report that includes:
-
-1. **Summary**
-   - Branch count, PR count, issue count, worktree count
-   - Findings by severity
-   - Final score and status
-2. **Findings**
-   - `id`, severity, entity type, entity id/name, evidence, action
-3. **Recommended actions (ordered)**
-   - Create PRs for orphan branches
-   - Add explicit issue links to PRs using `Closes #N` or `Refs #N`
-   - Reconcile duplicate PRs per issue
-   - Move stale/unowned work out of `in-progress`
-   - Reuse or remove canonical issue worktrees using the repo-local
-     worktree helpers instead of ad hoc deletion
-
-Example remediation commands:
-
-```bash
-gh pr create --base <base_branch> --head <branch> --title "<type>(<scope>): <description>" --body "Closes #<issue_number>"
+gh pr create --base <base_branch> --head <branch> \
+  --title "<type>(<scope>): <description>" --body "Closes #<issue_number>"
 gh pr edit <pr_number> --body-file <updated_body_file>
 gh issue edit <issue_number> --remove-label "in-progress"
 ```
 
-## Step 7: Report to Issue (conditional)
+## 7. Post to issue (optional)
 
-If `issue_number` input is provided, post the markdown report to that
-issue.
+If `issue_number` provided, post via MCP `add_issue_comment` or
+`gh issue comment`.
 
-Use GitHub MCP `add_issue_comment` first.
+## 8. Return
 
-Fallback:
-
-```bash
-gh issue comment <issue_number> --body "<audit_report_markdown>"
-```
-
-## Step 8: Return Outputs
-
-Return:
-
-- `report` object
-- `overall_status`
-- `score`
-- `findings` array
-
-If no findings are present, explicitly state that repository workflow
-integrity is currently clean under strict branch-to-PR policy and the
-canonical issue worktree audit.
+`report`, `overall_status`, `score`, `findings`. If no findings, explicitly
+state that repository workflow integrity is currently clean.

@@ -5,6 +5,9 @@
   "description": "Intent-Driven Portal (IDP)",
   "license": "MIT",
   "packageManager": "pnpm@11.1.2",
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
   "scripts": {
     "oc": "opencode",
     "opencode": "opencode",

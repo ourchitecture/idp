@@ -7,7 +7,7 @@ project:
   description: "Backstage test harness for Stemix IDP plug-in integration."
 
 tasks:
-  # Override moon's inherited install task name while still using npm workspaces.
+  # Override moon's inherited install task; this tool manages its own Yarn workspace.
   node-install-deps:
     command: ["bash", "-c", "true"]
 
@@ -16,10 +16,10 @@ tasks:
     deps: ["install", "build", "check"]
 
   install:
-    command: ["npm", "install"]
+    command: ["bash", "-lc", "yarn install"]
 
   build:
-    command: ["npm", "run", "build:all"]
+    command: ["bash", "-lc", "yarn run build:all"]
     deps: ["install"]
 
   clean:
@@ -29,7 +29,7 @@ tasks:
     command: ["bash", "-c", "echo 'No additional lint configured for backstage-tools'"]
 
   check-test:
-    command: ["npm", "run", "typecheck"]
+    command: ["bash", "-lc", "yarn run typecheck"]
     deps: ["install"]
 
   check-ci:
@@ -47,13 +47,13 @@ tasks:
     deps: ["check-test"]
 
   dev:
-    command: ["npm", "run", "dev"]
+    command: ["bash", "-lc", "yarn run dev"]
     options:
       persistent: true
       runInCI: false
 
   run:
-    command: ["npm", "run", "dev"]
+    command: ["bash", "-lc", "yarn run dev"]
     options:
       persistent: true
       runInCI: false

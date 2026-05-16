@@ -10,25 +10,29 @@
     ]
   },
   "scripts": {
-    "build": "echo 'Backstage build placeholder'",
-    "build:backend": "npm --workspace backend run build",
-    "build:all": "echo 'Backstage build:all placeholder'",
-    "dev": "echo 'Backstage dev placeholder'",
-    "start": "npm --workspace app run start",
-    "start-backend": "npm --workspace backend run start",
-    "typecheck": "echo 'Backstage typecheck placeholder'"
+    "dev": "concurrently \"yarn dev:app\" \"yarn dev:backend\"",
+    "dev:app": "yarn workspace app start",
+    "dev:backend": "yarn workspace backend start",
+    "build": "yarn workspaces foreach -A run build",
+    "build:all": "yarn run build",
+    "start": "yarn workspace app start",
+    "start-backend": "yarn workspace backend start",
+    "typecheck": "yarn workspaces foreach -A run typecheck",
+    "clean": "yarn workspaces foreach -A run clean"
   },
   "devDependencies": {
-    "concurrently": "^8.0.0",
-    "prettier": "^3.3.0",
-    "typescript": "~5.4.0"
+    "@backstage/cli": "^0.29.0",
+    "@backstage/cli-common": "^0.1.14",
+    "concurrently": "^8.2.2",
+    "typescript": "~5.4.5"
   },
   "resolutions": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19"
+    "@types/react": "^18",
+    "@types/react-dom": "^18"
   },
   "prettier": {},
   "engines": {
-    "node": ">=20"
-  }
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@11.1.2"
 }

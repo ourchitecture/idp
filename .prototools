@@ -7,6 +7,7 @@ go = "1.26.0"
 # See https://nodejs.org/en/download
 node = "24.15.0"
 npm = "bundled"
+yarn = "4.5.1"
 # See https://github.com/pnpm/pnpm/releases
 pnpm = "11.1.2"
 # See https://www.python.org/downloads/
