@@ -13,14 +13,13 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["install", "check"]
   install:
-    command: ["npm", "install"]
-  clean:
-    command: ["bash", "-c", "echo 'No build artifacts to clean'"]
+    command: ["bash", "-c", "true"]
+    deps: ["repo:install"]
   check-lint:
-    command: ["npm", "run", "typecheck"]
+    command: ["pnpm", "run", "typecheck"]
     deps: ["install"]
   check-test:
-    command: ["npm", "test"]
+    command: ["pnpm", "test"]
     deps: ["install"]
   check-ci:
     command: ["bash", "-c", "true"]
@@ -34,14 +33,14 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["check-test"]
   run-github:
-    command: ["npm", "run", "start:github"]
+    command: ["pnpm", "run", "start:github"]
     options:
       persistent: true
       runInCI: false
     env:
       OUR_IDP_GITHUB_MOCK_PORT: "8601"
   run-gitlab:
-    command: ["npm", "run", "start:gitlab"]
+    command: ["pnpm", "run", "start:gitlab"]
     options:
       persistent: true
       runInCI: false

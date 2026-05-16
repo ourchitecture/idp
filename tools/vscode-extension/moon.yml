@@ -11,16 +11,17 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["install", "build", "check"]
   install:
-    command: ["npm", "install"]
+    command: ["bash", "-c", "true"]
+    deps: ["repo:install"]
   build:
-    command: ["npm", "run", "build"]
+    command: ["pnpm", "run", "build"]
     deps: ["install"]
   clean:
     command: ["bash", "-c", "rm -rf dist node_modules *.vsix"]
   check-lint:
     command: ["bash", "-c", "echo 'No additional lint configured for vscode-extension'"]
   check-test:
-    command: ["npm", "run", "typecheck"]
+    command: ["pnpm", "run", "typecheck"]
     deps: ["install"]
   check-contract:
     command: ["bash", "-c", "echo 'No contract tests configured for vscode-extension'"]
@@ -36,5 +37,5 @@ tasks:
     command: ["bash", "-c", "true"]
     deps: ["check-test"]
   package:
-    command: ["npm", "run", "package"]
+    command: ["pnpm", "run", "package"]
     deps: ["build"]

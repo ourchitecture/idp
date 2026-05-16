@@ -29,7 +29,7 @@
     "build": "tsc --project tsconfig.json",
     "watch": "tsc --project tsconfig.json --watch",
     "typecheck": "tsc --project tsconfig.json --noEmit",
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "pnpm run build",
     "package": "vsce package"
   },
   "devDependencies": {

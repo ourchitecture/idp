@@ -17,12 +17,12 @@ fi
 
 labels="$(gh issue view "${ISSUE_NUMBER}" --repo "${REPO}" --json labels --jq '.labels[].name' 2>/dev/null || true)"
 
-if ! grep -q '^ready$' <<< "${labels}"; then
+if ! grep --quiet '^ready$' <<< "${labels}"; then
   echo "Issue #${ISSUE_NUMBER} does not have the 'ready' label. Skipping."
   exit 0
 fi
 
-existing="$(gh issue view "${ISSUE_NUMBER}" --repo "${REPO}" --json comments --jq '.comments[].body' 2>/dev/null | grep -c "ready for agent processing" || true)"
+existing="$(gh issue view "${ISSUE_NUMBER}" --repo "${REPO}" --json comments --jq '.comments[].body' 2>/dev/null | grep --count "ready for agent processing" || true)"
 if [[ "${existing}" -gt 0 ]]; then
   echo "Signal comment already posted. Skipping duplicate."
   exit 0

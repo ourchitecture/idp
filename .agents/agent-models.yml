@@ -1,0 +1,58 @@
+# Agent model profiles for autonomous task execution.
+#
+# Select a profile: AGENT_MODEL_PROFILE=thoughtful pnpm oc
+# Override one role: AGENT_PLAN_MODEL=openai/gpt-4o pnpm oc
+#
+# Provider IDs match OpenCode's provider registry (opencode.ai/docs/providers)
+# and Pi's provider config. Any provider supported by either tool can be used.
+#
+# Role keys:
+#   plan       — explores codebase and produces the implementation plan
+#   implement  — writes code, commits, pushes
+#   validate   — reviews final state against acceptance criteria
+#   review     — (review_mode=auto only) approves or rejects a plan
+
+profiles:
+  default:
+    plan:
+      provider: anthropic
+      model: claude-sonnet-4-6
+    implement:
+      provider: anthropic
+      model: claude-sonnet-4-6
+    validate:
+      provider: anthropic
+      model: claude-sonnet-4-6
+    review:
+      provider: anthropic
+      model: claude-sonnet-4-6
+
+  thoughtful:
+    # Stronger reasoning for plan and review; use for complex or risky tasks.
+    plan:
+      provider: anthropic
+      model: claude-opus-4-7
+    implement:
+      provider: anthropic
+      model: claude-sonnet-4-6
+    validate:
+      provider: anthropic
+      model: claude-sonnet-4-6
+    review:
+      provider: anthropic
+      model: claude-opus-4-7
+
+  fast:
+    # Haiku-class throughout; use for cheap iteration on small tasks.
+    plan:
+      provider: anthropic
+      model: claude-haiku-4-5-20251001
+    implement:
+      provider: anthropic
+      model: claude-haiku-4-5-20251001
+    validate:
+      provider: anthropic
+      model: claude-haiku-4-5-20251001
+    review:
+      provider: anthropic
+      model: claude-haiku-4-5-20251001
