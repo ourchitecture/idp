@@ -28,7 +28,7 @@
     "clean": "yarn workspaces foreach -A run clean"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.29.0",
+    "@backstage/cli": "^0.34.6",
     "@backstage/cli-common": "^0.1.14",
     "concurrently": "^8.2.2",
     "tsx": "^4.20.6",
