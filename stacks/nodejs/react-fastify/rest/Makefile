@@ -114,7 +114,7 @@ check-contract:
 		OUR_IDP_MOCK_OAUTH_URL="http://127.0.0.1:$(OUR_IDP_OAUTH_MOCK_PORT)" \
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile,agent-work" \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		uv run python "$(ROOT_DIR)/scripts/ci/run-contract-check.py"; \
 	fi
@@ -130,7 +130,7 @@ e2e:
 		OUR_IDP_BFF_START_CMD='OUR_IDP_API_HOST="$(BFF_TEST_HOST)" OUR_IDP_API_PORT="$(BFF_TEST_PORT)" OUR_IDP_STATUS_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" pnpm run start:bff' \
 		OUR_IDP_WEB_URL="http://$(WEB_TEST_HOST):$(WEB_TEST_PORT)" \
 		OUR_IDP_BFF_URL="http://$(BFF_TEST_HOST):$(BFF_TEST_PORT)" \
-		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile" \
+		OUR_IDP_CONTRACT_PROFILES="core,operational,status-profile,ui-profile,agent-work" \
 		OUR_IDP_ROOT_DIR="$(ROOT_DIR)" \
 		bash "$(ROOT_DIR)/scripts/e2e/run-stack-e2e.sh"; \
 	fi
