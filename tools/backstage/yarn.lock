@@ -8550,9 +8550,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ourchitecture/backstage-plugin-stemix-backend@workspace:*, @ourchitecture/backstage-plugin-stemix-backend@workspace:plugins/backstage-stemix-backend":
+"@ourchitecture-internal/backstage-plugin-stemix-backend@workspace:*, @ourchitecture-internal/backstage-plugin-stemix-backend@workspace:plugins/backstage-stemix-backend":
   version: 0.0.0-use.local
-  resolution: "@ourchitecture/backstage-plugin-stemix-backend@workspace:plugins/backstage-stemix-backend"
+  resolution: "@ourchitecture-internal/backstage-plugin-stemix-backend@workspace:plugins/backstage-stemix-backend"
   dependencies:
     "@backstage/backend-plugin-api": "npm:^1.9.0"
     "@backstage/cli": "npm:^0.29.0"
@@ -8562,9 +8562,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@ourchitecture/backstage-plugin-stemix@workspace:*, @ourchitecture/backstage-plugin-stemix@workspace:plugins/backstage-stemix":
+"@ourchitecture-internal/backstage-plugin-stemix-frontend@workspace:*, @ourchitecture-internal/backstage-plugin-stemix-frontend@workspace:plugins/backstage-stemix":
   version: 0.0.0-use.local
-  resolution: "@ourchitecture/backstage-plugin-stemix@workspace:plugins/backstage-stemix"
+  resolution: "@ourchitecture-internal/backstage-plugin-stemix-frontend@workspace:plugins/backstage-stemix"
   dependencies:
     "@backstage/cli": "npm:^0.29.0"
     "@backstage/core-components": "npm:^0.15.0"
@@ -8575,6 +8575,33 @@ __metadata:
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
     react-router-dom: "npm:^6.26.0"
+    typescript: "npm:~5.4.5"
+  peerDependencies:
+    "@types/react": ^18.0.0
+    react: ^18.0.0
+    react-dom: ^18.0.0
+    react-router-dom: ^6.0.0
+  languageName: unknown
+  linkType: soft
+
+"@ourchitecture/backstage-plugin-stemix@workspace:*, @ourchitecture/backstage-plugin-stemix@workspace:packages/stemix":
+  version: 0.0.0-use.local
+  resolution: "@ourchitecture/backstage-plugin-stemix@workspace:packages/stemix"
+  dependencies:
+    "@backstage/backend-plugin-api": "npm:^1.9.0"
+    "@backstage/cli": "npm:^0.29.0"
+    "@backstage/core-components": "npm:^0.15.0"
+    "@backstage/core-plugin-api": "npm:^1.9.0"
+    "@material-ui/core": "npm:^4.12.4"
+    "@ourchitecture-internal/backstage-plugin-stemix-backend": "workspace:*"
+    "@ourchitecture-internal/backstage-plugin-stemix-frontend": "workspace:*"
+    "@types/react": "npm:^18.3.3"
+    "@types/react-dom": "npm:^18.3.0"
+    express: "npm:^4.18.2"
+    react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
+    react-router-dom: "npm:^6.26.0"
+    tsx: "npm:^4.20.6"
     typescript: "npm:~5.4.5"
   peerDependencies:
     "@types/react": ^18.0.0
@@ -14329,7 +14356,7 @@ __metadata:
     "@backstage/plugin-scaffolder-backend": "npm:^3.0.3"
     "@backstage/plugin-search-backend": "npm:^2.1.1"
     "@backstage/plugin-techdocs-backend": "npm:^2.1.7"
-    "@ourchitecture/backstage-plugin-stemix-backend": "workspace:*"
+    "@ourchitecture/backstage-plugin-stemix": "workspace:*"
     "@types/express": "npm:^4.17.21"
     "@types/luxon": "npm:^3.4.2"
     better-sqlite3: "npm:^12.0.0"
