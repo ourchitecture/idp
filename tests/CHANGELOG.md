@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.7.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.6.0-alpha.0...contract-tests-v1.7.0-alpha.0) (2026-05-16)
+
+
+### Features
+
+* **#370:** next slices — contract tests, goose launcher, impl-validated fixture ([4ed0670](https://github.com/ourchitecture/idp/commit/4ed0670efaee96321eaf02f907ae22579f169b3e))
+
+
+### Bug Fixes
+
+* build and test issues ([d6f43f9](https://github.com/ourchitecture/idp/commit/d6f43f995e75299e1e3ebf2ef631f2472d297acc))
+* cross-platform tests with known chrome issue ([ee3427f](https://github.com/ourchitecture/idp/commit/ee3427fc70a51acabece0fe6853cf3cf1cf195b0))
+
 ## [1.6.0-alpha.0](https://github.com/ourchitecture/idp/compare/contract-tests-v1.5.0-alpha.0...contract-tests-v1.6.0-alpha.0) (2026-04-18)
 
 

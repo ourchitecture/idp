@@ -49,7 +49,7 @@ backend.add(import('@backstage/plugin-permission-backend-module-allow-all-policy
 backend.add(import('@backstage/plugin-proxy-backend'));
 backend.add(import('@backstage/plugin-scaffolder-backend'));
 backend.add(import('@backstage/plugin-search-backend'));
-backend.add(import('@ourchitecture/backstage-plugin-stemix-backend'));
+backend.add(import('@ourchitecture/backstage-plugin-stemix/backend'));
 backend.add(import('@backstage/plugin-techdocs-backend'));
 
 backend.start();
