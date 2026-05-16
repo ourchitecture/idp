@@ -154,7 +154,7 @@ Stacks that expose an MCP server must declare both the profile and the capabilit
 IDP_MCP_URL=http://localhost:8080 \
 OUR_IDP_BFF_URL=http://localhost:8000 \
 IDP_STACK_PATH=tools/mcp \
-npm run test:contract
+pnpm run test:contract
 ```
 
 ## Related

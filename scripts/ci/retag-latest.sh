@@ -33,7 +33,7 @@ for IMAGE in "${IMAGES[@]}"; do
 
   # List all tags, filter stable semver (no pre-release suffix), sort ascending
   HIGHEST=$(crane ls "${FULL}" 2>/dev/null \
-    | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
+    | grep --extended-regexp '^[0-9]+\.[0-9]+\.[0-9]+$' \
     | sort -V \
     | tail -n 1 || true)
 

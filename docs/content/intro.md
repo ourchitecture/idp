@@ -63,11 +63,11 @@ plug-in system are on the roadmap but not yet implemented.
 The fastest path to a running local stack:
 
 ```bash
-# Install Node.js dependencies
-npm install
-
 # (Recommended) Pin and install the full toolchain via proto
 proto install
+
+# Install workspace dependencies and repo-local CLIs
+pnpm install
 
 # Start the default stack (web + BFF)
 make dev
@@ -79,6 +79,12 @@ Run all checks before opening a PR:
 
 ```bash
 make check
+```
+
+Run the repo-local Pi coding agent after `pnpm install`:
+
+```bash
+pnpm run pi -- --help
 ```
 
 ## Project Structure
@@ -95,7 +101,11 @@ tools/      Developer tooling, scripts, and MCP server definitions
 ## Toolchain Baseline
 
 - Managed with `proto` + `.prototools` for reproducible local and CI tooling.
-- Pinned runtimes include Go, Node.js/npm, Python, and `uv`.
+- Pinned runtimes include Go, Node.js, pnpm, Python, and `uv`.
+- `pnpm install` installs workspace dependencies and repository-local developer
+  CLIs such as `opencode` and `pi`; run Pi with `pnpm run pi -- <args>`.
+- `tools/backstage` remains separate as a Yarn 4 workspace while Backstage-specific package
+  manager requirements are handled in a future migration.
 - Python-based security scanning uses `uv tool run` for isolated ephemeral
   environments instead of global pip installs.
 

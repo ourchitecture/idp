@@ -86,11 +86,11 @@ RUN proto install
 ARG SEMGREP_VERSION=1.162.0
 RUN proto run uv -- tool install --force "semgrep==${SEMGREP_VERSION}"
 
-# Copy package files for npm dependencies
-COPY package.json package-lock.json ./
+# Copy package files for pnpm dependencies
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 
-# Install npm dependencies (root workspace dev tools)
-RUN npm ci --ignore-scripts
+# Install pnpm dependencies (root workspace dev tools)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Create non-root user with passwordless sudo
 # Create docker group first (Docker CLI install doesn't create it)

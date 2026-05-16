@@ -8,7 +8,8 @@
     "status-profile",
     "ui-profile",
     "auth-profile",
-    "flow-insights"
+    "flow-insights",
+    "agent-work"
   ],
   "capabilities": {
     "status": {
@@ -27,6 +28,9 @@
       ]
     },
     "flowInsights": {
+      "enabled": true
+    },
+    "agentWork": {
       "enabled": true
     }
   }
