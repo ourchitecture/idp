@@ -1,0 +1,122 @@
+name: Dependabot pnpm Lockfile Sync
+
+# Dependabot's npm ecosystem updates per-package `package.json` files for
+# pnpm workspaces but does not regenerate the root `pnpm-lock.yaml`. This
+# breaks every downstream `pnpm install --frozen-lockfile` in CI.
+#
+# This workflow runs on Dependabot PRs, regenerates the lockfile via
+# `pnpm install --lockfile-only`, and commits it back to the PR branch so
+# the standard PR Validate flow can proceed without manual intervention.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/package.json"
+      - "pnpm-workspace.yaml"
+      - "pnpm-lock.yaml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROTO_VERSION: "0.57.2"
+  SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
+
+jobs:
+  sync-lockfile:
+    name: Sync pnpm-lock.yaml
+    runs-on: ubuntu-latest
+
+    # Only act on Dependabot PRs from this repo (not forks — we cannot push
+    # to fork branches and pull_request from forks does not grant write
+    # permissions to GITHUB_TOKEN anyway).
+    if: >-
+      github.actor == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Restore proto and moon cache
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
+
+      - name: Setup toolchain
+        uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
+        with:
+          proto-version: ${{ env.PROTO_VERSION }}
+          auto-install: true
+
+      - name: Refresh pnpm-lock.yaml
+        run: pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Commit and push if lockfile changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- pnpm-lock.yaml; then
+            echo "pnpm-lock.yaml already in sync — nothing to do."
+            exit 0
+          fi
+
+          echo "pnpm-lock.yaml is out of date; committing refreshed lockfile."
+
+          # Commit as dependabot[bot] so the commit stays inside the
+          # Dependabot author namespace and merges cleanly with any future
+          # rebase Dependabot performs on this branch.
+          git config user.name 'dependabot[bot]'
+          git config user.email '49699333+dependabot[bot]@users.noreply.github.com'
+
+          git add pnpm-lock.yaml
+          git commit -m "chore(deps): sync pnpm-lock.yaml [dependabot skip]"
+          git push
+
+          # Pushes made with GITHUB_TOKEN do not re-trigger pull_request
+          # workflows (a recursion-prevention safety in GitHub Actions). Leave
+          # a comment so the maintainer knows to re-run PR Validate, and
+          # surface a helpful @dependabot recreate hint as a fallback.
+          gh pr comment "$PR_NUMBER" --body "$(cat <<'EOF'
+          🤖 Synced `pnpm-lock.yaml` to match the updated `package.json`.
+
+          GitHub does not auto-trigger required checks after a `GITHUB_TOKEN`
+          push, so please re-run **PR Validate** from the Checks tab — or
+          comment `@dependabot rebase` to have Dependabot re-push the branch
+          (which will re-trigger validation).
+          EOF
+          )"
+
+      - name: Save proto and moon cache
+        if: always()
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        continue-on-error: true
+        with:
+          path: |
+            ~/.proto
+            ~/.cache/proto
+            ~/.cache/moon
+            ~/.moon/cache
+            .moon/cache
+          key: proto-moon-v2-${{ runner.os }}-${{ hashFiles('.prototools') }}
