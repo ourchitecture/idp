@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PROTO_VERSION: "0.57.1"
+  PROTO_VERSION: "0.57.2"
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 3
 
 jobs:

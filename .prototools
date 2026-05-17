@@ -1,5 +1,5 @@
 # See https://github.com/moonrepo/proto/releases
-proto = "0.57.1"
+proto = "0.57.2"
 # See https://github.com/moonrepo/moon/releases
 moon = "2.2.4"
 # See https://go.dev/doc/devel/release
