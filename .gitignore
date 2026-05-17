@@ -27,6 +27,7 @@ target/
 stacks/go/net-http/rest/.bin/
 stacks/nodejs/react-fastify/rest/bff/dist/
 stacks/nodejs/react-fastify/rest/web/dist/
+tools/mcp/dist/
 src/stacks/go/net-http/rest/.bin/
 src/stacks/nodejs/react-fastify/rest/bff/dist/
 src/stacks/nodejs/react-fastify/rest/web/dist/

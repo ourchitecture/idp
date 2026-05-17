@@ -35,7 +35,7 @@ tasks:
     deps: ["install"]
 
   clean:
-    command: ["bash", "-c", "rm -rf dist dist-types node_modules packages/*/dist packages/*/node_modules plugins/*/dist plugins/*/dist-types plugins/*/node_modules"]
+    command: ["bash", "./scripts/clean.sh"]
 
   check-lint:
     command: ["bash", "-lc", "corepack enable && yarn run fix:check"]
