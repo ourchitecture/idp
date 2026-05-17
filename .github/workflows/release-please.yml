@@ -50,7 +50,7 @@ jobs:
       - name: Setup toolchain
         uses: moonrepo/setup-toolchain@261c62cb5b0f580c7be7c8cd0f023a2e96756095 # v0.6.4
         with:
-          proto-version: "0.57.1"
+          proto-version: "0.57.2"
           auto-install: true
 
       - name: Publish packages
