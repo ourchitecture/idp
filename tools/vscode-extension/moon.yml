@@ -17,7 +17,7 @@ tasks:
     command: ["pnpm", "run", "build"]
     deps: ["install"]
   clean:
-    command: ["bash", "-c", "rm -rf dist node_modules *.vsix"]
+    command: ["bash", "./scripts/clean.sh"]
   check-lint:
     command: ["bash", "-c", "echo 'No additional lint configured for vscode-extension'"]
   check-test:
