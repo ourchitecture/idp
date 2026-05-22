@@ -19,7 +19,7 @@
     "test:contract:watch": "tsx watch tests/src/index.ts"
   },
   "devDependencies": {
-    "@earendil-works/pi-coding-agent": "0.74.0",
+    "@earendil-works/pi-coding-agent": "0.75.4",
     "@types/node": "25.6.2",
     "markdownlint-cli2": "0.22.1",
     "opencode-ai": "1.14.48",
