@@ -114,7 +114,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
@@ -178,7 +178,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: stacks/go/net-http/rest
           file: stacks/go/net-http/rest/Dockerfile
@@ -242,7 +242,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/web/Dockerfile
@@ -306,7 +306,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           file: stacks/nodejs/react-fastify/rest/bff/Dockerfile
@@ -368,7 +368,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           file: tests/Dockerfile
@@ -422,7 +422,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: tools/mcp
           file: tools/mcp/Dockerfile
@@ -489,7 +489,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: tools/mock-oauth
           file: tools/mock-oauth/Dockerfile
@@ -553,7 +553,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/ourchitecture/idp
 
       - name: Build image
-        uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           file: .devcontainer/Dockerfile
