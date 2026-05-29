@@ -101,7 +101,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-web
           tags: |
@@ -165,7 +165,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-go-net-http-rest-bff
           tags: |
@@ -229,7 +229,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-web
           tags: |
@@ -293,7 +293,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-nodejs-react-fastify-rest-bff
           tags: |
@@ -356,7 +356,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-contract-tests
           tags: |
@@ -409,7 +409,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-mcp-server
           tags: |
@@ -476,7 +476,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-mock-oauth
           tags: |
@@ -540,7 +540,7 @@ jobs:
 
       - name: Extract metadata (OCI labels)
         id: meta
-        uses: docker/metadata-action@030e881283bb7a6894de51c315a6bfe6a94e05cf # v6.0.0
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         with:
           images: ${{ env.IMAGE_PREFIX }}/stemix-dev-tools
           tags: |
